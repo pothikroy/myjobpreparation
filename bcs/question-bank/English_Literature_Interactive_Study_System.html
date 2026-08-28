@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="../../firebase-config.js"></script>
+  <script>window.AG_PAGE = {"id": "english-literature", "title": "English Literature", "storage": {"type": "keys", "keys": ["els_progress_v1"]}};</script>
+  <script src="../../auth-gate.js"></script>
+  <style>html{visibility:hidden}</style>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Literature — Interactive Study &amp; Revision System</title>
+<style>
+:root{
+  --ink:#1B2A4A;
+  --ink-2:#233457;
+  --paper:#F3ECDA;
+  --paper-2:#EAE0C7;
+  --paper-3:#DFD3B2;
+  --text:#2A2620;
+  --text-dim:#5B5647;
+  --brass:#AD8548;
+  --brass-2:#8E6C36;
+  --crimson:#8B3A3A;
+  --green:#3F6B4F;
+  --blue-soft:#41628A;
+  --shadow: 0 2px 10px rgba(27,42,74,0.10);
+  --radius: 3px;
+  --serif: Georgia, 'Noto Serif Bengali', 'Palatino Linotype', 'Book Antiqua', serif;
+  --sans: 'Segoe UI', 'Noto Sans Bengali', 'Helvetica Neue', Arial, sans-serif;
+  --mono: 'Consolas', 'SF Mono', 'Courier New', monospace;
+}
+[data-theme="dark"]{
+  --ink:#EAE0C7;
+  --ink-2:#F3ECDA;
+  --paper:#141821;
+  --paper-2:#1B212C;
+  --paper-3:#262E3B;
+  --text:#E7E2D3;
+  --text-dim:#A7A18E;
+  --brass:#D3A85C;
+  --brass-2:#E9C077;
+  --crimson:#D97A7A;
+  --green:#7FBE97;
+  --blue-soft:#8FB2DD;
+  --shadow: 0 2px 14px rgba(0,0,0,0.45);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--paper);
+  color:var(--text);
+  font-family:var(--sans);
+  line-height:1.55;
+  min-height:100vh;
+  transition:background .25s ease,color .25s ease;
+}
+a{color:inherit;}
+button{font-family:inherit;cursor:pointer;}
+.hidden{display:none !important;}
+::selection{background:var(--brass);color:var(--paper);}
+
+/* ---------- Layout shell ---------- */
+#shell{display:flex;min-height:100vh;}
+#sidebar{
+  width:230px;flex-shrink:0;background:var(--ink);color:var(--paper);
+  display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+[data-theme="dark"] #sidebar{background:#0D1016;}
+.brand{
+  padding:22px 18px 14px;border-bottom:1px solid rgba(243,236,218,0.15);
+}
+.brand .quill{font-size:22px;display:block;margin-bottom:6px;color:var(--brass-2);}
+.brand h1{font-family:var(--serif);font-size:17px;margin:0 0 2px;letter-spacing:.3px;line-height:1.25;}
+.brand p{margin:0;font-size:11px;opacity:.65;font-style:italic;}
+nav.mainnav{padding:10px 8px;flex:1;}
+nav.mainnav button{
+  display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  background:none;border:none;color:var(--paper);opacity:.82;
+  padding:9px 10px;border-radius:var(--radius);font-size:13.5px;margin-bottom:2px;
+}
+nav.mainnav button .ic{width:18px;text-align:center;flex-shrink:0;}
+nav.mainnav button:hover{background:rgba(243,236,218,0.08);opacity:1;}
+nav.mainnav button.active{background:rgba(173,133,72,0.28);opacity:1;font-weight:600;box-shadow:inset 3px 0 0 var(--brass-2);}
+nav.mainnav .navgroup-label{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;opacity:.5;padding:14px 10px 4px;}
+.sidebar-foot{padding:12px;border-top:1px solid rgba(243,236,218,0.15);font-size:11px;opacity:.6;}
+
+#main{flex:1;min-width:0;display:flex;flex-direction:column;}
+#topbar{
+  display:flex;align-items:center;gap:12px;padding:12px 22px;
+  background:var(--paper-2);border-bottom:1px solid var(--paper-3);position:sticky;top:0;z-index:20;
+}
+#topbar .searchwrap{flex:1;max-width:420px;position:relative;}
+#topbar input[type=search]{
+  width:100%;padding:8px 12px 8px 30px;border-radius:20px;border:1px solid var(--paper-3);
+  background:var(--paper);color:var(--text);font-size:13px;
+}
+#topbar .searchwrap .sic{position:absolute;left:10px;top:50%;transform:translateY(-50%);opacity:.55;font-size:13px;}
+#topbar .spacer{flex:1;}
+.iconbtn{
+  background:var(--paper);border:1px solid var(--paper-3);border-radius:var(--radius);
+  padding:7px 11px;font-size:13px;color:var(--text);white-space:nowrap;
+}
+.iconbtn:hover{border-color:var(--brass);}
+.iconbtn.primary{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.iconbtn.primary:hover{background:var(--ink-2);}
+#content{padding:24px 26px 60px;max-width:1180px;width:100%;margin:0 auto;}
+
+/* ---------- Typography helpers ---------- */
+h1.pagetitle{font-family:var(--serif);font-size:26px;margin:0 0 4px;}
+.pagesub{color:var(--text-dim);font-size:13.5px;margin:0 0 22px;}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:1.4px;color:var(--brass-2);font-weight:700;margin-bottom:4px;}
+
+/* ---------- Cards / grid ---------- */
+.card{background:var(--paper-2);border:1px solid var(--paper-3);border-radius:var(--radius);padding:16px 18px;}
+.grid{display:grid;gap:14px;}
+.grid.cols-4{grid-template-columns:repeat(4,1fr);}
+.grid.cols-3{grid-template-columns:repeat(3,1fr);}
+.grid.cols-2{grid-template-columns:repeat(2,1fr);}
+@media(max-width:900px){.grid.cols-4{grid-template-columns:repeat(2,1fr);}.grid.cols-3{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.grid.cols-4,.grid.cols-3,.grid.cols-2{grid-template-columns:1fr;}#sidebar{position:fixed;left:-230px;z-index:50;transition:left .2s;}#sidebar.open{left:0;}#menubtn{display:inline-flex !important;}}
+
+.stat{padding:14px 16px;}
+.stat .num{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--ink);}
+[data-theme="dark"] .stat .num{color:var(--ink-2);}
+.stat .lbl{font-size:11.5px;color:var(--text-dim);margin-top:2px;text-transform:uppercase;letter-spacing:.6px;}
+.stat.accent .num{color:var(--brass-2);}
+.stat.warn .num{color:var(--crimson);}
+.stat.good .num{color:var(--green);}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--radius);
+  border:1px solid var(--paper-3);background:var(--paper);color:var(--text);font-size:13px;font-weight:600;
+}
+.btn:hover{border-color:var(--brass);}
+.btn.primary{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.btn.primary:hover{background:var(--ink-2);}
+.btn.ghost{background:transparent;}
+.btn.danger{color:var(--crimson);border-color:var(--crimson);background:transparent;}
+.btn.danger:hover{background:var(--crimson);color:#fff;}
+.btn.sm{padding:5px 10px;font-size:12px;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+
+/* ---------- Topic list ---------- */
+.topic-row{
+  display:flex;align-items:center;gap:14px;padding:13px 16px;background:var(--paper-2);
+  border:1px solid var(--paper-3);border-radius:var(--radius);margin-bottom:8px;cursor:pointer;
+}
+.topic-row:hover{border-color:var(--brass);}
+.topic-row .ttitle{font-weight:700;font-size:14.5px;flex:1;}
+.topic-row .tmeta{font-size:12px;color:var(--text-dim);}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10.5px;font-weight:700;letter-spacing:.3px;}
+.badge.weak{background:rgba(139,58,58,.15);color:var(--crimson);}
+.badge.dev{background:rgba(173,133,72,.18);color:var(--brass-2);}
+.badge.strong{background:rgba(63,107,79,.16);color:var(--green);}
+.badge.mastered{background:rgba(63,107,79,.28);color:var(--green);}
+.bar{height:6px;border-radius:4px;background:var(--paper-3);overflow:hidden;width:90px;flex-shrink:0;}
+.bar > div{height:100%;background:var(--brass);}
+
+/* ---------- Question card ---------- */
+.qcard{background:var(--paper-2);border:1px solid var(--paper-3);border-radius:var(--radius);padding:20px 22px;margin-bottom:16px;}
+.qmeta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px;font-size:11.5px;color:var(--text-dim);}
+.tag{background:var(--paper);border:1px solid var(--paper-3);padding:2px 8px;border-radius:10px;}
+.qtext{font-size:16px;font-family:var(--serif);margin:6px 0 14px;line-height:1.5;white-space:pre-line;}
+.opt{
+  display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--paper-3);
+  border-radius:var(--radius);margin-bottom:8px;background:var(--paper);font-size:14px;
+}
+.opt:hover{border-color:var(--brass);}
+.opt .oletter{font-weight:700;color:var(--brass-2);width:16px;flex-shrink:0;}
+.opt.selected{border-color:var(--blue-soft);background:rgba(65,98,138,.09);}
+.opt.correct{border-color:var(--green);background:rgba(63,107,79,.14);}
+.opt.wrong{border-color:var(--crimson);background:rgba(139,58,58,.13);}
+.opt.disabled{cursor:default;}
+.opt:not(.disabled){cursor:pointer;}
+.expl{background:var(--paper);border-left:3px solid var(--brass);padding:12px 14px;border-radius:0 var(--radius) var(--radius) 0;font-size:13.5px;margin-top:10px;white-space:pre-line;}
+.expl .lbl{font-weight:700;color:var(--brass-2);display:block;margin-bottom:4px;font-size:11px;text-transform:uppercase;letter-spacing:.6px;}
+.sourceline{font-size:11px;color:var(--text-dim);margin-top:10px;font-style:italic;}
+.actionrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+.statuschip{font-size:11px;padding:4px 9px;border-radius:10px;border:1px solid var(--paper-3);cursor:pointer;background:var(--paper);}
+.statuschip.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.notebox{margin-top:12px;}
+.notebox textarea{width:100%;min-height:56px;background:var(--paper);border:1px solid var(--paper-3);border-radius:var(--radius);padding:8px 10px;color:var(--text);font-family:var(--sans);font-size:12.5px;}
+.notebox .nlbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--text-dim);margin-bottom:3px;display:block;}
+
+/* ---------- Misc ---------- */
+.empty{text-align:center;padding:50px 20px;color:var(--text-dim);}
+.empty .big{font-size:34px;margin-bottom:8px;}
+.section-title{font-family:var(--serif);font-size:19px;margin:26px 0 12px;padding-bottom:6px;border-bottom:2px solid var(--paper-3);}
+.section-title:first-child{margin-top:0;}
+.filterbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+.filterbar select, .filterbar input{padding:7px 10px;border-radius:var(--radius);border:1px solid var(--paper-3);background:var(--paper-2);color:var(--text);font-size:12.5px;}
+.pillrow{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+.pill{padding:5px 12px;border-radius:14px;background:var(--paper-2);border:1px solid var(--paper-3);font-size:12px;}
+.pill.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+mark{background:rgba(173,133,72,.4);color:inherit;border-radius:2px;padding:0 2px;}
+.kbd{font-family:var(--mono);font-size:10.5px;background:var(--paper-3);padding:1px 6px;border-radius:3px;}
+.modalbg{position:fixed;inset:0;background:rgba(20,24,33,.55);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;}
+.modal{background:var(--paper);border-radius:6px;max-width:480px;width:100%;padding:24px;box-shadow:var(--shadow);}
+.modal h3{font-family:var(--serif);margin-top:0;}
+.progresswrap{margin:14px 0;}
+.progresswrap .barbg{height:9px;border-radius:6px;background:var(--paper-3);overflow:hidden;}
+.progresswrap .barbg > div{height:100%;background:linear-gradient(90deg,var(--brass),var(--brass-2));}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--ink);color:var(--paper);padding:11px 18px;border-radius:6px;font-size:13px;z-index:200;box-shadow:var(--shadow);}
+#menubtn{display:none;background:none;border:none;font-size:18px;color:var(--text);}
+.small{font-size:12px;color:var(--text-dim);}
+.flex{display:flex;align-items:center;gap:8px;}
+.flex.between{justify-content:space-between;}
+.mapnode{border:1px solid var(--paper-3);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;background:var(--paper-2);}
+.mapnode h4{margin:0 0 6px;font-family:var(--serif);font-size:15px;}
+.mapnode .authors{display:flex;flex-wrap:wrap;gap:6px;}
+.chiplink{background:var(--paper);border:1px solid var(--paper-3);padding:4px 10px;border-radius:12px;font-size:12px;}
+.chiplink:hover{border-color:var(--brass);}
+kbd.shortkey{background:var(--paper-3);border-radius:3px;padding:1px 5px;font-family:var(--mono);font-size:11px;}
+</style>
+</head>
+<body>
+<div id="ag-overlay"></div>
+
+<div id="shell">
+  <aside id="sidebar">
+    <div class="brand">
+      <span class="quill">&#10024;</span>
+      <h1>English Literature</h1>
+      <p>Interactive Study &amp; Revision System</p>
+    </div>
+    <nav class="mainnav" id="mainnav"></nav>
+    <div class="sidebar-foot">Source: English Literature.pdf<br>Progress saved offline in this browser.</div>
+  </aside>
+  <div id="main">
+    <div id="topbar">
+      <button id="menubtn">&#9776;</button>
+      <div class="searchwrap">
+        <span class="sic">&#128269;</span>
+        <input type="search" id="globalsearch" placeholder="Search questions, authors, works, terms...">
+      </div>
+      <div class="spacer"></div>
+      <button class="iconbtn" id="themebtn" title="Toggle theme">&#9788;</button>
+      <button class="iconbtn" id="shortcutbtn" title="Keyboard shortcuts">&#8984;</button>
+    </div>
+    <div id="content"></div>
+  </div>
+</div>
+<div id="modalroot"></div>
+<div id="toastroot"></div>
+
+<script id="questions-data" type="application/json">[{"id": "q1", "chapter": "Chapter 1: Literary Terms", "section": "1.1 Poetry Related", "exam": "46th BCS", "q": "Which is not a poetry form?", "options": [{"id": "a", "text": "Sonnet"}, {"id": "b", "text": "Ballad"}, {"id": "c", "text": "Tale"}, {"id": "d", "text": "Epic"}], "correct": "c", "expl": "Tale মূলত Narrative prose form বা form of Story হিসেবে বিবেচিত। অপরদিকে Sonnet হচ্ছে iambic pentameter-এ রচিত ১৪ লাইনের গীতিকবিতা, Ballad হচ্ছে Narrative বা আখ্যানমূলক কবিতা এবং Epic হচ্ছে Long Narrative Poem।", "page": 208}, {"id": "q2", "chapter": "Chapter 1: Literary Terms", "section": "1.1 Poetry Related", "exam": "37th BCS", "q": "Which of the following is not a poetic tradition?", "options": [{"id": "a", "text": "The Epic"}, {"id": "b", "text": "The Comic"}, {"id": "c", "text": "The Occult"}, {"id": "d", "text": "The Tragic"}], "correct": "c", "expl": "Occult মূলত Religious Tradition (যেমন- Spiritual, Wicca, Satanism) কে বোঝায়। এটি জাদুবিদ্যা বা অতি প্রাকৃত, ঐন্দ্রজালিক বিষয়কে নির্দেশ করে। অপরদিকে Epic-মহাকাব্য, Comic-হাস্যরসাত্মক ও Tragic-বিয়োগাত্মক Poetic Tradition।", "page": 208}, {"id": "q3", "chapter": "Chapter 1: Literary Terms", "section": "1.1 Poetry Related", "exam": "37th BCS", "q": "What is a funny poem of five lines called?", "options": [{"id": "a", "text": "Quartet"}, {"id": "b", "text": "Limerick"}, {"id": "c", "text": "Sixtet"}, {"id": "d", "text": "Haiku"}], "correct": "b", "expl": "Quartet হলো চারজন লোকের একটি সংগীতদল। Limerick-পাঁচ লাইনের একটি হাস্যরসাত্মক কবিতা। Sixtet বলে কোনো শব্দ নেই। শব্দটি হচ্ছে Sextet/Sextette যার অর্থ ৬টি কণ্ঠ/বাদকের সমন্বয়ে রচিত সঙ্গীত। Haiku-তিন লাইনের একটি জাপানি কবিতা, যাতে সতেরোটি অক্ষর থাকে।", "page": 208}, {"id": "q4", "chapter": "Chapter 1: Literary Terms", "section": "1.1 Poetry Related", "exam": "30th BCS", "q": "A song embodying religious and sacred emotions-", "options": [{"id": "a", "text": "Lyric"}, {"id": "b", "text": "Ode"}, {"id": "c", "text": "Hymn"}, {"id": "d", "text": "Ballad"}], "correct": "c", "expl": "Lyric হচ্ছে গীতিকবিতা, অর্থাৎ a short poem of songlike quality। Ode হচ্ছে গাঁথা-কবিতা অর্থাৎ a poem written to a person or thing। যেমন-John Keats রচিত Ode to a Nightingale। Hymn হচ্ছে ঈশ্বর বন্দনা, অর্থাৎ a song of praise or thanksgiving to God or a deity। অন্যদিকে Ballad is a kind of short narrative poem.", "page": 208}, {"id": "q5", "chapter": "Chapter 1: Literary Terms", "section": "1.2 Expression", "exam": "38th, 13th BCS", "q": "The literary term 'euphemism' means-", "options": [{"id": "a", "text": "vague idea"}, {"id": "b", "text": "in offensive expression"}, {"id": "c", "text": "a sonnet"}, {"id": "d", "text": "wise saying"}], "correct": "b", "expl": "সাহিত্য সংক্রান্ত পদ 'euphemism'-এর অর্থ সুভাষণ; খারাপ বা কর্কশ শব্দের পরিবর্তে শ্রুতিমধুর বা কোমল শব্দের ব্যবহার, যেমন- 'মৃত্যু' শব্দের বদলে 'পরলোকগমন'। সুতরাং Euphemism কে বলা যায়- Inoffensive expression, Description of a disagreeable thing by an agreeable name, A mild or indirect word or expression.", "page": 208}, {"id": "q6", "chapter": "Chapter 1: Literary Terms", "section": "1.2 Expression", "exam": "38th BCS", "q": "The word 'Panegyric' means-", "options": [{"id": "a", "text": "Criticism"}, {"id": "b", "text": "Elaborate praise"}, {"id": "c", "text": "Curse"}, {"id": "d", "text": "High sound"}], "correct": "b", "expl": "Panegyric-এর অর্থ elaborate praise বা উচ্চ প্রশংসা। যে বক্তব্য বা উক্তির মাধ্যমে কোনো বিষয় বা ব্যক্তি সম্পর্কে খারাপ বা বাজে কোনো কিছু উপেক্ষা করে কেবল প্রশংসনীয় জিনিসগুলোই বাড়িয়ে বলা হয় তাই Panegyric। যেমন Ben Johnson লিখেছেন To the memory of my beloved the author, Mr. William Shakespeare. এখানে Beloved শব্দটি Panegyric।", "page": 209}, {"id": "q7", "chapter": "Chapter 1: Literary Terms", "section": "1.2 Expression", "exam": "37th BCS", "q": "The comparison of unlike things using the words like on as is known to be-", "options": [{"id": "a", "text": "metaphor"}, {"id": "b", "text": "simile"}, {"id": "c", "text": "alliteration"}, {"id": "d", "text": "personification"}], "correct": "b", "expl": "Metaphor-দুটি ভিন্ন বস্তুর মধ্যে তুলনা, যেখানে as, like উহ্য থাকে। যেমন-She is a moon. Simile-দুটি ভিন্ন বস্তুর মধ্যে তুলনা, যা as, like ইত্যাদি দ্বারা নির্দিষ্ট করে বোঝানো হয়। যেমন-She is like the moon.", "page": 209}, {"id": "q8", "chapter": "Chapter 1: Literary Terms", "section": "1.2 Expression", "exam": "33rd BCS", "q": "If a part of a speech or writing breaks the theme it is called-", "options": [{"id": "a", "text": "pomposity"}, {"id": "b", "text": "digression"}, {"id": "c", "text": "exaggeration"}, {"id": "d", "text": "anti-climax"}], "correct": "b", "expl": "যদি কোনো বক্তব্য বা লেখা মূলভাব থেকে বিচ্যুত হয়ে পড়ে তখন তাকে digression (মূল প্রসঙ্গ থেকে বিচ্যুতি) বলা হয়। অন্যদিকে Pomposity-আড়ম্বর, exaggeration-অতিরঞ্জন, anti climax- Climax পয়েন্ট থেকে হঠাৎ drop down.", "page": 209}, {"id": "q9", "chapter": "Chapter 1: Literary Terms", "section": "1.2 Expression", "exam": "32nd BCS", "q": "The sentence 'Who would have thought Shylock was so unkind' expresses ——.", "options": [{"id": "a", "text": "hyperbole"}, {"id": "b", "text": "interrogation"}, {"id": "c", "text": "command"}, {"id": "d", "text": "wonder"}], "correct": "d", "expl": "উইলিয়াম শেক্সপিয়ারের Tragi-Comedy 'The Merchant of Venice' থেকে উক্ত লাইনটি নেওয়া হয়েছে। যেখানে Shylock এর চরিত্র সম্পর্কে বিস্ময় প্রকাশ করা হয়েছে।", "page": 209}, {"id": "q10", "chapter": "Chapter 1: Literary Terms", "section": "1.2 Expression", "exam": "31st BCS", "q": "A formal composition or speech expressing high praise of somebody-", "options": [{"id": "a", "text": "elegy"}, {"id": "b", "text": "eulogy"}, {"id": "c", "text": "caricature"}, {"id": "d", "text": "exaggeration"}], "correct": "b", "expl": "'Eulogy' অর্থ- উচ্চ প্রশংসা। অপরদিকে Elegy-শোকগাথা এবং Caricature- ব্যঙ্গচিত্র।", "page": 209}, {"id": "q11", "chapter": "Chapter 1: Literary Terms", "section": "1.2 Expression", "exam": "19th BCS", "q": "The word 'Euphemism' means-", "options": [{"id": "a", "text": "Stating one thing like another"}, {"id": "b", "text": "Description of a disagreeable thing by an agreeable name"}, {"id": "c", "text": "Contrast of words is made in the same sentence"}, {"id": "d", "text": "A statement is made emphatic by overstatement."}], "correct": "b", "expl": "Euphemism এর অর্থ সুভাষণ। কোনো খারাপ বা বাজে কোনো কিছু কে মৃদু ও শোভন শব্দে প্রকাশ করাকে Euphemism বলে।", "page": 209}, {"id": "q12", "chapter": "Chapter 1: Literary Terms", "section": "1.3 Drama Related", "exam": "36th, 35th BCS", "q": "The Climax of a plot is what happens-", "options": [{"id": "a", "text": "in the beginning"}, {"id": "b", "text": "at the height"}, {"id": "c", "text": "at the end"}, {"id": "d", "text": "in the confrontation"}], "correct": "b", "expl": "Climax হচ্ছে কোনো নাটক বা গল্পের সর্বোচ্চ অবস্থা বা turning point যেখানে ঘটনার বৃদ্ধি শেষ হয় আর ঘটনার পতন শুরু হয়। তাই বলা চলে Climax happens at the height.", "page": 209}, {"id": "q13", "chapter": "Chapter 1: Literary Terms", "section": "1.3 Drama Related", "exam": "16th BCS", "q": "A fantasy is-", "options": [{"id": "a", "text": "an imaginary story"}, {"id": "b", "text": "a funny film"}, {"id": "c", "text": "a history record"}, {"id": "d", "text": "a real-life event"}], "correct": "a", "expl": "Fantasy-অলীক, অবাস্তব, কাল্পনিক গল্প কে বুঝানো হয়। এটি গল্পের বিশেষ এক ধরন (Genre)।", "page": 210}, {"id": "q14", "chapter": "Chapter 1: Literary Terms", "section": "1.4 Terms and Theories", "exam": "37th BCS", "q": "The repetition of beginning consonant sound is known as-", "options": [{"id": "a", "text": "Personification"}, {"id": "b", "text": "onomatopoeia"}, {"id": "c", "text": "alliteration"}, {"id": "d", "text": "rhyme"}], "correct": "c", "expl": "বাক্যের মধ্যে একই ধ্বনি বা ধ্বনিগুচ্ছের পুনরাবৃত্তির মাধ্যমে যে শ্রুতিমাধুর্য সৃষ্টি করা হয়, তাকে অনুপ্রাস বা Alliteration বলে। যেমন- Fair is Foul and Foul is Fair, Hover through the fog and filthy air। অপরদিকে, কোনো বস্তু বা objects-কে সাহিত্যে মানুষ বা ব্যক্তিরূপ দান করাকে personification বলে। Onomatopoeia হলো অনুকার শব্দ বা কোনোকিছুর শব্দের অনুকরণে শব্দ গঠন। Rhyme হলো শব্দের বা কবিতার চরণের মিল।", "page": 209}, {"id": "q15", "chapter": "Chapter 1: Literary Terms", "section": "1.4 Terms and Theories", "exam": "35th BCS", "q": "Class relations and societal conflict is the key understanding of-", "options": [{"id": "a", "text": "Feminism"}, {"id": "b", "text": "Formalism"}, {"id": "c", "text": "Structuralism"}, {"id": "d", "text": "Marxism"}], "correct": "d", "expl": "সামাজিক, অর্থনৈতিক, রাজনৈতিক, সাংস্কৃতিক সকল ক্ষেত্রে নারীদের সম-অধিকার এবং নারীদের উপর আরোপিত নেতিবাচক বিভিন্ন বিষয় থেকে মুক্ত করার তত্ত্ব বা আন্দোলন হচ্ছে Feminism। Structuralism হচ্ছে 'grammar of literary text' যা literary text এর form, genre, structure ইত্যাদি বিষয় আলোচনা করে। Formalism এমন একটি তত্ত্ব যা literary text এর অন্তর্গত বিচার বিশ্লেষণ, মূল্যায়ন, Grammar, syntax, বাক্যালংকার ইত্যাদি বিষয় নিয়ে আলোচনা করে। আর সমাজে শ্রেণি বিভাজন এবং তাদের সমস্যার উৎস আলোচনা করে Karl Marx প্রদত্ত সমাধানকে বলা হয় Marxism.", "page": 209}, {"id": "q16", "chapter": "Chapter 1: Literary Terms", "section": "1.4 Terms and Theories", "exam": "16th BCS", "q": "A person who writes about his own life writes-", "options": [{"id": "a", "text": "a chronicle"}, {"id": "b", "text": "an autobiography"}, {"id": "c", "text": "a diary"}, {"id": "d", "text": "a biography"}], "correct": "b", "expl": "Autobiography এর অর্থ আত্মজীবনী। কোনো লেখক যখন তার নিজ জীবন সম্পর্কে লিখেন তখন সেটা হবে autobiography। অন্যদিকে কারো জীবনী অন্য কেউ লিখলে তাকে বলা হয় Biography; Diary বলা হয় প্রাত্যাহিক জীবনের ঘটনা বা দিনলিপি; এবং ঐতিহাসিক ঘটনাবলি কোন ব্যাখ্যা বা কারণ না দিয়ে শুধু ঘটনার ক্রমানুসারে উল্লেখ করাকে বলা হয় Chronicle।", "page": 209}, {"id": "q17", "chapter": "Chapter 1: Literary Terms", "section": "1.4 Terms and Theories", "exam": "15th BCS", "q": "Which of the following school of literary writings is connected with a medical theory?", "options": [{"id": "a", "text": "Comedy of Manners"}, {"id": "b", "text": "Theater of the Absurd"}, {"id": "c", "text": "Heroic Tragedy"}, {"id": "d", "text": "Comedy of Humours"}], "correct": "d", "expl": "Ben Jonson প্রচলিত Comedy of Humours এক ধরনের বিশেষ নাট্যরূপ যেখানে মানুষের আচার আচরণের ব্যাপারে আলোকপাত করা হয়। এজন্য এটিকে মধ্যযুগ ও রেনেসাঁ যুগে মেডিক্যাল তত্ত্ব হিসেবেও অনেকে মনে করতেন।", "page": 209}, {"id": "q18", "chapter": "Chapter 2: The Renaissance Period", "section": "2.1 Chapter Introduction", "exam": "46th, 38th BCS", "q": "Which period is known as \"The Golden Age of English Literature\"?", "options": [{"id": "a", "text": "The Victorian Age"}, {"id": "b", "text": "The Elizabethan Age"}, {"id": "c", "text": "The Eighteen century"}, {"id": "d", "text": "The Restoration period"}], "correct": "b", "expl": "ইংরেজি সাহিত্যের রেনেসাঁর সময়ে ১৫৫৮ সালে ইংল্যান্ডের ক্ষমতায় আসেন রানি এলিজাবেথ। এ সময় রানির পৃষ্ঠপোষকতা ও Shakespeare এর মতো মহান সাহিত্যিকদের নাটক, কবিতা এই যুগকে এনে দিয়েছে The Golden Age of English Literature খ্যাতি। এই যুগের ব্যাপ্তি ১৫৫৮ থেকে ১৬০৩ পর্যন্ত।", "page": 210}, {"id": "q19", "chapter": "Chapter 2: The Renaissance Period", "section": "2.1 Chapter Introduction", "exam": "38th BCS", "q": "'Jacobean Period' of English Literature refers to-", "options": [{"id": "a", "text": "1558-1603"}, {"id": "b", "text": "1625-1649"}, {"id": "c", "text": "1603-1625"}, {"id": "d", "text": "1649-1660"}], "correct": "c", "expl": "রেনেসা যুগকে পাঁচটি অংশে ভাগ করা হয়েছে- Preparation for the Renaissance (1500-1558), Elizabethan (1558-1603), Jacobean (1603-1625), Caroline (1625-1649), Commonwealth (1649-1660)।", "page": 210}, {"id": "q20", "chapter": "Chapter 2: The Renaissance Period", "section": "2.1 Chapter Introduction", "exam": "35th BCS", "q": "Which of the following writers belong to the Elizabethan period?", "options": [{"id": "a", "text": "Christopher Marlowe"}, {"id": "b", "text": "Alexander Pope"}, {"id": "c", "text": "John Dryden"}, {"id": "d", "text": "Samuel Beckett"}], "correct": "a", "expl": "Elizabethan যুগের উল্লেখযোগ্য সাহিত্যিক হলেন William Shakespeare, Edmund Spenser, Thomas Kyd, Francis Bacon, Christopher Marlowe, Thomas Nashe প্রমুখ।", "page": 210}, {"id": "q21", "chapter": "Chapter 2: The Renaissance Period", "section": "2.2 John Milton", "exam": "50th BCS", "q": "Which of these works contains a defence of the right of freedom of speech and expression?", "options": [{"id": "a", "text": "Holy Living and Holy Dying"}, {"id": "b", "text": "Areopagitica"}, {"id": "c", "text": "Religio Medici"}, {"id": "d", "text": "A Free Man's Worship"}], "correct": "b", "expl": "Areopagitica রচনাটিতে John Milton সংবাদপত্রের স্বাধীনতা নিয়ে দীর্ঘ বক্তব্য রেখেছেন। তাঁর অন্যান্য রচনার মতোই এখানেও প্রেরণার ভিত্তি হলো শুদ্ধতাবাদী ধর্মীয় ধারণা। তার মূল বক্তব্য ছিল Garden of Eden এ Adam ও Eve এর গল্পের সমান্তরালে মানুষের আচরণের বৈপরীত্য।", "page": 211}, {"id": "q22", "chapter": "Chapter 2: The Renaissance Period", "section": "2.2 John Milton", "exam": "48th BCS (স্বাস্থ্য)", "q": "Who composed 'Paradise Lost'?", "options": [{"id": "a", "text": "John Donne"}, {"id": "b", "text": "John Keats"}, {"id": "c", "text": "John Dryden"}, {"id": "d", "text": "John Milton"}], "correct": "d", "expl": "Paradise Lost একটি বিখ্যাত epic poem (মহাকাব্য) যা John Milton ১৬৬৭ সালে রচনা করেন। এটি ইংরেজি সাহিত্যের সর্বশ্রেষ্ঠ মহাকাব্যগুলোর একটি, যেখানে আদম ও ইভ এর পাপ ও স্বর্গচ্যুতির কাহিনি বর্ণিত হয়েছে। মহাকাব্যটির মূল থিম- 'To Justify the ways of God to man'. John Milton এর উল্লেখযোগ্য সাহিত্যকর্ম হলো- Paradise Lost (Epic Poem), Paradise Regained (Epic Poem), Samson Agonistes (Tragic Drama), Areopagitica (Prose), Lycidas (Elegy), On His Blindness (Sonnet) প্রভৃতি।", "page": 211}, {"id": "q23", "chapter": "Chapter 2: The Renaissance Period", "section": "2.2 John Milton", "exam": "47th BCS", "q": "The tragedy 'Samson Agonistes' was penned by.", "options": [{"id": "a", "text": "Christopher Marlowe"}, {"id": "b", "text": "Henrick Ibsen"}, {"id": "c", "text": "John Milton"}, {"id": "d", "text": "Arthur Miller"}], "correct": "c", "expl": "এটি Milton-এর শেষের দিকে লেখা একটি ট্র্যাজেডি, যা বাইবেলীয় চরিত্র Samson-এর জীবন ও তার দুঃখের ওপর ভিত্তি করে লেখা। নাটকটি দেখায় কিভাবে Samson নিজের শক্তি ও বিশ্বাসের মাধ্যমে কঠিন পরিস্থিতি মোকাবিলা করে। উল্লেখযোগ্য চরিত্র- Samson, Dalila, Manoa, Harapha.", "page": 211}, {"id": "q24", "chapter": "Chapter 2: The Renaissance Period", "section": "2.2 John Milton", "exam": "44th, 14th BCS", "q": "'Paradise Lost' attempted to-", "options": [{"id": "a", "text": "justify the ways of man to God."}, {"id": "b", "text": "show that Satan and God have equal power."}, {"id": "c", "text": "justify the ways of God to man."}, {"id": "d", "text": "explain why both good and evil are necessary."}], "correct": "c", "expl": "মিল্টন তার জীবদ্দশায় দুটি মহাকাব্য (epic) রচনা করেছেন; Paradise Lost এবং Paradise Regained। তার Paradise Lost-এ আদি পুরুষ ও আদি নারীর স্বর্গ থেকে বিতাড়িত হবার কাহিনির মাধ্যমে মানুষের প্রতি ঈশ্বরের ন্যায় বিচার প্রতিপন্ন করেছেন। তাই বলা হয়, এই মহাকাব্যটি মানুষের কাছে ঈশ্বরের বিচারের ব্যাখ্যামূলক আখ্যান। কাব্যে লুসিফারকে দেখানো হয়েছে এমন সত্তা যে স্বর্গের দাসত্বের চেয়ে দোযখের রাজত্ব বেছে নেয়, যা মিল্টন প্রকাশ করেছেন এভাবে- Better to reign in Hell, than serve in Heav'n", "page": 211}, {"id": "q25", "chapter": "Chapter 2: The Renaissance Period", "section": "2.2 John Milton", "exam": "43rd BCS", "q": "\"Better to reign in Hell, than serve in Heav'n.\"- Who wrote this?", "options": [{"id": "a", "text": "Geoffrey Chaucer"}, {"id": "b", "text": "Christopher Marlowe"}, {"id": "c", "text": "John Milton"}, {"id": "d", "text": "P. B. Shelley"}], "correct": "c", "expl": "উক্তিটি John Milton রচিত Paradise Lost মহাকাব্যের।", "page": 211}, {"id": "q26", "chapter": "Chapter 2: The Renaissance Period", "section": "2.2 John Milton", "exam": "38th BCS", "q": "Of the following authors, who wrote an epic?", "options": [{"id": "a", "text": "John Milton"}, {"id": "b", "text": "Jane Mansfield"}, {"id": "c", "text": "William Cowper"}, {"id": "d", "text": "William Shakespeare"}], "correct": "a", "expl": "John Milton।", "page": 211}, {"id": "q27", "chapter": "Chapter 2: The Renaissance Period", "section": "2.3 Christopher Marlowe", "exam": "48th BCS (স্বাস্থ্য)", "q": "Doctor Faustus is ___.", "options": [{"id": "a", "text": "a comedy"}, {"id": "b", "text": "a tragedy"}, {"id": "c", "text": "a historical novel"}, {"id": "d", "text": "an absurd play"}], "correct": "b", "expl": "Doctor Faustus (সম্পূর্ণ নাম The Tragical History of the Life and Death of Doctor Faustus) হলো একটি tragedy, যা ইংরেজ নাট্যকার Christopher Marlowe রচিত। এই নাটকে Faustus একজন জার্মান স্কলার যে শয়তানের সঙ্গে চুক্তি করে অতিপ্রাকৃত ক্ষমতা অর্জনের চেষ্টা করে, এবং শেষ পর্যন্ত নিজের আত্মা হারায়। তার অহংকার ও অতিমাত্রায় জ্ঞানলিপ্সার জন্য তার পতন ঘটে, যা একটি ট্র্যাজেডির মূল বৈশিষ্ট্য। Marlowe এর বিখ্যাত নাটকগুলো- Tamburlaine the Great, The Jew of Malta, Edward II, The Massacre at Paris ইত্যাদি। The Passionate Shepherd to his love তার রচিত বিখ্যাত গীতিকবিতা।", "page": 211}, {"id": "q28", "chapter": "Chapter 2: The Renaissance Period", "section": "2.3 Christopher Marlowe", "exam": "41st BCS", "q": "'Was this the face that launch'd a thousand ships, And burnt the topless towers of Ilium?' Who speaks the famous lines?", "options": [{"id": "a", "text": "Caesar"}, {"id": "b", "text": "Antony"}, {"id": "c", "text": "Faustus"}, {"id": "d", "text": "Romeo"}], "correct": "c", "expl": "ইংরেজি সাহিত্যের ট্র্যাজিক মহানায়ক Christopher Marlowe ইংরেজি সাহিত্যকে দিয়েছেন Doctor Faustus, The Jew of Malta, Tamberline the Great এর মতো নাটক। পার্থিব স্বার্থের জন্য নিজের আত্মাকে লুসিফারের কাছে বিক্রির কাহিনি সে যুগে বেশ প্রচলিত ছিল, এই কাহিনির অবলম্বনে মারলো Doctor Faustus রচনা করেন। তার নাটকের প্রধান চরিত্র Faustus কে দেখিয়েছেন অনেক জ্ঞানী কিন্তু পার্থিব স্বার্থের জন্য Mephistopheles এর মাধ্যমে Lucifer এর কাছে নিজের আত্মাকে বিক্রি করে শেষে অনুশোচনা করতে। নিজের ক্ষমতা ব্যবহার করে ট্রয় নগরী ধ্বংসের প্রধান কারণ সুন্দরী Helen কে হাজির করে বলে- Sweet Helen make me immortal with a kiss। হেলেনের রূপের বর্ণনায় মারলো উল্লেখ করেন- Was this the face that launch'd a thousand ships, And burnt the topless towers of Ilium. এই নাটকের আরো কিছু উল্লেখযোগ্য উক্তির মধ্যে রয়েছে- This is hell, nor am I out of it। O I'll burn my books- ah, Mephistopheles!", "page": 212}, {"id": "q29", "chapter": "Chapter 2: The Renaissance Period", "section": "2.3 Christopher Marlowe", "exam": "40th BCS", "q": "'Sweet Helen' make me immortal with a kiss.' The sentence has been taken from the play-", "options": [{"id": "a", "text": "Remeo and Juliet"}, {"id": "b", "text": "Caesar and Cleopatra"}, {"id": "c", "text": "Doctor Faustus"}, {"id": "d", "text": "Antony and Cleopatra"}], "correct": "c", "expl": "Doctor Faustus.", "page": 212}, {"id": "q30", "chapter": "Chapter 2: The Renaissance Period", "section": "2.4 John Donne", "exam": "47th BCS", "q": "'For God's sake hold your tongue, and let me love.' This line is taken from the poem.", "options": [{"id": "a", "text": "To His Coy Mistress"}, {"id": "b", "text": "The Canonization"}, {"id": "c", "text": "The Definition of Love"}, {"id": "d", "text": "The Sun Rising"}], "correct": "b", "expl": "'For God's sake hold your tongue, and let me love.'-লাইনটি Father of Metaphysical Poets খ্যাত কবি John Donne এর বিখ্যাত কবিতা The Canonization (প্রথম লাইন) থেকে নেওয়া হয়েছে। তার উল্লেখযোগ্য কবিতাসমূহ হলো- The Good Morrow, The Sun Rising, The Flea, For Whom the Bell Tolls, A Valediction: Forbidding Mourning প্রভৃতি। বিখ্যাত উক্তিসমূহ: 'For love, all love of other sights controls, And makes one little room an everywhere.' (The Good Morrow); 'Busy old fool, unruly Sun, Why dost thou thus, Through windows, and through curtains, call on us?' (The Sun Rising); 'So let us melt, and make no noise, no tear-floods, nor sigh-tempests move.' (A Valediction: Forbidding Mourning)", "page": 212}, {"id": "q31", "chapter": "Chapter 2: The Renaissance Period", "section": "2.4 John Donne", "exam": "42nd BCS", "q": "\"For God's sake, hold your tongue and let me love\" occurs in a novel by:", "options": [{"id": "a", "text": "Jane Austen"}, {"id": "b", "text": "Syed Waliullah"}, {"id": "c", "text": "Somerset Maugham"}, {"id": "d", "text": "Rabindranath Tagore"}], "correct": "d", "expl": "John Donne এর কবিতা The Canonization। এই কবিতা দুইই করেছেন এই আখ্যান জানিয়ে- For God's sake, hold your tongue and let me love। এই লাইনটি রবীন্দ্রনাথ তার শেষের কবিতায় ব্যবহার করেছেন এভাবে-দোহাই তোমাদের, একটুক চুপ কর। ভালোবাসিবারে দে আমারে অবসর।", "page": 212}, {"id": "q32", "chapter": "Chapter 2: The Renaissance Period", "section": "2.4 John Donne", "exam": "40th BCS", "q": "Who worte the poem 'The Good-Morrow'?", "options": [{"id": "a", "text": "George Herbert"}, {"id": "b", "text": "Andrew Marvell"}, {"id": "c", "text": "John Donne"}, {"id": "d", "text": "Henry Vaughan"}], "correct": "c", "expl": "John Donne.", "page": 212}, {"id": "q33", "chapter": "Chapter 2: The Renaissance Period", "section": "2.4 John Donne", "exam": "38th BCS", "q": "'For God's sake hold your tongue, and let me love.' This line is written by-", "options": [{"id": "a", "text": "Emily Dickinson"}, {"id": "b", "text": "T.S. Eliot"}, {"id": "c", "text": "Mathew Arnold"}, {"id": "d", "text": "John Donne"}], "correct": "d", "expl": "John Donne.", "page": 212}, {"id": "q34", "chapter": "Chapter 2: The Renaissance Period", "section": "2.5 Other Prominent Authors", "exam": "49th BCS (শিক্ষা)", "q": "The play 'Englishmen for My Money' was written by-", "options": [{"id": "a", "text": "Christopher Marlowe"}, {"id": "b", "text": "Thomas Kyd"}, {"id": "c", "text": "William Haughton"}, {"id": "d", "text": "Ben Johnson"}], "correct": "c", "expl": "'Englishmen for My Money' কমেডি নাটকটি লিখেছেন William Haughton. এই নাটকটির পুরো নাম হলো 'Englishmen for My Money, or A Woman Will Have Her Will'-নাটকটি মূলত লন্ডনের ব্যবসায়ী সমাজ ও তাদের পরিবারকে কেন্দ্র করে আবর্তিত। 'Englishmen for My Money' নাটকটির প্রধান চরিত্রগুলো হলো: Pisaro, Laurentia, Marina, Mathea, Harvey, Heigham, Walgrave etc.", "page": 212}, {"id": "q35", "chapter": "Chapter 2: The Renaissance Period", "section": "2.5 Other Prominent Authors", "exam": "45th BCS", "q": "The poem \"To his Coy Mistress\" Was written by:", "options": [{"id": "a", "text": "Andrew Marvell"}, {"id": "b", "text": "John Donne"}, {"id": "c", "text": "George Herbert"}, {"id": "d", "text": "Henry Vaughan"}], "correct": "a", "expl": "Metaphysical Poet এবং ব্যঙ্গ সাহিত্যের জন্য প্রসিদ্ধ Andrew Marvell এর সাহিত্যে মিল্টনের প্রভাব লক্ষণীয়। তার To His Coy Mistress কবিতাটি প্রেমিকার প্রতি আহ্বানমূলক কবিতা। এছাড়াও তার আরো কিছু কবিতার মধ্যে রয়েছে- The Definition of Love, The Garden, The Mower's Song, Bermudas.", "page": 213}, {"id": "q36", "chapter": "Chapter 2: The Renaissance Period", "section": "2.5 Other Prominent Authors", "exam": "44th BCS", "q": "Francis Bacon is an Illustrious-", "options": [{"id": "a", "text": "essayist"}, {"id": "b", "text": "dramatist"}, {"id": "c", "text": "novelist"}, {"id": "d", "text": "journalist"}], "correct": "a", "expl": "Francis Bacon ছিলেন Elizabethan যুগের রাজনীতিবিদ, দার্শনিক ও সরকারি আইনজীবী। সাহিত্য রচনার ক্ষেত্রে Essay বা প্রবন্ধ রচনা করে খ্যাতি অর্জন করেন। তাঁকে 'Father of English Essay' বলা হয়। তাঁর অধিকাংশ প্রবন্ধের শুরুতে 'of' শব্দটি আছে। Of Truth, Of Death, Of Marriage and Single life ইত্যাদি তাঁর কিছু বিখ্যাত Essay.", "page": 212}, {"id": "q37", "chapter": "Chapter 2: The Renaissance Period", "section": "2.5 Other Prominent Authors", "exam": "38th BCS", "q": "The play 'The Spanish Tragedy' is written by-", "options": [{"id": "a", "text": "Thomas Kyd"}, {"id": "b", "text": "Christopher Marlowe"}, {"id": "c", "text": "Shakespeare"}, {"id": "d", "text": "Ben Jonson"}], "correct": "a", "expl": "University Wits খ্যাত Thomas Kyd তার The Spanish Tragedy নাটকের মাধ্যমে সাহিত্যে Revenge Tragedy ধারার সূচনা করেন। বলা হয়ে থাকে তার এই নাটক থেকে অনুপ্রাণিত হয়েই Shakespeare তার বিখ্যাত ট্র্যাজেডি Hamlet রচনা করেন। এই নাটকের উল্লেখযোগ্য চরিত্রের মধ্যে রয়েছে- Horatio, Hieronimo, Don Andrea, Lorenzo, Balthazaar.", "page": 212}, {"id": "q38", "chapter": "Chapter 2: The Renaissance Period", "section": "2.5 Other Prominent Authors", "exam": "37th BCS", "q": "Who has written the play 'Volpone'?", "options": [{"id": "a", "text": "John Webster"}, {"id": "b", "text": "Ben Jonson"}, {"id": "c", "text": "Christopher Marlowe"}, {"id": "d", "text": "William Shakespeare"}], "correct": "b", "expl": "Ben Jonson তার ব্যঙ্গ রসাত্মক নাটকের জন্য ইংরেজি সাহিত্যে বিখ্যাত হয়ে আছেন। তাকে কমেডি নাটকের জনকও বলা হয়। 'Volpone' তার বিখ্যাত কমেডি নাটক। তিনি আরো যেসব নাটক লিখেছেন তার মধ্যে The Alchemist, Every man in His Humour, Every man Out of His Humour, A Tale of Tub অন্যতম।", "page": 212}, {"id": "q39", "chapter": "Chapter 2: The Renaissance Period", "section": "2.5 Other Prominent Authors", "exam": "36th BCS", "q": "'Man is a political animal'-who said this?", "options": [{"id": "a", "text": "Dante"}, {"id": "b", "text": "Plato"}, {"id": "c", "text": "Aristotle"}, {"id": "d", "text": "Socrates"}], "correct": "c", "expl": "মানব সমাজের অবিচ্ছেদ্য অংশ রাজনীতি, যার দর্শন সূচনা হয় Aristotle এর 'Politics' গ্রন্থের মাধ্যমে। এই গ্রন্থে মানুষের সাথে রাজনীতির গভীর সম্পর্ক বোঝাতে উল্লেখ করেন- Man is a political animal.", "page": 212}, {"id": "q40", "chapter": "Chapter 3: The Neoclassical Period", "section": "3.1 Chapter Introduction", "exam": "37th BCS", "q": "'Restoration period' in English literature refers to-", "options": [{"id": "a", "text": "1560"}, {"id": "b", "text": "1660"}, {"id": "c", "text": "1760"}, {"id": "d", "text": "1866"}], "correct": "b", "expl": "রেনেসা যুগকে Neo Classical যুগকে ৩টি অংশে ভাগ করা হয়েছে- Restoration (1660-1700), Augustan Period (1700-1745), Age of Sensibility (1745-1798).", "page": 213}, {"id": "q41", "chapter": "Chapter 3: The Neoclassical Period", "section": "3.1 Chapter Introduction", "exam": "15th BCS", "q": "The 'Poet Laureate' is-", "options": [{"id": "a", "text": "the best poet of the country"}, {"id": "b", "text": "a winner of the Noble Prize in poetry"}, {"id": "c", "text": "the Court Poet England"}, {"id": "d", "text": "a classical poet"}], "correct": "c", "expl": "১৬৬৮ সালে রাজা Charles II কর্তৃক John Dryden কে ইংল্যান্ডের Poet Laureate হিসেবে নিয়োগ দেয়া হয় যা ছিল মূলত সভাকবির পদ। পরবর্তীতে সভাকবিদের মৃত্যুর পর পুনরায় একজনকে নিয়োগ করা হতো সেই পদে।", "page": 213}, {"id": "q42", "chapter": "Chapter 3: The Neoclassical Period", "section": "3.2 Alexander Pope", "exam": "44th BCS", "q": "Alexander Pope's 'Essay on Man' is a-", "options": [{"id": "a", "text": "novel"}, {"id": "b", "text": "treatise"}, {"id": "c", "text": "short story"}, {"id": "d", "text": "poem"}], "correct": "d", "expl": "Mock-Heroic Poet খ্যাত Alexander Pope এর Essay on Man এর নামে 'Essay' থাকলেও এটি মূলত একটি Poem। এটি ছাড়াও তার আরো উল্লেখযোগ্য কবিতার মধ্যে রয়েছে- The Rape of the Lock, The Dunciad, An Essay on Criticism ইত্যাদি। তার উল্লেখযোগ্য উক্তির মধ্যে রয়েছে- To err is human; to forgive is divine. Charms strike the sight, but merit wins the soul. A little learning is a dangerous thing. Fools rush in where angels fear to tread.", "page": 213}, {"id": "q43", "chapter": "Chapter 3: The Neoclassical Period", "section": "3.2 Alexander Pope", "exam": "40th BCS", "q": "'The Rape of the Lock' by Alexander Pope is a/an-", "options": [{"id": "a", "text": "epic"}, {"id": "b", "text": "ballad"}, {"id": "c", "text": "mock-heroic poem"}, {"id": "d", "text": "elegy"}], "correct": "c", "expl": "mock-heroic poem.", "page": 213}, {"id": "q44", "chapter": "Chapter 3: The Neoclassical Period", "section": "3.2 Alexander Pope", "exam": "16th BCS", "q": "Which of the following is a correct proverb?", "options": [{"id": "a", "text": "Fools rush in where angels fear to tread."}, {"id": "b", "text": "Fools rush in where an angel fears to tread."}, {"id": "c", "text": "A fools rushes in where an angle fears to tread"}, {"id": "d", "text": "Fools rush in where the angels fear to tread."}], "correct": "a", "expl": "Fools rush in where angels fear to tread.", "page": 213}, {"id": "q45", "chapter": "Chapter 3: The Neoclassical Period", "section": "3.3 Samuel Johnson", "exam": "46th BCS", "q": "Who of the following compiled an English Dictionary?", "options": [{"id": "a", "text": "Samuel Johnson"}, {"id": "b", "text": "T.S. Eliot"}, {"id": "c", "text": "John Dryden"}, {"id": "d", "text": "William Congreve"}], "correct": "a", "expl": "Samuel Johnson ১৭৫৫ সালে 'A Dictionary of the English Language' প্রকাশ করেন। এজন্য তাকে 'First Lexicographer in English' বলা হয়।", "page": 213}, {"id": "q46", "chapter": "Chapter 3: The Neoclassical Period", "section": "3.3 Samuel Johnson", "exam": "28th, 15th BCS", "q": "Who did write first English dictionary?", "options": [{"id": "a", "text": "Boswell"}, {"id": "b", "text": "Ben Jonson"}, {"id": "c", "text": "Samuel Johnson"}, {"id": "d", "text": "Milton"}], "correct": "c", "expl": "Samuel Johnson.", "page": 213}, {"id": "q47", "chapter": "Chapter 3: The Neoclassical Period", "section": "3.4 Henry Fielding", "exam": "44th BCS", "q": "Who wrote the picaresque novel titled 'Tom Jones'?", "options": [{"id": "a", "text": "Samuel Richardson"}, {"id": "b", "text": "Horace Walpole"}, {"id": "c", "text": "Henry Fielding"}, {"id": "d", "text": "Laurence Sterne"}], "correct": "c", "expl": "ইংরেজি সাহিত্যে উপন্যাসের জনক Henry Fielding রচিত অন্যতম উপন্যাস Tom Jones। এটি ১৭৪৯ সালে প্রকাশিত হয়। একে Picaresque Novel বলা হয়, কারণ এ ধরনের উপন্যাসে সমাজের নিচু শ্রেণি থেকে উঠে আসা নায়কের বর্ণনা দেওয়া হয় যে তার বুদ্ধিমত্তা দিয়ে সমাজে টিকে থাকে। উপন্যাসটির উল্লেখযোগ্য চরিত্র-Tom Jones, Sophia, Bridget।", "page": 214}, {"id": "q48", "chapter": "Chapter 3: The Neoclassical Period", "section": "3.4 Henry Fielding", "exam": "13th BCS", "q": "'Tom Jones' by Henry Fielding was first published in-", "options": [{"id": "a", "text": "the 1st half of 19th century"}, {"id": "b", "text": "the 2nd half of 18th century"}, {"id": "c", "text": "the 1st half of 18th century"}, {"id": "d", "text": "the 2nd half of 19th century"}], "correct": "c", "expl": "the 1st half of 18th century.", "page": 214}, {"id": "q49", "chapter": "Chapter 3: The Neoclassical Period", "section": "3.5 Jonathan Swift", "exam": "50th BCS", "q": "In Gulliver's Travels, which of these traits Swift does not show in his depiction of the land of the Lilliput?", "options": [{"id": "a", "text": "pride"}, {"id": "b", "text": "lies"}, {"id": "c", "text": "peace & wisdom"}, {"id": "d", "text": "silly rules"}], "correct": "c", "expl": "Jonathan Swift তার Gulliver's Travels গ্রন্থের প্রথম যাত্রায় Gulliver লিলিপুটদের দ্বীপে পৌঁছায় এবং ৬ ইঞ্চি উচ্চতা বিশিষ্ট লিলিপুটদের দ্বারা বন্দী হয়। পরবর্তীতে Gulliver সেখান থেকে পালিয়ে ইংল্যান্ডে ফিরতে সমর্থ হয়। এখানে সুইফট লিলিপুটদের মিথ্যা গর্ব, অযথা রীতি প্রভৃতি বিষয়গুলোকে তুলে ধরেছেন। তার এই গ্রন্থের লিলিপুটদের রাজ্যে শান্তি ও প্রজ্ঞার অনুপস্থিতির মাধ্যমে সমাজ ব্যবহার প্রহসন করেছেন।", "page": 214}, {"id": "q50", "chapter": "Chapter 3: The Neoclassical Period", "section": "3.5 Jonathan Swift", "exam": "49th BCS (শিক্ষা)", "q": "\"___ I cannot but conclude the Bulk of your Natives, to be the most pernicious race of little odious vermin that Nature ever suffered to crawl upon the surface of the Earth\"-the statement occurs in-", "options": [{"id": "a", "text": "Robinson Crusoe"}, {"id": "b", "text": "A Doll's House"}, {"id": "c", "text": "Vanity Fair"}, {"id": "d", "text": "Gulliver's Travels"}], "correct": "d", "expl": "উক্তিটি Jonathan Swift এর Gulliver's Travels থেকে নেওয়া হয়েছে। 'Gulliver's Travels' এর দ্বিতীয় অংশে, King of Brobdingnag গালিভারের কথাগুলো শুনে বলেছিলেন যে 'ইউরোপীয় মানুষ হলো ক্ষুদ্র, ঘৃণ্য এবং সবচেয়ে ক্ষতিকর কীট।' এই উক্তির মাধ্যমে Jonathan Swift ইউরোপীয় সমাজের অহংকার, দুর্নীতি ও মানুষের খারাপ স্বভাবকে তীব্রভাবে সমালোচনা করেছেন। তিনি পাঠককে হাস্যরসের মাধ্যমে মানুষের দুর্বল দিকগুলো চিন্তা করতে বলেন। Jonathan Swift এর কয়েকটি বিখ্যাত উক্তি: \"Satire is a sort of glass, wherein beholders do generally discover everybody's face but their own.\" — The Battle of the Books; \"When a true genius appears in the world, you may know him by this sign, that the dunces are all in confederacy against him.\" —Thoughts on Various Subjects; \"We have just enough religion to make us hate, but not enough to make us love one another.\" A Tale of a Tub (1704); \"A wise person should have money in their head, but not in their heart.\"-A Modest Proposal (1729); 'Reason did not direct us to love one another, but to avoid hurting one another'- Gulliver's Travels.", "page": 214}, {"id": "q51", "chapter": "Chapter 3: The Neoclassical Period", "section": "3.5 Jonathan Swift", "exam": "46th, 38th, 12th BCS", "q": "Who is the most famous satirist in English literature?", "options": [{"id": "a", "text": "Alexander Pope"}, {"id": "b", "text": "Jonathan Swift"}, {"id": "c", "text": "John Dryden"}, {"id": "d", "text": "William Wordsworth"}], "correct": "b", "expl": "ব্যঙ্গাত্মক সাহিত্যকে Neoclassical যুগে প্রসিদ্ধ করার জন্য শ্রেষ্ঠ Satirist হিসেবে বিখ্যাত হয়ে আছেন Jonathan Swift. তার বিখ্যাত কিছু স্যাটায়ার এর মধ্যে রয়েছে- Gulliver's Travels, A Tale of a Tub (play), A Modest Proposal, The Battle of the Books.", "page": 214}, {"id": "q52", "chapter": "Chapter 3: The Neoclassical Period", "section": "3.6 Other Prominent Authors", "exam": "49th BCS (শিক্ষা)", "q": "Who wrote 'A Vindication of the Rights of Women'?", "options": [{"id": "a", "text": "Claire Clairmont"}, {"id": "b", "text": "Marry Wollstonecraft"}, {"id": "c", "text": "Mary Wollstonecraft Godwin"}, {"id": "d", "text": "Mary Shelley"}], "correct": "b", "expl": "'A Vindication of the Rights of Woman' (1792) একটি অগ্রণী নারীবাদী গ্রন্থ, যেখানে Marry Wollstonecraft নারীদের শিক্ষার সমান অধিকারের পক্ষে যুক্তি দেন। তিনি বলেন, সমাজে নারীদের কেবল সৌন্দর্য বা আবেগের প্রতীক হিসেবে দেখা উচিত নয়- বরং তাদের বুদ্ধি ও যুক্তিবাদিতা বিকাশের সুযোগ দিতে হবে। তার উল্লেখযোগ্য সাহিত্যকর্মের মধ্যে Mary (Novel), Maria (Novel), A Vindication of the Rights of Man (Prose), Thoughts on the Education of Daughters (Prose) অন্যতম। Mary Wollstonecraft Godwin ছিলেন তার কন্যা, যিনি পরবর্তীতে হন Mary Shelley নামে (the author of Frankenstein)।", "page": 215}, {"id": "q53", "chapter": "Chapter 3: The Neoclassical Period", "section": "3.6 Other Prominent Authors", "exam": "44th BCS", "q": "'All for Love' is a drama written by-", "options": [{"id": "a", "text": "John Dryden"}, {"id": "b", "text": "William Congreve"}, {"id": "c", "text": "John Bunyan"}, {"id": "d", "text": "Francis Bacon"}], "correct": "a", "expl": "Father of Modern English Criticism নামে বিখ্যাত ইংরেজ সাহিত্যিক John Dryden এর লিখিত Heroic Tragedy হলো All for Love. তার উল্লেখযোগ্য সাহিত্যকর্ম- Absalom and Achitophel (Poem), The Indian Emperor (Drama), Aureng-Zebe (Drama), The Conquest of Granada (Drama) ইত্যাদি।", "page": 215}, {"id": "q54", "chapter": "Chapter 3: The Neoclassical Period", "section": "3.6 Other Prominent Authors", "exam": "43rd, 15th BCS", "q": "___ was both a poet and a painter.", "options": [{"id": "a", "text": "John Keats"}, {"id": "b", "text": "Spenser"}, {"id": "c", "text": "William Blake"}, {"id": "d", "text": "John Donne"}], "correct": "c", "expl": "William Blake ছিলেন একজন বহুপ্রতিভাবান শিল্পী। 'Songs of Innocence, Songs of Experience, Marriage of Heaven and Hell' এর মত উৎকৃষ্ট কাব্য লেখার পাশাপাশি তিনি The Ancient of Days, Newton, The Ghost of a Flea এর মতো চিত্রকর্ম ও খোদাইশিল্পেও দক্ষতা দেখিয়েছেন।", "page": 215}, {"id": "q55", "chapter": "Chapter 3: The Neoclassical Period", "section": "3.6 Other Prominent Authors", "exam": "43rd BCS", "q": "Who wrote the play 'The Way of the World'?", "options": [{"id": "a", "text": "William Shakespeare"}, {"id": "b", "text": "William Congreve"}, {"id": "c", "text": "Ben Jonson"}, {"id": "d", "text": "Oscar Wilde"}], "correct": "b", "expl": "William Congreve খ্যাতিমান ছিলেন Comedy of Manners ধারার নাটক লেখার জন্য। আর এই ধারার নাটকগুলোর মধ্যে সবচেয়ে প্রসিদ্ধ 'The Way of the World' নাটকটি। তাঁর অন্যান্য বিখ্যাত নাটকসমূহ হলো- The Double Dealer, The Old Bachelor, Love for love ইত্যাদি।", "page": 215}, {"id": "q56", "chapter": "Chapter 3: The Neoclassical Period", "section": "3.6 Other Prominent Authors", "exam": "37th, 36th BCS", "q": "Who has written the poem \"Elegy Written in a Country Churchyard\"?", "options": [{"id": "a", "text": "Thomas Gray"}, {"id": "b", "text": "P. B. Shelley"}, {"id": "c", "text": "Robert Frost"}, {"id": "d", "text": "Y.B. Yeats"}], "correct": "a", "expl": "ইংরেজি সাহিত্যে Thomas Gray বিখ্যাত তার Elegy'র জন্য। তার বিখ্যাত কবিতাগুলো হলো 'Elegy Written in a Country Churchyard', 'Ode on the Death of a Favourite Cat' 'Ode on the Spring' ইত্যাদি।", "page": 215}, {"id": "q57", "chapter": "Chapter 4: William Shakespeare", "section": "4.1 Chapter Introduction", "exam": "50th BCS", "q": "'Let me not to the marriage of true minds/Admit impediments, love is not love/Which alters when it alteration finds'. Lines taken from a sonnet by_____.", "options": [{"id": "a", "text": "Spencer"}, {"id": "b", "text": "Petrarch"}, {"id": "c", "text": "Shakespeare"}, {"id": "d", "text": "Donne"}], "correct": "c", "expl": "উল্লিখিত লাইনগুলো Shakespeare এর Sonnet 116 এর প্রথম তিনটি চরণ। এই সনেটে Shakespeare সত্যিকারের ভালোবাসার স্থায়িত্ব ও অটল স্বভাবের কথা বলেছেন-যে ভালোবাসা কোনো পরিবর্তন বা বাধার কারণে বদলায় না।", "page": 216}, {"id": "q58", "chapter": "Chapter 4: William Shakespeare", "section": "4.1 Chapter Introduction", "exam": "40th BCS", "q": "William Shakespeare was born in-", "options": [{"id": "a", "text": "1616"}, {"id": "b", "text": "1664"}, {"id": "c", "text": "1564"}, {"id": "d", "text": "1493"}], "correct": "c", "expl": "William Shakespeare (1564-1616) কে বলা হয় ইংরেজি সাহিত্যের শ্রেষ্ঠ নাট্যকার। নাট্যরচনায় তার অসাধারণ প্রতিভার জন্য তাকে বলা হয়- The Greatest Dramatist, The Greatest Superstar of the World, The Swan of Avon, Bard of Avon, The Dazzling Sun (এই উপাধিটি দিয়েছেন John Donne)। তার রচিত নাটক সংখ্যা ৩৭টি।", "page": 216}, {"id": "q59", "chapter": "Chapter 4: William Shakespeare", "section": "4.1 Chapter Introduction", "exam": "37th BCS", "q": "Shakespeare composed much of his plays in what sort of verse?", "options": [{"id": "a", "text": "Alliterative verse"}, {"id": "b", "text": "Sonnet form"}, {"id": "c", "text": "Iambic pentameter"}, {"id": "d", "text": "Daetylic Haxameter"}], "correct": "c", "expl": "Shakespeare তার নাটকে Prose এবং Verse দুটি form-ই ব্যবহার করেছেন। তবে verse-এর ক্ষেত্রে সবচেয়ে বেশি ব্যবহার করেছেন blank verse, যার কোনো rhyme (অন্ত্যমিল) নেই আর নাটকে ব্যবহার করেছেন iambic pentameter verse অর্থাৎ পাঁচমাত্রার ছন্দবিশিষ্ট লাইন।", "page": 216}, {"id": "q60", "chapter": "Chapter 4: William Shakespeare", "section": "4.1 Chapter Introduction", "exam": "16th BCS", "q": "Shakespeare is known mostly for his-", "options": [{"id": "a", "text": "poetry"}, {"id": "b", "text": "novels"}, {"id": "c", "text": "autobiography"}, {"id": "d", "text": "plays"}], "correct": "d", "expl": "plays.", "page": 216}, {"id": "q61", "chapter": "Chapter 4: William Shakespeare", "section": "4.2 Play: Tragedy", "exam": "47th BCS", "q": "'Cowards die many times before their deaths: The valiant never taste of death but once'. In which play of Shakespeare do you find this quote?", "options": [{"id": "a", "text": "Julius Caesar"}, {"id": "b", "text": "Romeo and Juliet"}, {"id": "c", "text": "The Tempest"}, {"id": "d", "text": "Twelfth Night"}], "correct": "a", "expl": "\"Cowards die many times before their deaths; The valiant never taste of death but once.\" লাইনটি Shakespeare-এর Julius Caesar নাটক থেকে নেওয়া। লাইনটি Julius Caesar নাটকের প্রখ্যাত চরিত্র Julius Caesar বলেছেন। এখানে তিনি বলতে চাচ্ছেন যে ভীতু মানুষ মৃত্যুর ভয়ে বারবার মানসিকভাবে \"মরে\" যায়, কিন্তু সাহসী মানুষ মৃত্যুর মুখোমুখি হলেও একবারই মারা যায়। Shakespeare-এর Julius Caesar নাটকের কিছু বিখ্যাত quotes- \"Et tu, Brute?\"; \"Friends, Romans, countrymen, lend me your ears.\"; \"The fault, dear Brutus, is not in our stars, But in ourselves, that we are underlings.\" উল্লেখযোগ্য চরিত্র: Julius Caesar, Cassius, Portia, Brutus।", "page": 216}, {"id": "q62", "chapter": "Chapter 4: William Shakespeare", "section": "4.2 Play: Tragedy", "exam": "47th BCS", "q": "'Neither a borrower nor a lender be, For loan oft loses both itself and friend.' This extract is taken from Shakespeare's play.", "options": [{"id": "a", "text": "Macbeth"}, {"id": "b", "text": "King Lear"}, {"id": "c", "text": "Measure for Measure"}, {"id": "d", "text": "Hamlet"}], "correct": "d", "expl": "Shakespeare এর অন্যতম বিখ্যাত ট্র্যাজেডি Hamlet। ডেনমার্কের রাজহত্যা ও পুত্রের প্রতিশোধ এই নাটকের মূল বিষয়। উল্লেখযোগ্য চরিত্র: Hamlet, Ophelia, Gertrude, Horatio, Claudious। বিখ্যাত quotes- \"To be, or not to be: that is the question.\"; \"Frailty, thy name is woman!\"; There is nothing either good or bad, but thinking makes it so.; When sorrows come, they come not single spies. But in Battalions!; There are more things in heaven and earth, Horatio, than are dreamt of in our philosophy.", "page": 216}, {"id": "q63", "chapter": "Chapter 4: William Shakespeare", "section": "4.2 Play: Tragedy", "exam": "46th BCS", "q": "The line 'Frailty, thy name is woman' occurs in Shakespeare's play-", "options": [{"id": "a", "text": "Hamlet"}, {"id": "b", "text": "Macbeth"}, {"id": "c", "text": "Othello"}, {"id": "d", "text": "King Lear"}], "correct": "a", "expl": "Hamlet.", "page": 217}, {"id": "q64", "chapter": "Chapter 4: William Shakespeare", "section": "4.2 Play: Tragedy", "exam": "46th BCS", "q": "'I am a man more sinned against than sinning' This is uttered by-", "options": [{"id": "a", "text": "Horatio"}, {"id": "b", "text": "Hamlet"}, {"id": "c", "text": "King Lear"}, {"id": "d", "text": "Macbeth"}], "correct": "c", "expl": "শেক্সপিয়ার তার King Lear নাটকে ইংল্যান্ডের রাজা Lear এর রাজ্য বিভাজনে ভুল সিদ্ধান্ত এবং তার প্রেক্ষিতে সৃষ্ট ঘটনাবলি দেখিয়েছেন। রাজা লেয়ার তার ভুল বুঝতে পেরে এই উক্তিটি করে। এই নাটকের আরো কিছু উল্লেখযোগ্য উক্তির মধ্যে রয়েছে- How sharper than a serpent's tooth it is to have a thankless child!; Nothing will come of nothing: Speak again.", "page": 217}, {"id": "q65", "chapter": "Chapter 4: William Shakespeare", "section": "4.2 Play: Tragedy", "exam": "45th BCS", "q": "Desdemona is a character in the following Shakespearean play:", "options": [{"id": "a", "text": "Macbeth"}, {"id": "b", "text": "Othello"}, {"id": "c", "text": "Hamlet"}, {"id": "d", "text": "King Lear"}], "correct": "b", "expl": "Othello জাতিতে Moor-Othello কে Desdemona এর বিয়ে এবং Othello এর দেয়া রুমাল (Handkerchief) নিয়ে সৃষ্ট ভুল বুঝাবুঝির জন্য দুইজনেরই মৃত্যু এই নাটকের প্রধান ঘটনা।", "page": 217}, {"id": "q66", "chapter": "Chapter 4: William Shakespeare", "section": "4.2 Play: Tragedy", "exam": "44th BCS", "q": "\"Life's but a walking shadow, a poor player, That struts and frets his hour upon the stage, And then is heard no more.\" These memorable lines in Shakespearean tragedy are spoken by-", "options": [{"id": "a", "text": "Lady Macbeth"}, {"id": "b", "text": "Banquo"}, {"id": "c", "text": "Duncan"}, {"id": "d", "text": "Macbeth"}], "correct": "d", "expl": "William Shakespeare রচিত বিখ্যাত ট্র্যাজেডি Macbeth নাটকটি ক্ষমতার লোভে Lady Macbeth এর প্ররোচনায় Macbeth কর্তৃক স্কটল্যান্ডের রাজাকে খুন এবং এর ফলে সৃষ্ট বিশৃঙ্খলা সামাল দিতে ব্যর্থ হয়ে একে একে Lady Macbeth ও Macbeth উভয়ের মৃত্যু নিয়ে রচিত। নাটকে বিবেকের দংশনে মৃত্যুশয্যায় Lady Macbeth বলেন 'All the perfumes of Arabia will not sweeten this little hand.'। তার আত্মহত্যার পর Macbeth প্রশ্নে উল্লিখিত উক্তি করেন।", "page": 217}, {"id": "q67", "chapter": "Chapter 4: William Shakespeare", "section": "4.2 Play: Tragedy", "exam": "43rd BCS", "q": "Where is the setting of the play 'Hamlet'?", "options": [{"id": "a", "text": "England"}, {"id": "b", "text": "Italy"}, {"id": "c", "text": "France"}, {"id": "d", "text": "Denmark"}], "correct": "d", "expl": "Denmark.", "page": 217}, {"id": "q68", "chapter": "Chapter 4: William Shakespeare", "section": "4.2 Play: Tragedy", "exam": "43rd BCS", "q": "What kind of play is 'Julius Ceasar'?", "options": [{"id": "a", "text": "romantic"}, {"id": "b", "text": "anti-romantic"}, {"id": "c", "text": "comedy"}, {"id": "d", "text": "historical"}], "correct": "d", "expl": "William Shakespeare রচিত একটি বিখ্যাত Tragedy হলো 'Julius Caesar'। এই Tragedy র কাহিনি ইতিহাস থেকে নেওয়া হয়েছে বলে এটিকে Historical Play ও বলা হয়। এই নাটকের 'Julius Caesar' ছিল রোমান সম্রাট যিনি আজ থেকে প্রায় ২০০০ হাজার বছর পূর্বে ৪৬ খ্রিস্টপূর্বাব্দে রোমের সম্রাট হয়েছিলেন।", "page": 217}, {"id": "q69", "chapter": "Chapter 4: William Shakespeare", "section": "4.2 Play: Tragedy", "exam": "41st BCS", "q": "'Why, then, 'its none to you, for there is nothing either good or bad, but thinking makes it so.' This extract is taken from the drama-", "options": [{"id": "a", "text": "King Lear"}, {"id": "b", "text": "Macbeth"}, {"id": "c", "text": "As You Like It"}, {"id": "d", "text": "Hamlet"}], "correct": "d", "expl": "Hamlet.", "page": 217}, {"id": "q70", "chapter": "Chapter 4: William Shakespeare", "section": "4.2 Play: Tragedy", "exam": "41st BCS", "q": "In Shakespeare's play Hamlet, Hamlet was prince of-", "options": [{"id": "a", "text": "Norway"}, {"id": "b", "text": "Denmark"}, {"id": "c", "text": "Britain"}, {"id": "d", "text": "France"}], "correct": "b", "expl": "Denmark.", "page": 217}, {"id": "q71", "chapter": "Chapter 4: William Shakespeare", "section": "4.2 Play: Tragedy", "exam": "40th BCS", "q": "'What's in a name? That which we call a rose By any other name would smell as sweet'-Who said this?", "options": [{"id": "a", "text": "Juliet"}, {"id": "b", "text": "Portia"}, {"id": "c", "text": "Romeo"}, {"id": "d", "text": "Rosalind"}], "correct": "a", "expl": "উক্তিটি William Shakespeare- এর ট্র্যাজেডি নাটক Romeo and Juliet থেকে নেওয়া হয়েছে। নাটকটি মূলত Romeo এবং Juliet-এর ভালোবাসার গল্প নিয়ে নির্মিত। দুই পরিবারের দ্বন্দ্বই ছিল তাদের ভালোবাসার মাঝে বাঁধা। উক্তিটির মাধ্যমে Juliet বোঝাতে চেয়েছে যে Romeo কোন পরিবার থেকে এসেছে বা কোন নাম ধারণ করেছে এটা তার কাছে কোনো বিষয় নয়। জুলিয়েট রোমিওকে গোলাপের সাথে তুলনা করে বলে, তার রোমিও নামকরণ না হলেও সে সুদর্শন হতো এবং জুলিয়েটের প্রেমিক হতো।", "page": 217}, {"id": "q72", "chapter": "Chapter 4: William Shakespeare", "section": "4.2 Play: Tragedy", "exam": "40th BCS", "q": "'All the perfumes of Arabia will not sweeten this little hand.'- Who said this?", "options": [{"id": "a", "text": "Macbeth"}, {"id": "b", "text": "Lady Macbeth"}, {"id": "c", "text": "Lady Macduff"}, {"id": "d", "text": "Macduff"}], "correct": "b", "expl": "Lady Macbeth.", "page": 217}, {"id": "q73", "chapter": "Chapter 4: William Shakespeare", "section": "4.2 Play: Tragedy", "exam": "39th, 35th BCS", "q": "'To be, or not to be that is the question,' -is a famous soliloquy from-", "options": [{"id": "a", "text": "Macbeth"}, {"id": "b", "text": "King Lear"}, {"id": "c", "text": "Othello"}, {"id": "d", "text": "Hamlet"}], "correct": "d", "expl": "Hamlet.", "page": 218}, {"id": "q74", "chapter": "Chapter 4: William Shakespeare", "section": "4.2 Play: Tragedy", "exam": "37th BCS", "q": "Othello gave Desdemona ___ as a token of love:", "options": [{"id": "a", "text": "Ring"}, {"id": "b", "text": "Handkerchief"}, {"id": "c", "text": "Pendant"}, {"id": "d", "text": "Bangles"}], "correct": "b", "expl": "Handkerchief.", "page": 218}, {"id": "q75", "chapter": "Chapter 4: William Shakespeare", "section": "4.2 Play: Tragedy", "exam": "36th BCS", "q": "'Frailty thy name is woman'-is a famous dialogue from.", "options": [{"id": "a", "text": "Christopher Marlowe"}, {"id": "b", "text": "John Webstar"}, {"id": "c", "text": "W. Shakespeare"}, {"id": "d", "text": "T.S. Eliot"}], "correct": "c", "expl": "W. Shakespeare.", "page": 218}, {"id": "q76", "chapter": "Chapter 4: William Shakespeare", "section": "4.2 Play: Tragedy", "exam": "35th BCS", "q": "Othello is a Shakespeare's play about-", "options": [{"id": "a", "text": "A Jew"}, {"id": "b", "text": "A Roman"}, {"id": "c", "text": "A Turk"}, {"id": "d", "text": "A Moor"}], "correct": "d", "expl": "A Moor.", "page": 218}, {"id": "q77", "chapter": "Chapter 4: William Shakespeare", "section": "4.2 Play: Tragedy", "exam": "29th BCS", "q": "\"To be or not to be, that is the ___.\"", "options": [{"id": "a", "text": "meaning"}, {"id": "b", "text": "question"}, {"id": "c", "text": "answer"}, {"id": "d", "text": "issue"}], "correct": "b", "expl": "question.", "page": 218}, {"id": "q78", "chapter": "Chapter 4: William Shakespeare", "section": "4.2 Play: Tragedy", "exam": "28th BCS", "q": "Julius Caesar was the ruler of Rome about-", "options": [{"id": "a", "text": "1000 years ago"}, {"id": "b", "text": "1500 years ago"}, {"id": "c", "text": "2000 years ago"}, {"id": "d", "text": "3000 years ago"}], "correct": "c", "expl": "2000 years ago.", "page": 218}, {"id": "q79", "chapter": "Chapter 4: William Shakespeare", "section": "4.3 Play: Comedy", "exam": "50th BCS", "q": "In William Shakespeare's play As you like it, the Seven Ages of Man speech was delivered by-", "options": [{"id": "a", "text": "Oliver"}, {"id": "b", "text": "Orlando"}, {"id": "c", "text": "Jaques"}, {"id": "d", "text": "Rosalind"}], "correct": "c", "expl": "Shakespeare এর নাটক As You Like It এর Act II, Scene VII এ the Seven Ages of Man speech উপস্থাপিত হয়েছে Jaques চরিত্রের মাধ্যমে।", "page": 218}, {"id": "q80", "chapter": "Chapter 4: William Shakespeare", "section": "4.3 Play: Comedy", "exam": "44th BCS", "q": "'Sweet are the uses of adversity' is quoted from shakespear's-", "options": [{"id": "a", "text": "Julias Caesar"}, {"id": "b", "text": "Macbeth"}, {"id": "c", "text": "Comedy of Errors"}, {"id": "d", "text": "As you like it"}], "correct": "d", "expl": "William Shakespeare এর As You Like It নাটকের দ্বিতীয় অংশের প্রথম দৃশ্যে Duke Senior নামক চরিত্র প্রশ্নে উল্লিখিত সংলাপটি বলে। নাটকটির উল্লেখযোগ্য চরিত্রের মধ্যে রয়েছে- Rosalind, Orlando, Oliver, Celia প্রমুখ। এই নাটকের আরেকটি বিখ্যাত উক্তি- All the world's a stage, and all the men and women merely players.", "page": 218}, {"id": "q81", "chapter": "Chapter 4: William Shakespeare", "section": "4.3 Play: Comedy", "exam": "44th BCS", "q": "Caliban is an important character from Shakespeare's-", "options": [{"id": "a", "text": "The Tempest"}, {"id": "b", "text": "Hamlet"}, {"id": "c", "text": "Macbeth"}, {"id": "d", "text": "Othello"}], "correct": "a", "expl": "Shakespeare এর রচিত শেষ নাটক (Swan Song) The Tempest এর অন্যতম চরিত্র Caliban. এটি একটি অর্ধ-মানব অর্ধ-দানব প্রকৃতির সত্তা যে Prospero এর ভৃত্য হিসেবে থাকে। এই নাটকের আরও কিছু চরিত্র- Prospero, Ariel, Miranda, Ferdinand, Alonso.", "page": 218}, {"id": "q82", "chapter": "Chapter 4: William Shakespeare", "section": "4.3 Play: Comedy", "exam": "41st BCS", "q": "'Shylock' is a character in the play-", "options": [{"id": "a", "text": "Twelfth Night"}, {"id": "b", "text": "The Merchant of Venice"}, {"id": "c", "text": "Romeo and Juliet"}, {"id": "d", "text": "Measure for Measure"}], "correct": "b", "expl": "ভেনিস শহরের এক সুদখোর ইহুদি (Jew) Shylock এর কাছ থেকে বন্ধু Bassanio এর জন্য টাকা ধার করে Antonio। ধারের টাকা সময় মতো ফেরত দিতে না পারলেও Antonio কে কৌশলে বাঁচিয়ে দেয় Bassanio এর স্ত্রী Portia। এই নাটকের বিখ্যাত উক্তি All that glitters is not gold।", "page": 218}, {"id": "q83", "chapter": "Chapter 4: William Shakespeare", "section": "4.3 Play: Comedy", "exam": "37th BCS", "q": "Fill in the blank.'___' is Shakespeare's last play.", "options": [{"id": "a", "text": "As You Like It"}, {"id": "b", "text": "Macbeth"}, {"id": "c", "text": "Tempest"}, {"id": "d", "text": "Othello"}], "correct": "c", "expl": "Tempest.", "page": 218}, {"id": "q84", "chapter": "Chapter 4: William Shakespeare", "section": "4.3 Play: Comedy", "exam": "36th BCS", "q": "Shakespeare's 'Measure for Measure' is a successful-", "options": [{"id": "a", "text": "tragedy"}, {"id": "b", "text": "comedy"}, {"id": "c", "text": "tragi-comedy"}, {"id": "d", "text": "melodrama"}], "correct": "b", "expl": "Angelo, Claudio ও Isabella কেন্দ্রীয় চরিত্রগুলো নিয়ে রচিত কমেডি ধারার এই নাটকে Duke এর সরল বিশ্বাসের সুযোগ নিয়ে ভিয়েনা শহরে Lord Angelo এর দুর্নীতি ও অবশেষে ন্যায় বিচার প্রতিষ্ঠা দেখানো হয়েছে। এটি Shakespeare এর অন্যতম Problem Play।", "page": 218}, {"id": "q85", "chapter": "Chapter 4: William Shakespeare", "section": "4.3 Play: Comedy", "exam": "36th BCS", "q": "'The Merchant of Venice' is a Shakespearean play about-", "options": [{"id": "a", "text": "a Jew"}, {"id": "b", "text": "a Moor"}, {"id": "c", "text": "a Roman"}, {"id": "d", "text": "a Turk"}], "correct": "a", "expl": "a Jew.", "page": 218}, {"id": "q86", "chapter": "Chapter 4: William Shakespeare", "section": "4.3 Play: Comedy", "exam": "29th BCS", "q": "Who wrote the plays, 'The Tempest' and 'The Mid Summer Night's Dream'?", "options": [{"id": "a", "text": "Ben Johnson"}, {"id": "b", "text": "Christopher Marlowe"}, {"id": "c", "text": "John Dryden"}, {"id": "d", "text": "William Shakespear"}], "correct": "d", "expl": "William Shakespeare.", "page": 218}, {"id": "q87", "chapter": "Chapter 5: The Romantic Period", "section": "5.1 Chapter Introduction", "exam": "50th BCS", "q": "Which of these is not characteristic of English Romantic Poetry?", "options": [{"id": "a", "text": "Ordinary life"}, {"id": "b", "text": "Everyday language"}, {"id": "c", "text": "Expression of feelings rather than action or plot"}, {"id": "d", "text": "Inane and gaudy phraseology"}], "correct": "d", "expl": "English Romantic Poetry সাধারণ মানুষের জীবন, প্রকৃতি এবং ব্যক্তিগত অনুভূতির প্রকাশে গুরুত্ব দেয়। Romantic কবিরা অতিরিক্ত অলংকারপূর্ণ, ফাঁপা ও চাকচিক্যপূর্ণ ভাষা (inane and gaudy phraseology) পরিহার করে সহজ ও প্রাত্যহিক ভাষা ব্যবহার করেছেন। বিশেষ করে Wordsworth সাধারণ মানুষের ভাষাকে কবিতার উপযোগী বলে মনে করতেন। তাই inane and gaudy phraseology Romantic Poetry-এর বৈশিষ্ট্য নয়।", "page": 219}, {"id": "q88", "chapter": "Chapter 5: The Romantic Period", "section": "5.1 Chapter Introduction", "exam": "46th BCS", "q": "Which event influenced the literature of the Romantic Period?", "options": [{"id": "a", "text": "French revolution"}, {"id": "b", "text": "Industrial Revolution"}, {"id": "c", "text": "Russian Revolution"}, {"id": "d", "text": "Hundred Year's War"}], "correct": "a", "expl": "১৭৯৮ সালে প্রকাশিত হয় Lyrical Ballads যা সাহিত্যে Age of Enlightenment বা নবজাগরণের সূচনা করে। ফরাসি বিপ্লব দ্বারা প্রবলভাবে প্রভাবিত এই যুগের সাহিত্যধারার স্লোগান ছিল Art for Art's Sake তথা শিল্পের জন্য শিল্প। ক্লাসিক্যাল ও নিওক্লাসিক্যাল সময়ে সাহিত্যে থাকা 'Reason' এর প্রভাব কাটিয়ে মানুষের Emotion জায়গা করে নেয়। এই যুগের উল্লেখযোগ্য সাহিত্যিকদের মধ্যে রয়েছেন- William Wordsworth, S.T. Coleridge, P.B. Shelley, John Keats, Lord Byron, Jane Austen প্রমুখ।", "page": 219}, {"id": "q89", "chapter": "Chapter 5: The Romantic Period", "section": "5.1 Chapter Introduction", "exam": "43rd BCS", "q": "The most famous romantic poet of English Literature is-", "options": [{"id": "a", "text": "John Dryden"}, {"id": "b", "text": "Alexander Pope"}, {"id": "c", "text": "William Wordsworth"}, {"id": "d", "text": "T. S. Eliot"}], "correct": "c", "expl": "William Wordsworth.", "page": 219}, {"id": "q90", "chapter": "Chapter 5: The Romantic Period", "section": "5.1 Chapter Introduction", "exam": "41st BCS", "q": "Who is not a romantic poet?", "options": [{"id": "a", "text": "P. B. Shelley"}, {"id": "b", "text": "S. T. Coleridge"}, {"id": "c", "text": "John Keats"}, {"id": "d", "text": "T. S. Eliot"}], "correct": "d", "expl": "T. S. Eliot (1888-1965) Georgian Period এর একজন কবি।", "page": 219}, {"id": "q91", "chapter": "Chapter 5: The Romantic Period", "section": "5.1 Chapter Introduction", "exam": "36th BCS", "q": "The romantic age in English literature began with the publication of-", "options": [{"id": "a", "text": "Preface to Shakespeare"}, {"id": "b", "text": "Perface to Lyrical Ballads"}, {"id": "c", "text": "Preface to Ancient Mariners"}, {"id": "d", "text": "Preface to Dr. Johnson"}], "correct": "b", "expl": "Perface to Lyrical Ballads.", "page": 219}, {"id": "q92", "chapter": "Chapter 5: The Romantic Period", "section": "5.1 Chapter Introduction", "exam": "36th BCS", "q": "Which of the following writers belongs to the romantic period in English literature?", "options": [{"id": "a", "text": "A. Tennyson"}, {"id": "b", "text": "Alexander Pope"}, {"id": "c", "text": "John Dryden"}, {"id": "d", "text": "S.T. Coleridge"}], "correct": "d", "expl": "A. Tennyson-Victorian Period; Alexander Pope-Augustan Period; John Dryden-Restoration Period.", "page": 219}, {"id": "q93", "chapter": "Chapter 5: The Romantic Period", "section": "5.2 William Wordsworth & S.T. Coleridge", "exam": "50th BCS", "q": "The killing of albatross in The Rime of the Ancient Mariner was indicative of-", "options": [{"id": "a", "text": "a trigger-happy Mariner"}, {"id": "b", "text": "the essential irrationality of man"}, {"id": "c", "text": "a superstitious Mariner"}, {"id": "d", "text": "the Mariner as a skillful fowler"}], "correct": "b", "expl": "The Rime of the Ancient Mariner কবিতায় Coleridge দেখিয়েছেন একজন নাবিকের একটি অযাচিত কর্মকাণ্ড: একটি Albatross পাখি হত্যার কারণে তাদের উপর বয়ে আসা দুর্দশা। কবিতাটিতে মানুষের অযৌক্তিক কাজের ফলাফল কতটা ভয়াবহ হতে পারে তা দেখিয়েছেন।", "page": 220}, {"id": "q94", "chapter": "Chapter 5: The Romantic Period", "section": "5.2 William Wordsworth & S.T. Coleridge", "exam": "50th BCS", "q": "Poetry is the spontaneous overflow of powerful feeling: it takes its origin from emotion recollected in tranquility' is a statement ascribed to-", "options": [{"id": "a", "text": "Coleridge"}, {"id": "b", "text": "William Wordsworth"}, {"id": "c", "text": "TS Eliot"}, {"id": "d", "text": "IA Richards"}], "correct": "b", "expl": "William Wordsworth তার Preface to Lyrical Ballads এ কবিতা ও কাব্য সম্পর্কে উক্তিটি করেছেন।", "page": 220}, {"id": "q95", "chapter": "Chapter 5: The Romantic Period", "section": "5.2 William Wordsworth & S.T. Coleridge", "exam": "44th BCS", "q": "'He prayeth best, who loveth best.'- Who said it?", "options": [{"id": "a", "text": "John Milton"}, {"id": "b", "text": "John Donne"}, {"id": "c", "text": "Lord Byron"}, {"id": "d", "text": "S.T. Coleridge"}], "correct": "d", "expl": "Lyrical Ballads এর বিখ্যাত কবিতা The Rime of the Ancient Mariner; রচয়িতা S.T Coleridge। কবিতায় এক বৃদ্ধ নাবিকের দুঃসাহসী সমুদ্র অভিযান বর্ণিত হয়েছে। সমুদ্রের একাকিত্ব নাবিক এভাবে প্রকাশ করেছেন 'Alone, alone, all, all alone, Alone on a wide, wide sea.......'। কবিতা শেষ হয়েছে বৃদ্ধের এই উপদেশের মাধ্যমে- He prayeth best, who loveth best.", "page": 220}, {"id": "q96", "chapter": "Chapter 5: The Romantic Period", "section": "5.2 William Wordsworth & S.T. Coleridge", "exam": "38th BCS", "q": "Where do the following lines occur in? 'Alone, alone, all, all alone, Alone on a wide, wide sea.......'", "options": [{"id": "a", "text": "The Rime of the Ancient Mariner"}, {"id": "b", "text": "Kubla khan"}, {"id": "c", "text": "The Nightingle"}, {"id": "d", "text": "The Dungeon"}], "correct": "a", "expl": "The Rime of the Ancient Mariner.", "page": 220}, {"id": "q97", "chapter": "Chapter 5: The Romantic Period", "section": "5.2 William Wordsworth & S.T. Coleridge", "exam": "37th BCS", "q": "Who wrote \"Biographia Literaria\"?", "options": [{"id": "a", "text": "Lord Byron"}, {"id": "b", "text": "P.B. Shelley"}, {"id": "c", "text": "S.T. Coleridge"}, {"id": "d", "text": "Charles Lamb"}], "correct": "c", "expl": "S. T. Coleridge রচিত Biographia Literaria তার আত্মচরিত, যেখানে তার রচনায় Wordsworth এর প্রভাব এবং সাহিত্য রচনায় তার দৃষ্টিভঙ্গি তুলে ধরেছেন। তার রচিত আরো কিছু বিখ্যাত কবিতার মধ্যে রয়েছে- Kubla Khan, Christabel ইত্যাদি।", "page": 220}, {"id": "q98", "chapter": "Chapter 5: The Romantic Period", "section": "5.2 William Wordsworth & S.T. Coleridge", "exam": "36th BCS", "q": "'Child is the father of man' is taken from the poem of-", "options": [{"id": "a", "text": "W. Wordsworth"}, {"id": "b", "text": "S.T. Coleridge"}, {"id": "c", "text": "P.B. Shelley"}, {"id": "d", "text": "A.C. Swinburne"}], "correct": "a", "expl": "উক্তিটি Poet of Nature খ্যাত William Wordsworth রচিত বিখ্যাত কবিতা My Heart Leaps up থেকে নেওয়া হয়েছে। তার রচিত আরো কিছু বিখ্যাত কবিতার মধ্যে রয়েছে- The Solitary Reaper, The Prelude, Tintern Abbey, I wandered Lonely as a Cloud ইত্যাদি।", "page": 220}, {"id": "q99", "chapter": "Chapter 5: The Romantic Period", "section": "5.2 William Wordsworth & S.T. Coleridge", "exam": "36th BCS", "q": "Who is known as 'the poet of nature' in English literature?", "options": [{"id": "a", "text": "Lord Tennyson"}, {"id": "b", "text": "John Milton"}, {"id": "c", "text": "William Wordsworth"}, {"id": "d", "text": "John Keats"}], "correct": "c", "expl": "William Wordsworth কে Poet of Nature উপাধিটি দেন P.B. Shelly. তার আরও কিছু উপাধি: Poet of Childhood, Father of Romantic Age, Court/Lake Poet (1843 সালে নিযুক্ত হন)।", "page": 220}, {"id": "q100", "chapter": "Chapter 5: The Romantic Period", "section": "5.2 William Wordsworth & S.T. Coleridge", "exam": "36th BCS", "q": "The poem 'The Solitary Reaper' is written by-", "options": [{"id": "a", "text": "W.H. Auden"}, {"id": "b", "text": "W. Wordsworth"}, {"id": "c", "text": "W.B. Yeats"}, {"id": "d", "text": "Ezra Pound"}], "correct": "b", "expl": "W. Wordsworth.", "page": 221}, {"id": "q101", "chapter": "Chapter 5: The Romantic Period", "section": "5.2 William Wordsworth & S.T. Coleridge", "exam": "35th BCS", "q": "Who wrote the following lines: \"all at once I saw a crowd, a host of golden daffodils\"?", "options": [{"id": "a", "text": "Wordsworth"}, {"id": "b", "text": "Herrick"}, {"id": "c", "text": "Shelley"}, {"id": "d", "text": "Keats"}], "correct": "a", "expl": "প্রশ্নোক্ত লাইন দুটি William Wordsworth-এর 'I Wandered Lonely As a Cloud' কবিতা থেকে নেয়া হয়েছে। কবিতাটি Daffodils নামেও পরিচিত।", "page": 221}, {"id": "q102", "chapter": "Chapter 5: The Romantic Period", "section": "5.2 William Wordsworth & S.T. Coleridge", "exam": "13th BCS", "q": "The literary work 'Kubla Khan' is-", "options": [{"id": "a", "text": "a history by Vincent Smith"}, {"id": "b", "text": "a verse by Coleridge"}, {"id": "c", "text": "a drama by Oscar Wilde"}, {"id": "d", "text": "a short story by Somerst Maugham"}], "correct": "b", "expl": "a verse by Coleridge.", "page": 221}, {"id": "q103", "chapter": "Chapter 5: The Romantic Period", "section": "5.3 P.B. Shelley & John Keats", "exam": "48th BCS (স্বাস্থ্য)", "q": "John keats wrote ___.", "options": [{"id": "a", "text": "Ode to the West Wind"}, {"id": "b", "text": "Ode on a Grecian urn"}, {"id": "c", "text": "Tinter Abbey"}, {"id": "d", "text": "The Accient Mariner"}], "correct": "b", "expl": "John Keats একজন ইংরেজ রোমান্টিক কবি, যিনি তার সুন্দর ভাষা ও গভীর কল্পনার জন্য বিখ্যাত। তিনি অনেক 'ode' বা স্তবকবদ্ধ কবিতা লিখেছেন, যার মধ্যে \"Ode on a Grecian Urn\" অন্যতম। তার বিখ্যাত কবিতাগুলো হলো- Ode to a Nightingale, Ode on Melancholy, Ode to Autumn, Isabella প্রভৃতি। বিখ্যাত উক্তি: Beauty is truth, truth beauty. (Ode on a Grecian urn); A thing of beauty is a joy forever. (Endymion); Heard melodies are sweet but those unheard are sweeter. (Ode on a Grecian urn)", "page": 221}, {"id": "q104", "chapter": "Chapter 5: The Romantic Period", "section": "5.3 P.B. Shelley & John Keats", "exam": "47th BCS", "q": "'Our sweetest songs are those that tell of saddest thought.'- This oft-quoted line occurs in Shelley's notable poem.", "options": [{"id": "a", "text": "To a Skylark"}, {"id": "b", "text": "Ode to the West Wind"}, {"id": "c", "text": "Adonais"}, {"id": "d", "text": "The Cloud"}], "correct": "a", "expl": "'Our sweetest songs are those that tell of saddest thought.'-লাইনটি P. B. Shelley-এর \"To a Skylark\" কবিতা থেকে নেওয়া হয়েছে। এই কবিতায় Shelley বোঝাতে চেয়েছেন যে স্কাইলার্ক পাখির গান দুঃখমুক্ত এবং আনন্দময়, কিন্তু মানুষের গান তখনই সবচেয়ে সুন্দর ও মধুর হয় যখন তা দুঃখ, যন্ত্রণা এবং গভীর অনুভূতির ওপর ভিত্তি করে রচিত হয়। মানুষের সবচেয়ে মধুর সৃষ্টিগুলো দুঃখের অভিজ্ঞতা থেকে আসে। 'To a Skylark' ছাড়াও Shelley এর আরও কিছু বিখ্যাত ও উল্লেখযোগ্য কাজ হলো: Ozymandias, Ode to the West Wind, Adonais, Prometheus Unbound (play), The Masque of Anarchy etc.", "page": 221}, {"id": "q105", "chapter": "Chapter 5: The Romantic Period", "section": "5.3 P.B. Shelley & John Keats", "exam": "45th, 43rd BCS", "q": "Who wrote the poem 'Ozymandias'?", "options": [{"id": "a", "text": "Thomas Hardy"}, {"id": "b", "text": "Robert Frost"}, {"id": "c", "text": "P.B. Shelley"}, {"id": "d", "text": "Edmund Spenser"}], "correct": "c", "expl": "প্রশ্নোক্ত পৌরাণিক কাহিনি ও ইতিহাসের সমন্বয়ে রচিত Ozymandias রোমান্টিক লেখক P.B. Shelley এর আলোচিত ও শ্রেষ্ঠ সনেট। কবিতায় ফারাও দ্বিতীয় রামসেস এর ধ্বসে পড়া মূর্তি দ্বারা কবি বুঝিয়েছেন ক্ষমতার ক্ষণস্থায়ী মোহময়তার করুণ পরিণতি।", "page": 221}, {"id": "q106", "chapter": "Chapter 5: The Romantic Period", "section": "5.3 P.B. Shelley & John Keats", "exam": "44th BCS", "q": "\"Oh, lift me as a wave, a leaf, a cloud! I fall upon the thorns of life! I bleed!\" The extract is taken from P.B. Shelley's poem-", "options": [{"id": "a", "text": "The Cloud"}, {"id": "b", "text": "To a Skylark"}, {"id": "c", "text": "Ode to the West Wind"}, {"id": "d", "text": "Adonais"}], "correct": "c", "expl": "উল্লিখিত লাইনগুলো রোমান্টিক যুগের বিখ্যাত কবি P. B. Shelley রচিত Ode to the West Wind নামক কবিতা থেকে চয়ন করা হয়েছে। কবি এখানে সরাসরি পশ্চিমের বাতাসকে বলেন- বিপ্লবের বাণী ট্রাম্পেটের মতো সবখানে ছড়িয়ে দিতে, যেন নির্যাতিত মানুষের মধ্যে বিদ্রোহ ছড়িয়ে যেতে পারে। কবিতার শেষ পর্বে কবি নিজের মৃত্যু ও বিনাশের কথা ভাবতে শুরু করেন। তবে ঠিক যেমন শুষ্ক শীতের পর বসন্ত আসে, তেমনই এই বার্তায় কবির কষ্টস্বর ও কবির কথা স্মরণ হবে।", "page": 221}, {"id": "q107", "chapter": "Chapter 5: The Romantic Period", "section": "5.3 P.B. Shelley & John Keats", "exam": "43rd, 28th BCS", "q": "\"If Winter comes, can Spring be far behind?\"- Who wrote this?", "options": [{"id": "a", "text": "William Blake"}, {"id": "b", "text": "S. T. Coleridge"}, {"id": "c", "text": "Lord Byron"}, {"id": "d", "text": "P. B. Shelley"}], "correct": "d", "expl": "P. B. Shelley.", "page": 221}, {"id": "q108", "chapter": "Chapter 5: The Romantic Period", "section": "5.3 P.B. Shelley & John Keats", "exam": "40th BCS", "q": "'Where are the songs of Spring? Aye, Where are they? Think not of them, thou hast the music too.' -who wrote this?", "options": [{"id": "a", "text": "William Wordsworth"}, {"id": "b", "text": "Rober Browning"}, {"id": "c", "text": "John Keats"}, {"id": "d", "text": "Samuel Coleridge"}], "correct": "c", "expl": "প্রদত্ত লাইনগুলো John Keats লিখেছেন তার 'To Autumn' কবিতায়। লাইনগুলো দ্বারা John Keats প্রতিবছর আসা স্বল্পস্থায়ী বসন্তকে বিচ্ছেদের সাথে দেখেছেন। অন্যদিকে তিনি মনে করেন শরৎ ঋতুর বিশেষ বৈশিষ্ট্য রয়েছে এবং এ ঋতুর সুরেলা ধ্বনিও রয়েছে।", "page": 222}, {"id": "q109", "chapter": "Chapter 5: The Romantic Period", "section": "5.3 P.B. Shelley & John Keats", "exam": "37th BCS", "q": "P.B. Shelley's 'Adonais' is an elegy on the death of-", "options": [{"id": "a", "text": "John Milton"}, {"id": "b", "text": "S.T. Coleridge"}, {"id": "c", "text": "John Keats"}, {"id": "d", "text": "Lord Byron"}], "correct": "c", "expl": "P.B. Shelly এর লেখা Adonais কবিতাটি ১৮২১ সালে তার বন্ধু John Keats কে উৎসর্গকৃত। বন্ধুর অকালমৃত্যুতে ব্যথিত হয়ে কবি Keats-এর মৃত্যুর সাত সপ্তাহের মধ্যে কবিতাটি রচনা করেন। বন্ধুর অকাল প্রয়াণই কবিতাটির মূল বিষয়বস্তু।", "page": 222}, {"id": "q110", "chapter": "Chapter 5: The Romantic Period", "section": "5.3 P.B. Shelley & John Keats", "exam": "15th BCS", "q": "Who wrote 'beauty is truth, truth is beauty'?", "options": [{"id": "a", "text": "Shakespeare"}, {"id": "b", "text": "Wordsworth"}, {"id": "c", "text": "Keats"}, {"id": "d", "text": "Eliot"}], "correct": "c", "expl": "'Poet of beauty' নামে খ্যাত John Keats তার 'Ode on a Grecian Urn' নামক কবিতায় এই উক্তি করেছেন। এছাড়া তার উল্লেখযোগ্য আরো কিছু কবিতার মধ্যে রয়েছে- Ode to Autumn, Ode to a Nightingale, Ode on Melancholy, Hyperion, Lamia।", "page": 222}, {"id": "q111", "chapter": "Chapter 5: The Romantic Period", "section": "5.4 Lord Byron & Jane Austen", "exam": "47th BCS", "q": "'It's strange - but true; for truth is always strange; Stranger than fiction.' This quote is taken from a poem of___.", "options": [{"id": "a", "text": "Mark Twain"}, {"id": "b", "text": "Robert Herrick"}, {"id": "c", "text": "Lord Byron"}, {"id": "d", "text": "Franz Kafka"}], "correct": "c", "expl": "প্রশ্নোক্ত বিখ্যাত পঙ্‌ক্তি লর্ড বায়রনের ব্যঙ্গাত্মক মহাকাব্য 'Don Juan' থেকে নেওয়া হয়েছে। Byron এখানে মানুষের অভিজ্ঞতা ও বাস্তবতার সাথে কল্পনার তুলনা করেছেন। Lord Byron-এর গুরুত্বপূর্ণ quotes- \"Love will find a way through paths where wolves fear to prey.\" (Don Juan); \"The great art of life is sensation, to feel that we exist, even in pain.\" (Childe Harold's Pilgrimage); \"Those who will not reason, are bigots, those who cannot, are fools.\" (Don Juan)", "page": 222}, {"id": "q112", "chapter": "Chapter 5: The Romantic Period", "section": "5.4 Lord Byron & Jane Austen", "exam": "45th BCS", "q": "The character, Elizabeth Bennett, appears in the novel-", "options": [{"id": "a", "text": "Pride and Prejudice"}, {"id": "b", "text": "Tess of the D'llrberville"}, {"id": "c", "text": "Wuthering Heights"}, {"id": "d", "text": "Jane Eyre"}], "correct": "a", "expl": "Jane Austen ইংরেজি সাহিত্যের প্রথম নারী নক্ষত্র যিনি পুরুষ প্রধান সাহিত্য সমাজকে স্বীয় ব্যক্তিত্বে নিয়ন্ত্রণ করেছিলেন। তার বিদ্রোহী মন্ত্রে উজ্জীবিত তার উপন্যাসের নারী চরিত্র Elizabeth Bennett। Pride and Prejudice উপন্যাসের কেন্দ্রীয় চরিত্র Elizabeth, যার বিয়ে করা অথবা না করার সিদ্ধান্তহীনতা ঘিরে উপন্যাসটি আবর্তিত।", "page": 222}, {"id": "q113", "chapter": "Chapter 5: The Romantic Period", "section": "5.4 Lord Byron & Jane Austen", "exam": "45th BCS", "q": "Don Juan was composed by-", "options": [{"id": "a", "text": "W. B. Yeats"}, {"id": "b", "text": "E.B. Browning"}, {"id": "c", "text": "George Gordon Byron"}, {"id": "d", "text": "Alexander Pope"}], "correct": "c", "expl": "Lord Byron এর সবচেয়ে বিখ্যাত কবিতার নাম 'Don Juan' অ্যাডভেঞ্চার ও ফ্যান্টাসি দিয়ে পরিপূর্ণ এ কবিতার Don Juan এর জীবন ও ভাবনা উঠে এসেছে। এই কবিতার বিখ্যাত লাইন \"Man's love is of man's life a thing apart, 'Tis woman's whole existence.\"", "page": 222}, {"id": "q114", "chapter": "Chapter 5: The Romantic Period", "section": "5.4 Lord Byron & Jane Austen", "exam": "40th BCS", "q": "'Man's love is of man's life a thing apart, 'Tis woman's whole existence.'- This is taken from the poem of-", "options": [{"id": "a", "text": "P.B Shelley"}, {"id": "b", "text": "Lord Byron"}, {"id": "c", "text": "John Keats"}, {"id": "d", "text": "Edmund Spenser"}], "correct": "b", "expl": "Lord Byron.", "page": 222}, {"id": "q115", "chapter": "Chapter 6: The Victorian Period", "section": "6.1 Chapter Introduction", "exam": "45th BCS", "q": "Who is not a Victorian poet?", "options": [{"id": "a", "text": "Alfred Tennyson"}, {"id": "b", "text": "Robert Browning"}, {"id": "c", "text": "William Wordsworth"}, {"id": "d", "text": "Matthew Arnold"}], "correct": "c", "expl": "উনিশ শতকের শিল্প বিপ্লবের ছোঁয়া সমাজে যেমন পরিবর্তন এনেছিল, তেমন এনেছিল সাহিত্যে। মহারানি Victoria এর নামানুসারে সাহিত্যের এই যুগকে নামকরণ করা হয়েছে Victorian Age (1832-1901)। এই সময়ের উল্লেখযোগ্য সাহিত্যিকের মধ্যে রয়েছে- Alfred Tennyson, Charles Dickens, Robert Browning, Charlotte Bronte, George Eliot, Herman Melville, Mathew Arnold প্রমুখ।", "page": 223}, {"id": "q116", "chapter": "Chapter 6: The Victorian Period", "section": "6.1 Chapter Introduction", "exam": "38th BCS", "q": "Who is not a Victorian poet?", "options": [{"id": "a", "text": "Mathew Arnold"}, {"id": "b", "text": "Alexander Pope"}, {"id": "c", "text": "Robert Browning"}, {"id": "d", "text": "Alfred Tennyson"}], "correct": "b", "expl": "Alexander Pope.", "page": 223}, {"id": "q117", "chapter": "Chapter 6: The Victorian Period", "section": "6.1 Chapter Introduction", "exam": "16th BCS", "q": "In which century was the Victorian period?", "options": [{"id": "a", "text": "17th century"}, {"id": "b", "text": "18th century"}, {"id": "c", "text": "19th century"}, {"id": "d", "text": "20th century"}], "correct": "c", "expl": "19th century.", "page": 223}, {"id": "q118", "chapter": "Chapter 6: The Victorian Period", "section": "6.1 Chapter Introduction", "exam": "11th BCS", "q": "Who is the poet of the 'Victorian Age'?", "options": [{"id": "a", "text": "Helen Keller"}, {"id": "b", "text": "Mathew arnold"}, {"id": "c", "text": "Shakespeare"}, {"id": "d", "text": "Robert Browning"}], "correct": "b", "expl": "Mathew arnold ও Robert Browning.", "page": 223}, {"id": "q119", "chapter": "Chapter 6: The Victorian Period", "section": "6.2 Lord Alfred Tennyson", "exam": "47th BCS", "q": "'Knowledge comes, but wisdom lingers.' This quote is extracted from Tennyson's poem titled.", "options": [{"id": "a", "text": "Morte d' Arthur"}, {"id": "b", "text": "The Lotos-Eaters"}, {"id": "c", "text": "Tithonus"}, {"id": "d", "text": "Locksley Hall"}], "correct": "d", "expl": "'Knowledge comes, but wisdom lingers.'-উক্তিটি Alfred Tennyson-এর 'Locksley Hall' নামক একটি বিখ্যাত কবিতা থেকে নেওয়া হয়েছে, যা ১৮৪২ সালে প্রকাশিত হয়েছিল। More quotes of Tennyson's poem- \"Tis better to have loved and lost / Than never to have loved at all.\" (In Memoriam); \"Theirs not to reason why, / Theirs but to do and die.\" (The Charge of the Light Brigade)", "page": 223}, {"id": "q120", "chapter": "Chapter 6: The Victorian Period", "section": "6.2 Lord Alfred Tennyson", "exam": "45th BCS", "q": "'Ulysses' is a poem written by-", "options": [{"id": "a", "text": "Robert Browning"}, {"id": "b", "text": "Wordsworth"}, {"id": "c", "text": "S.T. Coleridge"}, {"id": "d", "text": "Alfred Tennyson"}], "correct": "d", "expl": "রানি ভিক্টোরিয়ার সভাকবি Lord Alfred Tennyson-এর বিখ্যাত কবিতা 'Ulysses', যেখানে ট্রয় নগরী বিজয়ের পর নিজ দেশে ফিরে বৃদ্ধ Ulysses এর ঘর-সংসারের প্রতি অনীহাকে চিত্রিত করেছেন। তার রচিত আরো কিছু কবিতার মধ্যে রয়েছে- In Memoriam, The Lotus Eaters, Tithinus, Loksley Hall, Idylls of the Kings প্রভৃতি। তার Ulysses কবিতারই বিখ্যাত লাইন- 'Made weak by time and fate, but strong in will To strive, to seek, to find, and not to yield'।", "page": 223}, {"id": "q121", "chapter": "Chapter 6: The Victorian Period", "section": "6.2 Lord Alfred Tennyson", "exam": "41st BCS", "q": "'Made weak by time and fate, but strong in will To strive, to seek, to find, and not to yield' is taken from the poem written by-", "options": [{"id": "a", "text": "Robert Browning"}, {"id": "b", "text": "Matthew Arnold"}, {"id": "c", "text": "Alfred Tennyson"}, {"id": "d", "text": "Lord Byron"}], "correct": "c", "expl": "Alfred Tennyson.", "page": 223}, {"id": "q122", "chapter": "Chapter 6: The Victorian Period", "section": "6.2 Lord Alfred Tennyson", "exam": "40th BCS", "q": "Tennyson's 'In Memoriam' is an elegy on the death of-", "options": [{"id": "a", "text": "John Milton"}, {"id": "b", "text": "John Keats"}, {"id": "c", "text": "Arthure Henry Hallam"}, {"id": "d", "text": "Sydney Smith"}], "correct": "c", "expl": "'In Memoriam' শোক (Elegy) কবিতাটি Tennyson তার প্রিয় বন্ধু Arthur Henry Hallam- এর স্মরণে লিখেন। যিনি ১৮৩৩ সালে হঠাৎ cerebral hemorrhage- এর কারণে মারা যান।", "page": 223}, {"id": "q123", "chapter": "Chapter 6: The Victorian Period", "section": "6.2 Lord Alfred Tennyson", "exam": "40th BCS", "q": "'The old order changeth, yielding place to new.'- This line is extracted from Tennyson's poem-", "options": [{"id": "a", "text": "The Lotos Eaters"}, {"id": "b", "text": "Tithonus"}, {"id": "c", "text": "Locksley Hall"}, {"id": "d", "text": "Morte d' Arthur"}], "correct": "d", "expl": "Morte d'Aurthur কবিতায় Tennyson ইংল্যান্ডের মহান রাজা আর্থারের মৃত্যুর সময়কার ঘটনা এবং তার মৃত্যুর পর তার তলোয়ার The Excalibar কে আর্থার যে লেক থেকে এনেছিলেন সেখানেই ফেরত দিয়ে আসার ঘটনা বলেছেন। এই ঘটনার গুরুত্ব উল্লেখ করতে গিয়ে তিনি বলেন- \"The old order changeth, yielding place to new.\"", "page": 224}, {"id": "q124", "chapter": "Chapter 6: The Victorian Period", "section": "6.2 Lord Alfred Tennyson", "exam": "29th BCS", "q": "\"Into the ___ of death rode the six hundred\".", "options": [{"id": "a", "text": "city"}, {"id": "b", "text": "tunnel"}, {"id": "c", "text": "road"}, {"id": "d", "text": "valley"}], "correct": "d", "expl": "Tennyson এর কবিতা The Charge of the Light Brigrade এ ৬০০ দুঃসাহসী সৈন্যের কাহিনি বলেছেন যারা মৃত্যু নিশ্চিত জেনেও মৃত্যুপুরি (Valley of Death) তে ঝাঁপিয়ে পড়েছে। যা প্রকাশিত হয়েছে উল্লিখিত লাইনের মাধ্যমে।", "page": 224}, {"id": "q125", "chapter": "Chapter 6: The Victorian Period", "section": "6.3 Charles Dickens", "exam": "48th BCS (স্বাস্থ্য)", "q": "Charles Dickens was an English ___.", "options": [{"id": "a", "text": "poet"}, {"id": "b", "text": "playwright"}, {"id": "c", "text": "politician"}, {"id": "d", "text": "novelist"}], "correct": "d", "expl": "Charles Dickens ছিলেন ১৯শ শতকের একজন বিখ্যাত ইংরেজ ঔপন্যাসিক (novelist)। তিনি সমাজের অন্যায়, দারিদ্র্য, শিশু শ্রম ও শ্রেণি বৈষম্যকে তুলে ধরে সামাজিক বাস্তবতা-নির্ভর উপন্যাস লিখতেন। তাঁর বিখ্যাত উপন্যাসগুলো: Oliver Twist, David Copperfield, A Tale of Two Cities, Great Expectations, Hard Times ইত্যাদি।", "page": 224}, {"id": "q126", "chapter": "Chapter 6: The Victorian Period", "section": "6.3 Charles Dickens", "exam": "46th BCS", "q": "The two cities in A Tale of Two Cities are-", "options": [{"id": "a", "text": "London and Manchester"}, {"id": "b", "text": "London and Paris"}, {"id": "c", "text": "Paris and New York"}, {"id": "d", "text": "Paris and Geneva"}], "correct": "b", "expl": "১৮৫৯ সালে প্রকাশিত 'A Tale of Two Cities' একটি Historical Novel। Dickens এখানে ফরাসি বিপ্লবের পূর্ব সময়কার লন্ডন এবং প্যারিস শহরের বর্ণনা দিয়েছেন। এখানে লন্ডন শহর অষ্টাদশ শতকের ইংল্যান্ডের ছিতীশীলতা, শৃঙ্খলা এবং নিপীড়নমূলক সামাজিক কাঠামোর প্রতিনিধিত্ব করে। অন্যদিকে প্যারিস বিশৃঙ্খলা, বিপ্লব এবং অত্যাচারের বিরুদ্ধে লড়াইয়ের প্রতীক।", "page": 224}, {"id": "q127", "chapter": "Chapter 6: The Victorian Period", "section": "6.3 Charles Dickens", "exam": "41st BCS", "q": "'Pip' is the protagonist in Charles Dickens' novel-", "options": [{"id": "a", "text": "A Christmas Carol"}, {"id": "b", "text": "A Tale of Two Cities"}, {"id": "c", "text": "Oliver Twist"}, {"id": "d", "text": "Great Expectations"}], "correct": "d", "expl": "'Great Expectations' এর Protagonist এবং Narrator হলো Pip। উপন্যাসের অন্যান্য চরিত্রগুলোর মধ্যে রয়েছে- Estella, Miss Havisham, Abel Magwitch, Joe Gargery, Jaggers ইত্যাদি।", "page": 224}, {"id": "q128", "chapter": "Chapter 6: The Victorian Period", "section": "6.3 Charles Dickens", "exam": "39th BCS", "q": "'A Christmas Carol' is a ___ by Charles Dickens.", "options": [{"id": "a", "text": "ballad"}, {"id": "b", "text": "sketch story"}, {"id": "c", "text": "historical novel"}, {"id": "d", "text": "short novel"}], "correct": "d", "expl": "ভিক্টোরিয়ান যুগের লন্ডন শহরকে Charles - তার উপন্যাসের মাধ্যমে ফুটিয়ে তুলেছেন। 'A Christmas Carol' Novella টি Ebenezer scrooge নামক বনিকের জীবনকে আবর্তন করে অগ্রসর হয়েছে। এছাড়াও Dickens আত্মজীবনী লিখেছেন 'David Copperfield' উপন্যাসের মাধ্যমে।", "page": 224}, {"id": "q129", "chapter": "Chapter 6: The Victorian Period", "section": "6.3 Charles Dickens", "exam": "36th BCS", "q": "'David Copperfield' is a/an ___ novel.", "options": [{"id": "a", "text": "Victorian"}, {"id": "b", "text": "Elizabethan"}, {"id": "c", "text": "Romantic"}, {"id": "d", "text": "Modern"}], "correct": "a", "expl": "Victorian.", "page": 224}, {"id": "q130", "chapter": "Chapter 6: The Victorian Period", "section": "6.3 Charles Dickens", "exam": "36th BCS", "q": "London town is found a living being in the works of-", "options": [{"id": "a", "text": "Thomas Hardy"}, {"id": "b", "text": "Charles Dickens"}, {"id": "c", "text": "W. Congreve"}, {"id": "d", "text": "D.H. Lawrence"}], "correct": "b", "expl": "Charles Dickens.", "page": 224}, {"id": "q131", "chapter": "Chapter 6: The Victorian Period", "section": "6.3 Charles Dickens", "exam": "29th BCS", "q": "Who wrote the two famous novels, 'David Copperfield' and 'A Tale of two Cities'?", "options": [{"id": "a", "text": "Thomas Hardy"}, {"id": "b", "text": "Jane Austen"}, {"id": "c", "text": "George Eliot"}, {"id": "d", "text": "Charles Dickens"}], "correct": "d", "expl": "Charles Dickens.", "page": 224}, {"id": "q132", "chapter": "Chapter 6: The Victorian Period", "section": "6.4 Robert Browning & Thomas Hardy", "exam": "45th BCS", "q": "Clym Yeobright is the protagonist of the novel-", "options": [{"id": "a", "text": "David Copperfield"}, {"id": "b", "text": "Adam Bede"}, {"id": "c", "text": "A passage of India"}, {"id": "d", "text": "The Return of the Native"}], "correct": "d", "expl": "Thomas Hardy রচিত কালজয়ী উপন্যাস The Return of the Native এর প্রধান চরিত্র Clym Yeobright তার নিজ গ্রাম Edgon Heath এ ফিরে আসা এবং সৃষ্ট বিড়ম্বনাকে উপজীব্য করে রচিত। উপন্যাসের অন্যান্য চরিত্রের মধ্যে রয়েছে- Eustacia Vye, Thomasin Yeobright, Deggory Venn প্রমুখ। তার অন্যান্য উপন্যাস- The Mayor of Casterbridge, A Pair of Blue Eyes, Under the Greenwood Tree, Tess of D'urbervilles.", "page": 225}, {"id": "q133", "chapter": "Chapter 6: The Victorian Period", "section": "6.4 Robert Browning & Thomas Hardy", "exam": "37th BCS", "q": "Robert Browning was a ___ poet. Fill in the gap with appropriate word.", "options": [{"id": "a", "text": "Romantic"}, {"id": "b", "text": "Victorian"}, {"id": "c", "text": "Modern"}, {"id": "d", "text": "Elizathan"}], "correct": "b", "expl": "একদিকে ইংরেজি সাহিত্যে Dramatic Monologue এর দৃষ্টান্তপূর্ণ ব্যবহার করে কবিতা রচনা, অন্যদিকে The Pied Piper of Hamelin এর মতো কালজয়ী গল্প রচয়িতা Rober Browning তার প্রতিভা বিকশিত করেছিলেন রানি ভিক্টোরিয়ার সময়ে। তার উল্লেখযোগ্য কবিতার মধ্যে রয়েছে- Rabbi Ben Ezra, Andrea del Sarto, My Last Duchess, The Patriot, Fra Lippo Lippi ইত্যাদি।", "page": 225}, {"id": "q134", "chapter": "Chapter 6: The Victorian Period", "section": "6.4 Robert Browning & Thomas Hardy", "exam": "36th BCS", "q": "Which of the following books is written by Thomas Hardy?", "options": [{"id": "a", "text": "Vanity Fair"}, {"id": "b", "text": "The Return of the Native"}, {"id": "c", "text": "Pride and Prejudice"}, {"id": "d", "text": "Oliver Twist"}], "correct": "b", "expl": "The Return of the Native.", "page": 225}, {"id": "q135", "chapter": "Chapter 6: The Victorian Period", "section": "6.4 Robert Browning & Thomas Hardy", "exam": "17th BCS", "q": "Browning was the composer of any of the following poems-", "options": [{"id": "a", "text": "Two Voice"}, {"id": "b", "text": "The Scholar Gipsy"}, {"id": "c", "text": "Andrea Del Sarto"}, {"id": "d", "text": "Oneone"}], "correct": "c", "expl": "Andrea Del Sarto.", "page": 225}, {"id": "q136", "chapter": "Chapter 6: The Victorian Period", "section": "6.5 Herman Melville & Brontes", "exam": "50th BCS", "q": "Which novel chronicles intense, destructive love fueling multigenerational cruelty & obsession?", "options": [{"id": "a", "text": "Jane Eyre"}, {"id": "b", "text": "Emma"}, {"id": "c", "text": "Wuthering Heights"}, {"id": "d", "text": "Persuasion"}], "correct": "c", "expl": "ভিক্টোরিয়ান যুগের নারী ঔপন্যাসিক Emily Bronte রচিত এই উপন্যাসকে বলা হয় মানবীয় আবেগ অর্থাৎ প্রেম, ঘৃণা, হিংসা, প্রতিশোধের এক অভূতপূর্ব আখ্যান। উপন্যাসের নায়িকা Catherine এর বাবা Mr. Earnshaw একদিন রাতে রাস্তায় বেড়ে উঠা অভিভাবকহীন কৃষ্ণাঙ্গ Heathcliff কে নিয়ে আসেন। Mr. Earnshaw এর পুত্র Hindley প্রধান চরিত্র Heathcliff কে পছন্দ করতো না। উপন্যাসের কাহিনি চলেছে Catherine ও Linton এর প্রেম; Catherine, Hindley এর মৃত্যু এবং অবশেষে Heathcliff এর কর্তৃত্বলাভকে কেন্দ্র করে।", "page": 225}, {"id": "q137", "chapter": "Chapter 6: The Victorian Period", "section": "6.5 Herman Melville & Brontes", "exam": "49th BCS (শিক্ষা)", "q": "The novel 'Wuthering Heights' was penned by the author under the penname.", "options": [{"id": "a", "text": "Ellise Bellet"}, {"id": "b", "text": "Ellis Belle"}, {"id": "c", "text": "Ellis Bell"}, {"id": "d", "text": "Una Elis"}], "correct": "c", "expl": "'Wuthering Heights' উপন্যাসের লেখক Emily Brontë। তিনি Ellis Bell ছদ্মনামে লিখতেন। Emily Brontë তার দুই বোন Charlotte Brontë এবং Anne Brontë-এর সাথে মিলে ১৮৪৬ সালে 'Poems by Currer, Ellis and Acton Bell' নামে একটি কবিতার বই প্রকাশ করেছিলেন। এতে Charlotte ব্যবহার করেন Currer Bell ছদ্মনাম, এবং Anne ব্যবহার করেছিলেন Acton Bell ছদ্মনাম। উনবিংশ শতাব্দীর ব্রিটেনে মহিলাদের লেখালেখি প্রকাশের ক্ষেত্রে যে সামাজিক বাধা ও লিঙ্গ বৈষম্য ছিল তা এড়াতেই ব্রন্টি বোনেরা পুরুষালি ছদ্মনাম ব্যবহার করেছিলেন এটি প্রকাশ করতে।", "page": 225}, {"id": "q138", "chapter": "Chapter 6: The Victorian Period", "section": "6.5 Herman Melville & Brontes", "exam": "44th BCS", "q": "The story of 'Moby Dick' centres on-", "options": [{"id": "a", "text": "a mermaid"}, {"id": "b", "text": "a whale"}, {"id": "c", "text": "a crocodile"}, {"id": "d", "text": "a shark"}], "correct": "b", "expl": "মার্কিন সাহিত্যিক Herman Melville লিখিত কালজয়ী উপন্যাস Moby Dick একটি স্পার্ম তিমিকে (Whale) নিয়ে। উপন্যাসটি বর্ণিত হয়েছে Ishmael নামের একজনের মাধ্যমে, যেখানে দেখা যায় Captain Ahab এর পা একটি বিশাল তিমি কামড়ে নিয়ে যাওয়ায় সেই তিমিটি মারাই নিজের জীবনের একমাত্র লক্ষ্য বানিয়ে নেয় সে।", "page": 226}, {"id": "q139", "chapter": "Chapter 6: The Victorian Period", "section": "6.5 Herman Melville & Brontes", "exam": "43rd BCS", "q": "Who is the author of 'Jane Eyre'?", "options": [{"id": "a", "text": "Charlotte Bronte"}, {"id": "b", "text": "Emily Bronte"}, {"id": "c", "text": "Jane Austen"}, {"id": "d", "text": "Mary Shelley"}], "correct": "a", "expl": "ভিক্টোরিয়ান যুগে আত্মজীবনী লিখার প্রচলন ছিল। সে সময়ের লেখকরা উপন্যাসে বাস্তব জীবনের নামগুলো পরিবর্তন করে নিজেদের জীবনের ঘটনাগুলো লিখতেন। Charlotte Bronte এর Jane Eyre এই ধাঁচের উপন্যাস। একই কাজ করেছেন Charles Dickens তার David Copperfield উপন্যাসে।", "page": 226}, {"id": "q140", "chapter": "Chapter 6: The Victorian Period", "section": "6.5 Herman Melville & Brontes", "exam": "43rd BCS", "q": "'Moby Dick' a novel, was written by-", "options": [{"id": "a", "text": "Herman Melville"}, {"id": "b", "text": "Nathaniel Hawthorne"}, {"id": "c", "text": "Mark Twain"}, {"id": "d", "text": "William Faulkner"}], "correct": "a", "expl": "Herman Melville.", "page": 226}, {"id": "q141", "chapter": "Chapter 6: The Victorian Period", "section": "6.5 Herman Melville & Brontes", "exam": "40th BCS", "q": "Who is the central character of 'Wuthering Height' by Emily Bronte?", "options": [{"id": "a", "text": "Mr. Earnshaw"}, {"id": "b", "text": "Catherine"}, {"id": "c", "text": "Heathcliff"}, {"id": "d", "text": "Hindley Earnshaw"}], "correct": "c", "expl": "Bronte পরিবারের তিন বোনের সাহিত্য রচনায় ব্যতিক্রমী মনোভাব পোষণ করেননি Emily Bronte। তার রচিত Gothic Horror ধারার উপন্যাস Wuthering Heights তার একমাত্র সাহিত্যকর্ম। উপন্যাসের কাহিনি আবর্তিত হয়েছে Heathcliff নামের এক কৃষ্ণাঙ্গ বালককে Mr. Earnshaw কর্তৃক দত্তক নেয়া এবং অনেক ট্র্যাজেডির পর Wuthering Heights এর কর্তা হিসেবে Heathcliff এর প্রতিষ্ঠা নিয়ে।", "page": 226}, {"id": "q142", "chapter": "Chapter 6: The Victorian Period", "section": "6.6 Edward Fitzgerald & Matthew Arnold", "exam": "50th BCS", "q": "The lines 'A Book of Verses underneath the Bough,/ A Jug of Wine, a Loaf of Bread - and Thou/ Beside me singing in the Wilderness....' are taken from a famous translation work by-", "options": [{"id": "a", "text": "Scott Fitzgerald"}, {"id": "b", "text": "Edward Fitzgerald"}, {"id": "c", "text": "William Fitzgerald"}, {"id": "d", "text": "Gerald Fitzgerald"}], "correct": "b", "expl": "Omar Khayaam রচিত Rubaiyat গ্রন্থ থেকে এই কবিতাংশটি নেয়া হয়েছে। Omar Khayaam এর Rubaiyat গ্রন্থটি অনুবাদ করেছেন Edward Fitzgerald।", "page": 226}, {"id": "q143", "chapter": "Chapter 6: The Victorian Period", "section": "6.6 Edward Fitzgerald & Matthew Arnold", "exam": "50th BCS", "q": "In which of these poems did Matthew Arnold express a pessimistic worldview, reflecting on a world full of conflicts and lacking in joy, evincing an implicit criticism of Victorian era's aggressive spirit?", "options": [{"id": "a", "text": "Scholar Gipsy"}, {"id": "b", "text": "Dover Beach"}, {"id": "c", "text": "Rugby Chapel"}, {"id": "d", "text": "Immortality"}], "correct": "b", "expl": "Matthew Arnold Victorian যুগের আধ্যাত্বিকতার বিরোধীতা করেছেন তার Dover Beach কবিতায়। কবিতাটিতে তিনি হতাশাবাদী চিন্তাধারা, জীবনে আনন্দের ভাটা, আধ্যাত্মিকতার অভাবকে তুল ধরেছেন।", "page": 226}, {"id": "q144", "chapter": "Chapter 6: The Victorian Period", "section": "6.6 Edward Fitzgerald & Matthew Arnold", "exam": "49th BCS (শিক্ষা)", "q": "'Rubiyat of Khayyam' is attributed to-", "options": [{"id": "a", "text": "Edward Fitzgerald"}, {"id": "b", "text": "Scott Fitzgerald"}, {"id": "c", "text": "Thomas Fitzgerald"}, {"id": "d", "text": "William Fitzgerald"}], "correct": "a", "expl": "'Rubaiyat of Omar Khayyam' হলো পারস্যের কবি ও দার্শনিক Omar Khayyam এর চতুর্পদী কবিতার সংকলন। এই কবিতা সংকলনকে পশ্চিমা বিশ্বের কাছে পরিচিত এবং জনপ্রিয় করে তোলার জন্য এবং এর সবচেয়ে পরিচিত ইংরেজি অনুবাদ প্রকাশ করার কৃতিত্ব সম্পূর্ণভাবে Edward Fitzgerald-কে দেওয়া হয়।", "page": 226}, {"id": "q145", "chapter": "Chapter 6: The Victorian Period", "section": "6.6 Edward Fitzgerald & Matthew Arnold", "exam": "47th BCS", "q": "Who composed the elegiac poem 'Thyrsis'?", "options": [{"id": "a", "text": "Thomas Gray"}, {"id": "b", "text": "Matthew Arnold"}, {"id": "c", "text": "John Milton"}, {"id": "d", "text": "P. B. Shelley"}], "correct": "b", "expl": "Thyrsis কবিতাটি The Victorian Period (1832-1901)-এর কবি Matthew Arnold তার ঘনিষ্ঠ বন্ধু এবং কবি Arthur Hugh Clough-এর মৃত্যুর পর ১৮৬১ সালে রচনা করেন। এটি একটি গ্রামীণ শোকগাথা (pastoral elegy) হিসেবে পরিচিত, যেখানে প্রকৃতির প্রেক্ষাপটে বন্ধুর বিয়োগব্যথা বর্ণনা করা হয়েছে। তার উল্লেখযোগ্য সাহিত্যকর্ম- Rugby Chapel (Elegy), Dover Beach, The Scholar Gipsy (Poems)। উল্লেখ্য, তার বিখ্যাত উক্তি- \"Poetry is the criticism of life\".", "page": 227}, {"id": "q146", "chapter": "Chapter 6: The Victorian Period", "section": "6.6 Edward Fitzgerald & Matthew Arnold", "exam": "40th BCS", "q": "Who translated the 'Rubaiyat of Omar Khayyam' into English?", "options": [{"id": "a", "text": "Thomas Carlyle"}, {"id": "b", "text": "Edward Fitzgerald"}, {"id": "c", "text": "D.G. Rossetti"}, {"id": "d", "text": "William Thackeray"}], "correct": "b", "expl": "Omar Khayyam এর Rubaiyat কে ফারসি ভাষা থেকে ইংরেজিতে অনুবাদ করেন Edward Fitzgerald। অনুবাদটি প্রকাশিত হয় ১৮৫৯ সালে।", "page": 227}, {"id": "q147", "chapter": "Chapter 6: The Victorian Period", "section": "6.7 Other Prominent Authors", "exam": "47th BCS", "q": "The one-act play 'Riders to the Sea' was written by-", "options": [{"id": "a", "text": "G. B. Shaw"}, {"id": "b", "text": "Oscar Wilde"}, {"id": "c", "text": "J. M. Synge"}, {"id": "d", "text": "John Galsworthy"}], "correct": "c", "expl": "Riders to the Sea হলো একটি বিখ্যাত one-act play, যা লিখেছেন J. M. Synge. নাটকের গল্পের পটভূমি আয়ারল্যান্ডের আরান দ্বীপ, যেখানে মানুষের জীবন সমুদ্রের উপর অনেকটাই নির্ভরশীল। মূল চরিত্র Maurya, একজন বয়স্ক মহিলা, যিনি তার স্বামী ও অনেক সন্তানকে সমুদ্রের বিপদে হারিয়েছেন। নাটকটি দেখায় কীভাবে মানুষ প্রাকৃতিক শক্তির সঙ্গে লড়াই করে, কিন্তু অনেক সময় ভাগ্য ও পরিস্থিতি আমাদের নিয়ন্ত্রণের বাইরে থাকে। J. M. Synge মূলত নাট্যকার হিসেবে পরিচিত, তবে তিনি কিছু ছোট গল্প ও উপন্যাসাত্মক কাজও করেছেন। তাঁর কিছু গুরুত্বপূর্ণ নাটক হলো- Riders to the Sea (1904), The Playboy of the Western World (1907), The Well of the Saints (1905), In the Shadow of the Glen (1903), The Aran Islands (1907).", "page": 227}, {"id": "q148", "chapter": "Chapter 6: The Victorian Period", "section": "6.7 Other Prominent Authors", "exam": "41st BCS", "q": "'Vanity Fair' is a novel written by-", "options": [{"id": "a", "text": "D. H. Lawrence"}, {"id": "b", "text": "William Makepeace Thackeray"}, {"id": "c", "text": "Joseph Conrad"}, {"id": "d", "text": "Virgina Woolf"}], "correct": "b", "expl": "William Makepeace Thackeray এর সময়ে নারী কেন্দ্রিক সাহিত্যকর্মের প্রচলন ছিল না। এই অলিখিত নিয়মের বাইরে এসে প্রথম নারী চরিত্র Becky Sharp এবং Amelia Sedley কে নিয়ে লিখেছেন উপন্যাস Vanity Fair। উপন্যাসের প্রধান ঘটনা নেপোলিয়নের যুদ্ধের সময় এই দুইজনের প্রাত্যহিক জীবন।", "page": 227}, {"id": "q149", "chapter": "Chapter 6: The Victorian Period", "section": "6.7 Other Prominent Authors", "exam": "35th BCS", "q": "Find the odd-man-out-", "options": [{"id": "a", "text": "George Eliot"}, {"id": "b", "text": "Thomas Hardy"}, {"id": "c", "text": "Joseph Conrad"}, {"id": "d", "text": "James Joyce"}], "correct": "a", "expl": "উল্লিখিত সাহিত্যিকদের মধ্যে ব্যতিক্রম George Eliot, Mary Ann Evans এর ছদ্মনাম। নারী হিসেবে তার সাহিত্যকর্ম যাতে আলাদাভাবে বিবেচিত না হয় সেজন্য এই ছদ্মনাম ব্যবহার করতেন। তার বিখ্যাত কবিতা- The Spanish Gypsy.", "page": 227}, {"id": "q150", "chapter": "Chapter 6: The Victorian Period", "section": "6.7 Other Prominent Authors", "exam": "11th BCS", "q": "'Justice delayed is justice denied' was stated by-", "options": [{"id": "a", "text": "Disraeli"}, {"id": "b", "text": "Emerson"}, {"id": "c", "text": "Gladstone"}, {"id": "d", "text": "Shakespeare"}], "correct": "c", "expl": "ব্রিটিশ নেতা William E. Gladstone বলেছেন- 'বিচারকার্য যত দেরি হয় তত এটি সুবিচার পায় না'/ \"Justice delayed is justice denied\". এছাড়া তাঁর আরেকটি বিখ্যাত উক্তি- \"Justice hurried is justice buried\"/ \"বিচার দ্রুত সম্পন্ন মানে বিচারকে কবর দেওয়া\"।", "page": 227}, {"id": "q151", "chapter": "Chapter 7: The Modern Period", "section": "7.1 Chapter Introduction", "exam": "43rd BCS", "q": "Who is not a modern poet?", "options": [{"id": "a", "text": "W. B. Yeats"}, {"id": "b", "text": "W. H. Auden"}, {"id": "c", "text": "John Keats"}, {"id": "d", "text": "T. S. Eliot"}], "correct": "c", "expl": "ইংরেজি সাহিত্যের আধুনিক যুগে যেসকল সাহিত্যিক খ্যাতি লাভ করেছেন- G.B. Shaw, W.B. Yeats, James Joyce, T.S. Eliot, Ernest Hemingway, D.H. Lawrence, George Orwell, E.M. Forster, O'Henry, Franz Kafka, W.H. Auden প্রমুখ।", "page": 228}, {"id": "q152", "chapter": "Chapter 7: The Modern Period", "section": "7.1 Chapter Introduction", "exam": "43rd BCS", "q": "O'Henry was from-", "options": [{"id": "a", "text": "Canada"}, {"id": "b", "text": "America"}, {"id": "c", "text": "England"}, {"id": "d", "text": "Ireland"}], "correct": "b", "expl": "ইংরেজি সাহিত্যে আমেরিকান সাহিত্যিকদের আলাদা করে বিবেচনা করা হয় আধুনিক সময় থেকেই। এই সময়ের উল্লেখযোগ্য আমেরিকান সাহিত্যিকদের মধ্যে আছেন- T.S Eliot, Robert Frost, O'Henry, Mark Twain, Toni Morrison, Emily Dickinson, Ernest Hemingway, Sylvia Path, Allen Ginsberg, Ezra Pound, William Faulkner, W.H Auden প্রমুখ।", "page": 228}, {"id": "q153", "chapter": "Chapter 7: The Modern Period", "section": "7.1 Chapter Introduction", "exam": "43rd BCS", "q": "Who is not an Irish writer?", "options": [{"id": "a", "text": "Oscar Wilde"}, {"id": "b", "text": "James Joyce"}, {"id": "c", "text": "Jonathan Swift"}, {"id": "d", "text": "D. H. Lawrence"}], "correct": "d", "expl": "আধুনিক ইংরেজি সাহিত্যে অবদান রাখা আইরিশদের মধ্যে আছেন- G.B. Shaw, W.B. Yeats, John Millington Synge, James Joyce, Samuel Beckett, Oscar Wilde, Edmund Burke, Oliver Goldsmith প্রমুখ। Jonathan Swift আধুনিক সময়ের না হলেও Neo-classical যুগের অ্যাংলো-আইরিশ সাহিত্যিক।", "page": 228}, {"id": "q154", "chapter": "Chapter 7: The Modern Period", "section": "7.1 Chapter Introduction", "exam": "40th BCS", "q": "Which of the following is not an American poet?", "options": [{"id": "a", "text": "Robert Frost"}, {"id": "b", "text": "W.B. Yeats"}, {"id": "c", "text": "Emily Dickinson"}, {"id": "d", "text": "Langston Hughes"}], "correct": "b", "expl": "W.B. Yeats.", "page": 228}, {"id": "q155", "chapter": "Chapter 7: The Modern Period", "section": "7.1 Chapter Introduction", "exam": "17th BCS", "q": "Any one of the following pairs are literary collaborators-", "options": [{"id": "a", "text": "Eliot and Pound"}, {"id": "b", "text": "Yeats and Eliot"}, {"id": "c", "text": "Pope and Dryden"}, {"id": "d", "text": "Shelly and Keats"}], "correct": "a", "expl": "Literary Collaborators দ্বারা একই সাহিত্যকর্মে একাধিক লোকের অবদানকে বুঝানো হয়। T.S Eliot এর বিখ্যাত কাব্য The Waste Land এর এডিটর হিসেবে তিনি নির্বাচিত করেন Ezra Pound কে। সে হিসেবে তারা দুজন এখানে Literary Collaborators বিবেচ্য। এছাড়াও Charles Dickens এবং Wilkie Collins দুজন একত্রে মঞ্চস্থ করেন The Frozen Deep, W.H. Auden এবং Christopher Isherwood একত্রে Of the Frontier এবং The Ascent of F6 এর সংলাপ লিখেছেন।", "page": 228}, {"id": "q156", "chapter": "Chapter 7: The Modern Period", "section": "7.1 Chapter Introduction", "exam": "15th BCS", "q": "Which of the following ages in literary history is the latest?", "options": [{"id": "a", "text": "The Augustan Age"}, {"id": "b", "text": "The Victorian Age"}, {"id": "c", "text": "The Georgian Age"}, {"id": "d", "text": "The Restoration Age"}], "correct": "c", "expl": "The Georgian Age.", "page": 228}, {"id": "q157", "chapter": "Chapter 7: The Modern Period", "section": "7.1 Chapter Introduction", "exam": "13th BCS", "q": "T.S Eliot was born in-", "options": [{"id": "a", "text": "Ireland"}, {"id": "b", "text": "England"}, {"id": "c", "text": "Wales"}, {"id": "d", "text": "USA"}], "correct": "d", "expl": "USA.", "page": 228}, {"id": "q158", "chapter": "Chapter 7: The Modern Period", "section": "7.2 G.B. Shaw", "exam": "44th, 12th BCS", "q": "'Caesar and Cleopatra' is-", "options": [{"id": "a", "text": "a tragedy by William Shakespeare"}, {"id": "b", "text": "a poem by Lord Byron"}, {"id": "c", "text": "a play by Bernard Shaw"}, {"id": "d", "text": "a novel by S.T. Coleridge"}], "correct": "c", "expl": "আধুনিক ইংরেজি সাহিত্যের শ্রেষ্ঠ নাট্যকার George Bernard Shaw রচিত Caesar and Cleopatra নাটকটি রাজা জুলিয়াস সিজার ও রানি ক্লিওপেট্রার রাজনৈতিক দিক থেকে ঘনিষ্ঠতা নিয়ে রচিত। Shaw রচিত আরো কিছু বিখ্যাত নাটক- You Never Can Tell, Candida, Pygmalion, Mrs. Warren's Profession, Widowers' House, Doctor's Dilemma, Man and Superman ইত্যাদি। উল্লেখ্য যে, 'Antony and Cleopatra' play টি William Shakespeare এর ট্র্যাজেডি।", "page": 228}, {"id": "q159", "chapter": "Chapter 7: The Modern Period", "section": "7.2 G.B. Shaw", "exam": "41st BCS", "q": "The Character 'Alfred Doolittle' is taken from Shaw's play titled-", "options": [{"id": "a", "text": "Pygmalion"}, {"id": "b", "text": "Man and Superman"}, {"id": "c", "text": "The Doctor's Dilemma"}, {"id": "d", "text": "Mrs. Warren's Profession"}], "correct": "a", "expl": "Shaw রচিত নাটকগুলোর মধ্যে Pygmalion অন্যন্য। নাটকটিতে লেখক সামাজিক শ্রেণিবিভেদের বেড়াজালে কারাবন্দি হয়ে উঠাকে তুলে ধরেছেন। নাটকটির অন্যান্য চরিত্র- Eliza Doolittle, Professor Henry Higgins, Alfred P. Doolittle, Colonel Hugh Pickering.", "page": 229}, {"id": "q160", "chapter": "Chapter 7: The Modern Period", "section": "7.2 G.B. Shaw", "exam": "38th BCS", "q": "Who is the author of 'Man and Superman'?", "options": [{"id": "a", "text": "G.B. Shaw"}, {"id": "b", "text": "Thomas Hardy"}, {"id": "c", "text": "Ernest Hemingway"}, {"id": "d", "text": "Charles Dickens"}], "correct": "a", "expl": "চার অঙ্কের এই নাটকটিতে Shaw তার Don Juan এর থিমকে সম্প্রসারিত করে লিখেন। মানবমনের প্রবহমানতা ও দ্বৈততার প্রতি আকর্ষণ এই নাটকের প্রধান বিষয়বস্তু। নাটকের উল্লেখযোগ্য চরিত্র- Mr. Whitefield, Ramsden, John Tanner, Anne.", "page": 229}, {"id": "q161", "chapter": "Chapter 7: The Modern Period", "section": "7.2 G.B. Shaw", "exam": "36th BCS", "q": "The play 'Candida' is by-", "options": [{"id": "a", "text": "James Joyce"}, {"id": "b", "text": "Shakespeare"}, {"id": "c", "text": "G. B. Shaw"}, {"id": "d", "text": "Arthur Miller"}], "correct": "c", "expl": "'Candida' নাটকটি G.B. Shaw এর কমেডিগুলোর মধ্যে একটি। নাটকে একদিকে সম্মানিত James এর স্ত্রী Candida এর কম বয়স্ক কবি Eugene এর প্রতি প্রেম অন্যদিকে James এর প্রতি Candida এর দায়িত্বের এক মনস্তাত্বিক ডিলেমা তৈরি করে।", "page": 229}, {"id": "q162", "chapter": "Chapter 7: The Modern Period", "section": "7.2 G.B. Shaw", "exam": "35th BCS", "q": "The play Arms and the Man is by-", "options": [{"id": "a", "text": "James Joyce"}, {"id": "b", "text": "Samuel Beckett"}, {"id": "c", "text": "Arthur Miller"}, {"id": "d", "text": "George Bernard Shaw"}], "correct": "d", "expl": "সার্বিয়া ও বুলগেরিয়ার যুদ্ধের প্রেক্ষাপটে রচিত Arms and the Man নাটকের প্রধান বিষয় জাতীয়তাবাদের উপর মনের মিল। এর উল্লেখযোগ্য চরিত্রের মধ্যে রয়েছে- Riana Petkoff, Bluntschli, Sergius, Louka.", "page": 229}, {"id": "q163", "chapter": "Chapter 7: The Modern Period", "section": "7.2 G.B. Shaw", "exam": "12th BCS", "q": "Who is the greatest modern English dramatist?", "options": [{"id": "a", "text": "Verginia Woolf"}, {"id": "b", "text": "George Bernard Shaw"}, {"id": "c", "text": "P.B. Shelley"}, {"id": "d", "text": "S.T. Coleridge"}], "correct": "b", "expl": "George Bernard Shaw.", "page": 229}, {"id": "q164", "chapter": "Chapter 7: The Modern Period", "section": "7.3 W.B. Yeats", "exam": "44th BCS", "q": "\"All changed, changed utterly: A terrible beauty is born.\" This extract is taken from W.B. Yeats poem titled-", "options": [{"id": "a", "text": "No second Troy"}, {"id": "b", "text": "Easter 1916"}, {"id": "c", "text": "The Second Coming"}, {"id": "d", "text": "The Wild Swans at Coole"}], "correct": "b", "expl": "১৯১৬ সালে আয়ারল্যান্ডে ব্রিটিশ সরকারের বিরুদ্ধে সংঘটিত বিদ্রোহের জের ধরে আইরিশ জাতীয়তাবাদী অনেক জনকে মৃত্যুদণ্ড দেয় ব্রিটিশ সরকার। এদের অনেককে ব্যক্তিগত ভাবে চিনতেন Yeats। তাদের আত্মোৎসর্গ নিয়েই লিখেছেন Easter 1916 কবিতাটি। তার রচিত উল্লেখযোগ্য আরো কিছু কবিতা- The Second Coming, No Second Troy, The Wild Swans at Coole, A Prayer for My Daughter, The Lake Isle of Innisfree।", "page": 229}, {"id": "q165", "chapter": "Chapter 7: The Modern Period", "section": "7.3 W.B. Yeats", "exam": "43rd BCS", "q": "'No Second Troy' is a-", "options": [{"id": "a", "text": "short story"}, {"id": "b", "text": "novel"}, {"id": "c", "text": "poem"}, {"id": "d", "text": "drama"}], "correct": "c", "expl": "poem.", "page": 229}, {"id": "q166", "chapter": "Chapter 7: The Modern Period", "section": "7.3 W.B. Yeats", "exam": "36th BCS", "q": "'Gitanjali' of Rabindranath Tagore was translated by-", "options": [{"id": "a", "text": "W. B. Yeats"}, {"id": "b", "text": "Robert Frost"}, {"id": "c", "text": "John Keats"}, {"id": "d", "text": "Rudyard Kipling"}], "correct": "a", "expl": "রবীন্দ্রনাথ ঠাকুরের 'গীতাঞ্জলি' নামক কাব্যগ্রন্থটি ইংরেজিতে অনুবাদ মূলত রবীন্দ্রনাথ নিজেই করেছেন। তবে, W. B. Yeats এ ক্ষেত্রে ব্যাপক ভূমিকা রাখেন এবং অনূদিত কাব্যগ্রন্থটির অর্থাৎ 'Song Offerings'-এর Introduction টি তিনিই লিখেন। এ কারণে তার নামটি বিশেষভাবে উল্লেখযোগ্য।", "page": 229}, {"id": "q167", "chapter": "Chapter 7: The Modern Period", "section": "7.3 W.B. Yeats", "exam": "36th BCS", "q": "Who of the following writers was not a novelist?", "options": [{"id": "a", "text": "Charles Dickens"}, {"id": "b", "text": "W.B. Yeats"}, {"id": "c", "text": "James Joyce"}, {"id": "d", "text": "Jane Austen"}], "correct": "b", "expl": "প্রথম আইরিশ হিসেবে নোবেলজয়ী William Butler Yeats ছিলেন poet, dramatist এবং critic। তিনি কোনো উপন্যাস লিখেননি। অপশনে উল্লিখিত বাকি সাহিত্যিকগণ ঔপন্যাসিক হিসেবেই খ্যাতি পেয়েছেন।", "page": 229}, {"id": "q168", "chapter": "Chapter 7: The Modern Period", "section": "7.3 W.B. Yeats", "exam": "35th BCS", "q": "The poem \"Isle of Innisfree\" is written by-", "options": [{"id": "a", "text": "Dylan Thomas"}, {"id": "b", "text": "Ezra Pound"}, {"id": "c", "text": "W.H. Auden"}, {"id": "d", "text": "W.B. Yeats"}], "correct": "d", "expl": "W.B. Yeats.", "page": 229}, {"id": "q169", "chapter": "Chapter 7: The Modern Period", "section": "7.4 T.S. Eliot", "exam": "47th BCS", "q": "Who is the writer of the famous essay 'Tradition and the Individual Talent'?", "options": [{"id": "a", "text": "George Orwell"}, {"id": "b", "text": "Aldous Leonard Huxley"}, {"id": "c", "text": "T. S. Eliot"}, {"id": "d", "text": "Francis Bacon"}], "correct": "c", "expl": "'Tradition and the Individual Talent' হলো বিংশ শতাব্দীর সাহিত্য সমালোচনার অন্যতম প্রভাবশালী একটি প্রবন্ধ। এটি ১৯১৯ সালে T. S. Eliot-রচনা করেন যেখানে তিনি একজন কবির কাজ এবং সাহিত্যের ঐতিহ্য (tradition)-এর মধ্যে সম্পর্ক নিয়ে তার তত্ব উপস্থাপন করেন। T. S. Eliot-এর কিছু বিখ্যাত কবিতা-The Love Song of J. Alfred Prufrock (1915), The Waste Land (1922), The Hollow Men (1925), Ash Wednesday (1930), Four Quartets (1943).", "page": 230}, {"id": "q170", "chapter": "Chapter 7: The Modern Period", "section": "7.4 T.S. Eliot", "exam": "44th BCS", "q": "The poetic drama 'Murder in the Cathedral' was written by-", "options": [{"id": "a", "text": "Harold Pinter"}, {"id": "b", "text": "G.B. Shaw"}, {"id": "c", "text": "T.S. Eliot"}, {"id": "d", "text": "Samuel Beckett"}], "correct": "c", "expl": "রাজা Henry II এর লোকেদের হাতে Archbishop Thomas Becket এর হত্যাকাণ্ডকে ঘিরে Murder in the Cathedral নাটকে ইলিয়ট অধার্মিক ও আধ্যাত্বিক ব্যক্তিদের টানাপড়েন দেখিয়েছেন। তার রচিত আরো দুটি বিখ্যাত নাটকের নাম- The Cocktail Party, The Elder Statesman.", "page": 230}, {"id": "q171", "chapter": "Chapter 7: The Modern Period", "section": "7.4 T.S. Eliot", "exam": "41st BCS", "q": "The poem 'The Love Song of J. Alfred Prufrock' is written by-", "options": [{"id": "a", "text": "W. B. Yeats"}, {"id": "b", "text": "T. S. Eliot"}, {"id": "c", "text": "Walter Scott"}, {"id": "d", "text": "Robert Browning"}], "correct": "b", "expl": "'The Love Song of J. Alfred Prufrock' কবিতাটি বিশ্বখ্যাতি এনে দেয় T.S. Eliot কে। কবিতায় আধুনিক মানুষের বাস্তবতা ও মনের আকাঙ্ক্ষার দ্বন্দ্ব তুলে ধরেছেন কবিতার নায়ক Alfred Prufrock এর মাধ্যমে। ইলিয়টের বিখ্যাত আরো কিছু কবিতার মধ্যে আছে- The Waste Land, Geronition, Four Quartets.", "page": 230}, {"id": "q172", "chapter": "Chapter 7: The Modern Period", "section": "7.4 T.S. Eliot", "exam": "37th BCS", "q": "\"Geronition\" is a poem by-", "options": [{"id": "a", "text": "T.S. Eliot"}, {"id": "b", "text": "W.B.Yeats"}, {"id": "c", "text": "Mathew Arnold"}, {"id": "d", "text": "Robert Browning"}], "correct": "a", "expl": "T.S. Eliot.", "page": 230}, {"id": "q173", "chapter": "Chapter 7: The Modern Period", "section": "7.5 D.H. Lawrence", "exam": "41st BCS", "q": "'Lady Chatterley's Lover' was written by the author of-", "options": [{"id": "a", "text": "Lord Jim"}, {"id": "b", "text": "The Rainbow"}, {"id": "c", "text": "Ulysses"}, {"id": "d", "text": "A Passage to India"}], "correct": "b", "expl": "'Lady Chatterley's Lover' উপন্যাসটি D. H. Lawrence এর। উপন্যাসের উল্লেখযোগ্য চরিত্র- Clifford Chatterley, Constance Reed, Oliver Mellors। তাঁর আরও কিছু উল্লেখযোগ্য উপন্যাস- Sons and Lovers, The Rainbow, Women in Love ইত্যাদি। উল্লেখ্য Lord Jim উপন্যাসটি Joseph Conrad এর।", "page": 230}, {"id": "q174", "chapter": "Chapter 7: The Modern Period", "section": "7.5 D.H. Lawrence", "exam": "13th BCS", "q": "'The rainbow' is-", "options": [{"id": "a", "text": "a poem by Wordsworth"}, {"id": "b", "text": "a short story by Somerst Maugham"}, {"id": "c", "text": "a novel by D.H. Lawrence"}, {"id": "d", "text": "a verse by Coleridge"}], "correct": "c", "expl": "a novel by D.H. Lawrence.", "page": 230}, {"id": "q175", "chapter": "Chapter 7: The Modern Period", "section": "7.6 Ernest Hemingway", "exam": "46th, 12th, 10th BCS", "q": "The author of A Farewell to Arms is-", "options": [{"id": "a", "text": "Somerset Maugham"}, {"id": "b", "text": "Ernest Hemingway"}, {"id": "c", "text": "D.H. Lawrence"}, {"id": "d", "text": "Jane Austen"}], "correct": "b", "expl": "A Farewell to Arms উপন্যাসটি Hemingway'র অন্যতম এক সৃষ্টি। যুদ্ধকালীন সৈনিক Federick Henry ও নার্স Catherine Barkley এর প্রেমের কাহিনি এই উপন্যাসের উপজীব্য। হেমিংওয়ের অন্যান্য বিখ্যাত উপন্যাসের মধ্যে রয়েছে- The Sun Also Rises, For Whom the Bell Tolls, The Old Man and the Sea।", "page": 230}, {"id": "q176", "chapter": "Chapter 7: The Modern Period", "section": "7.6 Ernest Hemingway", "exam": "37th BCS", "q": "'The Sun Also Rises' is a novel written by-", "options": [{"id": "a", "text": "Charles Dickens"}, {"id": "b", "text": "Hermanne Melville"}, {"id": "c", "text": "Earnest Hemingway"}, {"id": "d", "text": "Thomas Hardy"}], "correct": "c", "expl": "Earnest Hemingway.", "page": 230}, {"id": "q177", "chapter": "Chapter 7: The Modern Period", "section": "7.6 Ernest Hemingway", "exam": "11th BCS", "q": "Who is the author of 'For Whom the Bell Tolls'?", "options": [{"id": "a", "text": "Charles Dickens"}, {"id": "b", "text": "Homer"}, {"id": "c", "text": "Lord Tennison"}, {"id": "d", "text": "Ernest Hemingway"}], "correct": "d", "expl": "Ernest Hemingway.", "page": 230}, {"id": "q178", "chapter": "Chapter 7: The Modern Period", "section": "7.7 George Orwell", "exam": "47th BCS", "q": "Who was the writer of the autobiographical as well as political essay 'Shooting and Elephant'?", "options": [{"id": "a", "text": "Francis Bacon"}, {"id": "b", "text": "George Orwell"}, {"id": "c", "text": "Joseph Addison"}, {"id": "d", "text": "Charles Lamb"}], "correct": "b", "expl": "'Shooting an Elephant' হলো George Orwell-এর একটি আত্মজীবনীমূলক এবং রাজনৈতিক প্রবন্ধ। এটি মূলত তার বার্মা (বর্তমান মিয়ানমার) অবস্থানের সময়কার অভিজ্ঞতার ওপর ভিত্তি করে লেখা। প্রবন্ধে Orwell একজন ব্রিটিশ পুলিশ কর্মকর্তা হিসেবে একটি হাতি হত্যা করার পরিস্থিতি নিয়ে লেখেন। তিনি দেখিয়েছেন কিভাবে উপনিবেশী ক্ষমতা, সামাজিক প্রত্যাশা ও জনগণের চাপে মানুষ নিজের নৈতিকতা ও বিবেকের বিপরীতে কাজ করতে বাধ্য হয়। হাতিটি হত্যা করা শুধু প্রাণীটির জন্য নয় বরং সমাজে নিজের অবস্থান ও কর্তৃত্ব প্রদর্শনের প্রতীক হয়ে ওঠে। George Orwell-এর গুরুত্বপূর্ণ প্রবন্ধ ও উপন্যাসগুলো- Animal Farm (1945), 1984 (1949), Homage to Catalonia (1938), The Road to Wigan Pier (1937), Down and Out in Paris and London (1933) etc. বি. দ্র: প্রশ্নে 'Shooting and Elephant' লেখা আছে। এখানে and এর পরিবর্তে an হবে।", "page": 231}, {"id": "q179", "chapter": "Chapter 7: The Modern Period", "section": "7.7 George Orwell", "exam": "45th BCS", "q": "Which of the following novels was written by George Orwell?", "options": [{"id": "a", "text": "1984"}, {"id": "b", "text": "Brave New World"}, {"id": "c", "text": "A clockwork Orange"}, {"id": "d", "text": "For Whom the Bell Tolls."}], "correct": "a", "expl": "George Orwell ছদ্মনাম নিয়ে Eric Aurther Blair ইংরেজি সাহিত্যকে দিয়েছেন 1984, Animal Farm এর মতো কালজয়ী উপন্যাস। 1984 উপন্যাসে লেখক একনায়কতান্ত্রিক রাষ্ট্রে নাগরিকদের উপর শাসকের চরম মাত্রার নিয়ন্ত্রণ দেখিয়েছেন। উপন্যাসের শেষ পর্যায়ে প্রধান চরিত্র Winston ও Julia এর শাসক Big Brother কে চূড়ান্তভাবে মেনে নেওয়াকে দেখানোর মাধ্যমে Totalitarian State এর বাস্তবিক পরিণতি তুলে ধরেছেন।", "page": 231}, {"id": "q180", "chapter": "Chapter 7: The Modern Period", "section": "7.7 George Orwell", "exam": "28th, 10th BCS", "q": "'Animal Farm' was written by-", "options": [{"id": "a", "text": "Geogre Orwell"}, {"id": "b", "text": "Stevenson"}, {"id": "c", "text": "Swift"}, {"id": "d", "text": "Mark Twain"}], "correct": "a", "expl": "'Animal Farm' Orwell এর আরেক ক্লাসিক উপন্যাস। এখানে তিনি বিভিন্ন পশুর হাস্যকর কর্মকাণ্ডের মাধ্যমে তৎকালীন সোভিয়েত নেতা স্টালিনের চরম মাত্রার বিদ্রূপ করেছেন।", "page": 231}, {"id": "q181", "chapter": "Chapter 7: The Modern Period", "section": "7.8 E.M. Forster", "exam": "50th BCS", "q": "Themes like racial prejudice, oppressive power dynamics, unbridgeable gulf between Eastern & Western cultures, etc. are best exemplified in-", "options": [{"id": "a", "text": "Shadow of the Moon by MM Kaye"}, {"id": "b", "text": "Bhowani Junction by John Masters"}, {"id": "c", "text": "Kim by Rudyard Kipling"}, {"id": "d", "text": "A Passage to India by EM Forster"}], "correct": "d", "expl": "E.M Forster কে আকর্ষণ করেছিল প্রাচ্যের আধ্যাত্মবাদ। 'A Passage to India' উপন্যাসটিতে লেখক প্রথম মহাযুদ্ধ এবং তার বিভীষিকায় মানুষের প্রাচীনপন্থী কুসংস্কার সম্পর্কে অত্যন্ত নির্মমভাবে উপহাস করেছিল। উপন্যাসের এক মুখ্য চরিত্র Cyril Fielding ঈশ্বর বিশ্বাসী নয় কিন্তু অবিশ্বাসী নাস্তিকও সে নয়। কাঁধের লুকানো ডানা মেলে দিয়ে মানুষ যখন হঠাৎ পথকে সমল করে বেরিয়ে পড়ে, তখন Fielding অভিভূত হয়ে যায়। ভারতবর্ষে যুগে যুগে মুঘল, ইংরেজরা এসেছে কিন্তু সবাই মিশে গেছে ভারতবর্ষের আত্মায়। তবুও ব্রিটিশ Fielding এর বাড়ানো হাত ধরলো না ভারতীয় Dr. Aziz। পূর্ব পশ্চিমের মিলন অত সহজে সম্ভব হয় না, হবে না। উপন্যাসের প্রধান চরিত্রগুলোর মধ্যে রয়েছে- Adela Quested, Mrs. Moore, Dr. Aziz, Cyril Fielding।", "page": 231}, {"id": "q182", "chapter": "Chapter 7: The Modern Period", "section": "7.8 E.M. Forster", "exam": "42nd, 36th BCS", "q": "\"A Passage to India\" is written by:", "options": [{"id": "a", "text": "E.M. Forster"}, {"id": "b", "text": "Nirad C. Chaudhuri"}, {"id": "c", "text": "Rudyard Kipling"}, {"id": "d", "text": "Walt Whitman"}], "correct": "a", "expl": "E.M. Forster.", "page": 231}, {"id": "q183", "chapter": "Chapter 7: The Modern Period", "section": "7.8 E.M. Forster", "exam": "41st BCS", "q": "Adela Quested and Mrs. Moore are characters from the novel-", "options": [{"id": "a", "text": "David Copperfield"}, {"id": "b", "text": "The Return of the Native"}, {"id": "c", "text": "A Passage to India"}, {"id": "d", "text": "Adam Bede"}], "correct": "c", "expl": "A Passage to India.", "page": 231}, {"id": "q184", "chapter": "Chapter 7: The Modern Period", "section": "7.9 Other Prominent Authors", "exam": "48th BCS (স্বাস্থ্য)", "q": "Lord of the Flies was written by ___.", "options": [{"id": "a", "text": "William Shakespeare"}, {"id": "b", "text": "William Wordsworth"}, {"id": "c", "text": "William Golding"}, {"id": "d", "text": "T.S. Eliot"}], "correct": "c", "expl": "Lord of the Flies একটি বিখ্যাত allegorical novel, যা William Golding ১৯৫৪ সালে লিখেছিলেন। William Golding এর অন্যান্য বিখ্যাত উপন্যাস- The Inheritors (1955), Pincher Martin (1956), Free Fall (1959), The Spire (1964), Darkness Visible (1979).", "page": 232}, {"id": "q185", "chapter": "Chapter 7: The Modern Period", "section": "7.9 Other Prominent Authors", "exam": "47th BCS", "q": "Who wrote the novella 'Heart of Darkness'?", "options": [{"id": "a", "text": "Joseph Conrad"}, {"id": "b", "text": "Doris Lessing"}, {"id": "c", "text": "John Osborne"}, {"id": "d", "text": "Thomas Hardy"}], "correct": "a", "expl": "Joseph Conrad (১৮৫৭-১৯২৪) ছিলেন একজন পোলিশ-ব্রিটিশ ঔপন্যাসিক, যিনি মানব প্রকৃতি, নৈতিকতা এবং সাম্রাজ্যবাদের মতো বিষয় নিয়ে লেখার জন্য পরিচিত। 'Heart of Darkness' নভেলাটি ইউরোপীয় উপনিবেশবাদের অন্ধকার দিক এবং ঔপনিবেশিক ও উপনিবেশিত উভয় পক্ষের নৈতিক অবক্ষয়কে গভীরভাবে তুলে ধরেছে। 'Heart of Darkness' উপন্যাসের প্রধান চরিত্রগুলো- Marlow (protagonist), Kurtz, The Manager, The Accountant, The Intended etc. Joseph Conrad-এর উল্লেখযোগ্য সাহিত্যকর্ম- Lord Jim (1900), Nostromo (1904), The Secret Agent (1907), Under Western Eyes (1911) etc.", "page": 232}, {"id": "q186", "chapter": "Chapter 7: The Modern Period", "section": "7.9 Other Prominent Authors", "exam": "47th BCS", "q": "'Good fences make good neighbors.' The line was written by.", "options": [{"id": "a", "text": "Robert Graves"}, {"id": "b", "text": "Robert Frost"}, {"id": "c", "text": "Ezra Pound"}, {"id": "d", "text": "Carl Sandburg"}], "correct": "b", "expl": "লাইনটি Robert Frost এর কবিতা \"Mending Wall\" থেকে নেওয়া হয়েছে। কবিতায় Frost দেখিয়েছেন যে মাঝে মাঝে সীমারেখা বা দূরত্ব রাখাই মানুষের মধ্যে ভালো সম্পর্ক বজায় রাখে। Robert Frost এর আরও কিছু quotes- \"Two roads diverged in a wood, and I took the one less traveled by, And that has made all the difference.\" (The Road Not Taken); \"The woods are lovely, dark and deep, But I have promises to keep, And miles to go before I sleep.\" (Stopping by Woods on a Snowy Evening); \"Something there is that doesn't love a wall.\" (Mending Wall); \"The best way out is always through.\" (A Servant to Servants)", "page": 232}, {"id": "q187", "chapter": "Chapter 7: The Modern Period", "section": "7.9 Other Prominent Authors", "exam": "47th BCS", "q": "Who authored the futuristic novel 'Brave New World'?", "options": [{"id": "a", "text": "E. M. Forster"}, {"id": "b", "text": "Virginia Woolf"}, {"id": "c", "text": "Aldous Leonard Huxley"}, {"id": "d", "text": "Graham Greene"}], "correct": "c", "expl": "Brave New World (1932) নামক ভবিষ্যতভিত্তিক উপন্যাসের লেখক হলেন Aldous Leonard Huxley। গল্পে একটি ডিস্টোপিয়ান (dystopian) সমাজ দেখানো হয়েছে, যেখানে মানুষকে বিজ্ঞান ও প্রযুক্তির মাধ্যমে নিয়ন্ত্রণ করা হয়। Huxley মানুষের স্বাধীনতা, মানসিক স্বাচ্ছন্দ্য এবং সামাজিক নিয়ন্ত্রণের সীমা নিয়ে প্রশ্ন তুলেছেন। তার অন্যান্য বিখ্যাত উপন্যাসসমূহ- Crome Yellow (1921), Antic Hay (1923), Eyeless in Gaza (1936) etc.", "page": 232}, {"id": "q188", "chapter": "Chapter 7: The Modern Period", "section": "7.9 Other Prominent Authors", "exam": "44th BCS", "q": "Who wrote the short story 'The Ant and the Grasshopper'?", "options": [{"id": "a", "text": "Guy de Maupassant"}, {"id": "b", "text": "W. Somerest Maugham"}, {"id": "c", "text": "J.K. Rawlings"}, {"id": "d", "text": "O'Henry"}], "correct": "b", "expl": "বিখ্যাত ঔপন্যাসিক ও ছোটগল্প লেখক W.S. Maugham এর রূপকথা ধর্মী শিক্ষামূলক গল্প The Ant and the Grasshopper. সুসময়ে সঞ্চয়ের শিক্ষা দেওয়া হয়েছে এ গল্পে। তার আরেকটি বিখ্যাত ছোটগল্প- The Luncheon।", "page": 232}, {"id": "q189", "chapter": "Chapter 7: The Modern Period", "section": "7.9 Other Prominent Authors", "exam": "42nd BCS", "q": "Who wrote Dr. Zivago?", "options": [{"id": "a", "text": "Maxim Gorky"}, {"id": "b", "text": "Boris Pasternak"}, {"id": "c", "text": "Fyodor Dostoevsky"}, {"id": "d", "text": "Leo Tolstoy"}], "correct": "b", "expl": "১৯০৫ সালের রাশিয়ান বিপ্লব এবং দ্বিতীয় বিশ্বযুদ্ধের মধ্যে সংঘটিত ঘটনাবলির আলোকে Boris Pasternak রচনা করেছেন Dr. Zivago উপন্যাসটি। যা পরবর্তীতে ১৯৫৮ সালে তাকে সাহিত্যে নোবেল পুরস্কার এনে দিয়েছিল।", "page": 233}, {"id": "q190", "chapter": "Chapter 7: The Modern Period", "section": "7.9 Other Prominent Authors", "exam": "41st BCS", "q": "Who is the author of the first scientific romance 'The Time Machine'?", "options": [{"id": "a", "text": "H. G. Wells"}, {"id": "b", "text": "Samuel Butler"}, {"id": "c", "text": "Henry James"}, {"id": "d", "text": "George Moore"}], "correct": "a", "expl": "Modern যুগের আগে বৈজ্ঞানিক কল্পকাহিনিকে জনপ্রিয় করে তুলতে যারা সাহিত্য রচনা করেছেন তাদের মধ্যে বিখ্যাত ছিলেন H.G. Wells। তার রচিত The War of the Worlds, The Invisible Man, The Island of Doctor Moreau উপন্যাসগুলো Science Fiction ধারার।", "page": 233}, {"id": "q191", "chapter": "Chapter 7: The Modern Period", "section": "7.9 Other Prominent Authors", "exam": "41st BCS", "q": "'Time held me Green and dying Though I sang in my chains like the sea.' These lines have been quoted from Dylan Thomas' poem-", "options": [{"id": "a", "text": "The Flower"}, {"id": "b", "text": "Fern Hill"}, {"id": "c", "text": "By Fire"}, {"id": "d", "text": "After the Funeral"}], "correct": "b", "expl": "Fern Hill.", "page": 233}, {"id": "q192", "chapter": "Chapter 7: The Modern Period", "section": "7.9 Other Prominent Authors", "exam": "40th BCS", "q": "'Ulysses' is a novel written by-", "options": [{"id": "a", "text": "Joseph Conrad"}, {"id": "b", "text": "Thomas Hardy"}, {"id": "c", "text": "Charles Dickens"}, {"id": "d", "text": "James Joyce"}], "correct": "d", "expl": "আইরিশ লেখক James Joyce তার Ulysses উপন্যাসটির জন্য সমধিক পরিচিত। উপন্যাসটিতে নায়ক Leopold Bloom এর নিজ দেশ থেকে নির্বাসন, শিশুপুত্রের অকাল মৃত্যু জনিত মানসিক যন্ত্রণাকর অবস্থায় তার কল্পনাকে ঘিরে রচিত এই উপন্যাস।", "page": 233}, {"id": "q193", "chapter": "Chapter 7: The Modern Period", "section": "7.9 Other Prominent Authors", "exam": "40th BCS", "q": "The short story 'The Diamond Necklace' was written by-", "options": [{"id": "a", "text": "Guy de Maupassant"}, {"id": "b", "text": "O Henry"}, {"id": "c", "text": "Somerset Maugham"}, {"id": "d", "text": "George Orwell"}], "correct": "a", "expl": "Guy de Maupassant কে সেরা ফরাসি ছোটগল্পকার বিবেচনা করা হয়। The Diamond Necklace তার বিখ্যাত ছোট গল্প যেখানে তিনি লোভ ও ধন-সম্পদ প্রদর্শনের মিথ্যা প্রচেষ্টার ভয়ংকর পরিণতি তুলে ধরেছেন প্রধান চরিত্র Mithilde এবং Charles Liosel এর মাধ্যমে।", "page": 233}, {"id": "q194", "chapter": "Chapter 7: The Modern Period", "section": "7.9 Other Prominent Authors", "exam": "38th BCS", "q": "Who among the following Indian English writers is famous novelist?", "options": [{"id": "a", "text": "Gayatri Chakravorty Spivak"}, {"id": "b", "text": "R.K. Narayan"}, {"id": "c", "text": "Nissim Ezekiel"}, {"id": "d", "text": "Kamala Das"}], "correct": "b", "expl": "অপশনে প্রদত্ত ভারতীয় ইংরেজি সাহিত্যের লেখকদের মধ্যে বিখ্যাত ঔপন্যাসিক হলেন R.K. Narayan। তার উল্লেখযোগ্য কয়েকটি উপন্যাস হলো- The Bachelor of Arts, The Dark Room, The Man-Eater of Malgudi ইত্যাদি।", "page": 233}, {"id": "q195", "chapter": "Chapter 7: The Modern Period", "section": "7.9 Other Prominent Authors", "exam": "35th BCS", "q": "Who among the following writers is not a Nobel Laureate?", "options": [{"id": "a", "text": "T.S. Eliot"}, {"id": "b", "text": "Toni Morrison"}, {"id": "c", "text": "Grahame Greene"}, {"id": "d", "text": "William Faulkner"}], "correct": "c", "expl": "Option গুলোর মধ্যে T.S. Eliot ১৯৪৮ সালে, Toni Morrison ১৯৯৩ সালে এবং William Faulkner ১৯৪৯ সালে নোবেল পুরস্কার লাভ করেন। Graham Greene Nobel prize পাননি।", "page": 233}, {"id": "q196", "chapter": "Chapter 7: The Modern Period", "section": "7.9 Other Prominent Authors", "exam": "35th BCS", "q": "Riders to the Sea is-", "options": [{"id": "a", "text": "an epic poem"}, {"id": "b", "text": "a novella"}, {"id": "c", "text": "a one-act play"}, {"id": "d", "text": "a theatrical adaptation of a poem"}], "correct": "c", "expl": "J.M. Synge এর One-act play- 'Riders to the Sea' উপকূলীয় অঞ্চলের মানুষের কঠিন জীবন ও সাগরের উপর তাদের নির্ভরতাকে চিত্রায়িত করেছে। নাটকটির কেন্দ্রীয় চরিত্রে রয়েছে- Maurya, Nora, Michael, Bartkey, Cathleen.", "page": 233}, {"id": "q197", "chapter": "Chapter 7: The Modern Period", "section": "7.9 Other Prominent Authors", "exam": "14th, 13th BCS", "q": "What is the full name of the great American short story writer O'Henry?", "options": [{"id": "a", "text": "Walt Whitman"}, {"id": "b", "text": "William Sydney Porter"}, {"id": "c", "text": "Marjorie Kinnan Rawlings"}, {"id": "d", "text": "Mark Twain"}], "correct": "b", "expl": "William Sydney Porter O'Henry ছদ্মনামে প্রকাশ করেছেন বিখ্যাত কিছু সাহিত্যকর্ম যেমন- 'The Gift of the Magi', 'Sixes and Sevens', 'Roads of Destiny', 'Rolling Stone', 'The Four Million'.", "page": 234}, {"id": "q198", "chapter": "Chapter 7: The Modern Period", "section": "7.9 Other Prominent Authors", "exam": "12th BCS", "q": "Who is the modern philosopher who was awarded Nobel Prize for literature?", "options": [{"id": "a", "text": "James Baker"}, {"id": "b", "text": "Dr. Kissinger"}, {"id": "c", "text": "Bertrand Russel"}, {"id": "d", "text": "Lenin"}], "correct": "c", "expl": "Bertrand Russel একজন বিখ্যাত Philosopher ছিলেন। দার্শনিক হিসেবে খ্যাতি থাকলেও ১৯৫০ সালে তিনি সাহিত্যে নোবেল পুরস্কার পেয়েছেন। Marriage and Morals, Why I am not a christian, Road to freedo, A Criticism to Western Philosophy তাঁর বিখ্যাত বই।", "page": 234}, {"id": "q199", "chapter": "Chapter 7: The Modern Period", "section": "7.9 Other Prominent Authors", "exam": "10th BCS", "q": "Who is the author of 'India Wins Freedom'?", "options": [{"id": "a", "text": "Mahatma Gandhi"}, {"id": "b", "text": "J. L. Nehru"}, {"id": "c", "text": "Abul Kalam Azad"}, {"id": "d", "text": "Moulana Akram Khan"}], "correct": "c", "expl": "আবুল কালাম আজাদ রচিত ঐতিহাসিক গ্রন্থ 'India Wins Freedom' এ তিনি ব্রিটিশ আমলে ভারতীয় উপমহাদেশের বিভিন্ন সমস্যা, ঘটনা এবং কীভাবে, কখন ভারত স্বাধীনতা অর্জন করে তা বিস্তারিতভাবে বর্ণনা করেছেন।", "page": 234}, {"id": "q200", "chapter": "Chapter 7: The Modern Period", "section": "7.9 Other Prominent Authors", "exam": "35th BCS", "q": "Find the odd-man-out-", "options": [{"id": "a", "text": "The Bluest Eye"}, {"id": "b", "text": "Sula"}, {"id": "c", "text": "As I Lay Dying"}, {"id": "d", "text": "A Mercy"}], "correct": "c", "expl": "'The Bluest Eye', 'Sula' এবং 'A Mercy'- Toni Morrison এর তিনটি বিখ্যাত উপন্যাস। অন্যদিকে 'As I Lay Dying' হলো William Faulkner- এর বিখ্যাত উপন্যাস।", "page": 233}, {"id": "q201", "chapter": "Chapter 7: The Modern Period", "section": "7.9 Other Prominent Authors", "exam": "34th BCS", "q": "Who is known as the 'Lady with the Lamp'?", "options": [{"id": "a", "text": "Sorojini Naidu"}, {"id": "b", "text": "Hellen Killer"}, {"id": "c", "text": "Florence Nightingale"}, {"id": "d", "text": "Madame Teresa"}], "correct": "c", "expl": "ফ্লোরেন্স নাইটিঙ্গেল (১২ মে, ১৮২০-১৩ আগস্ট, ১৯১০) আধুনিক নার্সিং সেবার অগ্রদূত। তিনি 'দ্য লেডি উইথ দ্য ল্যাম্প' (The Lady with the Lamp) নামে পরিচিত। তাঁকে সবচেয়ে বেশি স্মরণ করা হয় ক্রিমিয়ার যুদ্ধাহতদের সেবায় অনবদ্য ভূমিকার জন্য। Sarojini Naidu- নাইটিঙ্গেল অব ইন্ডিয়া নামে পরিচিত।", "page": 234}, {"id": "q202", "chapter": "Chapter 7: The Modern Period", "section": "7.9 Other Prominent Authors", "exam": "31st BCS", "q": "'One day women will have what has so long been denied them-leisure, money and room to themselves'.", "options": [{"id": "a", "text": "Space"}, {"id": "b", "text": "Liberty"}, {"id": "c", "text": "Office"}, {"id": "d", "text": "Capacity"}], "correct": "a", "expl": "১৯২৮ সালে Cambridge University তে Virginia Woolf এর দেয়া লেকচারগুলোকে একত্রিত করে সম্পাদিত গ্রন্থ 'A Room of One's Own' যেখানে কাল্পনিক বর্ণনাকারী Mr. Beton এর মাধ্যমে সমাজে নারীদের সৃজনশীলতা বাড়াতে তাদের মুক্ত-চিন্তা ক্ষেত্র প্রয়োজন, তাই বুঝিয়েছেন। প্রশ্নে উল্লিখিত বাক্যটি এই রচনারই।", "page": 234}, {"id": "q203", "chapter": "Chapter 8: The Post Modern Period", "section": "Chapter 8: The Post Modern Period", "exam": "50th BCS", "q": "Which play is filled with nonsensical conversations, meaningless dialogues, and characters who often become forgetful?", "options": [{"id": "a", "text": "Pygmalion"}, {"id": "b", "text": "The Skin Game"}, {"id": "c", "text": "Waiting for Godot"}, {"id": "d", "text": "Candida"}], "correct": "c", "expl": "আধুনিক Theater of the Absurd শ্রেণির প্রথম সাফল্য হিসেবে বিবেচিত আইরিশ নাট্যকার Samuel Beckett রচিত Waiting for Godot। নাটকটির প্রধান ২ চরিত্র Vladimir ও Estragon জানেনা তাদের এই পৃথিবীতে আসার উদ্দেশ্য কী? তারা Godot এর জন্য অপেক্ষা করে। সে তাদের পথ দেখাবে, জীবনের উদ্দেশ্য গড়ে দেবে। এই নিয়ে চলে চরিত্র দুটির কথোপকথন, যা অযথা কথায়পূর্ণ এবং এখানে চরিত্রগুলো নিজেরাই নিজেদের কথা ও উদ্দেশ্য ক্রমাগত ভুলে যেতে থাকে। এই নাটকটি মানুষের অস্তিত্বের অর্থহীনতা ও সময়ের অপেক্ষার অনিশ্চয়তা নিয়ে লেখা। এই নাটকটির উল্লেখযোগ্য চরিত্র- Vladimir (Didi), Estragon (Gogo), Pozzo, Lucky, A Boy।", "page": 235}, {"id": "q204", "chapter": "Chapter 8: The Post Modern Period", "section": "Chapter 8: The Post Modern Period", "exam": "47th BCS", "q": "Who is the playwright of the absurd drama \"Waiting for Godot\"?", "options": [{"id": "a", "text": "Jean Genet"}, {"id": "b", "text": "Samuel Beckett"}, {"id": "c", "text": "Harold Pinter"}, {"id": "d", "text": "Tom Stoppard"}], "correct": "b", "expl": "Major Plays of Beckett are- Waiting for Godot, Endgame, Krapp's Last Tape, Happy Days, Play etc.", "page": 235}, {"id": "q205", "chapter": "Chapter 8: The Post Modern Period", "section": "Chapter 8: The Post Modern Period", "exam": "46th BCS", "q": "Which novel is written by an Indian novelist?", "options": [{"id": "a", "text": "The Ministry of Utmost Happiness"}, {"id": "b", "text": "The Return of the Native"}, {"id": "c", "text": "Things Fall Apart"}, {"id": "d", "text": "Heart of Darkness"}], "correct": "a", "expl": "The Ministry of Utmost Happiness ভারতীয় লেখক Arundhati Roy এর লেখা একটি উপন্যাস। তার রচিত প্রথম উপন্যাস 'The God of Small Things'. তিনি এই উপন্যাসের জন্য ১৯৯৭ সালে Man Booker Prize লাভ করেন। অন্যদিকে The Return of the Native ব্রিটিশ লেখক Thomas Hardy র, Things Fall Apart নাইজেরিয়ান লেখক Chinua Achebe র, Heart of Darkness পোলিশ-ব্রিটিশ লেখক Joseph Conrad এর উপন্যাস।", "page": 235}, {"id": "q206", "chapter": "Chapter 8: The Post Modern Period", "section": "Chapter 8: The Post Modern Period", "exam": "43rd BCS", "q": "Which of the following novels is not written by an English writer?", "options": [{"id": "a", "text": "A Passage to India"}, {"id": "b", "text": "Sons and Lovers"}, {"id": "c", "text": "One Hundred Years of Solitude"}, {"id": "d", "text": "Pride and Prejudice"}], "correct": "c", "expl": "'One Hundred Years of Solitude' উপন্যাসটি বিখ্যাত কলম্বিয়ান ঔপন্যাসিক Gabriel García Márquez কর্তৃক লিখিত। উপন্যাসটি ম্যাজিক রিয়েলিজম ধারার।", "page": 235}, {"id": "q207", "chapter": "Chapter 8: The Post Modern Period", "section": "Chapter 8: The Post Modern Period", "exam": "43rd BCS", "q": "Who is the author of the novel 'The God of Small Things'?", "options": [{"id": "a", "text": "Thomas Hardy"}, {"id": "b", "text": "Jhumpa Lahiri"}, {"id": "c", "text": "R. K. Narayan"}, {"id": "d", "text": "Arundhati Roy"}], "correct": "d", "expl": "Arundhati Roy.", "page": 235}, {"id": "q208", "chapter": "Chapter 8: The Post Modern Period", "section": "Chapter 8: The Post Modern Period", "exam": "41st BCS", "q": "The play 'The Birthday Party' is written by-", "options": [{"id": "a", "text": "Samuel Beckett"}, {"id": "b", "text": "Henry Livings"}, {"id": "c", "text": "Harold Pinter"}, {"id": "d", "text": "Arthur Miller"}], "correct": "c", "expl": "Harold Pinter এর বিখ্যাত Absurd ধারার নাটক The Birthday Party। নাটকে দেখানো হয়েছে Stanley Webber এর জন্মদিনের পার্টিতে দুইজন উটকো লোক এসে তা দুঃস্বপ্নে পরিণত করে। নাটকটিকে Comdey of Menance হিসেবে শ্রেণিবদ্ধ করা হয়।", "page": 235}, {"id": "q209", "chapter": "Chapter 8: The Post Modern Period", "section": "Chapter 8: The Post Modern Period", "exam": "29th BCS", "q": "\"I have a ___ that one day this nation will live out the true meaning of its creed that all men are created equal.\"", "options": [{"id": "a", "text": "desire"}, {"id": "b", "text": "hope"}, {"id": "c", "text": "dream"}, {"id": "d", "text": "wish"}], "correct": "c", "expl": "উক্তিটি মার্কিন যুক্তরাষ্ট্রের কৃষ্ণাঙ্গদের অধিকার আদায় আন্দোলনের নেতা মার্টিন লুথার কিং-এর। তিনি ২৮ আগস্ট, ১৯৬৩ সালে বক্তৃতা প্রদানকালে এ উক্তিটি করেন। সম্পূর্ণ বাক্যটি ছিল এমন- I have a dream that one day this nation will live out the true meaning of its creed that all men are created equal.", "page": 235}]</script>
+<script>
+(function(){
+"use strict";
+
+/* ================= DATA ================= */
+const QUESTIONS = JSON.parse(document.getElementById('questions-data').textContent);
+const LETTERS = ['a','b','c','d'];
+
+// Derive chapters/sections structure
+const CHAPTERS = [];
+(function buildStructure(){
+  const chMap = new Map();
+  QUESTIONS.forEach(q=>{
+    if(!chMap.has(q.chapter)) chMap.set(q.chapter, new Map());
+    const secMap = chMap.get(q.chapter);
+    if(!secMap.has(q.section)) secMap.set(q.section, []);
+    secMap.get(q.section).push(q.id);
+  });
+  chMap.forEach((secMap, chName)=>{
+    const sections = [];
+    secMap.forEach((qids, secName)=> sections.push({name:secName, qids}));
+    const allQids = sections.reduce((a,s)=>a.concat(s.qids),[]);
+    CHAPTERS.push({name:chName, sections, qids:allQids});
+  });
+})();
+
+function qById(id){ return QUESTIONS.find(q=>q.id===id); }
+
+/* ================= STORE (localStorage) ================= */
+const STORE_KEY = 'els_progress_v1';
+let DB = loadDB();
+function defaultDB(){
+  return {
+    q: {},           // qid -> {status, attempts:[{correct,date}], bookmarked, note, nextRevision, interval, wrongCount, lastStudied}
+    sessions: [],     // {date, topic, minutes}
+    quizzes: [],       // {date, scope, total, correct, wrong, unanswered, seconds}
+    streak: {current:0, longest:0, lastDate:null, totalDays:0},
+    settings: {theme:'light'},
+    dailyPlanDone: {} // date -> [taskIndex,...]
+  };
+}
+function loadDB(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return defaultDB();
+    const parsed = JSON.parse(raw);
+    return Object.assign(defaultDB(), parsed, {q: Object.assign({}, parsed.q||{})});
+  }catch(e){ console.error('Failed to load progress', e); return defaultDB(); }
+}
+function saveDB(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(DB)); }catch(e){ console.error('Save failed', e); }
+}
+function qState(id){
+  if(!DB.q[id]) DB.q[id] = {status:'new', attempts:[], bookmarked:false, note:'', nextRevision:null, interval:0, wrongCount:0, lastStudied:null};
+  return DB.q[id];
+}
+
+const REVISION_INTERVALS = [1,3,7,14,30,60]; // days
+
+function markStudyToday(){
+  const today = new Date().toISOString().slice(0,10);
+  if(DB.streak.lastDate === today) return;
+  const y = new Date(Date.now()-86400000).toISOString().slice(0,10);
+  if(DB.streak.lastDate === y){ DB.streak.current += 1; } else { DB.streak.current = 1; }
+  DB.streak.longest = Math.max(DB.streak.longest, DB.streak.current);
+  DB.streak.totalDays += 1;
+  DB.streak.lastDate = today;
+  saveDB();
+}
+
+function recordAnswer(qid, correct){
+  const s = qState(qid);
+  s.attempts.push({correct, date:new Date().toISOString()});
+  s.lastStudied = new Date().toISOString();
+  if(correct){
+    s.interval = Math.min(s.interval+1, REVISION_INTERVALS.length-1);
+    if(s.status==='new' || s.status==='learning') s.status='learning';
+    const recentWrong = s.attempts.slice(-3).filter(a=>!a.correct).length;
+    if(s.attempts.length>=2 && recentWrong===0 && s.attempts.filter(a=>a.correct).length>=2) s.status='mastered';
+  }else{
+    s.wrongCount += 1;
+    s.interval = 0;
+    s.status = s.wrongCount>=3 ? 'weak' : 'revision';
+  }
+  const days = REVISION_INTERVALS[s.interval];
+  const nr = new Date(); nr.setDate(nr.getDate()+days);
+  s.nextRevision = nr.toISOString().slice(0,10);
+  markStudyToday();
+  saveDB();
+}
+
+function setStatus(qid, status){
+  const s = qState(qid);
+  s.status = status;
+  if(status==='mastered'){ s.interval = REVISION_INTERVALS.length-1; }
+  if(status==='revision'||status==='weak'){ s.interval=0; }
+  const days = REVISION_INTERVALS[s.interval]||1;
+  const nr = new Date(); nr.setDate(nr.getDate()+days);
+  s.nextRevision = nr.toISOString().slice(0,10);
+  saveDB();
+}
+function toggleBookmark(qid){ const s=qState(qid); s.bookmarked=!s.bookmarked; saveDB(); }
+function setNote(qid, text){ const s=qState(qid); s.note=text; saveDB(); }
+
+function isOverdue(qid){
+  const s = DB.q[qid];
+  if(!s || !s.nextRevision) return false;
+  return s.nextRevision <= new Date().toISOString().slice(0,10) && (s.status==='revision'||s.status==='weak'||s.status==='learning'||s.status==='mastered');
+}
+function isDueToday(qid){
+  const s = DB.q[qid];
+  if(!s || !s.nextRevision) return false;
+  return s.nextRevision === new Date().toISOString().slice(0,10);
+}
+
+/* ================= STATS ================= */
+function computeStats(qids){
+  qids = qids || QUESTIONS.map(q=>q.id);
+  let attempted=0, correct=0, wrong=0, mastered=0, needsRevision=0, bookmarked=0, weak=0;
+  qids.forEach(id=>{
+    const s = DB.q[id];
+    if(!s) return;
+    if(s.attempts.length>0) attempted++;
+    const lastAtt = s.attempts[s.attempts.length-1];
+    if(lastAtt){ if(lastAtt.correct) correct++; else wrong++; }
+    if(s.status==='mastered') mastered++;
+    if(s.status==='revision') needsRevision++;
+    if(s.status==='weak') weak++;
+    if(s.bookmarked) bookmarked++;
+  });
+  return {total:qids.length, attempted, correct, wrong, mastered, needsRevision, weak, bookmarked,
+    remaining: qids.length-attempted,
+    accuracy: attempted? Math.round(correct/attempted*100):0};
+}
+function revisionDueToday(qids){
+  qids = qids || QUESTIONS.map(q=>q.id);
+  return qids.filter(isDueToday);
+}
+function revisionOverdue(qids){
+  qids = qids || QUESTIONS.map(q=>q.id);
+  return qids.filter(id=>{
+    const s = DB.q[id];
+    if(!s || !s.nextRevision) return false;
+    return s.nextRevision < new Date().toISOString().slice(0,10);
+  });
+}
+function wrongQuestions(qids){
+  qids = qids || QUESTIONS.map(q=>q.id);
+  return qids.filter(id=> DB.q[id] && DB.q[id].wrongCount>0)
+    .sort((a,b)=> (DB.q[b].wrongCount)-(DB.q[a].wrongCount));
+}
+function bookmarkedQuestions(qids){
+  qids = qids || QUESTIONS.map(q=>q.id);
+  return qids.filter(id=> DB.q[id] && DB.q[id].bookmarked);
+}
+function topicStrength(qids){
+  const st = computeStats(qids);
+  if(st.attempted===0) return {label:'Unstudied', cls:''};
+  if(st.mastered >= qids.length*0.7) return {label:'Mastered', cls:'mastered'};
+  if(st.accuracy>=75 && st.attempted>=qids.length*0.5) return {label:'Strong', cls:'strong'};
+  if(st.accuracy>=45) return {label:'Developing', cls:'dev'};
+  return {label:'Weak', cls:'weak'};
+}
+
+/* ================= ROUTER ================= */
+const ROUTES = [
+  {id:'dashboard', label:'Dashboard', icon:'&#127968;'},
+  {id:'topics', label:'Topics', icon:'&#128218;'},
+  {id:'map', label:'Literature Map', icon:'&#128214;'},
+  {id:'revision', label:'Revision Due', icon:'&#128308;'},
+  {id:'mistakes', label:'My Mistakes', icon:'&#10060;'},
+  {id:'bookmarks', label:'Bookmarked', icon:'&#11088;'},
+  {id:'quiz', label:'Quiz Mode', icon:'&#128221;'},
+  {id:'quickrev', label:'Quick Revision', icon:'&#9889;'},
+  {id:'focus', label:'Focus Mode', icon:'&#9201;'},
+  {id:'progress', label:'Progress', icon:'&#128202;'},
+  {id:'settings', label:'Settings', icon:'&#9881;'},
+];
+let state = { route:'dashboard', params:{} };
+
+function navTo(route, params){
+  state.route = route; state.params = params||{};
+  renderNav(); render();
+  window.scrollTo(0,0);
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+function renderNav(){
+  const nav = document.getElementById('mainnav');
+  nav.innerHTML = ROUTES.map(r=>
+    `<button data-route="${r.id}" class="${state.route===r.id?'active':''}"><span class="ic">${r.icon}</span>${r.label}</button>`
+  ).join('');
+  nav.querySelectorAll('button').forEach(b=> b.onclick = ()=> navTo(b.dataset.route));
+}
+
+/* ================= UTIL RENDER HELPERS ================= */
+function esc(s){ return (s+'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function highlight(text, term){
+  if(!term) return esc(text);
+  const idx = text.toLowerCase().indexOf(term.toLowerCase());
+  if(idx===-1) return esc(text);
+  return esc(text.slice(0,idx)) + '<mark>' + esc(text.slice(idx,idx+term.length)) + '</mark>' + esc(text.slice(idx+term.length));
+}
+function toast(msg){
+  const el = document.createElement('div');
+  el.className='toast'; el.textContent=msg;
+  document.getElementById('toastroot').appendChild(el);
+  setTimeout(()=>el.remove(), 2400);
+}
+function fmtDate(iso){ if(!iso) return '-'; return iso; }
+function daysUntil(iso){
+  if(!iso) return null;
+  const d = new Date(iso), t = new Date(new Date().toISOString().slice(0,10));
+  return Math.round((d-t)/86400000);
+}
+
+/* ================= QUESTION CARD RENDERING ================= */
+function renderQuestionCard(q, opts){
+  opts = opts||{};
+  const s = qState(q.id);
+  const answered = s.attempts.length>0 && !opts.forceUnanswered;
+  const lastAnswered = opts.sessionAnswered && opts.sessionAnswered[q.id];
+  const shown = opts.revealAll || lastAnswered;
+  const wrap = document.createElement('div');
+  wrap.className='qcard'; wrap.dataset.qid=q.id;
+
+  const statusLbl = {new:'Not Reviewed &#9898;', learning:'Learning &#128309;', revision:'Needs Revision &#128993;', weak:'Weak &#128308;', mastered:'Mastered &#128994;'};
+
+  wrap.innerHTML = `
+    <div class="qmeta">
+      <span class="tag">${esc(q.chapter.replace(/^Chapter \\d+: /,''))}</span>
+      <span class="tag">${esc(q.section)}</span>
+      <span class="tag">${esc(q.exam)}</span>
+      <span class="tag" title="Source page">PDF p.${q.page}</span>
+      ${s.status!=='new'?`<span class="tag">${statusLbl[s.status]}</span>`:''}
+    </div>
+    <div class="qtext">${opts.term? highlight(q.q,opts.term): esc(q.q)}</div>
+    <div class="opts"></div>
+    <div class="explwrap"></div>
+    <div class="actionrow"></div>
+    <div class="notebox">
+      <span class="nlbl">My Note (not from source)</span>
+      <textarea placeholder="Add a personal note or memory hook...">${esc(s.note||'')}</textarea>
+    </div>
+  `;
+
+  const optsWrap = wrap.querySelector('.opts');
+  let optOrder = q.options.slice();
+  if(opts.shuffleOptions){ optOrder = optOrder.slice().sort(()=>Math.random()-0.5); }
+
+  let userPicked = opts.sessionAnswered ? opts.sessionAnswered[q.id] : null;
+  let revealed = shown || false;
+
+  function draw(){
+    optsWrap.innerHTML='';
+    optOrder.forEach(o=>{
+      const div = document.createElement('div');
+      let cls='opt';
+      if(revealed){
+        cls+=' disabled';
+        if(o.id===q.correct) cls+=' correct';
+        else if(userPicked===o.id) cls+=' wrong';
+      } else if(userPicked===o.id){ cls+=' selected'; }
+      div.className = cls;
+      div.innerHTML = `<span class="oletter">${o.id.toUpperCase()}.</span><span>${opts.term? highlight(o.text,opts.term): esc(o.text)}</span>`;
+      if(!revealed){
+        div.onclick = ()=>{ userPicked=o.id; draw(); };
+      }
+      optsWrap.appendChild(div);
+    });
+    renderExpl(); renderActions();
+  }
+
+  function renderExpl(){
+    const ew = wrap.querySelector('.explwrap');
+    if(!revealed){ ew.innerHTML=''; return; }
+    ew.innerHTML = `<div class="expl"><span class="lbl">&#128220; Source Explanation</span>${esc(q.expl)}</div>
+      <div class="sourceline">Source: English_Literature.pdf — page ${q.page}</div>`;
+  }
+
+  function renderActions(){
+    const ar = wrap.querySelector('.actionrow');
+    ar.innerHTML='';
+    if(!revealed){
+      const checkBtn = document.createElement('button');
+      checkBtn.className='btn primary sm';
+      checkBtn.textContent = userPicked? 'Check Answer' : 'Select an option first';
+      checkBtn.disabled = !userPicked;
+      checkBtn.onclick = ()=>{
+        revealed = true;
+        const correct = userPicked===q.correct;
+        recordAnswer(q.id, correct);
+        if(opts.onAnswered) opts.onAnswered(q.id, correct);
+        draw();
+        renderTopbarBadges();
+      };
+      ar.appendChild(checkBtn);
+      const revealBtn = document.createElement('button');
+      revealBtn.className='btn sm ghost';
+      revealBtn.textContent='Reveal Answer';
+      revealBtn.onclick = ()=>{ revealed=true; if(!userPicked){ } draw(); };
+      ar.appendChild(revealBtn);
+    } else {
+      [['learning','I knew this'],['revision','Need Revision'],['weak',"I got this wrong"],['mastered','Mastered']].forEach(([st,label])=>{
+        const b=document.createElement('button');
+        b.className='statuschip'+(s.status===st?' active':'');
+        b.textContent=label;
+        b.onclick=()=>{ setStatus(q.id, st); draw(); wrap.querySelector('.qmeta').innerHTML = wrap.querySelector('.qmeta').innerHTML; toast('Status updated'); renderTopbarBadges(); };
+        ar.appendChild(b);
+      });
+    }
+    const bmBtn=document.createElement('button');
+    bmBtn.className='statuschip'+(s.bookmarked?' active':'');
+    bmBtn.innerHTML = s.bookmarked? '&#11088; Bookmarked' : '&#9734; Bookmark';
+    bmBtn.onclick=()=>{ toggleBookmark(q.id); bmBtn.className='statuschip'+(s.bookmarked?' active':''); bmBtn.innerHTML = s.bookmarked? '&#11088; Bookmarked' : '&#9734; Bookmark'; };
+    ar.appendChild(bmBtn);
+  }
+
+  wrap.querySelector('textarea').addEventListener('input', e=> setNote(q.id, e.target.value));
+  draw();
+  return wrap;
+}
+
+/* ================= PAGES ================= */
+function render(){
+  const c = document.getElementById('content');
+  c.innerHTML='';
+  const fn = PAGES[state.route] || PAGES.dashboard;
+  fn(c);
+}
+
+const PAGES = {};
+
+/* ---- DASHBOARD ---- */
+PAGES.dashboard = function(c){
+  const st = computeStats();
+  const overdue = revisionOverdue().length;
+  const dueToday = revisionDueToday().length;
+  c.innerHTML = `
+    <h1 class="pagetitle">Dashboard</h1>
+    <p class="pagesub">Source: English Literature.pdf — ${QUESTIONS.length} questions across ${CHAPTERS.length} periods</p>
+    <div class="grid cols-4" id="statgrid"></div>
+    <h2 class="section-title">What Should I Study Now?</h2>
+    <div id="whatnow"></div>
+    <h2 class="section-title">Today's Study Plan</h2>
+    <div id="planbox" class="card"></div>
+  `;
+  const statgrid = c.querySelector('#statgrid');
+  const stats = [
+    ['Total Topics', CHAPTERS.reduce((a,ch)=>a+ch.sections.length,0), ''],
+    ['Total Questions', st.total, ''],
+    ['Attempted', st.attempted, ''],
+    ['Remaining', st.remaining, ''],
+    ['Correct (last try)', st.correct, 'good'],
+    ['Incorrect (last try)', st.wrong, 'warn'],
+    ['Mastered', st.mastered, 'good'],
+    ['Needs Revision', st.needsRevision+st.weak, 'warn'],
+    ['Bookmarked', st.bookmarked, 'accent'],
+    ['Study Sessions', DB.streak.totalDays, ''],
+    ['Current Streak', DB.streak.current+' days', 'accent'],
+    ['Revision Due Today', dueToday, dueToday>0?'warn':''],
+  ];
+  stats.forEach(([lbl,num,cls])=>{
+    const d=document.createElement('div');
+    d.className='card stat '+(cls||'');
+    d.innerHTML=`<div class="num">${num}</div><div class="lbl">${lbl}</div>`;
+    statgrid.appendChild(d);
+  });
+  statgrid.insertAdjacentHTML('beforeend', `<div class="card stat"><div class="num">${st.total?Math.round(st.attempted/st.total*100):0}%</div><div class="lbl">Overall Progress</div></div>`);
+
+  // What should I study now
+  const whatnow = c.querySelector('#whatnow');
+  const priorities = [];
+  if(overdue>0) priorities.push({label:`${overdue} overdue revision${overdue>1?'s':''}`, route:'revision', icon:'&#128308;'});
+  const wq = wrongQuestions();
+  if(wq.length>0) priorities.push({label:`${wq.length} frequently wrong question${wq.length>1?'s':''}`, route:'mistakes', icon:'&#10060;'});
+  const weakTopics = CHAPTERS.flatMap(ch=>ch.sections.map(s=>({...s, strength:topicStrength(s.qids)})))
+      .filter(s=>s.strength.cls==='weak' || s.strength.cls==='dev');
+  if(weakTopics.length>0) priorities.push({label:`${weakTopics.length} weak/developing topic${weakTopics.length>1?'s':''}: ${weakTopics.slice(0,3).map(t=>t.name).join(', ')}`, route:'topics', icon:'&#128293;'});
+  const unstudied = QUESTIONS.filter(q=> !DB.q[q.id] || DB.q[q.id].attempts.length===0).length;
+  if(unstudied>0) priorities.push({label:`${unstudied} unstudied question${unstudied>1?'s':''}`, route:'topics', icon:'&#128366;'});
+  if(dueToday>0) priorities.push({label:`${dueToday} revision${dueToday>1?'s':''} due today`, route:'revision', icon:'&#128197;'});
+  if(priorities.length===0) priorities.push({label:'Great work — nothing urgent. Try a fresh quiz!', route:'quiz', icon:'&#127881;'});
+  whatnow.innerHTML='';
+  priorities.slice(0,5).forEach(p=>{
+    const d=document.createElement('div');
+    d.className='topic-row';
+    d.innerHTML=`<span style="font-size:18px">${p.icon}</span><span class="ttitle">${esc(p.label)}</span><button class="btn sm">Go &#8594;</button>`;
+    d.onclick=()=>navTo(p.route);
+    whatnow.appendChild(d);
+  });
+
+  // Today's study plan
+  const plan = [];
+  if(overdue+dueToday>0) plan.push('Revision overdue — '+(overdue+dueToday)+' items (~'+Math.max(10,(overdue+dueToday)*1)+' min)');
+  if(weakTopics.length>0) plan.push('Weak topics: '+weakTopics.slice(0,2).map(t=>t.name).join(', ')+' (~20 min)');
+  if(wq.length>0) plan.push('My Mistakes review — '+wq.length+' items (~10 min)');
+  if(unstudied>0) plan.push('New material: '+Math.min(unstudied,15)+' fresh questions (~15 min)');
+  plan.push('Quick Quiz — 10 questions (~10 min)');
+  const planbox = c.querySelector('#planbox');
+  const today = new Date().toISOString().slice(0,10);
+  DB.dailyPlanDone[today] = DB.dailyPlanDone[today]||[];
+  planbox.innerHTML = plan.map((p,i)=>{
+    const done = DB.dailyPlanDone[today].includes(i);
+    return `<label style="display:flex;gap:10px;align-items:center;padding:7px 0;${done?'opacity:.5;text-decoration:line-through;':''}">
+      <input type="checkbox" data-i="${i}" ${done?'checked':''}> <span>${esc(p)}</span></label>`;
+  }).join('');
+  planbox.querySelectorAll('input').forEach(inp=>{
+    inp.onchange = ()=>{
+      const i = +inp.dataset.i;
+      const arr = DB.dailyPlanDone[today];
+      const idx = arr.indexOf(i);
+      if(inp.checked){ if(idx===-1) arr.push(i); } else { if(idx>-1) arr.splice(idx,1); }
+      saveDB(); render();
+    };
+  });
+};
+
+/* ---- TOPICS ---- */
+PAGES.topics = function(c){
+  c.innerHTML = `<h1 class="pagetitle">Topics</h1><p class="pagesub">Browse by literary period and author/topic. Click a topic to study its questions.</p><div id="tlist"></div>`;
+  const tlist = c.querySelector('#tlist');
+  CHAPTERS.forEach(ch=>{
+    tlist.insertAdjacentHTML('beforeend', `<h2 class="section-title">${esc(ch.name)}</h2>`);
+    ch.sections.forEach(sec=>{
+      const stats = computeStats(sec.qids);
+      const strength = topicStrength(sec.qids);
+      const row = document.createElement('div');
+      row.className='topic-row';
+      row.innerHTML = `
+        <span class="badge ${strength.cls}">${strength.label}</span>
+        <span class="ttitle">${esc(sec.name)}</span>
+        <span class="tmeta">${stats.attempted}/${stats.total} attempted · ${stats.accuracy}% accuracy</span>
+        <div class="bar"><div style="width:${stats.total?Math.round(stats.attempted/stats.total*100):0}%"></div></div>
+      `;
+      row.onclick = ()=> navTo('topicDetail', {qids:sec.qids, name:sec.name, chapter:ch.name});
+      tlist.appendChild(row);
+    });
+  });
+};
+
+PAGES.topicDetail = function(c){
+  const {qids, name, chapter} = state.params;
+  const stats = computeStats(qids);
+  c.innerHTML = `
+    <button class="btn sm ghost" id="backbtn">&#8592; Back to Topics</button>
+    <h1 class="pagetitle" style="margin-top:10px;">${esc(name)}</h1>
+    <p class="pagesub">${esc(chapter)}</p>
+    <div class="grid cols-4">
+      <div class="card stat"><div class="num">${stats.total}</div><div class="lbl">Questions</div></div>
+      <div class="card stat"><div class="num">${stats.attempted}</div><div class="lbl">Attempted</div></div>
+      <div class="card stat good"><div class="num">${stats.accuracy}%</div><div class="lbl">Accuracy</div></div>
+      <div class="card stat"><div class="num">${stats.mastered}</div><div class="lbl">Mastered</div></div>
+    </div>
+    <div class="flex" style="margin:16px 0;gap:10px;">
+      <button class="btn primary" id="studybtn">Start Study Session</button>
+      <button class="btn" id="quizbtn">Quiz this Topic</button>
+    </div>
+    <div id="qlist"></div>
+  `;
+  c.querySelector('#backbtn').onclick = ()=>navTo('topics');
+  c.querySelector('#quizbtn').onclick = ()=>navTo('quiz',{presetScope:qids, presetName:name});
+  c.querySelector('#studybtn').onclick = ()=>{ markStudyToday(); toast('Study session started — good luck!'); };
+  const qlist = c.querySelector('#qlist');
+  qids.forEach(id=> qlist.appendChild(renderQuestionCard(qById(id))));
+};
+
+/* ---- LITERATURE MAP ---- */
+PAGES.map = function(c){
+  c.innerHTML = `<h1 class="pagetitle">Literature Map</h1><p class="pagesub">Periods → Authors/Topics as organized in the source PDF. Click to jump to questions.</p><div id="mapwrap"></div>`;
+  const mw = c.querySelector('#mapwrap');
+  CHAPTERS.forEach(ch=>{
+    const node = document.createElement('div');
+    node.className='mapnode';
+    node.innerHTML = `<h4>${esc(ch.name)}</h4><div class="authors"></div>`;
+    const authors = node.querySelector('.authors');
+    ch.sections.forEach(sec=>{
+      const a = document.createElement('span');
+      a.className='chiplink';
+      a.style.cursor='pointer';
+      a.textContent = sec.name+' ('+sec.qids.length+')';
+      a.onclick = ()=> navTo('topicDetail',{qids:sec.qids, name:sec.name, chapter:ch.name});
+      authors.appendChild(a);
+    });
+    mw.appendChild(node);
+  });
+};
+
+/* ---- REVISION DUE ---- */
+PAGES.revision = function(c){
+  const overdue = revisionOverdue();
+  const today = revisionDueToday();
+  const all = overdue.concat(today);
+  c.innerHTML = `<h1 class="pagetitle">Revision Due</h1><p class="pagesub">${overdue.length} overdue, ${today.length} due today.</p><div id="rlist"></div>`;
+  const rlist = c.querySelector('#rlist');
+  if(all.length===0){ rlist.innerHTML = `<div class="empty"><div class="big">&#127881;</div>All caught up — no revisions due right now.</div>`; return; }
+  all.forEach(id=> rlist.appendChild(renderQuestionCard(qById(id))));
+};
+
+/* ---- MY MISTAKES ---- */
+PAGES.mistakes = function(c){
+  const list = wrongQuestions();
+  c.innerHTML = `<h1 class="pagetitle">My Mistakes</h1><p class="pagesub">Questions you've gotten wrong, sorted by most frequent mistakes first.</p><div id="mlist"></div>`;
+  const mlist = c.querySelector('#mlist');
+  if(list.length===0){ mlist.innerHTML = `<div class="empty"><div class="big">&#128077;</div>No recorded mistakes yet.</div>`; return; }
+  list.forEach(id=>{
+    const s = DB.q[id];
+    const q = qById(id);
+    const wrap = document.createElement('div');
+    wrap.innerHTML = `<div class="small" style="margin-bottom:4px;">Wrong attempts: <b>${s.wrongCount}</b> · Last wrong: ${s.lastStudied?s.lastStudied.slice(0,10):'-'} · Next revision: ${s.nextRevision||'-'}</div>`;
+    mlist.appendChild(wrap);
+    mlist.appendChild(renderQuestionCard(q));
+  });
+};
+
+/* ---- BOOKMARKS ---- */
+PAGES.bookmarks = function(c){
+  const list = bookmarkedQuestions();
+  c.innerHTML = `<h1 class="pagetitle">Bookmarked Questions</h1><p class="pagesub">${list.length} bookmarked.</p><div id="blist"></div>`;
+  const blist = c.querySelector('#blist');
+  if(list.length===0){ blist.innerHTML = `<div class="empty"><div class="big">&#11088;</div>No bookmarks yet — star questions to save them here.</div>`; return; }
+  list.forEach(id=> blist.appendChild(renderQuestionCard(qById(id))));
+};
+
+/* ---- QUIZ MODE ---- */
+PAGES.quiz = function(c){
+  const preset = state.params.presetScope;
+  c.innerHTML = `
+    <h1 class="pagetitle">Quiz Mode</h1>
+    <p class="pagesub">Configure your quiz and test yourself.</p>
+    <div class="card" id="quizsetup">
+      <div class="grid cols-2">
+        <div>
+          <label class="small">Scope</label><br>
+          <select id="scopeSel" style="width:100%;margin-top:4px;"></select>
+        </div>
+        <div>
+          <label class="small">Question count</label><br>
+          <select id="countSel" style="width:100%;margin-top:4px;">
+            <option>10</option><option>20</option><option>30</option><option>50</option><option>100</option><option value="all">All available</option>
+          </select>
+        </div>
+        <div>
+          <label class="small">Question order</label><br>
+          <select id="orderSel" style="width:100%;margin-top:4px;"><option value="sequential">Sequential</option><option value="random" selected>Random</option></select>
+        </div>
+        <div>
+          <label class="small">Option order</label><br>
+          <select id="optSel" style="width:100%;margin-top:4px;"><option value="original">Original</option><option value="random">Randomized</option></select>
+        </div>
+      </div>
+      <button class="btn primary" id="startQuizBtn" style="margin-top:16px;">Start Quiz</button>
+    </div>
+    <div id="quizArea"></div>
+  `;
+  const scopeSel = c.querySelector('#scopeSel');
+  const scopeOptions = [
+    ['all','Entire Syllabus', QUESTIONS.map(q=>q.id)],
+    ['revision','Revision Questions', revisionOverdue().concat(revisionDueToday())],
+    ['wrong','Wrong Questions', wrongQuestions()],
+    ['bookmarked','Bookmarked Questions', bookmarkedQuestions()],
+    ['unanswered','Unanswered Questions', QUESTIONS.filter(q=>!DB.q[q.id]||DB.q[q.id].attempts.length===0).map(q=>q.id)],
+    ['mastered','Mastered Questions', QUESTIONS.filter(q=>DB.q[q.id]&&DB.q[q.id].status==='mastered').map(q=>q.id)],
+  ];
+  CHAPTERS.forEach(ch=> scopeOptions.push(['ch:'+ch.name, ch.name, ch.qids]));
+  scopeSel.innerHTML = scopeOptions.map(([v,l,arr])=>`<option value="${esc(v)}">${esc(l)} (${arr.length})</option>`).join('');
+  if(preset) scopeSel.insertAdjacentHTML('afterbegin', `<option value="preset" selected>${esc(state.params.presetName||'Selected Topic')} (${preset.length})</option>`);
+
+  function getScopeIds(){
+    const v = scopeSel.value;
+    if(v==='preset') return preset;
+    const found = scopeOptions.find(o=>o[0]===v);
+    return found? found[2] : QUESTIONS.map(q=>q.id);
+  }
+
+  c.querySelector('#startQuizBtn').onclick = ()=>{
+    let ids = getScopeIds().slice();
+    const order = c.querySelector('#orderSel').value;
+    if(order==='random') ids.sort(()=>Math.random()-0.5);
+    const countVal = c.querySelector('#countSel').value;
+    if(countVal!=='all') ids = ids.slice(0, parseInt(countVal,10));
+    if(ids.length===0){ toast('No questions in this scope.'); return; }
+    runQuiz(c, ids, c.querySelector('#optSel').value==='random');
+  };
+};
+
+function runQuiz(container, ids, shuffleOptions){
+  const area = container.querySelector('#quizArea');
+  container.querySelector('#quizsetup').classList.add('hidden');
+  let idx = 0;
+  const answers = {}; // qid -> {picked, correct}
+  const startTime = Date.now();
+
+  function renderQ(){
+    area.innerHTML = `<div class="small" style="margin-bottom:8px;">Question ${idx+1} of ${ids.length}</div>`;
+    const q = qById(ids[idx]);
+    const card = renderQuestionCard(q, {
+      shuffleOptions: shuffleOptions,
+      forceUnanswered:true,
+      onAnswered:(qid,correct)=>{ answers[qid]={correct}; }
+    });
+    area.appendChild(card);
+    const nav = document.createElement('div');
+    nav.className='flex';
+    nav.style.marginTop='14px';
+    const prevBtn = document.createElement('button'); prevBtn.className='btn sm'; prevBtn.textContent='&#8592; Previous'; prevBtn.disabled = idx===0;
+    prevBtn.onclick = ()=>{ idx--; renderQ(); };
+    const nextBtn = document.createElement('button'); nextBtn.className='btn sm primary'; nextBtn.textContent = idx===ids.length-1? 'Finish Quiz' : 'Next &#8594;';
+    nextBtn.onclick = ()=>{
+      if(idx===ids.length-1){ finishQuiz(); } else { idx++; renderQ(); }
+    };
+    nav.appendChild(prevBtn); nav.appendChild(nextBtn);
+    area.appendChild(nav);
+  }
+
+  function finishQuiz(){
+    const seconds = Math.round((Date.now()-startTime)/1000);
+    const total = ids.length;
+    const correct = Object.values(answers).filter(a=>a.correct).length;
+    const wrong = Object.values(answers).filter(a=>!a.correct).length;
+    const unanswered = total - correct - wrong;
+    const pct = total? Math.round(correct/total*100):0;
+    DB.quizzes.push({date:new Date().toISOString(), total, correct, wrong, unanswered, seconds});
+    saveDB();
+    const wrongIds = ids.filter(id=> answers[id] && !answers[id].correct);
+    const weakTopicsSet = new Set();
+    wrongIds.forEach(id=>{ const q=qById(id); weakTopicsSet.add(q.section); });
+    area.innerHTML = `
+      <div class="card">
+        <h2 style="font-family:var(--serif);margin-top:0;">Quiz Results</h2>
+        <div class="grid cols-4">
+          <div class="card stat good"><div class="num">${pct}%</div><div class="lbl">Score</div></div>
+          <div class="card stat good"><div class="num">${correct}</div><div class="lbl">Correct</div></div>
+          <div class="card stat warn"><div class="num">${wrong}</div><div class="lbl">Wrong</div></div>
+          <div class="card stat"><div class="num">${unanswered}</div><div class="lbl">Unanswered</div></div>
+        </div>
+        <p class="small" style="margin-top:12px;">Time taken: ${Math.floor(seconds/60)}m ${seconds%60}s · Accuracy: ${pct}%</p>
+        ${weakTopicsSet.size? `<p class="small">Weak topics this quiz: ${Array.from(weakTopicsSet).join(', ')}</p>`:''}
+        <div class="flex" style="margin-top:14px;">
+          ${wrongIds.length? `<button class="btn primary" id="reviseNowBtn">Revise These Now (${wrongIds.length})</button>`:''}
+          <button class="btn" id="newQuizBtn">New Quiz</button>
+        </div>
+      </div>
+    `;
+    if(wrongIds.length) area.querySelector('#reviseNowBtn').onclick = ()=> navTo('quiz',{presetScope:wrongIds, presetName:'Quiz Mistakes'});
+    area.querySelector('#newQuizBtn').onclick = ()=> navTo('quiz');
+    renderTopbarBadges();
+  }
+  renderQ();
+}
+
+/* ---- QUICK REVISION ---- */
+PAGES.quickrev = function(c){
+  const pool = revisionOverdue().concat(revisionDueToday());
+  const fallback = pool.length? pool : QUESTIONS.filter(q=>!DB.q[q.id]||DB.q[q.id].attempts.length===0).map(q=>q.id).slice(0,20);
+  c.innerHTML = `<h1 class="pagetitle">Quick Revision</h1><p class="pagesub">Distraction-free: Question → Think → Reveal → Mark. ${fallback.length} cards queued.</p><div id="qr"></div>`;
+  const qr = c.querySelector('#qr');
+  if(fallback.length===0){ qr.innerHTML = `<div class="empty"><div class="big">&#127881;</div>Nothing to revise right now.</div>`; return; }
+  let i=0;
+  function draw(){
+    qr.innerHTML='';
+    if(i>=fallback.length){ qr.innerHTML = `<div class="empty"><div class="big">&#9989;</div>Quick revision complete!</div>`; return; }
+    qr.insertAdjacentHTML('beforeend', `<div class="small">Card ${i+1} / ${fallback.length}</div>`);
+    const q = qById(fallback[i]);
+    const card = renderQuestionCard(q, {forceUnanswered:true, onAnswered:()=>{}});
+    qr.appendChild(card);
+    const nav = document.createElement('div'); nav.className='flex'; nav.style.marginTop='10px';
+    const skip = document.createElement('button'); skip.className='btn sm ghost'; skip.textContent='Skip';
+    skip.onclick=()=>{ i++; draw(); };
+    const next = document.createElement('button'); next.className='btn sm primary'; next.textContent='Next Card &#8594;';
+    next.onclick=()=>{ i++; draw(); };
+    nav.appendChild(skip); nav.appendChild(next);
+    qr.appendChild(nav);
+  }
+  draw();
+};
+
+/* ---- FOCUS MODE ---- */
+PAGES.focus = function(c){
+  c.innerHTML = `
+    <h1 class="pagetitle">Focus Mode</h1>
+    <p class="pagesub">Pick a topic and study distraction-free with a timer.</p>
+    <div class="card">
+      <select id="focusTopic" style="width:100%;padding:8px;"></select>
+      <button class="btn primary" id="focusStart" style="margin-top:12px;">Start Focus Session</button>
+    </div>
+    <div id="focusArea"></div>
+  `;
+  const sel = c.querySelector('#focusTopic');
+  const opts = [];
+  CHAPTERS.forEach(ch=> ch.sections.forEach(sec=> opts.push({name:ch.name+' — '+sec.name, qids:sec.qids})));
+  sel.innerHTML = opts.map((o,i)=>`<option value="${i}">${esc(o.name)} (${o.qids.length})</option>`).join('');
+  c.querySelector('#focusStart').onclick = ()=>{
+    const o = opts[+sel.value];
+    startFocusSession(c.querySelector('#focusArea'), o);
+    c.querySelector('.card').classList.add('hidden');
+  };
+};
+function startFocusSession(area, topic){
+  let idx=0, correct=0, wrong=0, seconds=0, paused=false;
+  const startAt = Date.now();
+  let timerInt = setInterval(()=>{ if(!paused){ seconds++; updateTimer(); } },1000);
+  function updateTimer(){
+    const t = area.querySelector('#focusTimer');
+    if(t) t.textContent = String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');
+  }
+  function draw(){
+    if(idx>=topic.qids.length){
+      clearInterval(timerInt);
+      area.innerHTML = `<div class="card">
+        <h2 style="font-family:var(--serif);margin-top:0;">Focus Session Complete</h2>
+        <p>Time spent: ${Math.floor(seconds/60)}m ${seconds%60}s</p>
+        <p>Questions attempted: ${correct+wrong} · Correct: ${correct} · Incorrect: ${wrong}</p>
+        <button class="btn primary" id="exitFocus">Back to Focus Mode</button>
+      </div>`;
+      area.querySelector('#exitFocus').onclick = ()=> navTo('focus');
+      markStudyToday();
+      return;
+    }
+    area.innerHTML = `<div class="flex between" style="margin-bottom:10px;">
+      <div class="small">${esc(topic.name)} — Question ${idx+1}/${topic.qids.length}</div>
+      <div class="flex"><span class="tag" id="focusTimer">00:00</span>
+        <button class="btn sm" id="pauseBtn">${paused?'Resume':'Pause'}</button></div>
+    </div>`;
+    updateTimer();
+    area.querySelector('#pauseBtn').onclick = ()=>{ paused=!paused; draw(); };
+    const card = renderQuestionCard(qById(topic.qids[idx]), {forceUnanswered:true, onAnswered:(qid,c)=>{ if(c) correct++; else wrong++; }});
+    area.appendChild(card);
+    const nextBtn=document.createElement('button');
+    nextBtn.className='btn primary sm'; nextBtn.style.marginTop='10px';
+    nextBtn.textContent = idx===topic.qids.length-1? 'Finish Session' : 'Next Question &#8594;';
+    nextBtn.onclick = ()=>{ idx++; draw(); };
+    area.appendChild(nextBtn);
+  }
+  draw();
+}
+
+/* ---- PROGRESS / ANALYTICS ---- */
+PAGES.progress = function(c){
+  const st = computeStats();
+  c.innerHTML = `
+    <h1 class="pagetitle">Progress Analytics</h1>
+    <div class="grid cols-4">
+      <div class="card stat"><div class="num">${st.total}</div><div class="lbl">Total Questions</div></div>
+      <div class="card stat"><div class="num">${st.attempted}</div><div class="lbl">Attempted</div></div>
+      <div class="card stat good"><div class="num">${st.accuracy}%</div><div class="lbl">Accuracy</div></div>
+      <div class="card stat good"><div class="num">${st.mastered}</div><div class="lbl">Mastered</div></div>
+      <div class="card stat warn"><div class="num">${st.needsRevision+st.weak}</div><div class="lbl">Revision Due</div></div>
+      <div class="card stat warn"><div class="num">${wrongQuestions().length}</div><div class="lbl">Wrong Questions</div></div>
+      <div class="card stat"><div class="num">${DB.quizzes.length}</div><div class="lbl">Quizzes Taken</div></div>
+      <div class="card stat accent"><div class="num">${DB.streak.current}</div><div class="lbl">Current Streak</div></div>
+    </div>
+    <div class="progresswrap"><div class="small">Overall completion</div><div class="barbg"><div style="width:${st.total?Math.round(st.attempted/st.total*100):0}%"></div></div></div>
+    <h2 class="section-title">Topic-wise Progress</h2>
+    <div id="topicprog"></div>
+  `;
+  const tp = c.querySelector('#topicprog');
+  CHAPTERS.forEach(ch=>{
+    tp.insertAdjacentHTML('beforeend', `<div class="eyebrow" style="margin-top:14px;">${esc(ch.name)}</div>`);
+    ch.sections.forEach(sec=>{
+      const s = computeStats(sec.qids);
+      const strength = topicStrength(sec.qids);
+      const row = document.createElement('div');
+      row.className='topic-row'; row.style.cursor='default';
+      row.innerHTML = `<span class="badge ${strength.cls}">${strength.label}</span><span class="ttitle">${esc(sec.name)}</span>
+        <span class="tmeta">${s.attempted}/${s.total} · ${s.accuracy}%</span>
+        <div class="bar"><div style="width:${s.total?Math.round(s.attempted/s.total*100):0}%"></div></div>`;
+      tp.appendChild(row);
+    });
+  });
+};
+
+/* ---- SETTINGS ---- */
+PAGES.settings = function(c){
+  c.innerHTML = `
+    <h1 class="pagetitle">Settings</h1>
+    <div class="card" style="margin-bottom:16px;">
+      <div class="eyebrow">Appearance</div>
+      <button class="btn" id="toggleThemeBtn">Toggle Light / Dark Mode</button>
+    </div>
+    <div class="card" style="margin-bottom:16px;">
+      <div class="eyebrow">Backup</div>
+      <p class="small">Export all your progress, notes, bookmarks and quiz history to a JSON file, or import a previous backup.</p>
+      <button class="btn primary" id="exportBtn">Export Progress</button>
+      <button class="btn" id="importBtn">Import Progress</button>
+      <input type="file" id="importFile" accept="application/json" class="hidden">
+    </div>
+    <div class="card">
+      <div class="eyebrow">Reset</div>
+      <p class="small">These actions cannot be undone.</p>
+      <button class="btn danger" id="resetQuizBtn">Reset Quiz History</button>
+      <button class="btn danger" id="resetAllBtn">Reset All Progress</button>
+    </div>
+    <h2 class="section-title">Keyboard Shortcuts</h2>
+    <div class="card small">
+      <p><kbd class="shortkey">1</kbd>-<kbd class="shortkey">4</kbd> Select option A-D &nbsp; <kbd class="shortkey">Enter</kbd> Reveal/Next &nbsp; <kbd class="shortkey">R</kbd> Needs Revision &nbsp; <kbd class="shortkey">M</kbd> Mastered &nbsp; <kbd class="shortkey">B</kbd> Bookmark &nbsp; <kbd class="shortkey">N</kbd> Next question &nbsp; <kbd class="shortkey">P</kbd> Previous question</p>
+    </div>
+  `;
+  c.querySelector('#toggleThemeBtn').onclick = toggleTheme;
+  c.querySelector('#exportBtn').onclick = exportProgress;
+  c.querySelector('#importBtn').onclick = ()=> c.querySelector('#importFile').click();
+  c.querySelector('#importFile').onchange = importProgress;
+  c.querySelector('#resetQuizBtn').onclick = ()=> confirmModal('Reset quiz history?','This will delete all quiz attempt records.', ()=>{ DB.quizzes=[]; saveDB(); toast('Quiz history reset'); render(); });
+  c.querySelector('#resetAllBtn').onclick = ()=> confirmModal('Reset ALL progress?','This deletes every status, note, bookmark and quiz record permanently.', ()=>{
+    confirmModal('Are you absolutely sure?','This cannot be undone.', ()=>{ DB = defaultDB(); saveDB(); toast('All progress reset'); navTo('dashboard'); });
+  });
+};
+
+/* ================= SEARCH ================= */
+function runSearch(term){
+  term = term.trim();
+  const c = document.getElementById('content');
+  if(!term){ navTo('dashboard'); return; }
+  const t = term.toLowerCase();
+  const results = QUESTIONS.filter(q=>
+    q.q.toLowerCase().includes(t) ||
+    q.options.some(o=>o.text.toLowerCase().includes(t)) ||
+    q.section.toLowerCase().includes(t) ||
+    q.chapter.toLowerCase().includes(t) ||
+    q.exam.toLowerCase().includes(t)
+  );
+  state.route='__search'; state.params={};
+  renderNav();
+  c.innerHTML = `<h1 class="pagetitle">Search Results</h1><p class="pagesub">${results.length} result(s) for "${esc(term)}"</p><div id="sres"></div>`;
+  const sres = c.querySelector('#sres');
+  if(results.length===0){ sres.innerHTML = `<div class="empty">No matches found.</div>`; return; }
+  results.forEach(q=> sres.appendChild(renderQuestionCard(q, {term})));
+}
+
+/* ================= MODAL / TOAST / THEME ================= */
+function confirmModal(title, body, onConfirm){
+  const root = document.getElementById('modalroot');
+  root.innerHTML = `<div class="modalbg"><div class="modal">
+    <h3>${esc(title)}</h3><p class="small">${esc(body)}</p>
+    <div class="flex" style="margin-top:16px;justify-content:flex-end;">
+      <button class="btn" id="cancelM">Cancel</button>
+      <button class="btn danger" id="okM">Confirm</button>
+    </div></div></div>`;
+  root.querySelector('#cancelM').onclick = ()=> root.innerHTML='';
+  root.querySelector('#okM').onclick = ()=>{ root.innerHTML=''; onConfirm(); };
+}
+function toggleTheme(){
+  DB.settings.theme = DB.settings.theme==='dark' ? 'light' : 'dark';
+  applyTheme(); saveDB();
+}
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme', DB.settings.theme==='dark'?'dark':'light');
+  document.body.setAttribute('data-theme', DB.settings.theme==='dark'?'dark':'light');
+}
+function exportProgress(){
+  const blob = new Blob([JSON.stringify(DB,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download='english_literature_progress_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Progress exported');
+}
+function importProgress(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const parsed = JSON.parse(reader.result);
+      if(typeof parsed !== 'object' || parsed===null) throw new Error('bad format');
+      DB = Object.assign(defaultDB(), parsed, {q: Object.assign({}, parsed.q||{})});
+      saveDB();
+      toast('Progress imported successfully');
+      navTo('dashboard');
+    }catch(err){ toast('Import failed: invalid file'); }
+  };
+  reader.readAsText(file);
+}
+
+/* ================= TOPBAR / SEARCH BINDINGS ================= */
+function renderTopbarBadges(){ /* placeholder for potential live badges */ }
+
+document.getElementById('globalsearch').addEventListener('keydown', e=>{
+  if(e.key==='Enter'){ runSearch(e.target.value); }
+});
+document.getElementById('themebtn').onclick = toggleTheme;
+document.getElementById('menubtn').onclick = ()=> document.getElementById('sidebar').classList.toggle('open');
+document.getElementById('shortcutbtn').onclick = ()=> navTo('settings');
+
+/* ================= KEYBOARD SHORTCUTS ================= */
+document.addEventListener('keydown', e=>{
+  const tag = (e.target.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='textarea'||tag==='select') return;
+  const activeCard = document.querySelector('.qcard');
+  if(!activeCard) return;
+  if(['1','2','3','4'].includes(e.key)){
+    const opts = activeCard.querySelectorAll('.opt:not(.disabled)');
+    const i = parseInt(e.key,10)-1;
+    if(opts[i]) opts[i].click();
+  }
+  if(e.key==='Enter'){
+    const btn = activeCard.querySelector('.actionrow .btn.primary');
+    if(btn && !btn.disabled) btn.click();
+  }
+  if(e.key.toLowerCase()==='b'){
+    const chips = activeCard.querySelectorAll('.statuschip');
+    const bm = Array.from(chips).find(x=>x.textContent.includes('Bookmark'));
+    if(bm) bm.click();
+  }
+  if(e.key.toLowerCase()==='m'){
+    const chips = activeCard.querySelectorAll('.statuschip');
+    const mm = Array.from(chips).find(x=>x.textContent.includes('Mastered'));
+    if(mm) mm.click();
+  }
+  if(e.key.toLowerCase()==='r'){
+    const chips = activeCard.querySelectorAll('.statuschip');
+    const rr = Array.from(chips).find(x=>x.textContent.includes('Revision'));
+    if(rr) rr.click();
+  }
+});
+
+/* ================= INIT ================= */
+applyTheme();
+renderNav();
+render();
+
+})();
+</script>
+</body>
+</html>

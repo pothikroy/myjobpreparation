@@ -1,0 +1,1850 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="../../firebase-config.js"></script>
+  <script>window.AG_PAGE = {"id": "morality", "title": "Morality & Ethics", "storage": {"type": "keys", "keys": ["morality_srs_v2"]}};</script>
+  <script src="../../auth-gate.js"></script>
+  <style>html{visibility:hidden}</style>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Morality — Interactive Study &amp; Revision System</title>
+<style>
+:root{
+  --bg:#f7f5f0; --bg-alt:#ffffff; --ink:#1c1b18; --ink-soft:#57544c;
+  --line:#e4dfd4; --accent:#1f6f5c; --accent-ink:#ffffff; --accent-soft:#e4f0ec;
+  --amber:#b5772a; --amber-soft:#f6ead9; --red:#a8402f; --red-soft:#f7e4df;
+  --blue:#2b5b8c; --blue-soft:#e3ecf5; --gold:#8a6d1f; --gold-soft:#f2ecd6;
+  --card:#ffffff; --shadow:0 1px 2px rgba(28,27,24,.06),0 1px 12px rgba(28,27,24,.05);
+  --radius:14px; --radius-sm:9px; --font-ui:"Kalpurush","Noto Sans Bengali","Hind Siliguri",system-ui,sans-serif;
+  --font-num:"Kalpurush","Noto Sans Bengali",system-ui,sans-serif;
+}
+[data-theme="dark"]{
+  --bg:#161512; --bg-alt:#1f1e1a; --ink:#efece3; --ink-soft:#b3ada0;
+  --line:#333026; --accent:#4bab8f; --accent-ink:#0d1512; --accent-soft:#1d2e29;
+  --amber:#d99a4e; --amber-soft:#332612; --red:#e08672; --red-soft:#331d18;
+  --blue:#7aa8dd; --blue-soft:#1a2534; --gold:#d0b45a; --gold-soft:#2e2810;
+  --card:#1f1e1a; --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 20px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--font-ui); background:var(--bg); color:var(--ink);
+  line-height:1.65; -webkit-font-smoothing:antialiased; letter-spacing:.01em;
+}
+button,input,select,textarea{font-family:inherit}
+h1,h2,h3,h4{font-family:var(--font-ui); font-weight:700; margin:0 0 .5em; line-height:1.35}
+p{margin:0 0 .8em}
+a{color:var(--accent)}
+::selection{background:var(--accent-soft)}
+
+.app-shell{display:flex; min-height:100vh}
+
+/* ---------- Sidebar ---------- */
+.sidebar{
+  width:250px; flex-shrink:0; background:var(--bg-alt); border-right:1px solid var(--line);
+  display:flex; flex-direction:column; position:sticky; top:0; height:100vh; overflow-y:auto;
+}
+.brand{padding:20px 18px 14px; border-bottom:1px solid var(--line)}
+.brand-title{font-size:17px; font-weight:800; display:flex; align-items:center; gap:8px}
+.brand-badge{width:30px;height:30px;border-radius:8px;background:var(--accent);color:var(--accent-ink);
+  display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.brand-sub{font-size:11.5px; color:var(--ink-soft); margin-top:4px}
+.nav{padding:10px 10px 16px; flex:1}
+.nav-item{
+  display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:9px;
+  color:var(--ink-soft); cursor:pointer; font-size:14px; margin-bottom:2px; user-select:none;
+  border:none; background:none; width:100%; text-align:left;
+}
+.nav-item:hover{background:var(--accent-soft); color:var(--ink)}
+.nav-item.active{background:var(--accent); color:var(--accent-ink); font-weight:700}
+.nav-icon{width:18px; text-align:center; flex-shrink:0; font-size:15px}
+.nav-badge{
+  margin-left:auto; background:var(--red); color:#fff; font-size:10.5px; font-weight:700;
+  padding:1px 6px; border-radius:20px; min-width:18px; text-align:center;
+}
+.nav-item.active .nav-badge{background:rgba(255,255,255,.28)}
+.nav-section-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft);
+  padding:14px 12px 6px; opacity:.7}
+.sidebar-foot{padding:12px; border-top:1px solid var(--line); display:flex; gap:8px}
+.icon-btn{
+  border:1px solid var(--line); background:var(--bg); border-radius:8px; width:34px; height:34px;
+  display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink); font-size:15px;
+}
+.icon-btn:hover{border-color:var(--accent)}
+
+/* ---------- Mobile nav ---------- */
+.mobile-topbar{display:none}
+.mobile-nav-overlay{display:none}
+
+/* ---------- Main ---------- */
+.main{flex:1; min-width:0}
+.main-inner{max-width:1080px; margin:0 auto; padding:26px 28px 80px}
+.page-head{margin-bottom:20px}
+.page-title{font-size:22px; font-weight:800; display:flex; align-items:center; gap:10px}
+.page-sub{color:var(--ink-soft); font-size:13.5px; margin-top:4px}
+
+.searchbar{
+  display:flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--line);
+  border-radius:10px; padding:9px 13px; margin-bottom:18px; box-shadow:var(--shadow);
+}
+.searchbar input{border:none; outline:none; background:none; flex:1; font-size:14px; color:var(--ink)}
+.searchbar .kbd{font-size:11px; color:var(--ink-soft); border:1px solid var(--line); border-radius:5px; padding:1px 6px}
+
+/* ---------- Cards / grid ---------- */
+.grid{display:grid; gap:14px}
+.grid-4{grid-template-columns:repeat(4,1fr)}
+.grid-3{grid-template-columns:repeat(3,1fr)}
+.grid-2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:900px){.grid-4{grid-template-columns:repeat(2,1fr)} .grid-3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.grid-4,.grid-3,.grid-2{grid-template-columns:1fr 1fr}}
+
+.stat-card{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:16px;
+  box-shadow:var(--shadow);
+}
+.stat-num{font-size:26px; font-weight:800; line-height:1}
+.stat-label{font-size:12.5px; color:var(--ink-soft); margin-top:6px}
+.stat-card.accent{background:var(--accent-soft)}
+.stat-card.amber{background:var(--amber-soft)}
+.stat-card.red{background:var(--red-soft)}
+.stat-card.blue{background:var(--blue-soft)}
+
+.panel{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px;
+  box-shadow:var(--shadow); margin-bottom:16px;
+}
+.panel-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px}
+.panel-title{font-size:15.5px; font-weight:800; display:flex; align-items:center; gap:8px}
+
+.pill{display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:700; padding:3px 9px;
+  border-radius:20px; background:var(--accent-soft); color:var(--accent)}
+.pill.amber{background:var(--amber-soft); color:var(--amber)}
+.pill.red{background:var(--red-soft); color:var(--red)}
+.pill.blue{background:var(--blue-soft); color:var(--blue)}
+.pill.gold{background:var(--gold-soft); color:var(--gold)}
+.pill.gray{background:var(--line); color:var(--ink-soft)}
+
+.btn{
+  border:1px solid var(--line); background:var(--bg-alt); color:var(--ink); border-radius:9px;
+  padding:8px 14px; font-size:13.5px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px;
+}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+.btn.primary:hover{opacity:.92}
+.btn.danger{background:var(--red); color:#fff; border-color:var(--red)}
+.btn.ghost{background:none; border:none}
+.btn.sm{padding:5px 10px; font-size:12.5px}
+.btn:disabled{opacity:.45; cursor:not-allowed}
+
+/* Priority now widget */
+.priority-item{
+  display:flex; align-items:flex-start; gap:12px; padding:12px 0; border-bottom:1px solid var(--line);
+}
+.priority-item:last-child{border-bottom:none}
+.priority-rank{
+  width:26px; height:26px; border-radius:50%; background:var(--accent-soft); color:var(--accent);
+  font-weight:800; font-size:12.5px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.priority-text{flex:1; font-size:14px}
+.priority-meta{font-size:12px; color:var(--ink-soft); margin-top:2px}
+
+/* ---------- Question card ---------- */
+.q-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:20px;
+  box-shadow:var(--shadow); margin-bottom:14px; scroll-margin-top:20px}
+.q-top{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; flex-wrap:wrap}
+.q-meta{display:flex; gap:6px; flex-wrap:wrap; align-items:center}
+.q-num{font-weight:800; color:var(--accent)}
+.q-text{font-size:15.5px; font-weight:700; margin-bottom:14px}
+.q-text mark{background:var(--gold-soft); color:inherit; padding:0 2px; border-radius:3px}
+.options{display:flex; flex-direction:column; gap:8px}
+.opt{
+  display:flex; align-items:center; gap:10px; border:1.5px solid var(--line); border-radius:10px;
+  padding:10px 13px; cursor:pointer; font-size:14.5px; background:var(--bg-alt); transition:border-color .1s;
+}
+.opt:hover{border-color:var(--accent)}
+.opt .opt-key{width:22px; height:22px; border-radius:6px; background:var(--bg); border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; flex-shrink:0}
+.opt.selected{border-color:var(--accent); background:var(--accent-soft)}
+.opt.correct{border-color:var(--accent); background:var(--accent-soft)}
+.opt.correct .opt-key{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+.opt.incorrect{border-color:var(--red); background:var(--red-soft)}
+.opt.incorrect .opt-key{background:var(--red); color:#fff; border-color:var(--red)}
+.opt.disabled{cursor:default}
+.opt.reveal-correct{border-color:var(--accent); border-style:dashed}
+
+.q-result-banner{display:flex; align-items:center; gap:8px; font-weight:800; font-size:13.5px; margin:12px 0 6px}
+.q-result-banner.ok{color:var(--accent)}
+.q-result-banner.no{color:var(--red)}
+
+.explain-box{background:var(--accent-soft); border-radius:10px; padding:12px 14px; font-size:13.8px;
+  margin-top:10px; color:var(--ink)}
+.explain-box b{color:var(--accent)}
+.flag-box{background:var(--amber-soft); border-radius:10px; padding:10px 14px; font-size:12.8px; margin-top:8px; color:var(--amber)}
+.source-line{font-size:11.5px; color:var(--ink-soft); margin-top:10px}
+
+.q-actions{display:flex; gap:6px; flex-wrap:wrap; margin-top:14px; border-top:1px solid var(--line); padding-top:12px}
+.act-btn{
+  border:1px solid var(--line); background:var(--bg-alt); border-radius:8px; padding:6px 11px; font-size:12.5px;
+  font-weight:700; cursor:pointer; display:flex; align-items:center; gap:5px; color:var(--ink-soft);
+}
+.act-btn:hover{border-color:var(--accent); color:var(--ink)}
+.act-btn.on{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+.act-btn.on.bm{background:var(--gold); border-color:var(--gold); color:#1c1b18}
+.act-btn.on.mastered{background:var(--accent)}
+.act-btn.on.revision{background:var(--red); border-color:var(--red); color:#fff}
+
+.status-chip{font-size:11px; font-weight:800; padding:2px 8px; border-radius:20px}
+.status-new{background:var(--line); color:var(--ink-soft)}
+.status-learning{background:var(--blue-soft); color:var(--blue)}
+.status-weak{background:var(--amber-soft); color:var(--amber)}
+.status-due{background:var(--red-soft); color:var(--red)}
+.status-mastered{background:var(--accent-soft); color:var(--accent)}
+
+.note-box{margin-top:10px}
+.note-box textarea{
+  width:100%; border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:13px;
+  background:var(--bg-alt); color:var(--ink); resize:vertical; min-height:50px;
+}
+.note-label{font-size:11px; color:var(--ink-soft); margin-bottom:4px; font-weight:700}
+
+/* ---------- Filters ---------- */
+.filter-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px}
+.filter-select{
+  border:1px solid var(--line); background:var(--card); border-radius:9px; padding:7px 11px; font-size:13px;
+  color:var(--ink); cursor:pointer;
+}
+.chip-toggle{
+  border:1px solid var(--line); background:var(--card); border-radius:20px; padding:6px 13px; font-size:12.8px;
+  font-weight:700; cursor:pointer; color:var(--ink-soft);
+}
+.chip-toggle.active{background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
+
+/* ---------- Study material ---------- */
+.study-sec{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); margin-bottom:12px; overflow:hidden}
+.study-sec-head{padding:14px 18px; display:flex; align-items:center; justify-content:space-between; cursor:pointer}
+.study-sec-title{font-weight:800; font-size:15px}
+.study-sec-body{padding:0 18px 18px; font-size:14.5px}
+.study-sec-body p{margin-bottom:10px}
+
+/* ---------- Empty state ---------- */
+.empty-state{text-align:center; padding:50px 20px; color:var(--ink-soft)}
+.empty-state .emoji{font-size:38px; margin-bottom:10px}
+
+/* ---------- Topic strength bar ---------- */
+.strength-bar{height:7px; border-radius:5px; background:var(--line); overflow:hidden; margin-top:6px}
+.strength-fill{height:100%; background:var(--accent); border-radius:5px}
+
+/* ---------- Modal ---------- */
+.modal-backdrop{position:fixed; inset:0; background:rgba(20,18,14,.55); display:flex; align-items:center;
+  justify-content:center; z-index:100; padding:20px}
+.modal{background:var(--card); border-radius:16px; max-width:520px; width:100%; padding:24px; box-shadow:var(--shadow); max-height:86vh; overflow-y:auto}
+.modal h3{margin-bottom:10px}
+
+/* ---------- toast ---------- */
+.toast{position:fixed; bottom:22px; left:50%; transform:translateX(-50%); background:var(--ink); color:var(--bg);
+  padding:10px 18px; border-radius:30px; font-size:13.5px; font-weight:700; z-index:200; box-shadow:var(--shadow);
+  opacity:0; pointer-events:none; transition:opacity .25s, bottom .25s;}
+.toast.show{opacity:1; bottom:32px}
+[data-theme="dark"] .toast{background:var(--accent); color:var(--accent-ink)}
+
+/* focus/quick modes */
+.focus-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px}
+.timer-display{font-size:22px; font-weight:800; font-variant-numeric:tabular-nums; color:var(--accent)}
+.progress-track{height:6px; background:var(--line); border-radius:4px; overflow:hidden; margin-bottom:18px}
+.progress-fill{height:100%; background:var(--accent)}
+
+/* keyboard shortcut panel */
+.kbd-grid{display:grid; grid-template-columns:auto 1fr; gap:8px 14px; font-size:13px}
+.kbd-grid kbd{background:var(--bg); border:1px solid var(--line); border-radius:5px; padding:1px 7px; font-family:inherit}
+
+/* responsive */
+@media(max-width:880px){
+  .sidebar{position:fixed; left:-260px; top:0; z-index:60; transition:left .2s; box-shadow:0 0 30px rgba(0,0,0,.2)}
+  .sidebar.open{left:0}
+  .mobile-topbar{
+    display:flex; align-items:center; gap:12px; padding:12px 16px; background:var(--bg-alt);
+    border-bottom:1px solid var(--line); position:sticky; top:0; z-index:40;
+  }
+  .mobile-topbar .brand-title{font-size:15px}
+  .mobile-nav-overlay{display:none; position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:55}
+  .mobile-nav-overlay.show{display:block}
+  .main-inner{padding:18px 14px 70px}
+  .grid-4{grid-template-columns:1fr 1fr}
+  .grid-3{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){
+  .page-title{font-size:19px}
+  .q-text{font-size:14.5px}
+}
+
+/* dashboard: what to study now */
+.wtsn-card{background:linear-gradient(135deg,var(--accent-soft),var(--bg-alt)); border:1.5px solid var(--accent);
+  border-radius:var(--radius); padding:18px 20px; margin-bottom:18px}
+.wtsn-title{font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--accent); margin-bottom:10px}
+
+.two-col{display:grid; grid-template-columns:1.3fr 1fr; gap:16px}
+@media(max-width:880px){.two-col{grid-template-columns:1fr}}
+
+.small-muted{font-size:12px; color:var(--ink-soft)}
+hr.sep{border:none; border-top:1px solid var(--line); margin:14px 0}
+
+.tag-row{display:flex; gap:6px; flex-wrap:wrap}
+
+.topic-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow)}
+.topic-card-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px}
+.topic-card-title{font-weight:800; font-size:15px}
+
+.streak-flame{font-size:28px}
+
+input[type=range]{accent-color:var(--accent)}
+
+</style>
+</head>
+<body>
+<div id="ag-overlay"></div>
+
+<div class="app-shell">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-title"><span class="brand-badge">⚖</span> Morality Study System</div>
+      <div class="brand-sub">নৈতিকতা, মূল্যবোধ ও সুশাসন</div>
+    </div>
+    <nav class="nav" id="sidebarNav"></nav>
+    <div class="sidebar-foot">
+      <button class="icon-btn" id="themeToggleBtn" title="থিম পরিবর্তন করুন">🌓</button>
+      <div class="searchbar" style="flex:1; margin:0; padding:6px 10px">
+        <span style="font-size:13px">🔍</span>
+        <input id="globalSearchInput" placeholder="খুঁজুন… (/)" style="font-size:12.5px">
+      </div>
+    </div>
+  </aside>
+
+  <div class="mobile-nav-overlay" id="mobileOverlay"></div>
+
+  <main class="main">
+    <div class="mobile-topbar">
+      <button class="icon-btn" id="mobileMenuBtn">☰</button>
+      <div class="brand-title">⚖ Morality Study System</div>
+    </div>
+    <div class="main-inner" id="mainInner"></div>
+  </main>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const DATA = [{"id": "morality-ch1-q01", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "01", "question": "নিচের কোনটি পেশাগত নৈতিকতার উপাদান?", "options": {"ক": "স্বজনপ্রীতি", "খ": "সাম্প্রদায়িকতা", "গ": "দরিদ্রতা", "ঘ": "দক্ষতা"}, "answer": "ঘ", "explanation": "পেশাগত নৈতিকতার মূল উপাদানগুলোর মধ্যে রয়েছে সততা ও বিশ্বস্ততা, যোগ্যতা ও দক্ষতা, জনগণের প্রতি দায়বদ্ধতা, নিরপেক্ষতা ও ন্যায়পরায়ণতা, গোপনীয়তা রক্ষা এবং আচরণবিধি মেনে চলা।", "tag": "৪৭তম বিসিএস", "page": 1}, {"id": "morality-ch1-q02", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "02", "question": "উদ্দেশ্য নৈতিকতার আলোচ্য বিষয় কোনটি?", "options": {"ক": "উদ্দেশ্য", "খ": "ফলাফল", "গ": "প্রক্রিয়া", "ঘ": "উপরের সবগুলো"}, "answer": "ঘ", "explanation": "উদ্দেশ্য নৈতিকতা (Teleological Ethics) শুধুমাত্র শেষ ফলাফল নয়, বরং উদ্দেশ্য (Goal/Telos) অর্জনের জন্য কর্মের সমগ্র প্রেক্ষিত বিবেচনা করে। এতে নিম্নলিখিত বিষয়গুলো অন্তর্ভুক্ত থাকে: ১. উদ্দেশ্য: কর্মের চূড়ান্ত লক্ষ্য বা টেলোস (যেমন: সুখ, কল্যাণ, পরিপূর্ণতা)। ২. ফলাফল: উদ্দেশ্য অর্জনের মাধ্যমে সৃষ্ট পরিণতি বা ফল। ৩. প্রক্রিয়া: উদ্দেশ্য অর্জনের জন্য গৃহীত কর্মপন্থা বা মাধ্যম। উদ্দেশ্য নৈতিকতায় প্রক্রিয়ার নৈতিকতা সরাসরি উদ্দেশ্য ও ফলাফলের দ্বারা নির্ধারিত হয়। অর্থাৎ, যদি ভালো ফলাফলের জন্য একটি নির্দিষ্ট প্রক্রিয়া বা মাধ্যম প্রয়োজন হয়, তাহলে তা নৈতিকভাবে গ্রহণযোগ্য হতে পারে। সুতরাং, আলোচনায় উদ্দেশ্য, ফলাফল এবং সেইসাথে প্রক্রিয়ার ভূমিকা সবই প্রাসঙ্গিক।", "tag": "৪৭তম বিসিএস", "page": 1}, {"id": "morality-ch1-q03", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "03", "question": "কোন শ্রেণির ক্রিয়া নীতিবিদ্যার আলোচ্য বিষয়ের অন্তর্ভুক্ত?", "options": {"ক": "নৈতিকতা-নিরপেক্ষ ক্রিয়া", "খ": "সামাজিক ক্রিয়া", "গ": "ঐচ্ছিক ক্রিয়া", "ঘ": "ইচ্ছা-নিরপেক্ষ ক্রিয়া"}, "answer": "গ", "explanation": "নীতিবিদ্যা হলো একটি মানদণ্ড বা আদর্শ যাকে সামনে রেখে মানুষের আচরণগুলোকে মূল্যায়ন করা হয় এবং এ আদর্শের সাথে তুলনা করে মানুষের ঐচ্ছিক ক্রিয়াকে ভালো বা মন্দ বলে বিচার করা হয়। সুতরাং, সমাজে বসবাসকারী মানুষের আচরণ বা ঐচ্ছিক ক্রিয়ার পর্যালোচনা ও মূল্যায়নই হচ্ছে নীতিবিদ্যার আলোচনার মূল বিষয়বস্তু।", "tag": "৪৬তম, ৩৫তম বিসিএস", "page": 1}, {"id": "morality-ch1-q04", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "04", "question": "বাংলাদেশের 'নব্য-নৈতিকতার' প্রবর্তক হলেন-", "options": {"ক": "মোহাম্মদ বরকতুল্লাহ", "খ": "জি. সি. দেব", "গ": "আরজ আলী মাতুব্বর", "ঘ": "আব্দুল মতীন"}, "answer": "গ", "explanation": "বাংলাদেশের সমাজে বিদ্যমান কুসংস্কারগুলোর বিপরীতে আরজ আলী মাতুব্বর কিছু দার্শনিক দিক তুলে ধরেছেন এবং ব্যক্ত করেছেন তার নিজস্ব তত্ত্ব। এইদিক থেকে তাকে অনেকেই বাংলাদেশের নব্য-নৈতিকতার প্রবর্তক হিসেবে দাবি করেন।", "tag": "৪৬তম, ৪০তম বিসিএস", "page": 1}, {"id": "morality-ch1-q05", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "05", "question": "\"মানুষ হও এবং মরে বাঁচ।\"-এটি কার উক্তি?", "options": {"ক": "প্লেটো", "খ": "হেগেল", "গ": "জি. ই. মুর", "ঘ": "রাসেল"}, "answer": "খ", "explanation": "", "tag": "৪৬তম বিসিএস", "page": 1}, {"id": "morality-ch1-q06", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "06", "question": "\"দর্শন হচ্ছে ধর্ম ও বিজ্ঞানের মধ্যবর্তী এক অনধিকৃত প্রদেশ।\"-উক্তিটি কে করেছেন?", "options": {"ক": "আর. বি. পেরি", "খ": "প্লেটো", "গ": "সি. ডি. ব্রড", "ঘ": "বার্ট্রান্ড রাসেল"}, "answer": "ঘ", "explanation": "", "tag": "৪৬তম বিসিএস", "page": 1}, {"id": "morality-ch1-q07", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "07", "question": "'Republic' গ্রন্থটির রচয়িতা কে?", "options": {"ক": "বার্কলে", "খ": "জন লক", "গ": "ডেকার্ট", "ঘ": "প্লেটো"}, "answer": "ঘ", "explanation": "দর্শন শাস্ত্রের উল্লেখযোগ্য কিছু গ্রন্থ ও রচয়িতা: The Republic - প্লেটো; Utilitarianism, On Liberty, Principles of Political Economy, The Logic of the Moral Sciences, A System of Logic, Human Society in Ethics and Politics - জন স্টুয়ার্ট মিল; Power: A New Social Analysis, Political Ideals - বার্ট্রান্ড রাসেল; The Prince - মেকিয়াভেলি; Animal Liberation, Practical Ethics - পিটার সিঙ্গার।", "tag": "৪৬তম বিসিএস", "page": 1}, {"id": "morality-ch1-q08", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "08", "question": "'Animal Liberation' গ্রন্থটির রচয়িতা কে?", "options": {"ক": "হেগেল", "খ": "কান্ট", "গ": "বেন্থাম", "ঘ": "পিটার সিঙ্গার"}, "answer": "ঘ", "explanation": "", "tag": "৪৬তম বিসিএস", "page": 2}, {"id": "morality-ch1-q09", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "09", "question": "'Utilitarianism' গ্রন্থের লেখক কে?", "options": {"ক": "জন স্টুয়ার্ট মিল", "খ": "ইমানুয়েল কান্ট", "গ": "বার্ট্রান্ড রাসেল", "ঘ": "জেরেমি বেন্থাম"}, "answer": "ক", "explanation": "", "tag": "৪৫তম বিসিএস", "page": 2}, {"id": "morality-ch1-q10", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "10", "question": "'জ্ঞান হয় পুণ্য'-এই উক্তি কার?", "options": {"ক": "থেলিস", "খ": "সক্রেটিস", "গ": "এ্যারিস্টটল", "ঘ": "প্লেটো"}, "answer": "খ", "explanation": "", "tag": "৪৫তম বিসিএস", "page": 2}, {"id": "morality-ch1-q11", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "11", "question": "'শর্তহীন আদেশ' ধারণাটির প্রবর্তক কে?", "options": {"ক": "এ্যারিস্টটল", "খ": "বার্ট্রান্ড রাসেল", "গ": "হার্বার্ট স্পেন্সার", "ঘ": "ইমানুয়েল কান্ট"}, "answer": "ঘ", "explanation": "জার্মান দার্শনিক ইমানুয়েল কান্ট নীতিশাস্ত্রে যে নৈতিক নিয়ম প্রতিষ্ঠার প্রচেষ্টা চালিয়েছেন তা বিচারবাদ নামে খ্যাত। কান্টের বিচারবাদ তিনটি ধারণাকে কেন্দ্র করে গড়ে উঠেছে। যথা- ক. শর্তহীন আদেশ (Categorical Imperative), খ. সদিচ্ছা (Good Will) এবং গ. কর্তব্যের জন্য কর্তব্য (Duty for Duty's Sake)। কান্ট তার Groundwork of the Metaphysics of Morals গ্রন্থে এই তত্ত্ব বিস্তারিতভাবে আলোচনা করেছেন।", "tag": "৪৫তম বিসিএস", "page": 2}, {"id": "morality-ch1-q12", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "12", "question": "রাষ্ট্র ও সমাজে দুর্নীতিপ্রবণতার জন্য সবচেয়ে বেশি দায়ী-", "options": {"ক": "আইনের প্রয়োগের অভাব", "খ": "নৈতিকতা ও মূল্যবোধের অভাব", "গ": "দুর্বল পরিবীক্ষণ ব্যবস্থা", "ঘ": "অসৎ নেতৃত্ব"}, "answer": "খ", "explanation": "আইনের শাসন সমাজে সমতা নিশ্চিত করে এবং শৃঙ্খলা বজায় রাখে। আইনের সম্পূর্ণ প্রয়োগ নিশ্চিত করলেও যতক্ষণ না পর্যন্ত দুর্নীতিকে সামাজিকভাবে বর্জন করবে ততক্ষণ পর্যন্ত দুর্নীতি প্রবণতা দূর হবে না। এক্ষেত্রে নৈতিকতা ও সামাজিক মূল্যবোধ চর্চার অভাবকে দুর্নীতি প্রবণতার প্রধান কারণ হিসেবে চিহ্নিত করা যায়।", "tag": "৪৪তম বিসিএস", "page": 2}, {"id": "morality-ch1-q13", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "13", "question": "সততার জন্য সদিচ্ছা'র কথা বলেছেন-", "options": {"ক": "ডেকার্ট", "খ": "ডেভিড হিউম", "গ": "ইমানুয়েল কান্ট", "ঘ": "জন লক"}, "answer": "গ", "explanation": "ইমানুয়েল কান্ট তার Good Will তত্ত্বে বলেছেন কোনো কাজ ভালো বলে বিবেচিত হবে, যদি তার পিছনে কোনো ভালো উদ্দেশ্য (সদিচ্ছা) থাকে। তার মতে সৎ ইচ্ছাই নৈতিকতার উৎস।", "tag": "৪৪তম বিসিএস", "page": 2}, {"id": "morality-ch1-q14", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "14", "question": "'On Liberty' গ্রন্থের লেখক কে?", "options": {"ক": "ইমানুয়েল কান্ট", "খ": "টমাস হবস", "গ": "জন স্টুয়ার্ট মিল", "ঘ": "জেরেমি বেন্থাম"}, "answer": "গ", "explanation": "", "tag": "৪৩তম বিসিএস", "page": 2}, {"id": "morality-ch1-q15", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "15", "question": "'কর্তব্যের জন্য কর্তব্য'- ধারণাটির প্রবর্তক কে?", "options": {"ক": "ইমানুয়েল কান্ট", "খ": "হার্বার্ট স্পেন্সার", "গ": "বার্ট্রান্ড রাসেল", "ঘ": "অ্যারিস্টটল"}, "answer": "ক", "explanation": "", "tag": "৪৩তম বিসিএস", "page": 3}, {"id": "morality-ch1-q16", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "16", "question": "'Human Society in Ethics and Politics' গ্রন্থের লেখক কে?", "options": {"ক": "প্লেটো", "খ": "রুসো", "গ": "বার্ট্রান্ড রাসেল", "ঘ": "জন স্টুয়ার্ট মিল"}, "answer": "গ", "explanation": "", "tag": "৪৩তম বিসিএস", "page": 3}, {"id": "morality-ch1-q17", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "17", "question": "কোন নৈতিক মানদণ্ডটি সর্বোচ্চ সুখের উপর গুরুত্ব প্রদান করে?", "options": {"ক": "আত্মস্বার্থবাদ", "খ": "পরার্থবাদ", "গ": "পূর্ণতাবাদ", "ঘ": "উপযোগবাদ"}, "answer": "ঘ", "explanation": "উপযোগবাদ একটি দার্শনিক মতবাদ, যার মূল বক্তব্য হলো সর্বোচ্চ সংখ্যক মানুষের জন্য সর্বোচ্চ পরিমাণ সুখ। এ মতবাদ অনুসারে সর্বোত্তম কর্ম হলো তা, যা সুখ বা উপযোগিতাকে সর্বাধিক করে তোলে। একটি কর্মের নৈতিক মূল্য তার ফলাফল দ্বারা নির্ধারিত হয়। এ তত্ত্বের প্রধান প্রবক্তা ব্রিটিশ দার্শনিক জেরেমি বেন্থাম এবং জন স্টুয়ার্ট মিল।", "tag": "৪৩তম বিসিএস", "page": 3}, {"id": "morality-ch1-q18", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "18", "question": "কে কর্তব্যের নৈতিকতার ধারণা প্রবর্তন করেন?", "options": {"ক": "হ্যারল্ড উইলসন", "খ": "এডওয়ার্ড ওসবর্ন উইলসন", "গ": "জন স্টুয়ার্ট মিল", "ঘ": "ইমানুয়েল কান্ট"}, "answer": "ঘ", "explanation": "ইমানুয়েল কান্ট তার 'কর্তব্যের জন্য কর্তব্য' তত্ত্বে বলেছেন, কোনো কর্মের ফলের কথা চিন্তা না করে, কোনো বিশেষ উদ্দেশ্য দ্বারা প্রণোদিত না হয়ে, অনুভূতি বা অনুকম্পা দ্বারা তাড়িত না হয়ে, শুধু নৈতিক কর্তব্যের কথা চিন্তা করে যদি কোনো কাজ সম্পাদিত হয় তবেই তা 'কর্তব্যের জন্য কর্তব্য' হয়।", "tag": "৪১তম বিসিএস", "page": 3}, {"id": "morality-ch1-q19", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "19", "question": "Political Ideals-গ্রন্থের লেখক কে?", "options": {"ক": "মেকিয়াভেলি", "খ": "রাসেল", "গ": "প্লেটো", "ঘ": "এরিস্টটল"}, "answer": "খ", "explanation": "", "tag": "৪১তম বিসিএস", "page": 3}, {"id": "morality-ch1-q20", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "20", "question": "প্লেটো 'সদগুণ' বলতে বুঝিয়েছেন-", "options": {"ক": "প্রজ্ঞা, সাহস, আত্মনিয়ন্ত্রণ ও ন্যায়", "খ": "আত্মপ্রত্যয়, প্রেষণা ও নিয়ন্ত্রণ", "গ": "সুখ, ভালোত্ব ও প্রেম", "ঘ": "প্রজ্ঞা, আত্মনিয়ন্ত্রণ ও সুখ ও ন্যায়"}, "answer": "ক", "explanation": "প্লেটো চারটি সদগুণের (Cardinal Virtue) কথা বলেছেন। এগুলো হলো- প্রজ্ঞা, সাহস, মিতাচার ও ন্যায়। এদের মধ্যে ন্যায়কেই তিনি রাষ্ট্র ও ব্যক্তি উভয়ের ক্ষেত্রেই সর্বোচ্চ অত্যাবশ্যকীয় সদগুণ হিসেবে চিহ্নিত করেন। তবে ব্যক্তি ও রাষ্ট্রের মধ্যে যখন বাকি তিনটি সদগুণের অস্তিত্ব থাকে তখনই সদগুণের অভ্যুদয় ঘটে।", "tag": "৪১তম বিসিএস", "page": 3}, {"id": "morality-ch1-q21", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "21", "question": "'আমরা যে সমাজেই বসবাস করি না কেন, আমরা সকলেই ভালো নাগরিক হওয়ার প্রত্যাশা করি'। এটি-", "options": {"ক": "নৈতিক অনুশাসন", "খ": "রাজনৈতিক ও সামাজিক অনুশাসন", "গ": "আইনের শাসন", "ঘ": "আইনের অধ্যাদেশ"}, "answer": "ক", "explanation": "নৈতিক অনুশাসন (Discipline of Ethics) মূলত সামাজিকভাবে প্রতিষ্ঠিত নীতি-নৈতিকতা। মানুষ সামাজিক জীব, তাই সমাজে বসবাস করতে হলে তাকে ভালো মানুষ হিসেবে বসবাস করতে হয়। নৈতিক অনুশাসনের দ্বারা প্রভাবিত হয়ে সমাজভেদে আমরা সকলেই ভালো নাগরিক হওয়ার প্রত্যাশা করি-এটি নৈতিক অনুশাসন। এই অনুশাসন ব্যক্তিকে শিক্ষা দেয়-চুরি করা অন্যায়, দুর্নীতি শাস্তিযোগ্য অপরাধ প্রভৃতি।", "tag": "৪০তম বিসিএস", "page": 3}, {"id": "morality-ch1-q22", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "22", "question": "গোল্ডেন মিন (Golden Mean) হলো-", "options": {"ক": "সমস্ত সম্ভাব্য কর্মের গড়", "খ": "দুটি চরমপন্থার মধ্যবর্তী অবস্থা", "গ": "ত্রিভুজের দুই বাহুর ভূ-কেন্দ্রিক সম্পর্ক", "ঘ": "একটি প্রাচীন দার্শনিক ধারার নাম"}, "answer": "খ", "explanation": "গোল্ডেন মিন (Golden Mean) বা সুবর্ণ মধ্যক একটি দার্শনিক পরিভাষা, যার মাধ্যমে গ্রিক দার্শনিক এরিস্টটল দুই চরমপন্থার মধ্যবর্তী অবস্থাকে বুঝিয়েছেন। যেমন-একদিকে সম্পদের প্রাচুর্য এবং অন্যদিকে খুবই অভাব, এ দুটি চরম অবস্থার মাঝামাঝি অবস্থাই হলো গোল্ডেন মিন।", "tag": "৩৮তম, ৩৬তম বিসিএস", "page": 3}, {"id": "morality-ch1-q23", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "23", "question": "জেরেমি বেন্থাম কোন দেশের অধিবাসী ছিলেন?", "options": {"ক": "জার্মানি", "খ": "ফ্রান্স", "গ": "মার্কিন যুক্তরাষ্ট্র", "ঘ": "যুক্তরাজ্য"}, "answer": "ঘ", "explanation": "", "tag": "৩৮তম বিসিএস", "page": 3}, {"id": "morality-ch1-q24", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "24", "question": "একজন যোগ্য প্রশাসক ও ব্যবস্থাপকের অত্যাবশ্যকীয় মৌলিক গুণাবলির মধ্যে শ্রেষ্ঠ গুণ কোনটি?", "options": {"ক": "দায়িত্বশীলতা", "খ": "নৈতিকতা", "গ": "দক্ষতা", "ঘ": "সরলতা"}, "answer": "খ", "explanation": "নৈতিকতা একজন প্রশাসককে সততা, ন্যায্যতা ও আদর্শের প্রতি অবিচল থাকার মানসিকতা প্রদান করে, যা প্রশাসনিক কর্মকাণ্ডের সঠিকতা ও বিশ্বাসযোগ্যতা নিশ্চিত করে। দায়িত্বশীলতা, দক্ষতা ও সরলতার মতো গুণাবলি প্রশাসনের জন্য গুরুত্বপূর্ণ হলেও নৈতিকতার অভাবে প্রশাসনিক সিদ্ধান্ত ও কার্যক্রমে পক্ষপাত, দুর্নীতি ও অবিশ্বাসের সৃষ্টি হতে পারে। তাই প্রশাসনের ক্ষেত্রে নৈতিকতাকেই প্রধান ও শ্রেষ্ঠ গুণ হিসেবে বিবেচনা করা হয়।", "tag": "৩৭তম বিসিএস", "page": 3}, {"id": "morality-ch1-q25", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "25", "question": "নৈতিক শক্তির প্রধান উপাদান কি?", "options": {"ক": "সততা ও নিষ্ঠা", "খ": "কর্তব্যপরায়ণতা", "গ": "মায়া ও মমতা", "ঘ": "উদারতা"}, "answer": "ক", "explanation": "নৈতিক শক্তির প্রধান উপাদানগুলোকে বিশ্লেষণ করলে মায়া-মমতা, উদারতা, দানশীলতা, কর্তব্যপরায়ণতা প্রভৃতি মহৎগুণ আসে না। কারণ নৈতিকতা ঠিক করে কোন কাজটি ভালো, কোনটি মন্দ। কিছুক্ষেত্রে উদারতা কিংবা মায়া-মমতা সমাজে ভালোর বদলে খারাপই করে। কিন্তু সততা, নিষ্ঠা, সদিচ্ছা প্রভৃতি নৈতিক শক্তি প্রতিষ্ঠার উপাদান হিসেবে সব সমাজেই কার্যকর।", "tag": "৪৫তম বিসিএস", "page": 4}, {"id": "morality-ch1-q26", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "26", "question": "নৈতিকতাকে বলা হয় মানবজীবনের-", "options": {"ক": "নৈতিক শক্তি", "খ": "নৈতিক বিধি", "গ": "নৈতিক আদর্শ", "ঘ": "সবগুলোই"}, "answer": "গ", "explanation": "নৈতিকতা হলো মানুষের অন্তর্নিহিত ধ্যান ধারণার সমষ্টি, যা মানুষকে সুকুমার বৃত্তি অনুশীলনে অনুপ্রাণিত করে। নৈতিকতা বা ন্যায়বোধ একটি মানসিক বিষয়। নৈতিকতা বা নীতিবোধের বিকাশ ঘটে মানুষের ন্যায়-অন্যায়, ভালো-মন্দ, উচিত-অনুচিত বোধ বা অনুভূতি থেকে। এজন্য নৈতিকতাকে বলা হয় মানবজীবনের নৈতিক আদর্শ।", "tag": "৩৬তম বিসিএস", "page": 4}, {"id": "morality-ch1-q27", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "27", "question": "'Power: A New Social Analysis' গ্রন্থটি কার লেখা?", "options": {"ক": "ম্যাকিয়াভেলি", "খ": "হবস", "গ": "লক", "ঘ": "রাসেল"}, "answer": "ঘ", "explanation": "", "tag": "৩৬তম বিসিএস", "page": 4}, {"id": "morality-ch1-q28", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "28", "question": "নৈতিক আচরণবিধি (Code of ethics) বলতে বুঝায়-", "options": {"ক": "মৌলিক মূল্যবোধ সংক্রান্ত সাধারণ বচন যা সংগঠনের পেশাগত ভূমিকাকে সংজ্ঞায়িত করে", "খ": "বাস্তবতার নিরিখে নির্দিষ্ট আচরণের মানদণ্ড নির্ধারণ সংক্রান্ত আচরণবিধি", "গ": "দৈনন্দিন কার্যকলাপ ত্বরান্বিত করণে প্রণীত নৈতিক নিয়ম, মানদণ্ড বা আচরণবিধি", "ঘ": "উপরের তিনটিই সঠিক"}, "answer": "ঘ", "explanation": "", "tag": "৩৬তম বিসিএস", "page": 4}, {"id": "morality-ch1-q29", "chapter": "ch1", "chapterTitle": "অধ্যায় ০১: নৈতিকতা (Morality)", "num": "29", "question": "নীতিবিদ্যার আলোচ্য বিষয় কী?", "options": {"ক": "মানুষের আচরণের মনস্তাত্বিক ব্যাখ্যা প্রদান", "খ": "মানুষের জীবনের সফলতার দিকগুলো আলোচনা", "গ": "সমাজে বসবাসকারী মানুষের আচরণ ব্যাখ্যা", "ঘ": "সমাজে বসবাসকারী মানুষের আচরণের আলোচনা ও মূল্যায়ন"}, "answer": "ঘ", "explanation": "", "tag": "৩৫তম বিসিএস", "page": 4}, {"id": "morality-ch2-q01", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "01", "question": "সাধারণের দৃষ্টিতে কোনটি মূল্যবোধ সম্পন্ন শাসনব্যবস্থার বৈশিষ্ট্য?", "options": {"ক": "আইনের নির্বাচনী প্রয়োগ", "খ": "নাগরিকের অংশগ্রহণ", "গ": "কর্তৃত্ববাদ", "ঘ": "গোপনীয়তা"}, "answer": "খ", "explanation": "মূল্যবোধ সম্পন্ন শাসনব্যবস্থার অন্যতম প্রধান বৈশিষ্ট্য হলো নাগরিকদের সক্রিয় অংশগ্রহণ। নৈতিক মূল্যবোধ ও সুশাসন নিশ্চিত করে যে জনগণ সরকারী সিদ্ধান্ত, নীতি প্রণয়ন এবং প্রশাসনিক কার্যক্রমে অংশগ্রহণ করতে পারে। নাগরিকরা তাদের মতামত, মূল্যায়ন এবং জবাবদিহিতার মাধ্যমে শাসনব্যবস্থাকে দায়িত্বশীল ও স্বচ্ছ রাখে। এই অংশগ্রহণ সরকারী নীতি ও কার্যক্রমকে জনগণের কল্যাণমুখী করে এবং সুশাসনকে বিশ্বাসযোগ্য ও কার্যকর করে তোলে।", "tag": "৫০তম বিসিএস", "page": 4}, {"id": "morality-ch2-q02", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "02", "question": "শাসনব্যবস্থায় মূল্যবোধ প্রাতিষ্ঠানিক করার সবচেয়ে কার্যকর কৌশল কোনটি?", "options": {"ক": "ঘন ঘন আইনের সংস্কার", "খ": "নিয়মিত বেতন বৃদ্ধি", "গ": "নৈতিক শিক্ষা ও প্রাতিষ্ঠানিক শিক্ষার সমন্বয়", "ঘ": "আমলাতান্ত্রিক নিয়ন্ত্রণ বৃদ্ধি"}, "answer": "গ", "explanation": "শাসনব্যবস্থায় মূল্যবোধ প্রতিষ্ঠার সবচেয়ে কার্যকর কৌশল হলো নৈতিক শিক্ষা ও প্রাতিষ্ঠানিক শিক্ষার সমন্বয়। নৈতিক শিক্ষা মানুষের মধ্যে সততা, দায়িত্ববোধ ও ন্যায়পরায়ণতা গড়ে তোলে, আর প্রাতিষ্ঠানিক শিক্ষা এসব মূল্যবোধকে নিয়মিত পাঠ্যক্রম ও শিক্ষাব্যবস্থার সঙ্গে যুক্ত করে। এই সমন্বয়ের ফলে শিক্ষার্থীরা কেবল জ্ঞান অর্জনই নয়, আচরণ ও সিদ্ধান্তগ্রহণেও নৈতিক সচেতনতা লাভ করে।", "tag": "৫০তম বিসিএস", "page": 4}, {"id": "morality-ch2-q03", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "03", "question": "সাংস্কৃতিক মূল্যবোধগুলো বেশি উদ্ভূত হয় 'সামাজিক ___' থেকে।", "options": {"ক": "আচরণ", "খ": "বৈধম্য", "গ": "প্রথা", "ঘ": "নীতি"}, "answer": "গ", "explanation": "সাংস্কৃতিক মূল্যবোধ হলো নীতি, বিশ্বাস ও আচার-আচরণ যা সমাজের মানুষের জীবন ও আচরণে প্রভাব ফেলে। এটি প্রধানত সামাজিক প্রথা থেকে উদ্ভূত হয়, যা প্রজন্ম থেকে প্রজন্মে স্থানান্তরিত হয়ে মানুষের মনোভাব, আচরণ ও নৈতিকতাকে প্রভাবিত করে।", "tag": "৫০তম বিসিএস", "page": 4}, {"id": "morality-ch2-q04", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "04", "question": "কোনটি মূল্যবোধের সারসত্তাকে প্রতিফলিত করে?", "options": {"ক": "কর্তৃপক্ষ কর্তৃক আরোপিত নিয়ম", "খ": "নৈতিক নির্দেশ ছাড়া প্রথা ও ঐতিহ্য", "গ": "নৈতিক আচরণ নির্দেশক বিশ্বাস ও নীতি", "ঘ": "সামাজিক শৃঙ্খলার আইনি বাধ্যবাধকতা"}, "answer": "গ", "explanation": "মূল্যবোধ হলো মানুষের আচরণ, সিদ্ধান্ত ও জীবনমানকে পরিচালিত করার নৈতিক মানদণ্ড। এটি বাহ্যিক আচরণ নয়, বরং মানুষের অভ্যন্তরীণ বিশ্বাস ও নীতি প্রতিফলিত করে।", "tag": "৫০তম বিসিএস", "page": 4}, {"id": "morality-ch2-q05", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "05", "question": "জীবনের তিনটি শ্রেষ্ঠ মূল্যবোধ কী কী?", "options": {"ক": "সম্পদ, ক্ষমতা ও সদগুণ", "খ": "সত্য, আনন্দ ও সদগুণ", "গ": "সত্য, সুন্দর ও সদগুণ", "ঘ": "আনন্দ, বিবেক ও সাহস"}, "answer": "গ", "explanation": "জীবনের তিনটি শ্রেষ্ঠ মূল্যবোধ হলো সত্য, সুন্দর ও সদগুণ। প্লেটো বলেছেন, সত্য হলো নৈতিক ও জ্ঞানীয় উৎকর্ষের মূলভিত্তি। এরিস্টটল সুন্দরকে চরিত্র ও আচরণের মধ্যে সামঞ্জস্য এবং সৃজনশীলতার প্রকাশ হিসেবে দেখেছেন। সদগুণ বা মানবিক গুণাবলী-যেমন সহমর্মিতা, দয়া ও ন্যায়পরায়ণতা মানুষকে নৈতিক ও উত্তম পথে পরিচালিত করে। এরিস্টটল সদগুণকে 'মধ্যপথা' হিসেবে উপস্থাপন করেছেন।", "tag": "৫০তম বিসিএস", "page": 4}, {"id": "morality-ch2-q06", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "06", "question": "মানুষের মধ্যে সামাজিক মূল্যবোধ গড়ে উঠে-", "options": {"ক": "আইনের বাধ্যবাধকতার মাধ্যমে", "খ": "সামাজিকীকরণের মাধ্যমে", "গ": "অর্থনৈতিক প্রণোদনার মাধ্যমে", "ঘ": "উচ্চমানের প্রযুক্তি অনুসরণের মাধ্যমে"}, "answer": "খ", "explanation": "মানুষের মধ্যে সামাজিক মূল্যবোধ গড়ে উঠার মূল প্রক্রিয়াটি হলো সামাজিকীকরণ। সামাজিকীকরণের মাধ্যমেই ব্যক্তি সমাজের নিয়ম, মূল্যবোধ, রীতিনীতি ও সংস্কৃতির সাথে পরিচিত হয় এবং সেগুলো নিজের মধ্যে ধারণ করে। এটি একটি জীবনব্যাপী প্রক্রিয়া।", "tag": "৪৭তম বিসিএস", "page": 5}, {"id": "morality-ch2-q07", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "07", "question": "ভালো-মন্দ কোন ধরনের মূল্যবোধ?", "options": {"ক": "নৈতিক", "খ": "অর্থনৈতিক", "গ": "রাজনৈতিক", "ঘ": "সামাজিক"}, "answer": "ক", "explanation": "নীতি ও উচিত-অনুচিত বোধ অর্থাৎ নৈতিক চেতনা হলো নৈতিক মূল্যবোধের উৎস। নৈতিক মূল্যবোধ হচ্ছে সেসব মনোভাব এবং আচরণ যা মানুষ সবসময় ভালো, কল্যাণকর ও অপরিহার্য বিবেচনা করে মানসিকভাবে তৃপ্তিবোধ করে। যেমন-সত্যকে সমর্থন করা, মিথ্যাকে প্রতিরোধ করা ইত্যাদি।", "tag": "৪৫তম বিসিএস", "page": 5}, {"id": "morality-ch2-q08", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "08", "question": "মূল্যবোধের উৎস কোনটি?", "options": {"ক": "ধর্ম", "খ": "সমাজ", "গ": "নৈতিক চেতনা", "ঘ": "রাষ্ট্র"}, "answer": "গ", "explanation": "নৈতিক চেতনা হলো এমন একটি মানসিক প্রক্রিয়া বা অন্তর্নিহিত বোধ, যা মানুষকে তাদের ঐচ্ছিক কার্যকলাপের সঠিক-বেঠিক (ভালো-মন্দ), উচিত-অনুচিত এবং ন্যায়-অন্যায় পার্থক্য করতে সাহায্য করে। সমাজ, ধর্ম ও পরিবার মূল্যবোধ শেখালেও নৈতিক চেতনা সেই বোধ, যা এসব প্রভাবকে বিশ্লেষণ করে নির্ধারণ করে কোনটি ব্যক্তির কাছে সত্যিকারের মূল্যবান।", "tag": "৪৫তম, ৪৩তম বিসিএস", "page": 5}, {"id": "morality-ch2-q09", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "09", "question": "যে গুণের মাধ্যমে মানুষ 'ভুল' ও 'শুদ্ধ'-এর পার্থক্য নির্ধারণ করতে পারে, তা হচ্ছে-", "options": {"ক": "সততা", "খ": "সদাচার", "গ": "কর্তব্যবোধ", "ঘ": "মূল্যবোধ"}, "answer": "ঘ", "explanation": "", "tag": "৪৪তম বিসিএস", "page": 5}, {"id": "morality-ch2-q10", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "10", "question": "গণতান্ত্রিক মূল্যবোধের সবচেয়ে গুরুত্বপূর্ণ উপাদান-", "options": {"ক": "নেতৃত্বের প্রতি আনুগত্য", "খ": "স্বচ্ছ নির্বাচন কমিশন", "গ": "শক্তিশালী রাজনৈতিক দল", "ঘ": "পরমতসহিষ্ণুতা"}, "answer": "ঘ", "explanation": "", "tag": "৪৪তম বিসিএস", "page": 5}, {"id": "morality-ch2-q11", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "11", "question": "প্রাথমিকভাবে একজন মানুষের মানবীয় গুণাবলি ও সামাজিক মূল্যবোধের বিকাশ ঘটে-", "options": {"ক": "সমাজে বসবাসের মাধ্যমে", "খ": "বিদ্যালয়ে", "গ": "পরিবারে", "ঘ": "রাষ্ট্রের মাধ্যমে"}, "answer": "গ", "explanation": "একজন মানুষ যে মানবীয় গুণাবলি (যেমন- দয়া, সহানুভূতি, সততা, শৃঙ্খলা) এবং সামাজিক মূল্যবোধ (যেমন-সহযোগিতা, সম্মান, ন্যায়বোধ, দায়িত্ববোধ) অর্জন করে, তার ভিত্তি সবচেয়ে আগে তৈরি হয় পরিবারে। তাই বলা হয়, পরিবার হলো শিশুর নৈতিক ও সামাজিক বিকাশের প্রথম ও সবচেয়ে গুরুত্বপূর্ণ শিক্ষালয়।", "tag": "৪৪তম বিসিএস", "page": 5}, {"id": "morality-ch2-q12", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "12", "question": "কোন মূল্যবোধ রাষ্ট্র, সরকার ও গোষ্ঠী কর্তৃক স্বীকৃত?", "options": {"ক": "সামাজিক মূল্যবোধ", "খ": "ইতিবাচক মূল্যবোধ", "গ": "গণতান্ত্রিক মূল্যবোধ", "ঘ": "নৈতিক মূল্যবোধ"}, "answer": "গ", "explanation": "একটি গণতান্ত্রিক রাষ্ট্রে যেসব চিন্তাভাবনা, লক্ষ্য, উদ্দেশ্য ও সংকল্প মানুষের গণতান্ত্রিক আচার-ব্যবহার ও দৈনন্দিন কর্মকাণ্ডকে নিয়ন্ত্রিত ও পরিচালিত করে, তাকে গণতান্ত্রিক মূল্যবোধ বলে। গণতান্ত্রিক রাষ্ট্রে এসব মূল্যবোধ ব্যক্তি, সমাজ ও রাষ্ট্রের মৌলিক বৈশিষ্ট্য বলে স্বীকার করে নেওয়া হয়।", "tag": "৪১তম বিসিএস", "page": 5}, {"id": "morality-ch2-q13", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "13", "question": "মূল্যবোধের গুরুত্বপূর্ণ বৈশিষ্ট্য হলো-", "options": {"ক": "বিভিন্নতা", "খ": "পরিবর্তনশীলতা", "গ": "আপেক্ষিকতা", "ঘ": "উপরের সবগুলো"}, "answer": "ঘ", "explanation": "মানুষের নীতি-নৈতিকতা ও বিবেকের উপর নির্ভরশীল কতগুলো মানবিক গুণাবলির সমষ্টি মূল্যবোধ। এর উল্লেখযোগ্য বৈশিষ্ট্যের মধ্যে রয়েছে- নৈতিক প্রাধান্য, নির্দিষ্টতা, বিভিন্নতা, আপেক্ষিকতা, সামাজিক মানদণ্ড, পরিবর্তনশীলতা প্রভৃতি।", "tag": "৪১তম বিসিএস", "page": 5}, {"id": "morality-ch2-q14", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "14", "question": "মূল্যবোধ দৃঢ় হয়-", "options": {"ক": "শিক্ষার মাধ্যমে", "খ": "সুশাসনের মাধ্যমে", "গ": "ধর্মের মাধ্যমে", "ঘ": "গণতন্ত্র চর্চার মাধ্যমে"}, "answer": "ক", "explanation": "মূল্যবোধ একটি মানবিক গুণাবলি। এটি একজনের নীতি-নৈতিকতা ও বিবেকের উপর নির্ভর করে। এটি সামাজিক আচার-ব্যবহার, সংস্কৃতি চর্চা ও সামাজিকীকরণ প্রক্রিয়ার মাধ্যমে সৃষ্টি হয়, যা দৃঢ়তা লাভ করে শিক্ষার মাধ্যমে।", "tag": "৪১তম বিসিএস", "page": 6}, {"id": "morality-ch2-q15", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "15", "question": "সভ্যতার অন্যতম প্রতিচ্ছবি হলো-", "options": {"ক": "সুশাসন", "খ": "রাষ্ট্র", "গ": "নৈতিকতা", "ঘ": "সমাজ"}, "answer": "ঘ", "explanation": "", "tag": "৪১তম বিসিএস", "page": 6}, {"id": "morality-ch2-q16", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "16", "question": "সভ্য সমাজের মানদণ্ড হলো-", "options": {"ক": "গণতন্ত্র", "খ": "বিচার ব্যবস্থা", "গ": "সংবিধান", "ঘ": "আইনের শাসন"}, "answer": "ঘ", "explanation": "আইনের শাসনের মানে আইনের অধীনে সবাই সমান; ধনী-গরিব, শাসক-শাসিত একই অপরাধের জন্য সবাই সমান শাস্তিযোগ্য। এজন্য আইনের শাসন সামাজিক মূল্যবোধের অন্যতম ভিত্তি এবং একে সভ্য সমাজের মানদণ্ড বলা চলে।", "tag": "৪০তম বিসিএস", "page": 6}, {"id": "morality-ch2-q17", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "17", "question": "মূল্যবোধ হলো-", "options": {"ক": "মানুষের সঙ্গে মানুষের পারস্পরিক সম্পর্ক নির্ধারণ", "খ": "মানুষের আচরণ পরিচালনাকারী নীতি ও মানদণ্ড", "গ": "সমাজজীবনে মানুষের সুখী হওয়ার প্রয়োজনীয় উপাদান", "ঘ": "মানুষের প্রাতিষ্ঠানিক কার্যাবলীর দিক নির্দেশনা"}, "answer": "খ", "explanation": "", "tag": "৪০তম, ৩৫তম বিসিএস", "page": 6}, {"id": "morality-ch2-q18", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "18", "question": "মূল্যবোধের চালিকা শক্তি হলো-", "options": {"ক": "উন্নয়ন", "খ": "গণতন্ত্র", "গ": "সংস্কৃতি", "ঘ": "সুশাসন"}, "answer": "গ", "explanation": "", "tag": "৪০তম বিসিএস", "page": 6}, {"id": "morality-ch2-q19", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "19", "question": "ব্যক্তি সহনশীলতার শিক্ষা লাভ করে-", "options": {"ক": "সুশাসনের শিক্ষা থেকে", "খ": "আইনের শিক্ষা থেকে", "গ": "কর্তব্যবোধ থেকে", "ঘ": "মূল্যবোধের শিক্ষা থেকে"}, "answer": "ঘ", "explanation": "", "tag": "৩৮তম বিসিএস", "page": 6}, {"id": "morality-ch2-q20", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "20", "question": "নিচের কোনটি সংস্কৃতির উপাদান নয়?", "options": {"ক": "আইন", "খ": "প্রতীক", "গ": "ভাষা", "ঘ": "মূল্যবোধ"}, "answer": "ক", "explanation": "সংস্কৃতি সমাজ ভেদে পরিবর্তিত হলেও সংস্কৃতির কিছু উপাদান সবখানেই দেখা যায়। ভাষা, শ্রেণিবোধ, মূল্যবোধ, অনুমোদন, প্রতীক প্রভৃতি সংস্কৃতির প্রধান উপাদান। অন্যদিকে আইন তৈরি হয় প্রথা, ধর্ম, আইনসভা, সংবিধান, বিখ্যাত গ্রন্থ, বিচারকের রায়, সামাজিক ও গণতান্ত্রিক মূল্যবোধ থেকে। তাই সংস্কৃতির উপাদান আইন নয়, আইনের উপাদান সংস্কৃতি।", "tag": "৩৮তম বিসিএস", "page": 6}, {"id": "morality-ch2-q21", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "21", "question": "মূল্যবোধ পরীক্ষা করে-", "options": {"ক": "ভাল ও মন্দ", "খ": "ন্যায় ও অন্যায়", "গ": "নৈতিকতা ও অনৈতিকতা", "ঘ": "উপরের সবগুলো"}, "answer": "ঘ", "explanation": "", "tag": "৩৮তম বিসিএস", "page": 7}, {"id": "morality-ch2-q22", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "22", "question": "সরকারি সিদ্ধান্ত প্রণয়নে কোন মূল্যবোধটি গুরুত্বপূর্ণ নয়?", "options": {"ক": "বিশ্বস্ততা", "খ": "সৃজনশীলতা", "গ": "নিরপেক্ষতা", "ঘ": "জবাবদিহি"}, "answer": "খ", "explanation": "সরকারি সিদ্ধান্ত প্রণয়নের ক্ষেত্রে সবচেয়ে গুরুত্বপূর্ণ হলো নিরপেক্ষতা অবলম্বন করে আইনের মধ্যে থেকে সিদ্ধান্ত প্রদান করা, স্বার্থের সংঘাত থেকে বিরত থাকা এবং জবাবদিহিতা নিশ্চিত করা। উল্লিখিত বিষয়গুলো মেনে চলতে সৃজনশীলতার প্রয়োজন হয় না, তাই সরকারি সিদ্ধান্ত প্রণয়নে এই মূল্যবোধটি গুরুত্বপূর্ণ নয়।", "tag": "৩৭তম বিসিএস", "page": 7}, {"id": "morality-ch2-q23", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "23", "question": "আমাদের চিরন্তন মূল্যবোধ কোনটি?", "options": {"ক": "সত্য ও ন্যায়", "খ": "সার্থকতা", "গ": "শঠতা", "ঘ": "অসহিষ্ণুতা"}, "answer": "ক", "explanation": "", "tag": "৩৭তম বিসিএস", "page": 7}, {"id": "morality-ch2-q24", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "24", "question": "ব্যক্তিগত মূল্যবোধ লালন করে-", "options": {"ক": "সামাজিক মূল্যবোধকে", "খ": "গণতান্ত্রিক মূল্যবোধকে", "গ": "ব্যক্তিগত মূল্যবোধকে", "ঘ": "স্বাধীনতার মূল্যবোধকে"}, "answer": "ঘ", "explanation": "বর্তমান সময়ে সবচেয়ে বেশি গুরুত্ব পাচ্ছে ব্যক্তিগত মূল্যবোধ। এটি ব্যক্তি স্বাধীনতাকে লালন করে। এটি ব্যক্তি আচার-আচরণ নিয়ন্ত্রণে তার নিজস্ব কিছু মূল্যবোধ, যা ব্যক্তির রুচি, বিশ্বাস, মনোভাব, ধারণা ও নীতি নৈতিকতা থেকে সৃষ্ট। প্রতিটি শিশুই ব্যক্তিগত মূল্যবোধ নিয়ে জন্মায় এবং পরিবার থেকেই মূল্যবোধের শিক্ষা পায়।", "tag": "৩৬তম বিসিএস", "page": 7}, {"id": "morality-ch2-q25", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "25", "question": "মূল্যবোধ শিক্ষার অন্যতম লক্ষ্য হচ্ছে-", "options": {"ক": "দুর্নীতি রোধ করা", "খ": "সামাজিক অবক্ষয় রোধ করা", "গ": "রাজনৈতিক অবক্ষয় রোধ করা", "ঘ": "সাংস্কৃতিক অবরোধ রক্ষণ করা"}, "answer": "খ", "explanation": "", "tag": "৩৬তম বিসিএস", "page": 7}, {"id": "morality-ch2-q26", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "26", "question": "একজন জনপ্রশাসকের মৌলিক মূল্যবোধ হলো-", "options": {"ক": "স্বাধীনতা", "খ": "ক্ষমতা", "গ": "কর্মদক্ষতা", "ঘ": "জনকল্যাণ"}, "answer": "ঘ", "explanation": "একজন জনপ্রশাসকের প্রধান মূল্যবোধ তার দায়িত্বশীলতা, যার মৌলিক উপাদান জনকল্যাণমূলক চিন্তাধারা। এর জন্য প্রয়োজন সে ক্ষমতা ও কর্মদক্ষতা প্রয়োগ করতে পারে।", "tag": "৩৬তম বিসিএস", "page": 7}, {"id": "morality-ch2-q27", "chapter": "ch2", "chapterTitle": "অধ্যায় ০২: মূল্যবোধ (Values)", "num": "27", "question": "সামাজিক মূল্যবোধের ভিত্তি কী?", "options": {"ক": "আইনের শাসন", "খ": "নৈতিকতা", "গ": "সাম্য", "ঘ": "উপরের সবগুলো"}, "answer": "ঘ", "explanation": "", "tag": "৩৫তম বিসিএস", "page": 7}, {"id": "morality-ch3-q01", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "01", "question": "টেকসই উন্নয়নের জন্য সু-শাসন অপরিহার্য কারণ এটি-", "options": {"ক": "দ্রুত শিল্পায়ন নিশ্চিত করে", "খ": "অর্থনৈতিক প্রবৃদ্ধি ও সামাজিক ন্যায়ের ভারসাম্য রক্ষা করে", "গ": "জনসংখ্যা হ্রাস করে", "ঘ": "রাজনৈতিক দ্বন্দ্ব দূর করে"}, "answer": "খ", "explanation": "টেকসই উন্নয়নের জন্য সুশাসন অপরিহার্য, কারণ এটি অর্থনৈতিক প্রবৃদ্ধি ও সামাজিক ন্যায়ের ভারসাম্য রক্ষা করে। সুশাসন নিশ্চিত করে যে নীতি প্রণয়ন ও সরকারি কার্যক্রম স্বচ্ছ, জবাবদিহিক্ষমতাসম্পন্ন এবং জনগণের কল্যাণমুখী হয়। ফলে দেশের অর্থনৈতিক বৃদ্ধি ও সামাজিক ন্যায়ের মধ্যে ভারসাম্য বজায় থাকে, যা দীর্ঘমেয়াদে টেকসই উন্নয়ন নিশ্চিত করে।", "tag": "৫০তম বিসিএস", "page": 8}, {"id": "morality-ch3-q02", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "02", "question": "কোনটি সুশাসনের অনুপস্থিতিতে সমাজ যে 'hidden cost' বহন করে তার উৎকৃষ্ট উদাহরণ?", "options": {"ক": "কর আদায়ের হার বৃদ্ধি", "খ": "মেধা পাচার", "গ": "অবকাঠামো সম্প্রসারণ", "ঘ": "রপ্তানি আয় বৃদ্ধি"}, "answer": "খ", "explanation": "সুশাসনের অভাবে সমাজ ও রাষ্ট্রে একটি আড়াল খরচ বা 'hidden cost' সৃষ্টি হয়, যা সরাসরি অর্থনৈতিক ক্ষতি নয়, কিন্তু দেশের উন্নয়নকে দীর্ঘমেয়াদে ক্ষতিগ্রস্ত করে। এর উদাহরণ হলো মেধা পাচার (Brain Drain), যেখানে দুর্বল শাসন, নৈতিক অবনতি ও সুযোগের অভাবে শিক্ষিত ও দক্ষ মানুষরা উন্নত পরিবেশের জন্য বিদেশে চলে যায়।", "tag": "৫০তম বিসিএস", "page": 8}, {"id": "morality-ch3-q03", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "03", "question": "মূল্যবোধ ও শাসনের মধ্যে সম্পর্ক হলো-", "options": {"ক": "নৈতিক নীতি, নিয়ম ও রাজনৈতিক নির্দেশ মানা", "খ": "নৈতিক নীতি, স্বচ্ছতা ও সামাজিক দায়বদ্ধতা", "গ": "স্তরবিন্যাস, স্বচ্ছতা ও ঐতিহ্য", "ঘ": "নৈতিকতা ছাড়া প্রশাসনিক দক্ষতা"}, "answer": "খ", "explanation": "মূল্যবোধ ও শাসনের মধ্যে সম্পর্ক নৈতিক নীতি, স্বচ্ছতা ও সামাজিক দায়বদ্ধতার ওপর নির্ভরশীল। শাসন তখনই কার্যকর হয় যখন সিদ্ধান্ত ও কর্মকাণ্ড ন্যায়, সততা ও মানবাধিকারের ভিত্তিতে গৃহীত হয়। এই তিনটির সমন্বয় শাসনকে ন্যায়সংগত ও জনকল্যাণমুখী করে তোলে।", "tag": "৫০তম বিসিএস", "page": 8}, {"id": "morality-ch3-q04", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "04", "question": "স্বচ্ছতা কেন সু-শাসন সম্পর্কে নাগরিকের ধারণাকে উন্নত ও স্বচ্ছ করে?", "options": {"ক": "এটি প্রশাসনিক চাপ বাড়ায়", "খ": "এটি রাজনৈতিক প্রতিযোগিতা কমায়", "গ": "এটি জনগণের নজরদারি ও সচেতন মূল্যায়নের জন্য সুযোগ দেয়", "ঘ": "উপরের সবগুলো"}, "answer": "গ", "explanation": "সু-শাসনে স্বচ্ছতা (Transparency) হলো সরকারের সিদ্ধান্ত, নীতি প্রণয়ন এবং প্রশাসনিক কার্যক্রম সকলের জন্য স্পষ্ট ও বোঝার উপযোগী রাখা। এটি নাগরিকদের নজরদারি ও সচেতন মূল্যায়নের সুযোগ প্রদান করে, যার ফলে তারা সরকারের কার্যক্রমকে সঠিকভাবে মূল্যায়ন করতে পারে।", "tag": "৫০তম বিসিএস", "page": 8}, {"id": "morality-ch3-q05", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "05", "question": "মূল্যবোধ ও সুশাসনের উপস্থিতি জাতীয় উন্নয়নের কোন দিকটিকে বেশি টেকসই করে তোলে?", "options": {"ক": "স্বল্পমেয়াদি প্রবৃদ্ধি", "খ": "অবকাঠামো নির্মাণ", "গ": "মানব সম্পদ উন্নয়ন", "ঘ": "আমলাতান্ত্রিক নিয়ন্ত্রণ"}, "answer": "গ", "explanation": "মূল্যবোধ এবং সুশাসন দেশের মানব সম্পদ উন্নয়নকে টেকসই করে। নৈতিক মূল্যবোধ, সততা এবং দায়িত্ববোধ নাগরিকদের আচরণ ও সিদ্ধান্তকে প্রভাবিত করে; যা দক্ষ, নৈতিক ও উৎপাদনশীল নাগরিক গড়ে তোলে। সুশাসন নিশ্চিত করে যে শিক্ষা, স্বাস্থ্য ও প্রশিক্ষণের মতো সুযোগসমূহ ন্যায়সংগতভাবে নাগরিকদের কাছে পৌঁছায়।", "tag": "৫০তম বিসিএস", "page": 9}, {"id": "morality-ch3-q06", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "06", "question": "সুশাসন কোন বিষয়টির প্রতিশ্রুতি দেয়?", "options": {"ক": "শুধুমাত্র কঠোর আইন প্রয়োগের", "খ": "রাজনৈতিক প্রাধান্য ও প্রশাসনিক নিয়ন্ত্রণের", "গ": "সংস্কার ছাড়া ঐতিহ্য সংরক্ষণের", "ঘ": "স্বচ্ছতা, জবাবদিহিতা ও নৈতিক নেতৃত্বের"}, "answer": "ঘ", "explanation": "সুশাসন (Good Governance) হলো এমন একটি শাসনব্যবস্থা যা জনগণের কল্যাণ ও ন্যায়বিচার নিশ্চিত করে। এর মূলভিত্তি হলো স্বচ্ছতা, জবাবদিহিতা ও নৈতিক নেতৃত্ব। এই তিনটি উপাদান সম্মিলিতভাবে সুশাসনকে কার্যকর, বিশ্বাসযোগ্য এবং দেশের সামগ্রিক উন্নয়নে সহায়ক করে।", "tag": "৫০তম বিসিএস", "page": 9}, {"id": "morality-ch3-q07", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "07", "question": "বিশ্বব্যাংক বর্ণিত সুশাসন সূচকে কোনো দেশের সূচক ০.০০ হলে, সে দেশের সু-শাসনের অবস্থা কি বলে পরিগণিত হবে?", "options": {"ক": "নিচু মানের", "খ": "উচু মানের", "গ": "মাঝারি মানের", "ঘ": "কোনোটিই নয়"}, "answer": "ক", "explanation": "বিশ্বব্যাংকের Worldwide Governance Indicators (WGI) এর নীতিমালা ও পরিসংখ্যানগত কাঠামোর আলোকে কোনো দেশের স্কোর যদি ০.০০ হয়, তবে তা ওই দেশের সুশাসনের অবস্থাকে গড় বা মাঝারি মানের হিসেবে নির্দেশ করে। WGI সূচক -২.৫ থেকে +২.৫ স্কেলে প্রকাশিত হয়, যেখানে উচ্চ স্কোর ভালো সুশাসনের প্রতিফলন। ০.০০ স্কোর বোঝায় যে দেশটি সুশাসনে সম্পূর্ণ ব্যর্থ নয়, আবার খুব উন্নতও নয়।", "tag": "৫০তম বিসিএস", "page": 9, "flag": "উৎস নথিতে উত্তরপত্রে অপশন লেবেল (ক) নির্দেশ করা হলেও ব্যাখ্যায় বর্ণিত 'মাঝারি মানের' অপশন (গ)-এর সাথে মেলে। মূল উৎসের উত্তর অপরিবর্তিত রাখা হলো (Source contains ambiguous/inconsistent answer-key lettering)."}, {"id": "morality-ch3-q08", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "08", "question": "কোনটি সুশাসনের আদর্শকে সবচেয়ে ভালোভাবে প্রকাশ করে?", "options": {"ক": "এটি শুধুমাত্র পরিমাপযোগ্য ফলাফলের উপর নির্ভরশীল", "খ": "এটি মূল্যবোধ-নিরপেক্ষ", "গ": "এটি নৈতিক মানদণ্ড ও জনস্বার্থ দ্বারা পরিচালিত", "ঘ": "এটি কেবল অর্থনৈতিক প্রবৃদ্ধিকে অগ্রাধিকার দেয়"}, "answer": "গ", "explanation": "সুশাসন শুধু আইন প্রয়োগ বা প্রশাসনিক দক্ষতার বিষয় নয়; এটি ন্যায়বিচার, স্বচ্ছতা ও সাম্য নিশ্চিত করার একটি সামগ্রিক প্রক্রিয়া। সুশাসনের আদর্শ সর্বোত্তমভাবে প্রকাশ পায় নৈতিক মানদণ্ড ও জনস্বার্থ দ্বারা পরিচালিত শাসনব্যবস্থার মাধ্যমে।", "tag": "৫০তম বিসিএস", "page": 9}, {"id": "morality-ch3-q09", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "09", "question": "দুর্বল শাসনব্যবস্থায় উন্নয়ন প্রকল্প ব্যর্থ হয় কারণ-", "options": {"ক": "সম্পদের অভাব", "খ": "নাগরিকের বিরোধিতা", "গ": "সিদ্ধান্ত গ্রহণে স্বচ্ছতা ও সততার অভাব", "ঘ": "প্রযুক্তির অভাব"}, "answer": "গ", "explanation": "উন্নয়ন প্রকল্পের সাফল্য শুধু অর্থ, প্রযুক্তি বা সম্পদের উপর নির্ভর করে না; বরং তা নির্ভর করে সেই সম্পদের সঠিক ব্যবস্থাপনা ও দায়িত্বশীলতার উপর। দুর্বল শাসনব্যবস্থায় প্রশাসনে সততার অভাব থাকলে ও সিদ্ধান্ত গ্রহণ প্রক্রিয়া স্বচ্ছ না হলে প্রকল্পের অর্থ ও সম্পদ অপব্যবহারের শঙ্কা থাকে।", "tag": "৫০তম বিসিএস", "page": 9}, {"id": "morality-ch3-q10", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "10", "question": "সংবাদপত্রের স্বাধীনতা কোন ধরনের অধিকার?", "options": {"ক": "ব্যক্তিগত", "খ": "সামাজিক", "গ": "রাষ্ট্রীয়", "ঘ": "নীতিগত"}, "answer": "খ", "explanation": "সংবাদপত্রের স্বাধীনতা হলো একটি সামাজিক অধিকার, যা নাগরিকদের তথ্যপ্রাপ্তি, মতপ্রকাশ এবং সরকারের কার্যক্রম পর্যবেক্ষণের সুযোগ প্রদান করে। এটি গণমাধ্যমের স্বচ্ছতা নিশ্চিত করে এবং জনগণকে সচেতন ও সক্রিয় নাগরিক হিসেবে গড়ে তোলে।", "tag": "৫০তম বিসিএস", "page": 9}, {"id": "morality-ch3-q11", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "11", "question": "সুশাসন বিষয়ক ধারণাটি প্রথম কোন আন্তর্জাতিক সংস্থা তাদের রিপোর্টে বিস্তারিতভাবে তুলে ধরে-", "options": {"ক": "১৯৯০ খ্রিষ্টাব্দে", "খ": "২০০৫ খ্রিষ্টাব্দে", "গ": "১৯৯২ খ্রিষ্টাব্দে", "ঘ": "২০০২ খ্রিষ্টাব্দে"}, "answer": "গ", "explanation": "বিশ্বব্যাংক ১৯৮৯ সালে উন্নয়নশীল দেশের অনুন্নয়ন চিহ্নিত করতে এক প্রতিবেদনে সর্বপ্রথম সুশাসনের ধারণা দেয়। বিশ্বব্যাংক ১৯৯২ সালে 'গভর্নেন্স অ্যান্ড ডেভেলপমেন্ট' শীর্ষক প্রতিবেদনে সুশাসন বিষয়ক ধারণাটি বিস্তারিতভাবে তুলে ধরে।", "tag": "৪৭তম বিসিএস", "page": 10}, {"id": "morality-ch3-q12", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "12", "question": "সুশাসন বিষয়ক ধারণাটি কোন আন্তর্জাতিক সংস্থা প্রথম তাদের প্রতিবেদনে বিস্তারিতভাবে তুলে ধরে?", "options": {"ক": "ইউএনডিপি", "খ": "বিশ্বব্যাংক", "গ": "ইসলামি উন্নয়ন ব্যাংক", "ঘ": "ট্রান্সপারেন্সি ইন্টারন্যাশনাল"}, "answer": "খ", "explanation": "গভর্নেন্সকে রাজনৈতিক ব্যবস্থায় 'শাসনের ব্যবস্থা' হিসেবে দেখা হয়ে থাকে। 'গভর্নেন্স' বা 'শাসনব্যবস্থা'-এর সাথে 'সু' প্রত্যয় যোগ করে 'সুশাসন' (Good Governance) শব্দটির প্রকাশ ঘটানো হয়েছে। 'সুশাসন' ধারণাটি বিশ্বব্যাংকের উদ্ভাবিত একটি ধারণা। ১৯৮৯ সালে বিশ্বব্যাংকের সমীক্ষায় সর্বপ্রথম 'সুশাসন' প্রত্যয়টি ব্যবহার করা হয়।", "tag": "৪৭তম বিসিএস", "page": 10}, {"id": "morality-ch3-q13", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "13", "question": "জাতিসংঘের সাধারণ পরিষদে দুর্নীতির বিরুদ্ধে আন্তর্জাতিক কনভেনশনটি গৃহীত হয়-", "options": {"ক": "৩১ জানুয়ারি ২০০৩", "খ": "৩১ অক্টোবর ২০০৬", "গ": "৩১ অক্টোবর ২০০৩", "ঘ": "২১ ফেব্রুয়ারি ২০০৮"}, "answer": "গ", "explanation": "জাতিসংঘের দুর্নীতি বিরোধী কনভেনশনের নাম হলো- United Nations Convention Against Corruption (UNCAC)। কনভেনশনটি জাতিসংঘের সাধারণ পরিষদে ৩১ অক্টোবর, ২০০৩ সালে গৃহীত হয়।", "tag": "৪৭তম বিসিএস", "page": 10}, {"id": "morality-ch3-q14", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "14", "question": "৭ আগস্ট ২০২৪ পর্যন্ত দুর্নীতির বিরুদ্ধে জাতিসংঘের আন্তর্জাতিক কনভেনশনে স্বাক্ষরকারী দেশের সংখ্যা-", "options": {"ক": "১৯২টি", "খ": "১০৯টি", "গ": "১৯০টি", "ঘ": "১৯১টি"}, "answer": "ঘ", "explanation": "United Nations Convention against Corruption (UNCAC) হলো জাতিসংঘের একটি বৈশ্বিক চুক্তি, যা দুর্নীতি প্রতিরোধে আন্তর্জাতিক সহযোগিতা বাড়ানোর লক্ষ্যে গৃহীত হয়। এটি ৯-১১ ডিসেম্বর, ২০০৩ তারিখে স্বাক্ষরের জন্য উন্মুক্ত করা হয় এবং প্রথম পর্যায়ে ১৪০টি দেশ স্বাক্ষর করে। ২০২৫ সালের সেপ্টেম্বর পর্যন্ত ১৯২টি দেশ States Parties হিসেবে তালিকাভুক্ত হয়েছে। উল্লেখ্য, ৭ আগস্ট, ২০২৪ পর্যন্ত অনুমোদনকারী দেশের সংখ্যা ছিলো-১৯১টি।", "tag": "৪৭তম বিসিএস", "page": 10}, {"id": "morality-ch3-q15", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "15", "question": "জনস্বাস্থ্য ও নৈতিকতা নিশ্চিতকরণে রাষ্ট্র কার্যকর ব্যবস্থা গ্রহণ করবে-এ বিষয়ে সংবিধানের কোন অনুচ্ছেদে উল্লেখ রয়েছে?", "options": {"ক": "অনুচ্ছেদ-২১", "খ": "অনুচ্ছেদ-১৮", "গ": "অনুচ্ছেদ-২৮", "ঘ": "অনুচ্ছেদ-২৬"}, "answer": "খ", "explanation": "জনস্বাস্থ্য ও নৈতিকতা নিশ্চিতকরণে রাষ্ট্র কার্যকর ব্যবস্থা গ্রহণ করবে এ বিষয়ে বাংলাদেশের সংবিধানের ১৮ অনুচ্ছেদে উল্লেখ রয়েছে।", "tag": "৪৭তম বিসিএস", "page": 11}, {"id": "morality-ch3-q16", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "16", "question": "'সরকারি নিয়োগ-লাভে সুযোগের সমতা'-বিষয়টি সংবিধান মতে-", "options": {"ক": "নৈতিক বিষয়", "খ": "মানবাধিকার", "গ": "মৌলিক অধিকার", "ঘ": "নিয়োগ ও কর্মের শর্ত"}, "answer": "গ", "explanation": "সরকারি, নিয়োগ লাভে সুযোগের সমতা- বিষয়টি সংবিধান মতে মৌলিক অধিকার। এটি গণপ্রজাতন্ত্রী বাংলাদেশের সংবিধানের ২৯-অনুচ্ছেদে উল্লেখ রয়েছে।", "tag": "৪৭তম বিসিএস", "page": 11}, {"id": "morality-ch3-q17", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "17", "question": "বাংলাদেশ নামক প্রজাতন্ত্রের ভিত্তি-", "options": {"ক": "মৌলিক মানবাধিকার ও স্বাধীনতা নিশ্চিত করা", "খ": "মানবসত্তার মর্যাদা ও মূল্যের প্রতি শ্রদ্ধাবোধ নিশ্চিত করা", "গ": "প্রশাসনের সকল পর্যায়ে নির্বাচিত প্রতিনিধির মাধ্যমে জনগণের কার্যকর অংশগ্রহণ নিশ্চিত করা", "ঘ": "উপরের সবকটি"}, "answer": "ঘ", "explanation": "বাংলাদেশ নামক প্রজাতন্ত্রের ভিত্তি প্রসঙ্গে সংবিধানের ১১নং অনুচ্ছেদে উল্লেখ রয়েছে, প্রজাতন্ত্র হবে একটি গণতন্ত্র, যেখানে মৌলিক মানবাধিকার ও স্বাধীনতার নিশ্চয়তা থাকবে, মানবসত্তার মর্যাদা ও মূল্যের প্রতি শ্রদ্ধাবোধ নিশ্চিত হবে এবং প্রশাসনের সকল পর্যায়ে নির্বাচিত প্রতিনিধিদের মাধ্যমে জনগণের কার্যকর অংশগ্রহণ নিশ্চিত হবে।", "tag": "৪৭তম বিসিএস", "page": 11}, {"id": "morality-ch3-q18", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "18", "question": "নিচের কোনটি সুশাসনের মূলনীতি?", "options": {"ক": "স্বচ্ছতা ও জবাবদিহিতা", "খ": "কর্তৃত্ববাদী শাসন", "গ": "কেন্দ্রীভূত সিদ্ধান্ত গ্রহণ", "ঘ": "স্বজন প্রীতি ও পক্ষপাতিত্ব"}, "answer": "ক", "explanation": "১৯৮৯ সালে বিশ্বব্যাংক প্রকাশিত 'শাসন প্রক্রিয়া ও উন্নয়ন' সম্পর্কিত রিপোর্টে প্রথম সুশাসন ধারণাটি প্রদান করা হয়, সেখানে সুশাসনের চারটি স্তম্ভের কথা বলা হয়। পরবর্তীতে ১৯৯৭ সালে UNDPও সুশাসনের সংজ্ঞা প্রদান করে। সুশাসনের মূল উপাদান বলা হয়- স্বচ্ছতা, জবাবদিহিতা, বৈধতা, অংশগ্রহণ, আইনের শাসন, দায়িত্বশীলতা, বিকেন্দ্রীকরণ প্রভৃতিকে। স্বজনপ্রীতি, দুর্নীতি, স্বার্থের সংঘাত, বৈষম্য প্রভৃতি সুশাসনের অন্তরায়।", "tag": "৪৬তম বিসিএস", "page": 12}, {"id": "morality-ch3-q19", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "19", "question": "জাতীয় শুদ্ধাচার কৌশল নীতিমালা কত সালে পাশ হয়?", "options": {"ক": "২০১০", "খ": "২০১১", "গ": "২০১২", "ঘ": "২০১৮"}, "answer": "গ", "explanation": "শুদ্ধাচার বলতে সাধারণভাবে নৈতিকতা ও সততা দ্বারা প্রভাবিত আচরণগত উৎকর্ষকে বোঝায়। আইনের পাশাপাশি রাষ্ট্রীয় ও সামাজিক ক্ষেত্রে দুর্নীতিমুক্ত পরিবেশ গড়ে তোলার জন্য ২০১২ সালে প্রণয়ন করা হয়েছে 'জাতীয় শুদ্ধাচার কৌশল নীতিমালা'।", "tag": "৪৬তম বিসিএস", "page": 12}, {"id": "morality-ch3-q20", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "20", "question": "'সুশাসন চারটি স্তম্ভের উপর নির্ভরশীল'-এই অভিমত কোন সংস্থা প্রকাশ করে?", "options": {"ক": "জাতিসংঘ", "খ": "জাতিসংঘের উন্নয়ন কর্মসূচি", "গ": "বিশ্বব্যাংক", "ঘ": "এশিয়া উন্নয়ন ব্যাংক"}, "answer": "গ", "explanation": "", "tag": "৪৬তম, ৪১তম বিসিএস", "page": 12}, {"id": "morality-ch3-q21", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "21", "question": "নিচের কোনটি 'SMART Bangladesh' এর উপাদান?", "options": {"ক": "Smart Democracy", "খ": "Smart Politics", "গ": "Smart Society", "ঘ": "Smart Parliament"}, "answer": "গ", "explanation": "", "tag": "৪৬তম বিসিএস", "page": 12}, {"id": "morality-ch3-q22", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "22", "question": "সুশাসনের পূর্বশর্ত কী?", "options": {"ক": "নিরপেক্ষ আইন ব্যবস্থা", "খ": "নিরপেক্ষ বিচার ব্যবস্থা", "গ": "প্রশাসনের নিরপেক্ষতা", "ঘ": "মতপ্রকাশের স্বাধীনতা"}, "answer": "ঘ", "explanation": "", "tag": "৪৫তম, ৩৫তম বিসিএস", "page": 13}, {"id": "morality-ch3-q23", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "23", "question": "সুশাসন প্রত্যয়টির উদ্ভাবক কে?", "options": {"ক": "ইউরোপীয় ইউনিয়ন", "খ": "আই. এল. ও", "গ": "বিশ্বব্যাংক", "ঘ": "জাতিসংঘ"}, "answer": "গ", "explanation": "", "tag": "৪৫তম, ৩৫তম বিসিএস", "page": 13}, {"id": "morality-ch3-q24", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "24", "question": "সহস্রাব্দ উন্নয়ন লক্ষ্য অর্জনে সুশাসনের কোন দিকটির উপর গুরুত্ব দেওয়া হয়েছে?", "options": {"ক": "সামাজিক দিক", "খ": "অর্থনৈতিক দিক", "গ": "মূল্যবোধের দিক", "ঘ": "গণতান্ত্রিক দিক"}, "answer": "খ", "explanation": "২০০০ থেকে ২০১৫ সালে বাস্তবায়িত হয় সহস্রাব্দ উন্নয়ন লক্ষ্য (MDG)। এতে নির্বাচিত ৮টি লক্ষ্যমাত্রার মূলে ছিল অর্থনৈতিক উন্নয়ন। কারণ সুশাসন প্রতিষ্ঠার অন্যতম পূর্বশর্ত অর্থনৈতিক উন্নয়ন।", "tag": "৪৫তম, ৩৫তম বিসিএস", "page": 13}, {"id": "morality-ch3-q25", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "25", "question": "নৈতিকতা ও সততা দ্বারা প্রভাবিত আচরণগত উৎকর্ষকে কী বলে?", "options": {"ক": "শুদ্ধাচার", "খ": "মূল্যবোধ", "গ": "মানবিকতা", "ঘ": "সফলতা"}, "answer": "ক", "explanation": "", "tag": "৪৫তম বিসিএস", "page": 13}, {"id": "morality-ch3-q26", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "26", "question": "সুশাসনের মূলভিত্তি-", "options": {"ক": "গণতন্ত্র", "খ": "আমলাতন্ত্র", "গ": "আইনের শাসন", "ঘ": "মূল্যবোধ"}, "answer": "গ", "explanation": "", "tag": "৪৫তম, ৪৩তম বিসিএস", "page": 13}, {"id": "morality-ch3-q27", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "27", "question": "জাতীয় শুদ্ধাচার কৌশল অনুসারে 'শুদ্ধাচার' হচ্ছে-", "options": {"ক": "শুদ্ধভাবে কার্যসম্পাদনের কৌশল", "খ": "সরকারী কর্মকর্তাদের আচরণের মানদণ্ড", "গ": "সততা ও নৈতিকতা দ্বারা প্রভাবিত আচরণগত উৎকর্ষ", "ঘ": "দৈনন্দিন কার্যক্রমে অনুসৃতব্য মানদণ্ড"}, "answer": "গ", "explanation": "", "tag": "৪৪তম বিসিএস", "page": 13}, {"id": "morality-ch3-q28", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "28", "question": "বাংলাদেশে দুর্নীতিকে দণ্ডনীয় ঘোষণা করা হয়েছে যে বিধানে-", "options": {"ক": "১৮৬০ সালে প্রণীত দণ্ডবিধিতে", "খ": "২০০৪ সালে প্রণীত দুর্নীতি দমন কমিশন আইনে", "গ": "২০১৮ সালে প্রণীত সরকারী কর্মচারী (শৃঙ্খলা ও আপীল) বিধিমালাতে", "ঘ": "উপরের সবগুলোতে"}, "answer": "ঘ", "explanation": "দুর্নীতি প্রতিরোধের জন্য বাংলাদেশে বিভিন্ন সময়ে পাশ করা বিভিন্ন আইন এটিকে দণ্ডনীয় অপরাধ ঘোষণা করেছে। এরূপ কিছু আইনের মধ্যে রয়েছে- দণ্ডবিধি ১৮৬০, দুর্নীতি প্রতিরোধ আইন ১৯৪৭, দুর্নীতি দমন কমিশন আইন ২০০৪, দুর্নীতি কমিশন বিধিমালা ২০০৭, পাবলিক প্রোকিউরমেন্ট নীতিমালা ২০০৮, মানি লন্ডারিং আইন ২০১২, সরকারি কর্মচারী বিধিমালা ২০১৮। এছাড়াও বাংলাদেশ দুর্নীতি বিরোধী জাতিসংঘের UNCAC-এর অনুসমর্থনকারী।", "tag": "৪৪তম বিসিএস", "page": 13}, {"id": "morality-ch3-q29", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "29", "question": "অর্থনৈতিক ক্ষেত্রে সুশাসন প্রতিষ্ঠিত হলে-", "options": {"ক": "বিনিয়োগ বৃদ্ধি পায়", "খ": "দুর্নীতি দূর হয়", "গ": "প্রতিষ্ঠানের সুনাম হয়", "ঘ": "যোগাযোগ বৃদ্ধি পায়"}, "answer": "ক", "explanation": "", "tag": "৪৪তম, ৪০তম বিসিএস", "page": 14}, {"id": "morality-ch3-q30", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "30", "question": "জাতিসংঘের দুর্নীতিবিরোধী কনভেনশনের নাম-", "options": {"ক": "UNCLOS", "খ": "UNCTAD", "গ": "UNCAC", "ঘ": "CEDAW"}, "answer": "গ", "explanation": "", "tag": "৪৪তম বিসিএস", "page": 14}, {"id": "morality-ch3-q31", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "31", "question": "সরকারি সিদ্ধান্তের ক্ষেত্রে 'স্বার্থের সংঘাত' (Conflict of interest)- এর উদ্ভব হয় যখন গৃহীতব্য সিদ্ধান্তের সঙ্গে-", "options": {"ক": "সিদ্ধান্ত গ্রহণকারী কর্মকর্তার নিজের বা পরিবারের সদস্যদের স্বার্থ জড়িত থাকে", "খ": "প্রভাবশালী ব্যক্তি বা ব্যক্তিবর্গের স্বার্থ জড়িত থাকে", "গ": "সরকারি স্বার্থ জড়িত থাকে", "ঘ": "ঊর্ধ্বতন কর্তৃপক্ষের স্বার্থ জড়িত থাকে"}, "answer": "ক", "explanation": "'স্বার্থের সংঘাত' (Conflict of interest)- বলতে এমন এক পরিস্থিতি বুঝানো হয় যেখানে কোনো ব্যক্তি উপযুক্ত সিদ্ধান্ত নিতে পারে না, কারণ এতে তার নিজের স্বার্থ ক্ষুন্ন হয়। সরকারি সিদ্ধান্তের ক্ষেত্রে যখন সিদ্ধান্ত প্রণেতার নিজের বা পরিবারের স্বার্থ জড়িত থাকে তখন স্বার্থের সংঘাত দেখা যায়। বাংলাদেশের বেশ কিছু আইন ও নীতিমালায় এটিকে অপরাধ হিসেবে চিহ্নিত করা হয়েছে।", "tag": "৪৪তম বিসিএস", "page": 14}, {"id": "morality-ch3-q32", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "32", "question": "উৎপত্তিগত অর্থে governance শব্দটি কোন ভাষা থেকে এসেছে?", "options": {"ক": "ল্যাটিন", "খ": "গ্রিক", "গ": "হিব্রু", "ঘ": "ফারসি"}, "answer": "ক", "explanation": "Governance শব্দটি ল্যাটিন শব্দ Kubernao থেকে এসেছে, যার অর্থ শাসন বা পরিচালনা করা।", "tag": "৪৩তম বিসিএস", "page": 15}, {"id": "morality-ch3-q33", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "33", "question": "বাংলাদেশে কত সালে 'জাতীয় শুদ্ধাচার কৌশল' প্রণয়ন করা হয়?", "options": {"ক": "২০১০", "খ": "২০১১", "গ": "২০১২", "ঘ": "২০১৩"}, "answer": "গ", "explanation": "", "tag": "৪৩তম বিসিএস", "page": 15}, {"id": "morality-ch3-q34", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "34", "question": "বিশ্বব্যাংকের মতে সুশাসনের উপাদান কয়টি?", "options": {"ক": "৩টি", "খ": "৫টি", "গ": "৪টি", "ঘ": "৬টি"}, "answer": "ঘ", "explanation": "আন্তর্জাতিক সংস্থাগুলো সুশাসনের জন্য বেশ কিছু উপাদান নির্বাচিত করেছে। নির্বাচিত উপাদান সংখ্যা: UNDP-৯টি, United Nations-৮টি, WB-৬টি, IMF-৫টি, UNHCR-৫টি, AfDB-৫টি, IDA-৮টি।", "tag": "৪৩তম বিসিএস", "page": 15}, {"id": "morality-ch3-q35", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "35", "question": "'শাসক যদি মহৎগুণসম্পন্ন হয় তাহলে আইন নিষ্প্রয়োজন, আর শাসক যদি মহৎগুণসম্পন্ন না হয় তাহলে আইন অকার্যকর'-এটি কে বলেছেন?", "options": {"ক": "সক্রেটিস", "খ": "প্লেটো", "গ": "অ্যারিস্টটল", "ঘ": "বেনথাম"}, "answer": "খ", "explanation": "", "tag": "৪৩তম বিসিএস", "page": 15}, {"id": "morality-ch3-q36", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "36", "question": "'রাষ্ট্রের সকল ক্ষেত্রে উন্নয়নের জন্য সুশাসন আবশ্যক।'-কে এই উক্তি করেন?", "options": {"ক": "এইচ.ডি. স্টেইন", "খ": "জন স্মিথ", "গ": "মিশেল ক্যামডেসাস", "ঘ": "এম.ডরিউ. পামগ্রে"}, "answer": "গ", "explanation": "", "tag": "৪১তম বিসিএস", "page": 15}, {"id": "morality-ch3-q37", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "37", "question": "'বিপরীত বৈষম্য'-এর নীতিটি প্রয়োগ করা হয়-", "options": {"ক": "নারীদের ক্ষেত্রে", "খ": "সংখ্যালঘুদের ক্ষেত্রে", "গ": "প্রতিবন্ধীদের ক্ষেত্রে", "ঘ": "পিছিয়ে পড়া জনগোষ্ঠীর ক্ষেত্রে"}, "answer": "ঘ", "explanation": "পিছিয়ে পড়া জনগোষ্ঠীকে এক সারিতে আনার জন্য বিপরীত বৈষম্য ধারণাটির প্রবর্তন করা হয়েছে। এ ধারণাটি সমতা-নীতির বিরোধী নয়, বরং সমতার প্রশ্নে 'বিপরীত বৈষম্য' বেশ গুরুত্বপূর্ণ একটি ধারণা। বাইরের দিক থেকে একে বৈষম্যমূলক আচরণ মনে হলেও তা সমতা নীতিরই একটি প্রতিফলন।", "tag": "৪০তম বিসিএস", "page": 16}, {"id": "morality-ch3-q38", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "38", "question": "জাতিসংঘের অভিমত অনুসারে সুশাসনের লক্ষ্য ও উদ্দেশ্য হলো-", "options": {"ক": "দারিদ্র বিমোচন", "খ": "মৌলিক অধিকার রক্ষা", "গ": "মৌলিক স্বাধীনতার উন্নয়ন", "ঘ": "নারীদের উন্নয়ন ও সুরক্ষা"}, "answer": "গ", "explanation": "", "tag": "৪০তম বিসিএস", "page": 16}, {"id": "morality-ch3-q39", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "39", "question": "সুশাসন প্রতিষ্ঠায় নাগরিকের কর্তব্য হলো-", "options": {"ক": "সরকার পরিচালনায় সাহায্য করা", "খ": "নিজের অধিকার ভোগ করা", "গ": "সৎভাবে ব্যবসা-বাণিজ্য করা", "ঘ": "নিয়মিত কর প্রদান করা"}, "answer": "ঘ", "explanation": "সরকার নির্বাচন করা গণতান্ত্রিক দেশে জনগণের দায়িত্ব, আর সরকার পরিচালনায় সাহায্য করা বিরোধী দল, সুশীল সমাজ ও গণমাধ্যমের দায়িত্ব। নির্বাচিত সরকারের মাধ্যমে সুশাসন প্রতিষ্ঠার জন্য প্রয়োজন অর্থনৈতিক উন্নয়ন, এক্ষেত্রে সাধারণ জনগণ নিয়মিত কর প্রদান করে তা নিশ্চিত করতে পারে।", "tag": "৪০তম বিসিএস", "page": 16}, {"id": "morality-ch3-q40", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "40", "question": "তথ্য পাওয়া মানুষের কী ধরনের অধিকার?", "options": {"ক": "রাজনৈতিক", "খ": "অর্থনৈতিক", "গ": "মৌলিক", "ঘ": "সামাজিক"}, "answer": "গ", "explanation": "গণপ্রজাতন্ত্রী বাংলাদেশের সংবিধানের তৃতীয় ভাগের ৩৯ নং অনুচ্ছেদে চিন্তা, বিবেক ও বাক্‌স্বাধীনতাকে অন্যতম মৌলিক অধিকার হিসেবে স্বীকৃতি দেওয়া হয়েছে। তথ্য প্রাপ্তির অধিকার এর একটি অবিচ্ছেদ্য অংশ। সুতরাং তথ্য পাওয়া মানুষের মৌলিক অধিকারের অন্তর্ভুক্ত। তথ্য অধিকার আইন, ২০০৯ (২০ নং আইন) অনুযায়ীও এটি একটি মৌলিক অধিকার হিসেবে স্বীকৃত।", "tag": "৪০তম বিসিএস", "page": 16}, {"id": "morality-ch3-q41", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "41", "question": "কোন বছর ইউএনডিপি (UNDP) সুশাসনের সংজ্ঞা প্রবর্তন করে?", "options": {"ক": "১৯৯৫", "খ": "১৯৯৭", "গ": "১৯৯৮", "ঘ": "১৯৯৯"}, "answer": "খ", "explanation": "", "tag": "৩৮তম বিসিএস", "page": 17}, {"id": "morality-ch3-q42", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "42", "question": "সুশাসনের কোন নীতি সংগঠনের স্বাধীনতাকে নিশ্চিত করে?", "options": {"ক": "অংশগ্রহণ", "খ": "জবাবদিহিতা", "গ": "স্বচ্ছতা", "ঘ": "সাম্য ও সমতা"}, "answer": "ক", "explanation": "সুশাসনের অন্যতম মৌলিক নীতি হলো অংশগ্রহণ। এই নীতির আওতায় নাগরিকদের ব্যক্তিগতভাবে বা সংগঠনের মাধ্যমে সিদ্ধান্ত গ্রহণ প্রক্রিয়ায় অংশগ্রহণের সুযোগ নিশ্চিত করা হয়। অর্থাৎ সংগঠন গঠন ও পরিচালনার স্বাধীনতা (Freedom of Association) অংশগ্রহণ নীতিরই একটি অবিচ্ছেদ্য উপাদান।", "tag": "৩৮তম বিসিএস", "page": 17}, {"id": "morality-ch3-q43", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "43", "question": "নিচের কোন রিপোর্টে বিশ্বব্যাংক সুশাসনের সংজ্ঞা প্রদান করেছে?", "options": {"ক": "শাসন প্রক্রিয়া ও মানব উন্নয়ন", "খ": "শাসন প্রক্রিয়া এবং সুশাসন", "গ": "শাসন প্রক্রিয়া এবং নৈতিক শাসন প্রক্রিয়া", "ঘ": "শাসন প্রক্রিয়া এবং উন্নয়ন"}, "answer": "ঘ", "explanation": "", "tag": "৩৮তম বিসিএস", "page": 17}, {"id": "morality-ch3-q44", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "44", "question": "নিচের কোনটি সুশাসনের উপাদান নয়?", "options": {"ক": "অংশগ্রহণ", "খ": "স্বচ্ছতা", "গ": "নৈতিক শাসন", "ঘ": "জবাবদিহিতা"}, "answer": "গ", "explanation": "", "tag": "৩৮তম বিসিএস", "page": 17}, {"id": "morality-ch3-q45", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "45", "question": "রাষ্ট্রের চতুর্থ স্তম্ভ কাকে বলা হয়?", "options": {"ক": "রাজনীতি", "খ": "বুদ্ধিজীবী সম্প্রদায়", "গ": "সংবাদ মাধ্যম", "ঘ": "যুবশক্তি"}, "answer": "গ", "explanation": "রাষ্ট্রের চতুর্থ স্তম্ভ হিসেবে সংবাদপত্রকে সর্বপ্রথম নির্দেশ করেন ব্রিটিশ পার্লামেন্টারিয়ান এডমন্ড বার্ক। তিনি ১৭৮৭ সালে হাউজ অব কমন্সের সংসদীয় বিতর্ক পর্বে Fourth Estate প্রত্যয়টি প্রথম ব্যবহার করেন।", "tag": "৩৭তম বিসিএস", "page": 18}, {"id": "morality-ch3-q46", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "46", "question": "UNDP সুশাসন নিশ্চিতকরণে কয়টি উপাদান উল্লেখ করেছে?", "options": {"ক": "৬টি", "খ": "৭টি", "গ": "৮টি", "ঘ": "৯টি"}, "answer": "ঘ", "explanation": "", "tag": "৩৭তম বিসিএস", "page": 18}, {"id": "morality-ch3-q47", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "47", "question": "সরকারি চাকরিতে সততার মাপকাঠি কি?", "options": {"ক": "যথা সময়ে অফিসে আগমন ও অফিস ত্যাগ", "খ": "দাপ্তরিক কাজে কোনো অবৈধ সুবিধা গ্রহণ না করা", "গ": "নির্মোহ ও নিরপেক্ষভাবে অর্পিত দায়িত্ব যথাবিধি সম্পন্ন করা", "ঘ": "ঊর্ধ্বতন কর্তৃপক্ষের যে কোনো নির্দেশ প্রতিপালন করা"}, "answer": "গ", "explanation": "", "tag": "৩৭তম বিসিএস", "page": 18}, {"id": "morality-ch3-q48", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "48", "question": "\"সুশাসন বলতে রাষ্ট্রের সঙ্গে সুশীল সমাজের, সরকারের সঙ্গে শাসিত জনগণের, শাসকের সঙ্গে শাসিতের সম্পর্ক বোঝায়\"-উক্তিটি কার?", "options": {"ক": "এরিস্টটল", "খ": "জন স্টুয়ার্ট মিল", "গ": "ম্যাককরনী", "ঘ": "মেকিয়াভেলি"}, "answer": "গ", "explanation": "", "tag": "৩৭তম বিসিএস", "page": 18}, {"id": "morality-ch3-q49", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "49", "question": "জনগণ, রাষ্ট্র ও প্রশাসনের সাথে ঘনিষ্ঠ প্রত্যয় হলো-", "options": {"ক": "সুশাসন", "খ": "আইনের শাসন", "গ": "রাজনীতি", "ঘ": "মানবাধিকার"}, "answer": "ক", "explanation": "", "tag": "৩৭তম বিসিএস", "page": 18}, {"id": "morality-ch3-q50", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "50", "question": "কোনটি ন্যায়পরায়ণতার নৈতিক মূলনীতি নয়?", "options": {"ক": "পুরস্কার ও শাস্তির ক্ষেত্রে সমতার নীতি প্রয়োগ", "খ": "আইনের শাসন", "গ": "সুশাসনের জন্য উচ্চ শিক্ষিত কর্মকর্তা নিয়োগ", "ঘ": "অধিকার ও সুযোগের ক্ষেত্রে সমতার নিশ্চিতকরণ"}, "answer": "গ", "explanation": "সুশাসনের জন্য আবশ্যক উপাদানে কর্মকর্তা কিংবা প্রশাসকের দক্ষতা, সৃজনশীলতা, পারদর্শিতা নেই; বরং দায়িত্বশীলদের নৈতিকতা, দায়িত্বশীলতা, জনকল্যাণমূলক ভাবনা প্রয়োজন। সেজন্য ন্যায়পরায়ণতার নৈতিক মূলনীতিতে সৃজনশীল কিংবা উচ্চ শিক্ষিত কর্মকর্তা নিয়োগ অন্তর্ভুক্ত নয়।", "tag": "৩৭তম বিসিএস", "page": 18}, {"id": "morality-ch3-q51", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "51", "question": "সুশাসন হচ্ছে এমন এক শাসন ব্যবস্থা যা শাসক ও শাসিতের মধ্যে-", "options": {"ক": "সুসম্পর্ক গড়ে তোলে", "খ": "আস্থার সম্পর্ক গড়ে তোলে", "গ": "শান্তির সম্পর্ক গড়ে তোলে", "ঘ": "কোনোটিই নয়"}, "answer": "খ", "explanation": "", "tag": "৩৬তম বিসিএস", "page": 19}, {"id": "morality-ch3-q52", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "52", "question": "সুশাসনের পূর্বশর্ত হচ্ছে-", "options": {"ক": "অর্থনৈতিক উন্নয়ন", "খ": "অর্থনৈতিক ও সামাজিক উন্নয়ন", "গ": "সামাজিক উন্নয়ন", "ঘ": "সবগুলোই"}, "answer": "খ", "explanation": "", "tag": "৩৬তম বিসিএস", "page": 19}, {"id": "morality-ch3-q53", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "53", "question": "সুশাসনের পথে অন্তরায়-", "options": {"ক": "আইনের শাসন", "খ": "জবাবদিহিতা", "গ": "স্বজনপ্রীতি", "ঘ": "ন্যায়পরায়ণতা"}, "answer": "গ", "explanation": "", "tag": "৩৬তম বিসিএস", "page": 19}, {"id": "morality-ch3-q54", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "54", "question": "Johannesburg Plan of Implementation সুশাসনের সঙ্গে নিচের কোন বিষয়টিকে অধিকতর গুরুত্ব দেয়?", "options": {"ক": "টেকসই উন্নয়ন", "খ": "সাংস্কৃতিক উন্নয়ন", "গ": "ধর্মীয় প্রতিষ্ঠানের উন্নয়ন", "ঘ": "উপরের কোনোটিই নয়"}, "answer": "ক", "explanation": "২৬ আগস্ট - ০৪ সেপ্টেম্বর, ২০০২ সালে দক্ষিণ আফ্রিকার জোহানেসবার্গে অনুষ্ঠিত 'The Johannesburg Plan of Implementation' সম্মেলনে সুশাসনের সঙ্গে 'টেকসই উন্নয়ন' বিষয়টিকে অধিক গুরুত্ব দেয়।", "tag": "৩৫তম বিসিএস", "page": 19}, {"id": "morality-ch3-q55", "chapter": "ch3", "chapterTitle": "অধ্যায় ০৩: সুশাসন (Good Governance)", "num": "55", "question": "নিরপেক্ষ ও শক্তিশালী গণমাধ্যমের অনুপস্থিতি কিসের অন্তরায়?", "options": {"ক": "সামাজিক অবক্ষয়ের", "খ": "মূল্যবোধ অবক্ষয়ের", "গ": "সুশাসনের", "ঘ": "শিক্ষার গুণগতমানের"}, "answer": "গ", "explanation": "", "tag": "৩৫তম বিসিএস", "page": 19}];
+</script>
+<script>
+/* ===========================================================
+   Morality — Interactive Study & Revision System
+   Vanilla JS, single-file, localStorage-persisted.
+   =========================================================== */
+
+const STORE_KEY = "morality_srs_v2";
+const INTERVALS = [1, 3, 7, 14, 30, 60]; // days
+
+// ---------- Utility ----------
+const $ = (sel, root=document) => root.querySelector(sel);
+const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+const todayStr = () => new Date().toISOString().slice(0,10);
+const addDays = (dateStr, n) => {
+  const d = new Date(dateStr + "T00:00:00");
+  d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0,10);
+};
+const daysBetween = (a,b) => Math.round((new Date(b) - new Date(a)) / 86400000);
+const fmtDate = (s) => {
+  if(!s) return "—";
+  const d = new Date(s + "T00:00:00");
+  return d.toLocaleDateString("bn-BD", {day:"numeric", month:"short", year:"numeric"});
+};
+const escapeHtml = (s="") => s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid = () => Math.random().toString(36).slice(2,9);
+
+function toast(msg){
+  let t = $("#toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>t.classList.remove("show"), 2200);
+}
+
+// ---------- Persistent state ----------
+function defaultState(){
+  return {
+    progress: {},      // qid -> {status,attempts,correct,wrong,confidence,nextReview,successCount,failCount,lastReviewed,history:[],bookmarked,note,difficulty,lastResult}
+    topicMeta: {},      // chapter -> {firstStudied,lastStudied,sessions,timeSpent}
+    sessions: [],        // {id,date,topic,durationSec,correct,wrong,attempted}
+    quizHistory: [],      // {id,date,scope,pool,count,score,correct,wrong,unanswered,timeSec}
+    streak: {current:0, longest:0, lastDate:null, days:[]},
+    notes: {},           // topicOrSection key -> text
+    settings: {theme:"light"},
+    studyPlanDone: {},    // date -> [taskIds done]
+  };
+}
+
+let DB = load();
+
+function load(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return defaultState();
+    const parsed = JSON.parse(raw);
+    return Object.assign(defaultState(), parsed);
+  }catch(e){ return defaultState(); }
+}
+function save(){
+  localStorage.setItem(STORE_KEY, JSON.stringify(DB));
+}
+
+function getProg(qid){
+  if(!DB.progress[qid]){
+    DB.progress[qid] = {
+      status:"new", attempts:0, correct:0, wrong:0, confidence:null,
+      nextReview:null, successCount:0, failCount:0, lastReviewed:null,
+      history:[], bookmarked:false, note:"", difficulty:null, lastResult:null
+    };
+  }
+  return DB.progress[qid];
+}
+
+function recordStudyDay(){
+  const t = todayStr();
+  if(!DB.streak.days.includes(t)) DB.streak.days.push(t);
+  if(DB.streak.lastDate === t) { save(); return; }
+  if(DB.streak.lastDate && daysBetween(DB.streak.lastDate, t) === 1){
+    DB.streak.current += 1;
+  } else if(DB.streak.lastDate === t){
+    // same day, no change
+  } else {
+    DB.streak.current = 1;
+  }
+  DB.streak.lastDate = t;
+  DB.streak.longest = Math.max(DB.streak.longest, DB.streak.current);
+  save();
+}
+
+// ---------- SRS scheduling ----------
+function scheduleNext(qid, outcome, confidence){
+  // outcome: 'correct-high' | 'correct-low' | 'incorrect'
+  const p = getProg(qid);
+  let idx = p._srsIdx ?? -1;
+  if(outcome === "incorrect"){
+    p.failCount += 1;
+    idx = Math.max(0, idx - 2); // big step back
+    p.status = p.failCount >= 2 ? "due" : "weak";
+  } else if(outcome === "correct-low"){
+    p.successCount += 1;
+    idx = Math.max(0, idx); // stay / small step
+    p.status = "learning";
+  } else { // correct-high
+    p.successCount += 1;
+    idx = Math.min(INTERVALS.length - 1, idx + 1);
+    p.status = idx >= INTERVALS.length - 2 ? "mastered" : "learning";
+  }
+  p._srsIdx = idx;
+  const days = INTERVALS[idx];
+  p.nextReview = addDays(todayStr(), days);
+  p.lastReviewed = todayStr();
+  p.history.push({date:todayStr(), outcome, confidence: confidence||null});
+  save();
+}
+
+function manualStatus(qid, status){
+  const p = getProg(qid);
+  p.status = status;
+  if(status === "mastered"){ p._srsIdx = INTERVALS.length-1; p.nextReview = addDays(todayStr(), INTERVALS[INTERVALS.length-1]); }
+  if(status === "due"){ p.nextReview = todayStr(); }
+  save();
+}
+
+// ---------- Derived helpers ----------
+function isOverdue(p){
+  return p.nextReview && p.nextReview < todayStr() && p.status !== "mastered";
+}
+function isDueToday(p){
+  return p.nextReview === todayStr();
+}
+function accuracy(p){
+  const tot = p.correct + p.wrong;
+  return tot ? Math.round((p.correct/tot)*100) : null;
+}
+
+function chapterOf(qid){ return DATA.find(q=>q.id===qid); }
+
+function topicList(){
+  const map = {};
+  DATA.forEach(q=>{
+    if(!map[q.chapter]) map[q.chapter] = {key:q.chapter, title:q.chapterTitle, questions:[]};
+    map[q.chapter].questions.push(q);
+  });
+  return Object.values(map);
+}
+
+function topicStats(chKey){
+  const qs = DATA.filter(q=>q.chapter===chKey);
+  let attempted=0, correct=0, wrong=0, mastered=0, revision=0;
+  qs.forEach(q=>{
+    const p = getProg(q.id);
+    if(p.attempts>0) attempted++;
+    correct += p.correct; wrong += p.wrong;
+    if(p.status==="mastered") mastered++;
+    if(p.status==="due" || isOverdue(p)) revision++;
+  });
+  const acc = (correct+wrong) ? Math.round(correct/(correct+wrong)*100) : 0;
+  const progressPct = qs.length ? Math.round((attempted/qs.length)*100) : 0;
+  let strength = "Weak";
+  if(progressPct === 0) strength = "New";
+  else if(acc >= 90 && progressPct >= 80) strength = "Mastered";
+  else if(acc >= 70) strength = "Strong";
+  else if(acc >= 50) strength = "Average";
+  else if(attempted>0) strength = "Developing";
+  const meta = DB.topicMeta[chKey] || {};
+  return {total:qs.length, attempted, correct, wrong, mastered, revision, acc, progressPct, strength, meta};
+}
+
+function allProgressList(){
+  return DATA.map(q => ({q, p: getProg(q.id)}));
+}
+
+function overallStats(){
+  const list = allProgressList();
+  const attempted = list.filter(x=>x.p.attempts>0).length;
+  const correct = list.reduce((s,x)=>s+x.p.correct,0);
+  const wrong = list.reduce((s,x)=>s+x.p.wrong,0);
+  const mastered = list.filter(x=>x.p.status==="mastered").length;
+  const bookmarked = list.filter(x=>x.p.bookmarked).length;
+  const dueToday = list.filter(x=>isDueToday(x.p)).length;
+  const overdue = list.filter(x=>isOverdue(x.p)).length;
+  const unanswered = DATA.length - attempted;
+  return {
+    total: DATA.length, attempted, unanswered, correct, wrong, mastered, bookmarked,
+    dueToday, overdue, revisionDue: dueToday + overdue,
+    accuracy: (correct+wrong) ? Math.round(correct/(correct+wrong)*100) : 0,
+    totalSessions: DB.sessions.length,
+    totalTimeSec: DB.sessions.reduce((s,x)=>s+(x.durationSec||0),0),
+  };
+}
+
+function weakTopics(){
+  return topicList().map(t=>({...t, stats: topicStats(t.key)}))
+    .filter(t=>t.stats.attempted>0)
+    .sort((a,b)=> a.stats.acc - b.stats.acc)
+    .slice(0,3);
+}
+
+function repeatedMistakes(){
+  return allProgressList()
+    .filter(x=>x.p.wrong >= 2)
+    .sort((a,b)=> b.p.wrong - a.p.wrong);
+}
+
+function priorityQueue(limit=6){
+  const list = allProgressList();
+  const items = [];
+  list.forEach(({q,p})=>{
+    let score = 0, reason = "";
+    if(isOverdue(p)){ score = 100 + (p.wrong*2); reason = "মেয়াদোত্তীর্ণ পুনরাবৃত্তি"; }
+    else if(isDueToday(p)){ score = 80 + (p.wrong*2); reason = "আজ পুনরাবৃত্তির দিন"; }
+    else if(p.wrong >= 2){ score = 70 + p.wrong; reason = "বারবার ভুল হচ্ছে"; }
+    else if(p.status === "weak"){ score = 50; reason = "দুর্বল প্রশ্ন"; }
+    else if(p.attempts === 0){ score = 10; reason = "নতুন প্রশ্ন"; }
+    else return;
+    items.push({q,p,score,reason});
+  });
+  items.sort((a,b)=>b.score-a.score);
+  return items.slice(0, limit);
+}
+
+// ===========================================================
+// ROUTER / VIEW STATE
+// ===========================================================
+let VIEW = "dashboard";
+let VSTATE = {}; // per-view transient state (filters, quiz session, etc.)
+
+const NAV_ITEMS = [
+  {id:"dashboard", icon:"🏠", label:"ড্যাশবোর্ড"},
+  {id:"study", icon:"📚", label:"স্টাডি ম্যাটেরিয়াল"},
+  {id:"topics", icon:"📖", label:"বিষয়/প্রশ্নব্যাংক"},
+  {id:"revision", icon:"🔴", label:"রিভিশন ডিউ"},
+  {id:"mistakes", icon:"❌", label:"আমার ভুলগুলো"},
+  {id:"bookmarks", icon:"⭐", label:"বুকমার্ক"},
+  {id:"quiz", icon:"📝", label:"কুইজ মোড"},
+  {id:"exam", icon:"🧪", label:"এক্সাম মোড"},
+  {id:"quick", icon:"⚡", label:"দ্রুত রিভিশন"},
+  {id:"focus", icon:"⏱", label:"ফোকাস মোড"},
+  {id:"lastminute", icon:"🚨", label:"শেষ মুহূর্তের রিভিশন"},
+  {id:"progress", icon:"📊", label:"প্রোগ্রেস"},
+  {id:"settings", icon:"⚙", label:"সেটিংস"},
+];
+
+function navBadge(id){
+  const s = overallStats();
+  if(id==="revision") return s.revisionDue || null;
+  if(id==="mistakes") return repeatedMistakes().length || null;
+  if(id==="bookmarks") return s.bookmarked || null;
+  return null;
+}
+
+function setView(v, state={}){
+  VIEW = v; VSTATE = state;
+  closeMobileNav();
+  render();
+  window.scrollTo({top:0, behavior:"instant"});
+}
+
+// ===========================================================
+// SHELL RENDER
+// ===========================================================
+function renderShell(){
+  const nav = NAV_ITEMS.map(it=>{
+    const badge = navBadge(it.id);
+    return `<button class="nav-item ${VIEW===it.id?'active':''}" data-nav="${it.id}">
+      <span class="nav-icon">${it.icon}</span><span>${it.label}</span>
+      ${badge? `<span class="nav-badge">${badge}</span>`:''}
+    </button>`;
+  }).join("");
+
+  $("#sidebarNav").innerHTML = nav;
+  $$("#sidebarNav .nav-item").forEach(b=>b.addEventListener("click", ()=> setView(b.dataset.nav)));
+  $$("#mobileNavList .nav-item").forEach(b=>{});
+}
+
+function render(){
+  renderShell();
+  const main = $("#mainInner");
+  main.innerHTML = "";
+  const renderers = {
+    dashboard: renderDashboard, study: renderStudy, topics: renderTopics,
+    topicDetail: renderTopicDetail, revision: renderRevision, mistakes: renderMistakes,
+    bookmarks: renderBookmarks, quiz: renderQuizSetup, exam: renderExamSetup,
+    quick: renderQuickRevision, focus: renderFocusSetup, lastminute: renderLastMinute,
+    progress: renderProgress, settings: renderSettings,
+    quizSession: renderQuizSession, quizResults: renderQuizResults,
+    focusSession: renderFocusSession,
+  };
+  (renderers[VIEW] || renderDashboard)(main);
+  // Note: individual view renderers (topicDetail, revision, bookmarks, quiz/focus session)
+  // wire their own question cards. We do not re-wire globally here to avoid duplicate
+  // event listeners (which would double-count attempts and toggle actions twice).
+}
+
+// ===========================================================
+// DASHBOARD
+// ===========================================================
+function renderDashboard(main){
+  const s = overallStats();
+  const pq = priorityQueue(6);
+  const weak = weakTopics();
+  const recentSessions = DB.sessions.slice(-4).reverse();
+
+  main.innerHTML = `
+    <div class="page-head">
+      <div class="page-title">🏠 ড্যাশবোর্ড</div>
+      <div class="page-sub">Source: morality.pdf — নৈতিকতা, মূল্যবোধ ও সুশাসন (BCS প্রিলি মাস্টার প্রশ্নব্যাংক)</div>
+    </div>
+
+    <div class="wtsn-card">
+      <div class="wtsn-title">🎯 এখন কী পড়বো?</div>
+      ${pq.length ? `<div>${pq.map((it,i)=>`
+        <div class="priority-item">
+          <div class="priority-rank">${i+1}</div>
+          <div class="priority-text">
+            <div><b>${it.q.chapterTitle.split(':')[1]||it.q.chapterTitle}</b> — প্রশ্ন ${it.q.num}</div>
+            <div class="priority-meta">${escapeHtml(it.q.question.slice(0,70))}${it.q.question.length>70?'…':''}</div>
+            <div class="tag-row" style="margin-top:5px">
+              <span class="pill red">${it.reason}</span>
+              ${it.p.wrong? `<span class="pill amber">${it.p.wrong}x ভুল</span>`:''}
+            </div>
+          </div>
+          <button class="btn sm primary" data-open-q="${it.q.id}">পড়ুন</button>
+        </div>`).join("")}</div>`
+      : `<div class="small-muted">চমৎকার! এই মুহূর্তে জরুরি কোনো রিভিশন বাকি নেই। নতুন প্রশ্ন অনুশীলন করুন।</div>`}
+    </div>
+
+    <div class="grid grid-4" style="margin-bottom:16px">
+      <div class="stat-card accent"><div class="stat-num">${s.total}</div><div class="stat-label">মোট প্রশ্ন</div></div>
+      <div class="stat-card"><div class="stat-num">${s.attempted}</div><div class="stat-label">উত্তর দেওয়া হয়েছে</div></div>
+      <div class="stat-card"><div class="stat-num">${s.unanswered}</div><div class="stat-label">উত্তর দেওয়া হয়নি</div></div>
+      <div class="stat-card accent"><div class="stat-num">${s.accuracy}%</div><div class="stat-label">সঠিক উত্তরের হার</div></div>
+      <div class="stat-card red"><div class="stat-num">${s.revisionDue}</div><div class="stat-label">আজ রিভিশন প্রয়োজন</div></div>
+      <div class="stat-card"><div class="stat-num">${s.mastered}</div><div class="stat-label">আয়ত্তে এসেছে</div></div>
+      <div class="stat-card gold" style="background:var(--gold-soft)"><div class="stat-num">${s.bookmarked}</div><div class="stat-label">বুকমার্ক করা</div></div>
+      <div class="stat-card blue"><div class="stat-num">${DB.streak.current}🔥</div><div class="stat-label">চলমান স্ট্রিক (দীর্ঘতম ${DB.streak.longest})</div></div>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <div class="panel">
+          <div class="panel-head"><div class="panel-title">📉 দুর্বল বিষয়সমূহ</div></div>
+          ${weak.length? weak.map(t=>`
+            <div style="margin-bottom:12px">
+              <div style="display:flex;justify-content:space-between;font-size:13.5px"><b>${t.title}</b><span class="small-muted">${t.stats.acc}% সঠিক</span></div>
+              <div class="strength-bar"><div class="strength-fill" style="width:${t.stats.acc}%; background:${t.stats.acc<50?'var(--red)':'var(--amber)'}"></div></div>
+            </div>`).join("") : `<div class="small-muted">এখনো পর্যাপ্ত তথ্য নেই — কিছু প্রশ্নের উত্তর দিন।</div>`}
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div class="panel-title">📅 আজকের স্টাডি প্ল্যান</div></div>
+          ${renderTodayPlan()}
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <div class="panel-title" style="margin-bottom:10px">📈 সারসংক্ষেপ</div>
+          <div style="font-size:13.5px; line-height:2">
+            মোট স্টাডি সেশন: <b>${s.totalSessions}</b><br>
+            মোট স্টাডি সময়: <b>${Math.round(s.totalTimeSec/60)} মিনিট</b><br>
+            সঠিক উত্তর: <b style="color:var(--accent)">${s.correct}</b> &nbsp; ভুল উত্তর: <b style="color:var(--red)">${s.wrong}</b><br>
+            মোট অধ্যায়: <b>৩টি</b> (${DATA.length}টি প্রশ্ন)
+          </div>
+          <hr class="sep">
+          <div class="panel-title" style="margin-bottom:8px; font-size:13.5px">সাম্প্রতিক সেশন</div>
+          ${recentSessions.length? recentSessions.map(sess=>`
+            <div style="font-size:12.5px; padding:6px 0; border-bottom:1px solid var(--line)">
+              <b>${sess.topic}</b> · ${fmtDate(sess.date)} · ${Math.round((sess.durationSec||0)/60)} মিনিট
+            </div>`).join("") : `<div class="small-muted">এখনো কোনো সেশন রেকর্ড হয়নি।</div>`}
+        </div>
+        <div class="panel">
+          <div class="panel-title" style="margin-bottom:8px">দ্রুত অ্যাকশন</div>
+          <div style="display:flex; flex-direction:column; gap:8px">
+            <button class="btn primary" data-nav="quick">⚡ দ্রুত রিভিশন শুরু করুন</button>
+            <button class="btn" data-nav="quiz">📝 কুইজ শুরু করুন</button>
+            <button class="btn" data-nav="revision">🔴 রিভিশন ডিউ দেখুন</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  wireNavButtons(main);
+}
+
+function renderTodayPlan(){
+  const s = overallStats();
+  const weak = weakTopics();
+  const tasks = [];
+  if(s.overdue>0) tasks.push({id:"overdue", label:`মেয়াদোত্তীর্ণ রিভিশন (${s.overdue}টি)`, time:Math.min(30, s.overdue*2)});
+  if(s.dueToday>0) tasks.push({id:"due", label:`আজকের রিভিশন (${s.dueToday}টি)`, time:Math.min(20, s.dueToday*2)});
+  if(weak[0]) tasks.push({id:"weak", label:`দুর্বল বিষয়: ${weak[0].title}`, time:20});
+  const rm = repeatedMistakes();
+  if(rm.length) tasks.push({id:"mistakes", label:`বারবার ভুল প্রশ্ন (${rm.length}টি)`, time:15});
+  tasks.push({id:"new", label:"নতুন প্রশ্ন অনুশীলন", time:15});
+  const done = DB.studyPlanDone[todayStr()] || [];
+  return `<div>${tasks.map(t=>`
+    <label style="display:flex; align-items:center; gap:9px; padding:7px 0; font-size:13.5px; cursor:pointer">
+      <input type="checkbox" data-plan-task="${t.id}" ${done.includes(t.id)?'checked':''} style="width:16px;height:16px">
+      <span style="${done.includes(t.id)?'text-decoration:line-through;color:var(--ink-soft)':''}">${t.label}</span>
+      <span class="small-muted" style="margin-left:auto">${t.time} মিনিট</span>
+    </label>`).join("")}</div>`;
+}
+
+function wireNavButtons(main){
+  $$("[data-nav]", main).forEach(b=>b.addEventListener("click", ()=> setView(b.dataset.nav)));
+  $$("[data-open-q]", main).forEach(b=>b.addEventListener("click", ()=>{
+    const q = DATA.find(x=>x.id===b.dataset.openQ);
+    setView("topicDetail", {chapter:q.chapter, scrollTo:q.id});
+  }));
+  $$("[data-plan-task]", main).forEach(cb=>cb.addEventListener("change", ()=>{
+    const t = todayStr();
+    if(!DB.studyPlanDone[t]) DB.studyPlanDone[t] = [];
+    const id = cb.dataset.planTask;
+    if(cb.checked){ if(!DB.studyPlanDone[t].includes(id)) DB.studyPlanDone[t].push(id); }
+    else { DB.studyPlanDone[t] = DB.studyPlanDone[t].filter(x=>x!==id); }
+    save();
+  }));
+}
+
+// ===========================================================
+// STUDY MATERIAL VIEW (chapter overviews, expandable)
+// ===========================================================
+const CHAPTER_SUMMARY = {
+  ch1: `অধ্যায়টি নৈতিকতার দার্শনিক ভিত্তি নিয়ে আলোচনা করে — উদ্দেশ্য নৈতিকতা (Teleological Ethics), কান্টের শর্তহীন আদেশ ও কর্তব্যের নৈতিকতা, উপযোগবাদ (বেন্থাম ও মিল), প্লেটোর সদগুণ তত্ত্ব, এরিস্টটলের গোল্ডেন মিন, এবং প্রাসঙ্গিক দার্শনিক ও তাঁদের গ্রন্থসমূহ (Republic, On Liberty, Utilitarianism ইত্যাদি)। মোট ২৯টি MCQ এই অধ্যায়ে রয়েছে, মূলত ৩৫তম থেকে ৪৭তম বিসিএস পরীক্ষার প্রশ্ন থেকে সংকলিত।`,
+  ch2: `এই অধ্যায়ে মূল্যবোধের সংজ্ঞা, উৎস (নৈতিক চেতনা), বৈশিষ্ট্য (বিভিন্নতা, পরিবর্তনশীলতা, আপেক্ষিকতা), সামাজিকীকরণের মাধ্যমে মূল্যবোধের বিকাশ, গণতান্ত্রিক ও ব্যক্তিগত মূল্যবোধ, এবং সংস্কৃতির উপাদানসমূহ আলোচিত হয়েছে। মোট ২৭টি MCQ, ৩৫তম থেকে ৫০তম বিসিএস পরীক্ষা থেকে সংকলিত।`,
+  ch3: `এই অধ্যায় সুশাসনের ধারণা (বিশ্বব্যাংক কর্তৃক উদ্ভাবিত), সুশাসনের স্তম্ভ ও উপাদান (স্বচ্ছতা, জবাবদিহিতা, অংশগ্রহণ, আইনের শাসন), UNDP-র সংজ্ঞা, দুর্নীতিবিরোধী জাতিসংঘ কনভেনশন (UNCAC), জাতীয় শুদ্ধাচার কৌশল, বাংলাদেশের সংবিধানে সুশাসন সংক্রান্ত অনুচ্ছেদ, এবং স্বার্থের সংঘাত (Conflict of Interest) নিয়ে আলোচনা করে। মোট ৫৫টি MCQ, ৩৫তম থেকে ৫০তম বিসিএস পরীক্ষা থেকে সংকলিত — এটি এই বইয়ের সবচেয়ে বড় অধ্যায়।`
+};
+
+function renderStudy(main){
+  const topics = topicList();
+  main.innerHTML = `
+    <div class="page-head">
+      <div class="page-title">📚 স্টাডি ম্যাটেরিয়াল</div>
+      <div class="page-sub">প্রতিটি অধ্যায়ের সংক্ষিপ্ত পরিচিতি ও উৎস তথ্য — সম্পূর্ণ প্রশ্নব্যাংকের জন্য "বিষয়/প্রশ্নব্যাংক" এ যান।</div>
+    </div>
+    ${topics.map(t=>{
+      const st = topicStats(t.key);
+      return `
+      <div class="study-sec">
+        <div class="study-sec-head" data-toggle-sec="${t.key}">
+          <div>
+            <div class="study-sec-title">${t.title}</div>
+            <div class="small-muted">${t.questions.length}টি প্রশ্ন · অগ্রগতি ${st.progressPct}% · <span class="pill ${st.strength==='Mastered'||st.strength==='Strong'?'':'amber'}">${st.strength}</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <button class="btn sm primary" data-nav-topic="${t.key}">প্রশ্ন অনুশীলন</button>
+            <span class="small-muted">▾</span>
+          </div>
+        </div>
+        <div class="study-sec-body" id="secbody-${t.key}" style="display:none">
+          <p>${CHAPTER_SUMMARY[t.key]}</p>
+          <div class="strength-bar"><div class="strength-fill" style="width:${st.progressPct}%"></div></div>
+          <div class="small-muted" style="margin-top:6px">Source: morality.pdf — পৃষ্ঠা ${Math.min(...t.questions.map(q=>q.page))}–${Math.max(...t.questions.map(q=>q.page))}</div>
+        </div>
+      </div>`;
+    }).join("")}
+  `;
+  $$("[data-toggle-sec]", main).forEach(h=>h.addEventListener("click", (e)=>{
+    if(e.target.closest("[data-nav-topic]")) return;
+    const body = $("#secbody-"+h.dataset.toggleSec);
+    body.style.display = body.style.display === "none" ? "block" : "none";
+  }));
+  $$("[data-nav-topic]", main).forEach(b=>b.addEventListener("click", ()=> setView("topicDetail", {chapter:b.dataset.navTopic})));
+}
+
+// ===========================================================
+// TOPICS OVERVIEW (cards)
+// ===========================================================
+function renderTopics(main){
+  const topics = topicList();
+  main.innerHTML = `
+    <div class="page-head">
+      <div class="page-title">📖 বিষয় / প্রশ্নব্যাংক</div>
+      <div class="page-sub">অধ্যায় নির্বাচন করে সব প্রশ্ন ব্রাউজ করুন ও অনুশীলন করুন।</div>
+    </div>
+    <div class="grid grid-3">
+      ${topics.map(t=>{
+        const st = topicStats(t.key);
+        return `<div class="topic-card">
+          <div class="topic-card-head"><div class="topic-card-title">${t.title.split(":")[0]}</div><span class="pill">${st.progressPct}%</span></div>
+          <div style="font-size:13px; color:var(--ink-soft); margin-bottom:8px">${t.title.split(":")[1]}</div>
+          <div class="strength-bar"><div class="strength-fill" style="width:${st.progressPct}%"></div></div>
+          <div class="small-muted" style="margin:8px 0 12px">${t.questions.length}টি প্রশ্ন · ${st.strength} · সঠিক ${st.acc}%</div>
+          <button class="btn primary" style="width:100%" data-nav-topic="${t.key}">অনুশীলন শুরু করুন →</button>
+        </div>`;
+      }).join("")}
+    </div>
+  `;
+  $$("[data-nav-topic]", main).forEach(b=>b.addEventListener("click", ()=> setView("topicDetail", {chapter:b.dataset.navTopic})));
+}
+
+// ===========================================================
+// TOPIC DETAIL — full question list w/ filters + search
+// ===========================================================
+function renderTopicDetail(main){
+  const chKey = VSTATE.chapter;
+  const chQuestions = DATA.filter(q=>q.chapter===chKey);
+  const title = chQuestions[0]?.chapterTitle || "";
+  const st = topicStats(chKey);
+
+  VSTATE.filters = VSTATE.filters || {status:"all", search:""};
+
+  main.innerHTML = `
+    <div class="page-head">
+      <button class="btn ghost sm" data-nav="topics">← সব বিষয়</button>
+      <div class="page-title" style="margin-top:8px">${title}</div>
+      <div class="page-sub">${chQuestions.length}টি প্রশ্ন · অগ্রগতি ${st.progressPct}% · সঠিক উত্তরের হার ${st.acc}%</div>
+    </div>
+    <div class="searchbar"><span>🔍</span><input id="topicSearch" placeholder="এই অধ্যায়ে প্রশ্ন খুঁজুন…" value="${VSTATE.filters.search}"></div>
+    <div class="filter-row" id="statusFilters">
+      ${[["all","সব"],["new","⚪ নতুন"],["learning","🔵 শিখছি"],["weak","🟡 দুর্বল"],["due","🔴 রিভিশন প্রয়োজন"],["mastered","🟢 আয়ত্তে"]].map(([k,l])=>
+        `<button class="chip-toggle ${VSTATE.filters.status===k?'active':''}" data-status="${k}">${l}</button>`).join("")}
+    </div>
+    <div id="qlist"></div>
+  `;
+  const listBox = $("#qlist", main);
+
+  function draw(){
+    let items = chQuestions.filter(q=>{
+      const p = getProg(q.id);
+      const st2 = p.status;
+      if(VSTATE.filters.status !== "all"){
+        if(VSTATE.filters.status === "due"){ if(!(isOverdue(p)||isDueToday(p)||st2==="due")) return false; }
+        else if(st2 !== VSTATE.filters.status) return false;
+      }
+      if(VSTATE.filters.search){
+        const s = VSTATE.filters.search.toLowerCase();
+        const hay = (q.question + Object.values(q.options).join(" ") + (q.explanation||"")).toLowerCase();
+        if(!hay.includes(s)) return false;
+      }
+      return true;
+    });
+    listBox.innerHTML = items.length ? items.map(q=>questionCardHTML(q)).join("") : emptyState("এই ফিল্টারে কোনো প্রশ্ন পাওয়া যায়নি।");
+    wireQuestionCards(listBox);
+    if(VSTATE.scrollTo){
+      const el = document.getElementById("q-"+VSTATE.scrollTo);
+      if(el){ el.scrollIntoView({behavior:"smooth", block:"center"}); el.style.borderColor="var(--accent)"; }
+      VSTATE.scrollTo = null;
+    }
+  }
+  $("#topicSearch", main).addEventListener("input", (e)=>{ VSTATE.filters.search = e.target.value; draw(); });
+  $$("#statusFilters .chip-toggle", main).forEach(b=>b.addEventListener("click", ()=>{
+    VSTATE.filters.status = b.dataset.status;
+    $$("#statusFilters .chip-toggle", main).forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    draw();
+  }));
+  $("[data-nav]", main).addEventListener("click", ()=> setView("topics"));
+  draw();
+  recordStudyDay();
+}
+
+function emptyState(msg, emoji="🔍"){
+  return `<div class="empty-state"><div class="emoji">${emoji}</div><div>${msg}</div></div>`;
+}
+
+// ===========================================================
+// QUESTION CARD (shared component)
+// ===========================================================
+function highlightSearch(text, term){
+  if(!term) return escapeHtml(text);
+  const esc = escapeHtml(text);
+  const t = escapeHtml(term);
+  try{
+    return esc.replace(new RegExp(`(${t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`,"gi"), "<mark>$1</mark>");
+  }catch(e){ return esc; }
+}
+
+function statusChip(status){
+  const map = {
+    new:["⚪ নতুন","status-new"], learning:["🔵 শিখছি","status-learning"], weak:["🟡 দুর্বল","status-weak"],
+    due:["🔴 রিভিশন প্রয়োজন","status-due"], mastered:["🟢 আয়ত্তে","status-mastered"]
+  };
+  const [label,cls] = map[status] || map.new;
+  return `<span class="status-chip ${cls}">${label}</span>`;
+}
+
+function questionCardHTML(q, opts={}){
+  const p = getProg(q.id);
+  const answered = p.lastResult !== null && opts.forceUnanswered !== true;
+  const searchTerm = (VSTATE.filters && VSTATE.filters.search) || "";
+  return `
+  <div class="q-card" id="q-${q.id}" data-qid="${q.id}">
+    <div class="q-top">
+      <div class="q-meta">
+        <span class="q-num">প্রশ্ন ${q.num}</span>
+        ${q.tag? `<span class="pill blue">${q.tag}</span>`:''}
+        ${statusChip(p.status)}
+        ${p.bookmarked? `<span class="pill gold">⭐ বুকমার্ক</span>`:''}
+        ${p.wrong>=2? `<span class="pill red">পুনরাবৃত্ত ভুল ×${p.wrong}</span>`:''}
+      </div>
+      <div class="small-muted">Source: p.${q.page}</div>
+    </div>
+    <div class="q-text">${highlightSearch(q.question, searchTerm)}</div>
+    <div class="options" data-answered="${answered?1:0}">
+      ${Object.entries(q.options).map(([key,val])=>{
+        let cls = "opt";
+        if(answered){
+          cls += " disabled";
+          if(key === q.answer) cls += " correct";
+          else if(key === p.lastSelected) cls += " incorrect";
+        } else if(key === p.lastSelected){
+          cls += " selected";
+        }
+        return `<div class="${cls}" data-opt="${key}">
+          <span class="opt-key">${key}</span><span>${highlightSearch(val, searchTerm)}</span>
+        </div>`;
+      }).join("")}
+    </div>
+    <div class="reveal-area">
+      ${answered ? questionRevealHTML(q,p) : ""}
+    </div>
+  </div>`;
+}
+
+function questionRevealHTML(q,p){
+  const correct = p.lastSelected === q.answer;
+  return `
+    <div class="q-result-banner ${correct?'ok':'no'}">${correct? '✓ সঠিক উত্তর!' : '✗ ভুল হয়েছে।'} সঠিক উত্তর: (${q.answer}) ${escapeHtml(q.options[q.answer])}</div>
+    ${q.explanation? `<div class="explain-box"><b>ব্যাখ্যা:</b> ${escapeHtml(q.explanation)}</div>` : ""}
+    ${q.flag? `<div class="flag-box">⚠ ${escapeHtml(q.flag)}</div>` : ""}
+    <div class="source-line">Source: morality.pdf — page ${q.page} · প্রশ্ন আইডি: ${q.id}${p.nextReview? ` · পরবর্তী রিভিশন: ${fmtDate(p.nextReview)}`:''}</div>
+    <div class="q-actions">
+      <button class="act-btn ${p.status==='mastered'?'on mastered':''}" data-act="mastered" data-qid="${q.id}">🟢 মাস্টার্ড</button>
+      <button class="act-btn ${(p.status==='due'||p.status==='weak')?'on revision':''}" data-act="revision" data-qid="${q.id}">🔴 রিভিশন দরকার</button>
+      <button class="act-btn ${p.bookmarked?'on bm':''}" data-act="bookmark" data-qid="${q.id}">⭐ বুকমার্ক</button>
+      <button class="act-btn" data-act="note" data-qid="${q.id}">📝 নোট</button>
+      <button class="act-btn" data-act="retry" data-qid="${q.id}">↺ আবার চেষ্টা</button>
+    </div>
+    <div class="note-box" id="note-${q.id}" style="display:${p.note? 'block':'none'}">
+      <div class="note-label">আমার নোট (Source Content নয়)</div>
+      <textarea data-note-input="${q.id}" placeholder="ব্যক্তিগত নোট লিখুন…">${escapeHtml(p.note||"")}</textarea>
+    </div>
+  `;
+}
+
+function wireQuestionCards(root){
+  $$(".q-card", root).forEach(card=>{
+    const qid = card.dataset.qid;
+    const q = DATA.find(x=>x.id===qid);
+    const optsWrap = $(".options", card);
+    if(optsWrap.dataset.answered === "0"){
+      $$(".opt", optsWrap).forEach(opt=>{
+        opt.addEventListener("click", ()=>{
+          selectAnswer(q, opt.dataset.opt, card);
+        });
+      });
+    }
+    wireRevealActions(card, q);
+  });
+}
+
+function selectAnswer(q, key, card){
+  const p = getProg(q.id);
+  p.attempts += 1;
+  p.lastSelected = key;
+  p.lastResult = key === q.answer ? "correct" : "incorrect";
+  if(key === q.answer) p.correct += 1; else p.wrong += 1;
+  scheduleNext(q.id, key===q.answer ? "correct-high" : "incorrect");
+  recordStudyDay();
+  render_ifQuizSessionActive(q, key===q.answer);
+  // full safe re-render avoids duplicate event listeners on other cards
+  render();
+  const el = document.getElementById("q-"+q.id);
+  if(el) el.scrollIntoView({behavior:"smooth", block:"nearest"});
+}
+
+function wireRevealActions(card, q){
+  $$("[data-act]", card).forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const act = btn.dataset.act;
+      const p = getProg(q.id);
+      if(act === "mastered"){ manualStatus(q.id, p.status==='mastered' ? "learning" : "mastered"); toast(p.status==='mastered'?"পুনরায় শেখার তালিকায় যোগ হলো":"আয়ত্তে এসেছে হিসেবে চিহ্নিত হলো"); }
+      if(act === "revision"){ manualStatus(q.id, p.status==='due' ? "learning" : "due"); toast("রিভিশন স্ট্যাটাস আপডেট হয়েছে"); }
+      if(act === "bookmark"){ p.bookmarked = !p.bookmarked; save(); toast(p.bookmarked? "বুকমার্ক যোগ হলো":"বুকমার্ক সরানো হলো"); }
+      if(act === "note"){ const nb = document.getElementById("note-"+q.id); nb.style.display = nb.style.display==="none"?"block":"none"; }
+      if(act === "retry"){ p.lastResult = null; p.lastSelected = null; save(); }
+      render();
+    });
+  });
+  $$("[data-note-input]", card).forEach(ta=>{
+    ta.addEventListener("blur", ()=>{
+      const p = getProg(ta.dataset.noteInput);
+      p.note = ta.value;
+      save();
+    });
+  });
+}
+
+// hook used by quiz session mode (defined later, no-op otherwise)
+function render_ifQuizSessionActive(q, correct){
+  if(VIEW === "quizSession" && VSTATE.session){
+    VSTATE.session.answers[q.id] = correct;
+  }
+  if(VIEW === "focusSession" && VSTATE.session){
+    VSTATE.session.answers[q.id] = correct;
+  }
+}
+
+function attachGlobalQuestionHandlers(main){
+  wireQuestionCards(main);
+}
+
+// ===========================================================
+// REVISION DUE
+// ===========================================================
+function renderRevision(main){
+  const list = allProgressList().filter(x=> isOverdue(x.p) || isDueToday(x.p) || x.p.status==="due");
+  list.sort((a,b)=> (a.p.nextReview||"").localeCompare(b.p.nextReview||""));
+  main.innerHTML = `
+    <div class="page-head">
+      <div class="page-title">🔴 রিভিশন ডিউ</div>
+      <div class="page-sub">${list.length}টি প্রশ্ন এখন রিভিশনের অপেক্ষায়। অগ্রাধিকার: মেয়াদোত্তীর্ণ → আজকের রিভিশন → বারবার ভুল।</div>
+    </div>
+    ${list.length? `<div style="margin-bottom:14px"><button class="btn primary" id="startRevisionQuiz">▶ এই প্রশ্নগুলো নিয়ে কুইজ শুরু করুন</button></div>`:''}
+    <div>${list.length ? list.map(({q,p})=>`
+      <div style="margin-bottom:2px">
+        ${isOverdue(p)? `<span class="pill red" style="margin-bottom:6px;display:inline-block">মেয়াদোত্তীর্ণ · ${fmtDate(p.nextReview)}</span>` : `<span class="pill amber" style="margin-bottom:6px;display:inline-block">আজ ডিউ</span>`}
+        ${questionCardHTML(q)}
+      </div>`).join("") : emptyState("এখন রিভিশনের জন্য কোনো প্রশ্ন নেই। দারুণ চলছে!","🎉")}
+    </div>
+  `;
+  wireQuestionCards(main);
+  const btn = $("#startRevisionQuiz", main);
+  if(btn) btn.addEventListener("click", ()=> startQuizSession({pool:list.map(x=>x.q.id), label:"রিভিশন ডিউ কুইজ"}));
+}
+
+// ===========================================================
+// MY MISTAKES
+// ===========================================================
+function renderMistakes(main){
+  const list = allProgressList().filter(x=>x.p.wrong>0).sort((a,b)=>b.p.wrong-a.p.wrong);
+  main.innerHTML = `
+    <div class="page-head">
+      <div class="page-title">❌ আমার ভুলগুলো</div>
+      <div class="page-sub">যেসব প্রশ্নে অন্তত একবার ভুল উত্তর দেওয়া হয়েছে, বারবার ভুলগুলো উপরে দেখানো হয়েছে।</div>
+    </div>
+    ${list.length? `<div style="margin-bottom:14px"><button class="btn primary" id="startMistakeQuiz">▶ ভুল প্রশ্নগুলো নিয়ে কুইজ শুরু করুন</button></div>`:''}
+    ${list.length ? list.map(({q,p})=>`
+      <div class="panel" style="padding:14px 18px">
+        <div class="q-top">
+          <div class="q-meta">
+            <span class="q-num">প্রশ্ন ${q.num}</span> <span class="small-muted">— ${q.chapterTitle.split(':')[1]}</span>
+            ${p.wrong>=2? `<span class="pill red">Repeated Mistake ×${p.wrong}</span>`:'<span class="pill amber">১ বার ভুল</span>'}
+          </div>
+          <div class="small-muted">সঠিক ${p.correct} · ভুল ${p.wrong} · হার ${accuracy(p)??'—'}%</div>
+        </div>
+        <div style="font-size:14px; font-weight:700; margin:6px 0">${escapeHtml(q.question)}</div>
+        <div class="small-muted">শেষ ভুল: ${fmtDate(p.lastReviewed)} · পরবর্তী রিভিশন: ${fmtDate(p.nextReview)}${p.note? ' · 📝 ব্যক্তিগত নোট আছে':''}</div>
+        <button class="btn sm" style="margin-top:8px" data-open-q="${q.id}">বিস্তারিত দেখুন</button>
+      </div>
+    `).join("") : emptyState("এখনও কোনো ভুল রেকর্ড হয়নি — চমৎকার!","👏")}
+  `;
+  $$("[data-open-q]", main).forEach(b=>b.addEventListener("click", ()=>{
+    const q = DATA.find(x=>x.id===b.dataset.openQ);
+    setView("topicDetail", {chapter:q.chapter, scrollTo:q.id});
+  }));
+  const btn = $("#startMistakeQuiz", main);
+  if(btn) btn.addEventListener("click", ()=> startQuizSession({pool:list.map(x=>x.q.id), label:"ভুল প্রশ্ন কুইজ"}));
+}
+
+// ===========================================================
+// BOOKMARKS
+// ===========================================================
+function renderBookmarks(main){
+  const list = allProgressList().filter(x=>x.p.bookmarked);
+  main.innerHTML = `
+    <div class="page-head">
+      <div class="page-title">⭐ বুকমার্ক করা প্রশ্ন</div>
+      <div class="page-sub">${list.length}টি প্রশ্ন বুকমার্ক করা হয়েছে, দ্রুত অ্যাক্সেসের জন্য।</div>
+    </div>
+    ${list.length ? list.map(({q})=>questionCardHTML(q)).join("") : emptyState("এখনও কোনো প্রশ্ন বুকমার্ক করা হয়নি।","⭐")}
+  `;
+  wireQuestionCards(main);
+}
+
+// ===========================================================
+// QUIZ MODE — setup screen
+// ===========================================================
+function renderQuizSetup(main){
+  const topics = topicList();
+  main.innerHTML = `
+    <div class="page-head">
+      <div class="page-title">📝 কুইজ মোড</div>
+      <div class="page-sub">স্কোপ, প্রশ্ন পুল, সংখ্যা ও ক্রম নির্বাচন করে কুইজ শুরু করুন। উত্তর দেওয়ার সাথে সাথেই সঠিক/ভুল দেখানো হবে।</div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">স্কোপ (Scope)</div>
+      <div class="filter-row" id="qz-scope">
+        <button class="chip-toggle active" data-scope="all">পুরো প্রশ্নব্যাংক</button>
+        ${topics.map(t=>`<button class="chip-toggle" data-scope="${t.key}">${t.title.split(':')[0]}</button>`).join("")}
+      </div>
+      <div class="panel-title" style="margin-top:14px">প্রশ্ন পুল (Question Pool)</div>
+      <div class="filter-row" id="qz-pool">
+        <button class="chip-toggle active" data-pool="all">সব প্রশ্ন</button>
+        <button class="chip-toggle" data-pool="due">রিভিশন ডিউ</button>
+        <button class="chip-toggle" data-pool="wrong">ভুল প্রশ্ন</button>
+        <button class="chip-toggle" data-pool="unanswered">উত্তর দেওয়া হয়নি</button>
+        <button class="chip-toggle" data-pool="bookmarked">বুকমার্ক করা</button>
+        <button class="chip-toggle" data-pool="mastered">আয়ত্তে আসা</button>
+        <button class="chip-toggle" data-pool="weak">দুর্বল</button>
+      </div>
+      <div class="panel-title" style="margin-top:14px">প্রশ্ন সংখ্যা</div>
+      <div class="filter-row" id="qz-count">
+        ${[10,20,30,50,"সব"].map((n,i)=>`<button class="chip-toggle ${i===1?'active':''}" data-count="${n==='সব'?'all':n}">${n}</button>`).join("")}
+      </div>
+      <div class="panel-title" style="margin-top:14px">ক্রম</div>
+      <div class="filter-row" id="qz-order">
+        <button class="chip-toggle" data-order="sequential">ক্রমানুসারে</button>
+        <button class="chip-toggle active" data-order="random">এলোমেলো</button>
+      </div>
+      <label style="display:flex; align-items:center; gap:8px; margin-top:12px; font-size:13.5px">
+        <input type="checkbox" id="qz-shuffleOpts" checked style="width:16px;height:16px"> অপশনও এলোমেলো করুন
+      </label>
+      <div style="margin-top:18px"><button class="btn primary" id="qz-start">▶ কুইজ শুরু করুন</button></div>
+    </div>
+  `;
+  const state = {scope:"all", pool:"all", count:20, order:"random", shuffleOpts:true};
+  $$("#qz-scope [data-scope]", main).forEach(b=>b.addEventListener("click", ()=>{ setActive(main,"#qz-scope",b); state.scope=b.dataset.scope; }));
+  $$("#qz-pool [data-pool]", main).forEach(b=>b.addEventListener("click", ()=>{ setActive(main,"#qz-pool",b); state.pool=b.dataset.pool; }));
+  $$("#qz-count [data-count]", main).forEach(b=>b.addEventListener("click", ()=>{ setActive(main,"#qz-count",b); state.count=b.dataset.count; }));
+  $$("#qz-order [data-order]", main).forEach(b=>b.addEventListener("click", ()=>{ setActive(main,"#qz-order",b); state.order=b.dataset.order; }));
+  $("#qz-shuffleOpts", main).addEventListener("change", e=> state.shuffleOpts = e.target.checked);
+  $("#qz-start", main).addEventListener("click", ()=>{
+    let pool = buildPool(state.scope, state.pool);
+    if(state.order === "random") pool = shuffle(pool);
+    if(state.count !== "all") pool = pool.slice(0, parseInt(state.count));
+    if(!pool.length){ toast("এই ফিল্টারে কোনো প্রশ্ন পাওয়া যায়নি।"); return; }
+    startQuizSession({pool, shuffleOpts:state.shuffleOpts, label:"কুইজ"});
+  });
+}
+function setActive(main, sel, btn){ $$(sel+" .chip-toggle", main).forEach(x=>x.classList.remove("active")); btn.classList.add("active"); }
+function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+function buildPool(scope, poolType){
+  let base = scope==="all" ? DATA : DATA.filter(q=>q.chapter===scope);
+  base = base.filter(q=>{
+    const p = getProg(q.id);
+    switch(poolType){
+      case "due": return isOverdue(p)||isDueToday(p)||p.status==="due";
+      case "wrong": return p.wrong>0;
+      case "unanswered": return p.attempts===0;
+      case "bookmarked": return p.bookmarked;
+      case "mastered": return p.status==="mastered";
+      case "weak": return p.status==="weak";
+      default: return true;
+    }
+  });
+  return base.map(q=>q.id);
+}
+
+// ===========================================================
+// QUIZ SESSION (shared engine for quiz/exam/revision-quiz)
+// ===========================================================
+function startQuizSession({pool, shuffleOpts=true, label="কুইজ", examMode=false, timeLimitSec=null}){
+  const state = {
+    session: {
+      ids: pool, idx:0, answers:{}, marked:{}, selections:{}, startedAt: Date.now(),
+      shuffleOpts, examMode, label, timeLimitSec,
+      optOrder: {} // per-question shuffled option order
+    }
+  };
+  setView("quizSession", state);
+}
+
+function currentSessionQuestion(){
+  const s = VSTATE.session;
+  return DATA.find(q=>q.id === s.ids[s.idx]);
+}
+
+function renderQuizSession(main){
+  const s = VSTATE.session;
+  if(!s){ setView("quiz"); return; }
+  const q = currentSessionQuestion();
+  const total = s.ids.length;
+  const answeredCount = Object.keys(s.answers).length;
+
+  if(!s.optOrder[q.id]){
+    const keys = Object.keys(q.options);
+    s.optOrder[q.id] = s.shuffleOpts ? shuffle(keys) : keys;
+  }
+  const order = s.optOrder[q.id];
+  const isAnswered = s.selections[q.id] !== undefined;
+  const revealed = !s.examMode && isAnswered;
+
+  main.innerHTML = `
+    <div class="focus-header">
+      <div>
+        <div class="page-title" style="font-size:17px">${s.examMode?'🧪':'📝'} ${s.label} — প্রশ্ন ${s.idx+1}/${total}</div>
+        <div class="small-muted">উত্তর দেওয়া হয়েছে ${answeredCount}/${total}</div>
+      </div>
+      <div style="text-align:right">
+        ${s.timeLimitSec? `<div class="timer-display" id="examTimer">--:--</div>` : ""}
+        <button class="btn sm" id="quitSession">সমাপ্ত করুন</button>
+      </div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" style="width:${((s.idx+1)/total)*100}%"></div></div>
+
+    <div class="q-card">
+      <div class="q-top">
+        <div class="q-meta"><span class="q-num">প্রশ্ন ${q.num}</span> ${q.tag?`<span class="pill blue">${q.tag}</span>`:''}</div>
+        <button class="act-btn ${s.marked[q.id]?'on':''}" id="markReview">${s.marked[q.id]?'✓ মার্ক করা হয়েছে':'🚩 রিভিউর জন্য মার্ক করুন'}</button>
+      </div>
+      <div class="q-text">${escapeHtml(q.question)}</div>
+      <div class="options">
+        ${order.map(key=>{
+          let cls = "opt";
+          const sel = s.selections[q.id];
+          if(revealed){
+            cls += " disabled";
+            if(key===q.answer) cls += " correct";
+            else if(key===sel) cls += " incorrect";
+          } else if(key===sel){ cls += " selected"; }
+          return `<div class="${cls}" data-opt="${key}"><span class="opt-key">${key}</span><span>${escapeHtml(q.options[key])}</span></div>`;
+        }).join("")}
+      </div>
+      ${revealed ? `<div class="q-result-banner ${sel_correct(q,s)?'ok':'no'}">${sel_correct(q,s)?'✓ সঠিক!':'✗ ভুল।'} সঠিক উত্তর: (${q.answer}) ${escapeHtml(q.options[q.answer])}</div>
+        ${q.explanation?`<div class="explain-box"><b>ব্যাখ্যা:</b> ${escapeHtml(q.explanation)}</div>`:''}` : ''}
+    </div>
+
+    <div style="display:flex; justify-content:space-between; margin-top:16px">
+      <button class="btn" id="prevQ" ${s.idx===0?'disabled':''}>← আগেরটি</button>
+      <div style="display:flex; gap:8px">
+        <div class="small-muted" style="align-self:center">Enter: পরবর্তী</div>
+      </div>
+      <button class="btn primary" id="nextQ">${s.idx===total-1? 'জমা দিন ✓' : 'পরবর্তী →'}</button>
+    </div>
+    <div class="panel" style="margin-top:18px">
+      <div class="panel-title" style="font-size:13px; margin-bottom:8px">প্রশ্ন নেভিগেশন</div>
+      <div style="display:flex; flex-wrap:wrap; gap:6px">
+        ${s.ids.map((id,i)=>{
+          let bg = "var(--line)";
+          if(s.selections[id]!==undefined) bg = "var(--accent-soft)";
+          if(s.marked[id]) bg = "var(--amber-soft)";
+          if(i===s.idx) bg = "var(--accent)";
+          return `<button class="btn sm" data-goto="${i}" style="min-width:34px; background:${bg}; ${i===s.idx?'color:var(--accent-ink)':''}">${i+1}</button>`;
+        }).join("")}
+      </div>
+    </div>
+  `;
+
+  if(!s.examMode){
+    $$(".opt", main).forEach(opt=>{
+      if(opt.classList.contains("disabled")) return;
+      opt.addEventListener("click", ()=>{
+        s.selections[q.id] = opt.dataset.opt;
+        const correct = opt.dataset.opt === q.answer;
+        s.answers[q.id] = correct;
+        // also update global progress + SRS
+        const p = getProg(q.id);
+        p.attempts+=1; p.lastSelected = opt.dataset.opt; p.lastResult = correct?"correct":"incorrect";
+        if(correct) p.correct+=1; else p.wrong+=1;
+        scheduleNext(q.id, correct?"correct-high":"incorrect");
+        render();
+      });
+    });
+  } else {
+    $$(".opt", main).forEach(opt=>{
+      opt.addEventListener("click", ()=>{
+        s.selections[q.id] = opt.dataset.opt;
+        render();
+      });
+    });
+  }
+  $("#markReview", main).addEventListener("click", ()=>{ s.marked[q.id] = !s.marked[q.id]; render(); });
+  $("#prevQ", main).addEventListener("click", ()=>{ s.idx = Math.max(0, s.idx-1); render(); });
+  $("#nextQ", main).addEventListener("click", ()=>{
+    if(s.idx === total-1){ finishSession(); return; }
+    s.idx++; render();
+  });
+  $$("[data-goto]", main).forEach(b=>b.addEventListener("click", ()=>{ s.idx = parseInt(b.dataset.goto); render(); }));
+  $("#quitSession", main).addEventListener("click", ()=>{ if(confirm("সেশন সমাপ্ত করতে চান?")) finishSession(); });
+
+  if(s.timeLimitSec){
+    if(!s.deadline) s.deadline = Date.now() + s.timeLimitSec*1000;
+    clearInterval(window._examTick);
+    window._examTick = setInterval(()=>{
+      const remain = Math.max(0, Math.round((s.deadline - Date.now())/1000));
+      const el = document.getElementById("examTimer");
+      if(el) el.textContent = `${String(Math.floor(remain/60)).padStart(2,'0')}:${String(remain%60).padStart(2,'0')}`;
+      if(remain<=0){ clearInterval(window._examTick); finishSession(); }
+    }, 1000);
+  }
+}
+function sel_correct(q,s){ return s.selections[q.id] === q.answer; }
+
+function finishSession(){
+  clearInterval(window._examTick);
+  const s = VSTATE.session;
+  const total = s.ids.length;
+  let correct=0, wrong=0, unanswered=0;
+  const wrongIds = [];
+  s.ids.forEach(id=>{
+    if(s.selections[id]===undefined){ unanswered++; return; }
+    const q = DATA.find(x=>x.id===id);
+    if(s.selections[id]===q.answer) correct++; else { wrong++; wrongIds.push(id); }
+    if(s.examMode){
+      const p = getProg(id);
+      p.attempts+=1; p.lastSelected = s.selections[id]; p.lastResult = s.selections[id]===q.answer?"correct":"incorrect";
+      if(s.selections[id]===q.answer) p.correct+=1; else p.wrong+=1;
+      scheduleNext(id, s.selections[id]===q.answer?"correct-high":"incorrect");
+    }
+  });
+  const timeSec = Math.round((Date.now()-s.startedAt)/1000);
+  const record = {id:uid(), date:todayStr(), scope:s.label, count:total, correct, wrong, unanswered, timeSec};
+  DB.quizHistory.push(record);
+  DB.sessions.push({id:uid(), date:todayStr(), topic:s.label, durationSec:timeSec, correct, wrong, attempted: total-unanswered});
+  recordStudyDay();
+  save();
+  VSTATE.result = {total, correct, wrong, unanswered, timeSec, wrongIds, label:s.label};
+  setView("quizResults", VSTATE);
+}
+
+function renderQuizResults(main){
+  const r = VSTATE.result;
+  if(!r){ setView("dashboard"); return; }
+  const pct = r.total? Math.round((r.correct/r.total)*100) : 0;
+  const wrongQs = r.wrongIds.map(id=>DATA.find(q=>q.id===id));
+  const weakCh = {};
+  wrongQs.forEach(q=>{ weakCh[q.chapterTitle] = (weakCh[q.chapterTitle]||0)+1; });
+  main.innerHTML = `
+    <div class="page-head"><div class="page-title">📊 ফলাফল — ${r.label}</div></div>
+    <div class="grid grid-4" style="margin-bottom:18px">
+      <div class="stat-card accent"><div class="stat-num">${pct}%</div><div class="stat-label">স্কোর</div></div>
+      <div class="stat-card"><div class="stat-num">${r.correct}</div><div class="stat-label">সঠিক</div></div>
+      <div class="stat-card red"><div class="stat-num">${r.wrong}</div><div class="stat-label">ভুল</div></div>
+      <div class="stat-card"><div class="stat-num">${r.unanswered}</div><div class="stat-label">উত্তর দেওয়া হয়নি</div></div>
+    </div>
+    <div class="panel">সময় লেগেছে: <b>${Math.floor(r.timeSec/60)} মিনিট ${r.timeSec%60} সেকেন্ড</b></div>
+    ${Object.keys(weakCh).length? `<div class="panel">
+      <div class="panel-title">দুর্বল বিষয় (এই কুইজ অনুযায়ী)</div>
+      ${Object.entries(weakCh).map(([k,v])=>`<div style="font-size:13.5px; padding:4px 0">${k} — ${v}টি ভুল</div>`).join("")}
+    </div>`:''}
+    ${wrongQs.length? `<div class="panel"><div class="panel-title">ভুল হওয়া প্রশ্নসমূহ</div>
+      ${wrongQs.map(q=>`<div style="font-size:13px; padding:6px 0; border-bottom:1px solid var(--line)">প্রশ্ন ${q.num}: ${escapeHtml(q.question.slice(0,90))}${q.question.length>90?'…':''} ${q.wrong>=2?'<span class="pill red" style="margin-left:6px">Repeated</span>':''}</div>`).join("")}
+    </div>`:''}
+    <div style="display:flex; gap:10px; margin-top:16px">
+      <button class="btn primary" data-nav="dashboard">ড্যাশবোর্ডে ফিরুন</button>
+      <button class="btn" data-nav="mistakes">ভুলগুলো রিভিউ করুন</button>
+      <button class="btn" data-nav="quiz">নতুন কুইজ</button>
+    </div>
+  `;
+  wireNavButtons(main);
+}
+
+// ===========================================================
+// EXAM MODE setup
+// ===========================================================
+function renderExamSetup(main){
+  const topics = topicList();
+  main.innerHTML = `
+    <div class="page-head">
+      <div class="page-title">🧪 এক্সাম মোড</div>
+      <div class="page-sub">উত্তর তাৎক্ষণিকভাবে দেখানো হবে না। কাউন্টডাউন টাইমার, প্রশ্ন নেভিগেশন ও রিভিউর জন্য মার্ক করার সুবিধা রয়েছে। জমা দেওয়ার পরই ফলাফল দেখা যাবে।</div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">স্কোপ</div>
+      <div class="filter-row" id="ex-scope">
+        <button class="chip-toggle active" data-scope="all">পুরো প্রশ্নব্যাংক</button>
+        ${topics.map(t=>`<button class="chip-toggle" data-scope="${t.key}">${t.title.split(':')[0]}</button>`).join("")}
+      </div>
+      <div class="panel-title" style="margin-top:14px">প্রশ্ন সংখ্যা</div>
+      <div class="filter-row" id="ex-count">
+        ${[10,20,30,50].map((n,i)=>`<button class="chip-toggle ${i===1?'active':''}" data-count="${n}">${n}</button>`).join("")}
+      </div>
+      <div class="panel-title" style="margin-top:14px">সময়সীমা</div>
+      <div class="filter-row" id="ex-time">
+        ${[["10","১০ মিনিট"],["20","২০ মিনিট"],["30","৩০ মিনিট"],["0","সময়সীমা নেই"]].map(([v,l],i)=>`<button class="chip-toggle ${i===1?'active':''}" data-time="${v}">${l}</button>`).join("")}
+      </div>
+      <div style="margin-top:18px"><button class="btn primary" id="ex-start">▶ এক্সাম শুরু করুন</button></div>
+    </div>
+  `;
+  const state = {scope:"all", count:20, time:20};
+  $$("#ex-scope [data-scope]", main).forEach(b=>b.addEventListener("click", ()=>{ setActive(main,"#ex-scope",b); state.scope=b.dataset.scope; }));
+  $$("#ex-count [data-count]", main).forEach(b=>b.addEventListener("click", ()=>{ setActive(main,"#ex-count",b); state.count=parseInt(b.dataset.count); }));
+  $$("#ex-time [data-time]", main).forEach(b=>b.addEventListener("click", ()=>{ setActive(main,"#ex-time",b); state.time=parseInt(b.dataset.time); }));
+  $("#ex-start", main).addEventListener("click", ()=>{
+    let pool = shuffle(buildPool(state.scope,"all")).slice(0, state.count);
+    if(!pool.length){ toast("প্রশ্ন পাওয়া যায়নি"); return; }
+    startQuizSession({pool, shuffleOpts:true, label:"এক্সাম মোড", examMode:true, timeLimitSec: state.time?state.time*60:null});
+  });
+}
+
+// ===========================================================
+// QUICK REVISION MODE (rapid know-it/forgot flow)
+// ===========================================================
+function renderQuickRevision(main){
+  const pool = shuffle(DATA.filter(q=>{
+    const p = getProg(q.id);
+    return isOverdue(p)||isDueToday(p)||p.status==="due"||p.status==="weak"||p.attempts===0;
+  }).map(q=>q.id));
+  if(!VSTATE.qr || VSTATE.qr.pool !== pool){ /* fresh */ }
+  VSTATE.qr = VSTATE.qr && VSTATE.qr._init ? VSTATE.qr : {pool: pool.length?pool:shuffle(DATA.map(q=>q.id)), idx:0, revealed:false, done:0, _init:true};
+  const qr = VSTATE.qr;
+
+  if(qr.idx >= qr.pool.length){
+    main.innerHTML = `<div class="page-head"><div class="page-title">⚡ দ্রুত রিভিশন সম্পন্ন</div></div>
+      <div class="empty-state"><div class="emoji">🎉</div><div>আপনি ${qr.pool.length}টি প্রশ্ন রিভিশন করেছেন।</div></div>
+      <button class="btn primary" data-nav="dashboard">ড্যাশবোর্ডে ফিরুন</button>`;
+    wireNavButtons(main);
+    VSTATE.qr = null;
+    return;
+  }
+  const q = DATA.find(x=>x.id===qr.pool[qr.idx]);
+  main.innerHTML = `
+    <div class="focus-header">
+      <div class="page-title" style="font-size:17px">⚡ দ্রুত রিভিশন — ${qr.idx+1}/${qr.pool.length}</div>
+      <button class="btn sm" data-nav="dashboard">শেষ করুন</button>
+    </div>
+    <div class="progress-track"><div class="progress-fill" style="width:${(qr.idx/qr.pool.length)*100}%"></div></div>
+    <div class="q-card">
+      <div class="q-meta" style="margin-bottom:8px"><span class="q-num">প্রশ্ন ${q.num}</span> <span class="pill blue">${q.tag||''}</span></div>
+      <div class="q-text">${escapeHtml(q.question)}</div>
+      ${!qr.revealed ? `<button class="btn primary" id="qrReveal">উত্তর দেখুন</button>` : `
+        <div class="options">${Object.entries(q.options).map(([k,v])=>`<div class="opt disabled ${k===q.answer?'correct':''}"><span class="opt-key">${k}</span><span>${escapeHtml(v)}</span></div>`).join("")}</div>
+        ${q.explanation?`<div class="explain-box"><b>ব্যাখ্যা:</b> ${escapeHtml(q.explanation)}</div>`:''}
+        <div class="q-actions">
+          <button class="act-btn" id="qrKnow">✓ জানতাম</button>
+          <button class="act-btn" id="qrForgot">✗ ভুলে গিয়েছিলাম</button>
+          <button class="act-btn" id="qrNeed">🔴 রিভিশন দরকার</button>
+          <button class="act-btn" id="qrMastered">🟢 মাস্টার্ড</button>
+        </div>
+      `}
+    </div>
+  `;
+  const rb = $("#qrReveal", main);
+  if(rb) rb.addEventListener("click", ()=>{ qr.revealed = true; render(); });
+  const advance = (outcome)=>{
+    scheduleNext(q.id, outcome);
+    recordStudyDay();
+    qr.idx++; qr.revealed=false; render();
+  };
+  const kb = $("#qrKnow", main); if(kb) kb.addEventListener("click", ()=>advance("correct-high"));
+  const fb = $("#qrForgot", main); if(fb) fb.addEventListener("click", ()=>advance("incorrect"));
+  const nb = $("#qrNeed", main); if(nb) nb.addEventListener("click", ()=>{ manualStatus(q.id,"due"); advance("correct-low"); });
+  const mb = $("#qrMastered", main); if(mb) mb.addEventListener("click", ()=>{ manualStatus(q.id,"mastered"); advance("correct-high"); });
+  wireNavButtons(main);
+}
+
+// ===========================================================
+// FOCUS MODE
+// ===========================================================
+function renderFocusSetup(main){
+  const topics = topicList();
+  main.innerHTML = `
+    <div class="page-head">
+      <div class="page-title">⏱ ফোকাস মোড</div>
+      <div class="page-sub">একটি বিষয় বেছে নিন, টাইমার শুরু করুন এবং বিভ্রান্তি ছাড়াই সেই বিষয়ের প্রশ্নগুলোতে মনোযোগ দিন।</div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">বিষয় নির্বাচন করুন</div>
+      <div class="filter-row" id="fc-topic">
+        ${topics.map((t,i)=>`<button class="chip-toggle ${i===0?'active':''}" data-topic="${t.key}">${t.title.split(':')[0]}</button>`).join("")}
+      </div>
+      <div style="margin-top:18px"><button class="btn primary" id="fc-start">▶ ফোকাস সেশন শুরু করুন</button></div>
+    </div>
+  `;
+  let chosen = topics[0].key;
+  $$("#fc-topic [data-topic]", main).forEach(b=>b.addEventListener("click", ()=>{ setActive(main,"#fc-topic",b); chosen=b.dataset.topic; }));
+  $("#fc-start", main).addEventListener("click", ()=>{
+    const pool = shuffle(DATA.filter(q=>q.chapter===chosen).map(q=>q.id));
+    VSTATE = {focus:{topic:chosen, ids:pool, idx:0, startedAt:Date.now(), correct:0, wrong:0, revealed:false, paused:false}};
+    setView("focusSession", VSTATE);
+  });
+}
+
+function renderFocusSession(main){
+  const f = VSTATE.focus;
+  if(!f){ setView("focus"); return; }
+  if(f.idx >= f.ids.length){
+    const timeSec = Math.round((Date.now()-f.startedAt)/1000);
+    const chTitle = DATA.find(q=>q.chapter===f.topic).chapterTitle;
+    DB.sessions.push({id:uid(), date:todayStr(), topic:"ফোকাস: "+chTitle, durationSec:timeSec, correct:f.correct, wrong:f.wrong, attempted:f.correct+f.wrong});
+    const meta = DB.topicMeta[f.topic] || (DB.topicMeta[f.topic]={firstStudied:todayStr(), sessions:0, timeSpent:0});
+    meta.lastStudied = todayStr(); if(!meta.firstStudied) meta.firstStudied = todayStr();
+    meta.sessions = (meta.sessions||0)+1; meta.timeSpent = (meta.timeSpent||0)+timeSec;
+    recordStudyDay(); save();
+    main.innerHTML = `
+      <div class="page-head"><div class="page-title">⏱ ফোকাস সেশন সম্পন্ন</div></div>
+      <div class="grid grid-3" style="margin-bottom:16px">
+        <div class="stat-card"><div class="stat-num">${Math.round(timeSec/60)}m</div><div class="stat-label">সময় ব্যয়</div></div>
+        <div class="stat-card accent"><div class="stat-num">${f.correct}</div><div class="stat-label">সঠিক</div></div>
+        <div class="stat-card red"><div class="stat-num">${f.wrong}</div><div class="stat-label">ভুল</div></div>
+      </div>
+      <button class="btn primary" data-nav="dashboard">ড্যাশবোর্ডে ফিরুন</button>`;
+    wireNavButtons(main);
+    VSTATE = {};
+    return;
+  }
+  const q = DATA.find(x=>x.id===f.ids[f.idx]);
+  const p = getProg(q.id);
+  const answered = f.revealed;
+  main.innerHTML = `
+    <div class="focus-header">
+      <div class="page-title" style="font-size:17px">⏱ ফোকাস: ${q.chapterTitle.split(':')[0]} — ${f.idx+1}/${f.ids.length}</div>
+      <div style="display:flex; gap:10px; align-items:center">
+        <div class="timer-display" id="focusTimer">00:00</div>
+        <button class="btn sm" id="focusFinish">সমাপ্ত করুন</button>
+      </div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" style="width:${(f.idx/f.ids.length)*100}%"></div></div>
+    <div class="q-card">
+      <div class="q-meta" style="margin-bottom:8px"><span class="q-num">প্রশ্ন ${q.num}</span></div>
+      <div class="q-text">${escapeHtml(q.question)}</div>
+      <div class="options">
+        ${Object.entries(q.options).map(([k,v])=>{
+          let cls="opt";
+          if(answered){ cls+=" disabled"; if(k===q.answer) cls+=" correct"; else if(k===f._sel) cls+=" incorrect"; }
+          return `<div class="${cls}" data-opt="${k}"><span class="opt-key">${k}</span><span>${escapeHtml(v)}</span></div>`;
+        }).join("")}
+      </div>
+      ${answered? `${q.explanation?`<div class="explain-box"><b>ব্যাখ্যা:</b> ${escapeHtml(q.explanation)}</div>`:''}
+        <button class="btn primary" id="focusNext" style="margin-top:12px">পরবর্তী →</button>` : ''}
+    </div>
+  `;
+  if(!answered){
+    $$(".opt", main).forEach(opt=>opt.addEventListener("click", ()=>{
+      f._sel = opt.dataset.opt; f.revealed = true;
+      const correct = opt.dataset.opt === q.answer;
+      if(correct) f.correct++; else f.wrong++;
+      p.attempts+=1; p.lastSelected=opt.dataset.opt; p.lastResult=correct?"correct":"incorrect";
+      if(correct) p.correct+=1; else p.wrong+=1;
+      scheduleNext(q.id, correct?"correct-high":"incorrect");
+      render();
+    }));
+  }
+  const nb = $("#focusNext", main);
+  if(nb) nb.addEventListener("click", ()=>{ f.idx++; f.revealed=false; f._sel=null; render(); });
+  $("#focusFinish", main).addEventListener("click", ()=>{ f.idx = f.ids.length; render(); });
+  clearInterval(window._focusTick);
+  window._focusTick = setInterval(()=>{
+    const el = document.getElementById("focusTimer");
+    if(!el){ clearInterval(window._focusTick); return; }
+    const sec = Math.round((Date.now()-f.startedAt)/1000);
+    el.textContent = `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;
+  }, 1000);
+}
+
+// ===========================================================
+// LAST-MINUTE REVISION
+// ===========================================================
+function renderLastMinute(main){
+  const rm = repeatedMistakes().map(x=>x.q.id);
+  const overdue = allProgressList().filter(x=>isOverdue(x.p)).map(x=>x.q.id);
+  const weak = allProgressList().filter(x=>x.p.status==="weak").map(x=>x.q.id);
+  const bm = allProgressList().filter(x=>x.p.bookmarked).map(x=>x.q.id);
+  const merged = [...new Set([...rm, ...overdue, ...weak, ...bm])];
+  const pool = merged.length ? merged : shuffle(DATA.map(q=>q.id)).slice(0,15);
+  main.innerHTML = `
+    <div class="page-head">
+      <div class="page-title">🚨 শেষ মুহূর্তের রিভিশন</div>
+      <div class="page-sub">"যদি আমার পরীক্ষা আগামীকাল হয়, আমি সবার আগে কী রিভিশন করবো?" — বারবার ভুল, মেয়াদোত্তীর্ণ, দুর্বল ও বুকমার্ক করা প্রশ্নগুলো একত্রে সাজানো হয়েছে।</div>
+    </div>
+    <div class="panel">
+      <div style="font-size:14px; margin-bottom:10px">মোট <b>${pool.length}টি</b> সর্বোচ্চ-অগ্রাধিকার প্রশ্ন প্রস্তুত।</div>
+      <button class="btn primary" id="lmStart">▶ এখনই শুরু করুন (দ্রুত রিভিশন মোডে)</button>
+    </div>
+    <div>${pool.slice(0,25).map(id=>{
+      const q = DATA.find(x=>x.id===id); const p = getProg(id);
+      return `<div class="priority-item">
+        <div class="priority-text">
+          <b>প্রশ্ন ${q.num}</b> — ${escapeHtml(q.question.slice(0,80))}${q.question.length>80?'…':''}
+          <div class="priority-meta">${q.chapterTitle.split(':')[0]} ${p.wrong? `· ভুল ×${p.wrong}`:''} ${p.bookmarked?'· ⭐':''}</div>
+        </div>
+      </div>`;
+    }).join("")}</div>
+  `;
+  $("#lmStart", main).addEventListener("click", ()=>{
+    setView("quick", {qr: {pool: shuffle(pool), idx:0, revealed:false, _init:true}});
+  });
+}
+
+// ===========================================================
+// PROGRESS & ANALYTICS
+// ===========================================================
+function renderProgress(main){
+  const s = overallStats();
+  const topics = topicList().map(t=>({...t, stats:topicStats(t.key)}));
+  const last14 = [];
+  for(let i=13;i>=0;i--){ last14.push(addDays(todayStr(), -i)); }
+  const dayCounts = last14.map(d=> DB.sessions.filter(x=>x.date===d).length);
+  const maxc = Math.max(1, ...dayCounts);
+  main.innerHTML = `
+    <div class="page-head">
+      <div class="page-title">📊 প্রোগ্রেস ও অ্যানালিটিক্স</div>
+    </div>
+    <div class="grid grid-4" style="margin-bottom:16px">
+      <div class="stat-card accent"><div class="stat-num">${Math.round(s.totalTimeSec/60)}</div><div class="stat-label">মোট স্টাডি মিনিট</div></div>
+      <div class="stat-card"><div class="stat-num">${s.totalSessions}</div><div class="stat-label">স্টাডি সেশন</div></div>
+      <div class="stat-card"><div class="stat-num">${s.accuracy}%</div><div class="stat-label">সামগ্রিক সঠিক উত্তরের হার</div></div>
+      <div class="stat-card blue"><div class="stat-num">${DB.streak.days.length}</div><div class="stat-label">মোট স্টাডি দিন</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">গত ১৪ দিনের কার্যকলাপ</div>
+      <div style="display:flex; align-items:flex-end; gap:5px; height:70px">
+        ${dayCounts.map((c,i)=>`<div title="${last14[i]}: ${c} সেশন" style="flex:1; background:${c?'var(--accent)':'var(--line)'}; height:${Math.max(6,(c/maxc)*100)}%; border-radius:3px 3px 0 0"></div>`).join("")}
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">অধ্যায়ভিত্তিক অগ্রগতি</div>
+      ${topics.map(t=>`
+        <div style="margin-bottom:14px">
+          <div style="display:flex; justify-content:space-between; font-size:13.5px; margin-bottom:4px">
+            <b>${t.title.split(':')[0]}</b>
+            <span class="small-muted">${t.stats.attempted}/${t.stats.total} উত্তর দেওয়া · ${t.stats.acc}% সঠিক · ${t.stats.strength}</span>
+          </div>
+          <div class="strength-bar"><div class="strength-fill" style="width:${t.stats.progressPct}%"></div></div>
+        </div>`).join("")}
+    </div>
+    <div class="panel">
+      <div class="panel-title">কুইজের ইতিহাস</div>
+      ${DB.quizHistory.length? DB.quizHistory.slice(-8).reverse().map(h=>`
+        <div style="display:flex; justify-content:space-between; font-size:13px; padding:6px 0; border-bottom:1px solid var(--line)">
+          <span>${h.scope} · ${fmtDate(h.date)}</span>
+          <span>${h.correct}/${h.count} সঠিক (${Math.round(h.correct/h.count*100)}%)</span>
+        </div>`).join("") : `<div class="small-muted">এখনও কোনো কুইজ সম্পন্ন হয়নি।</div>`}
+    </div>
+  `;
+}
+
+// ===========================================================
+// SETTINGS — theme, export, import, reset, shortcuts
+// ===========================================================
+function renderSettings(main){
+  main.innerHTML = `
+    <div class="page-head"><div class="page-title">⚙ সেটিংস</div></div>
+
+    <div class="panel">
+      <div class="panel-title">থিম</div>
+      <div class="filter-row">
+        <button class="chip-toggle ${DB.settings.theme==='light'?'active':''}" id="themeLight">☀ লাইট</button>
+        <button class="chip-toggle ${DB.settings.theme==='dark'?'active':''}" id="themeDark">🌙 ডার্ক</button>
+        <button class="chip-toggle ${DB.settings.theme==='system'?'active':''}" id="themeSystem">🖥 সিস্টেম</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">ব্যাকআপ ও রিস্টোর</div>
+      <p class="small-muted">আপনার সব অগ্রগতি (স্ট্যাটাস, রিভিশন তারিখ, কুইজ ইতিহাস, বুকমার্ক, নোট, স্ট্রিক) একটি JSON ফাইলে এক্সপোর্ট করুন। সোর্স একাডেমিক কনটেন্ট এক্সপোর্টে অন্তর্ভুক্ত থাকে না।</p>
+      <div style="display:flex; gap:10px; flex-wrap:wrap">
+        <button class="btn primary" id="exportBtn">⬇ Export Progress (.json)</button>
+        <button class="btn" id="importBtn">⬆ Import Progress</button>
+        <input type="file" id="importFile" accept="application/json" style="display:none">
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">রিসেট</div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap">
+        <button class="btn" id="resetQuizHist">কুইজ ইতিহাস রিসেট</button>
+        <button class="btn danger" id="resetAll">⚠ সব অগ্রগতি রিসেট করুন</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">⌨ কীবোর্ড শর্টকাট</div>
+      <div class="kbd-grid">
+        <kbd>1–4</kbd><span>MCQ অপশন নির্বাচন</span>
+        <kbd>Enter</kbd><span>পরবর্তী / প্রকাশ করুন</span>
+        <kbd>R</kbd><span>রিভিশন হিসেবে চিহ্নিত করুন</span>
+        <kbd>M</kbd><span>মাস্টার্ড হিসেবে চিহ্নিত করুন</span>
+        <kbd>B</kbd><span>বুকমার্ক করুন</span>
+        <kbd>N</kbd><span>পরবর্তী প্রশ্ন</span>
+      </div>
+    </div>
+    <div class="small-muted" style="text-align:center; margin-top:20px">
+      Morality — Interactive Study & Revision System · Source: morality.pdf<br>
+      সম্পূর্ণভাবে অফলাইন, ব্রাউজার লোকালস্টোরেজে সংরক্ষিত। কোনো ডেটা কোথাও পাঠানো হয় না।
+    </div>
+  `;
+  $("#themeLight", main).addEventListener("click", ()=>setTheme("light"));
+  $("#themeDark", main).addEventListener("click", ()=>setTheme("dark"));
+  $("#themeSystem", main).addEventListener("click", ()=>setTheme("system"));
+  $("#exportBtn", main).addEventListener("click", exportProgress);
+  $("#importBtn", main).addEventListener("click", ()=> $("#importFile", main).click());
+  $("#importFile", main).addEventListener("change", importProgress);
+  $("#resetQuizHist", main).addEventListener("click", ()=>{
+    if(confirm("কুইজ ইতিহাস রিসেট করতে চান?")){ DB.quizHistory=[]; DB.sessions=[]; save(); toast("রিসেট সম্পন্ন"); render(); }
+  });
+  $("#resetAll", main).addEventListener("click", ()=>{
+    if(confirm("⚠ এটি আপনার সব অগ্রগতি স্থায়ীভাবে মুছে ফেলবে। নিশ্চিত?")){
+      if(confirm("সত্যিই নিশ্চিত? এই কাজ আর ফেরানো যাবে না।")){
+        DB = defaultState(); save(); toast("সব অগ্রগতি রিসেট হয়েছে"); render();
+      }
+    }
+  });
+}
+
+function setTheme(mode){
+  DB.settings.theme = mode; save(); applyTheme();
+  render();
+}
+function applyTheme(){
+  const mode = DB.settings.theme;
+  const dark = mode==="dark" || (mode==="system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  document.documentElement.setAttribute("data-theme", dark?"dark":"light");
+}
+
+function exportProgress(){
+  const payload = {
+    exportedAt: new Date().toISOString(), app:"Morality Study System", version:2,
+    progress: DB.progress, topicMeta: DB.topicMeta, sessions: DB.sessions,
+    quizHistory: DB.quizHistory, streak: DB.streak, notes: DB.notes,
+    settings: DB.settings, studyPlanDone: DB.studyPlanDone,
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = `morality-progress-${todayStr()}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  toast("এক্সপোর্ট সম্পন্ন হয়েছে");
+}
+
+function importProgress(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const data = JSON.parse(reader.result);
+      if(!data || typeof data !== "object" || !data.progress){
+        toast("❌ অবৈধ ফাইল — ইম্পোর্ট ব্যর্থ হয়েছে"); return;
+      }
+      DB.progress = Object.assign(DB.progress, data.progress||{});
+      DB.topicMeta = Object.assign(DB.topicMeta, data.topicMeta||{});
+      DB.sessions = [...DB.sessions, ...(data.sessions||[])];
+      DB.quizHistory = [...DB.quizHistory, ...(data.quizHistory||[])];
+      if(data.streak) DB.streak = data.streak;
+      DB.notes = Object.assign(DB.notes, data.notes||{});
+      save();
+      toast("✓ ইম্পোর্ট সম্পন্ন হয়েছে");
+      render();
+    }catch(err){
+      toast("❌ ফাইল পড়তে সমস্যা হয়েছে — এটি বৈধ JSON নয়");
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ===========================================================
+// GLOBAL SEARCH
+// ===========================================================
+function runGlobalSearch(term){
+  if(!term.trim()) return;
+  const hits = DATA.filter(q=>{
+    const p = getProg(q.id);
+    const hay = (q.question+" "+Object.values(q.options).join(" ")+" "+(q.explanation||"")+" "+(p.note||"")).toLowerCase();
+    return hay.includes(term.toLowerCase());
+  });
+  VSTATE = {filters:{status:"all", search:term}};
+  const main = $("#mainInner");
+  main.innerHTML = `
+    <div class="page-head">
+      <div class="page-title">🔍 অনুসন্ধান ফলাফল: "${escapeHtml(term)}"</div>
+      <div class="page-sub">${hits.length}টি প্রশ্ন পাওয়া গেছে</div>
+    </div>
+    ${hits.length ? hits.map(q=>questionCardHTML(q)).join("") : emptyState("কোনো ফলাফল পাওয়া যায়নি।")}
+  `;
+  wireQuestionCards(main);
+}
+
+// ===========================================================
+// KEYBOARD SHORTCUTS
+// ===========================================================
+document.addEventListener("keydown", (e)=>{
+  const tag = (e.target.tagName||"").toLowerCase();
+  if(tag==="input" || tag==="textarea") return;
+  if(VIEW === "quizSession" && VSTATE.session){
+    const q = currentSessionQuestion();
+    if(["1","2","3","4"].includes(e.key)){
+      const order = VSTATE.session.optOrder[q.id] || Object.keys(q.options);
+      const key = order[parseInt(e.key)-1];
+      if(key){ const opt = document.querySelector(`.opt[data-opt="${key}"]`); if(opt) opt.click(); }
+    }
+    if(e.key === "Enter"){ const nb = document.getElementById("nextQ"); if(nb) nb.click(); }
+    return;
+  }
+  if(e.key === "/" ){ e.preventDefault(); const sb = document.getElementById("globalSearchInput"); if(sb) sb.focus(); }
+});
+
+// ===========================================================
+// MOBILE NAV
+// ===========================================================
+function openMobileNav(){ $(".sidebar").classList.add("open"); $("#mobileOverlay").classList.add("show"); }
+function closeMobileNav(){ $(".sidebar").classList.remove("open"); $("#mobileOverlay").classList.remove("show"); }
+
+// ===========================================================
+// INIT
+// ===========================================================
+function init(){
+  applyTheme();
+  $("#globalSearchInput").addEventListener("keydown", (e)=>{
+    if(e.key === "Enter"){ runGlobalSearch(e.target.value); }
+  });
+  $("#mobileMenuBtn").addEventListener("click", openMobileNav);
+  $("#mobileOverlay").addEventListener("click", closeMobileNav);
+  $("#themeToggleBtn").addEventListener("click", ()=>{
+    const cur = DB.settings.theme === "dark" ? "light" : "dark";
+    setTheme(cur);
+  });
+  render();
+}
+document.addEventListener("DOMContentLoaded", init);
+
+</script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Job Preparation — Study Hub</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>window.AG_PAGE = {"id":"index","title":"Study Hub","admin":true};</script>
+<script src="auth-gate.js"></script>
+<style>html{visibility:hidden}</style>
+
+<style>
+  :root{
+    --ink:#12181f; --paper:#f6f4ef; --panel:#ffffff; --rule:#dcd6c8;
+    --brass:#a9702f; --brass-deep:#7c4f1e; --navy:#1f3a4d; --ok:#3c6e52; --muted:#6b6558;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:'Noto Sans Bengali','Nirmala UI','Segoe UI',system-ui,-apple-system,sans-serif;
+    line-height:1.5;
+  }
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px 80px;}
+
+  header.top{padding:52px 24px 34px;border-bottom:1px solid var(--rule);
+    background:linear-gradient(180deg, rgba(31,58,77,0.05), transparent);}
+  .top-inner{max-width:1080px;margin:0 auto;}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'Courier New',monospace;
+    font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass-deep);
+    border:1px solid var(--brass);padding:4px 10px;border-radius:999px;background:rgba(169,112,47,0.08);}
+  h1{font-size:clamp(28px,5vw,42px);margin:16px 0 6px;font-weight:800;letter-spacing:-0.01em;}
+  .sub{color:var(--muted);font-size:15px;max-width:640px;margin-top:8px;}
+
+  section.dash{margin-top:34px;}
+  .dash-head{display:flex;align-items:baseline;gap:10px;margin-bottom:14px;}
+  .dash-head h2{font-size:16px;margin:0;font-weight:700;}
+  .dash-head span{font-size:11.5px;color:var(--muted);font-family:'Courier New',monospace;}
+  .dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;}
+  .dcard{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:12px 14px;}
+  .dcard .t{font-size:13px;font-weight:700;margin-bottom:4px;}
+  .dcard .s{font-size:11.5px;color:var(--muted);font-family:'Courier New',monospace;}
+  .dcard .s.done{color:var(--ok);}
+
+  main{margin-top:36px;}
+  .category{margin-bottom:14px;border:1px solid var(--rule);border-radius:12px;background:var(--panel);overflow:hidden;}
+  .cat-head{display:flex;align-items:center;gap:12px;padding:18px 20px;cursor:pointer;user-select:none;}
+  .cat-head:hover{background:rgba(169,112,47,0.05);}
+  .cat-head .icon{font-size:18px;transition:transform .15s ease;}
+  .category.open .cat-head .icon{transform:rotate(90deg);}
+  .cat-head .titles .bn{font-size:16px;font-weight:800;}
+  .cat-head .titles .en{font-size:12px;color:var(--muted);}
+  .cat-head .soon{margin-left:auto;font-size:11px;font-family:'Courier New',monospace;color:var(--brass-deep);
+    border:1px solid var(--brass);padding:3px 9px;border-radius:999px;}
+  .cat-body{max-height:0;overflow:hidden;transition:max-height .2s ease;}
+  .category.open .cat-body{max-height:4000px;}
+  .cat-body-inner{padding:0 20px 20px;}
+
+  .subcat{margin-top:6px;}
+  .subcat-title{font-size:13px;font-weight:700;color:var(--navy);margin:16px 0 10px;
+    padding-bottom:6px;border-bottom:1px dashed var(--rule);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(230px,1fr));gap:12px;}
+  .card{display:block;background:var(--paper);border:1px solid var(--rule);border-radius:10px;
+    padding:14px 16px;position:relative;overflow:hidden;transition:transform .1s ease, box-shadow .1s ease;}
+  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--brass);opacity:0;transition:opacity .1s ease;}
+  .card:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(18,24,31,0.08);}
+  .card:hover::before{opacity:1;}
+  .card .name{font-size:14px;font-weight:700;}
+  .card .meta{display:flex;justify-content:space-between;align-items:center;margin-top:10px;
+    font-size:10.5px;font-family:'Courier New',monospace;color:var(--muted);}
+  .card .go{color:var(--ok);font-weight:700;}
+
+  footer{max-width:1080px;margin:50px auto 0;padding:24px;border-top:1px solid var(--rule);
+    color:var(--muted);font-size:12px;}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <span class="eyebrow">Offline Study Hub · Job Preparation</span>
+    <h1>My Job Preparation</h1>
+    <p class="sub">প্রতিটি পরীক্ষার জন্য আলাদা ইন্টারেক্টিভ স্টাডি টুল — একটি জায়গা থেকেই সব খুঁজে নিন।</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="dash">
+    <div class="dash-head"><h2>আপনার অগ্রগতি</h2><span>Progress Dashboard</span></div>
+    <div class="dash-grid" id="dashGrid"><div class="dcard"><div class="t">সাইন ইন করুন</div><div class="s">Sign in to see your progress</div></div></div>
+  </section>
+
+  <main id="catRoot"></main>
+
+  <footer>My Job Preparation — Personal Study Hub</footer>
+</div>
+
+<script>
+/* ============================================================
+   CATALOG — the whole site map lives here. To add a new subject
+   or a new category (e.g. Bank Preparation) later, add one more
+   entry below with its file path — nothing else needs to change.
+   ============================================================ */
+const CATALOG = [
+  {
+    id: 'bcs', label_bn: 'বিসিএস', label_en: 'BCS', open: true,
+    subcategories: [
+      {
+        id: 'question-bank', label_bn: 'প্রশ্নব্যাংক (আগের বছরের প্রশ্ন)', label_en: 'Question Bank — Previous Year Questions',
+        items: [
+          {id:'exam-simulator', bn:'BCS প্রস্তুতি প্ল্যাটফর্ম — ৪৪-৫০তম', en:'Full Exam Simulator', path:'bcs/question-bank/BCS_44_50_Exam_Simulator.html'},
+          {id:'bangla-uttaran-system', bn:'বাংলা উত্তরণ', en:'Study & Revision System', path:'bcs/question-bank/Bangla_Uttaran_Interactive_Study_System.html'},
+          {id:'bangla-uttaran-app', bn:'বাংলা উত্তরণ — সাহিত্য অনুশীলন', en:'Literature Practice App', path:'bcs/question-bank/bangla_uttaran_study_app.html'},
+          {id:'english-language', bn:'English Language', en:'Study & Revision System', path:'bcs/question-bank/English_Language_Interactive_Study_System.html'},
+          {id:'english-literature', bn:'English Literature', en:'Study & Revision System', path:'bcs/question-bank/English_Literature_Interactive_Study_System.html'},
+          {id:'bangladesh-affairs', bn:'বাংলাদেশ বিষয়াবলি', en:'Study & Revision System', path:'bcs/question-bank/Bangladesh_Interactive_Study_Revision_System.html'},
+          {id:'international-affairs', bn:'আন্তর্জাতিক বিষয়াবলি', en:'Study System', path:'bcs/question-bank/International_Affairs_Interactive_Study_System.html'},
+          {id:'geography', bn:'ভূগোল', en:'Study & Revision System', path:'bcs/question-bank/Geography_Interactive_Study_System.html'},
+          {id:'science-quiz', bn:'সাধারণ বিজ্ঞান', en:'Question Bank & Quiz', path:'bcs/question-bank/bcs_science_quiz.html'},
+          {id:'math', bn:'গণিত', en:'Study & Revision System', path:'bcs/question-bank/Math_Interactive_Study_System.html'},
+          {id:'ict', bn:'কম্পিউটার ও তথ্য প্রযুক্তি', en:'Study & Revision System', path:'bcs/question-bank/ICT_Interactive_Study_System.html'},
+          {id:'morality', bn:'নৈতিকতা, মূল্যবোধ ও সুশাসন', en:'Study & Revision System', path:'bcs/question-bank/Morality_Interactive_Study_Revision_System.html'}
+        ]
+      }
+      // Add more BCS subcategories here later, e.g. "Detailed Subject Notes"
+    ]
+  },
+  {
+    id: 'bank', label_bn: 'ব্যাংক প্রস্তুতি', label_en: 'Bank Preparation', comingSoon: true, subcategories: []
+  }
+  // Add more top-level categories here later, e.g. Primary/NTRCA/University Admission
+];
+
+const root = document.getElementById('catRoot');
+const allItems = [];
+
+CATALOG.forEach(cat => {
+  const catEl = document.createElement('div');
+  catEl.className = 'category' + (cat.open ? ' open' : '');
+  const head = document.createElement('div');
+  head.className = 'cat-head';
+  head.innerHTML = '<span class="icon">▸</span><div class="titles"><div class="bn">'+cat.label_bn+'</div><div class="en">'+cat.label_en+'</div></div>' +
+    (cat.comingSoon ? '<span class="soon">Coming soon</span>' : '');
+  head.onclick = () => catEl.classList.toggle('open');
+  catEl.appendChild(head);
+
+  const body = document.createElement('div');
+  body.className = 'cat-body';
+  const inner = document.createElement('div');
+  inner.className = 'cat-body-inner';
+
+  if(cat.subcategories.length === 0){
+    inner.innerHTML = '<p style="color:#6b6558;font-size:13px;">এই বিভাগের কনটেন্ট শীঘ্রই যোগ করা হবে।</p>';
+  }
+  cat.subcategories.forEach(sub => {
+    const subEl = document.createElement('div');
+    subEl.className = 'subcat';
+    subEl.innerHTML = '<div class="subcat-title">'+sub.label_bn+' — '+sub.label_en+'</div>';
+    const grid = document.createElement('div');
+    grid.className = 'grid';
+    sub.items.forEach(item => {
+      allItems.push(item);
+      const a = document.createElement('a');
+      a.className = 'card'; a.href = item.path;
+      a.innerHTML = '<div class="name">'+item.bn+'</div><div class="meta"><span>'+item.en+'</span><span class="go">Open →</span></div>';
+      grid.appendChild(a);
+    });
+    subEl.appendChild(grid);
+    inner.appendChild(subEl);
+  });
+
+  body.appendChild(inner);
+  catEl.appendChild(body);
+  root.appendChild(catEl);
+});
+
+// ---- dashboard: reads each item's synced progress doc once signed in ----
+function loadDashboard(db, uid){
+  const grid = document.getElementById('dashGrid');
+  grid.innerHTML = '';
+  allItems.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'dcard';
+    card.innerHTML = '<div class="t">'+item.bn+'</div><div class="s">Checking...</div>';
+    grid.appendChild(card);
+    db.collection('users').doc(uid).collection('progress').doc(item.id).get().then(snap => {
+      const s = card.querySelector('.s');
+      if(snap.exists && snap.data().updatedAt){
+        const d = snap.data().updatedAt.toDate();
+        s.textContent = 'Last studied: ' + d.toLocaleDateString();
+        s.classList.add('done');
+      } else {
+        s.textContent = 'Not started yet';
+      }
+    }).catch(()=>{ card.querySelector('.s').textContent = '—'; });
+  });
+}
+window.AG_ON_GRANT = loadDashboard;
+</script>
+</body>
+</html>
