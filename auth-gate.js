@@ -23,10 +23,13 @@
       'border-radius:50%;margin:0 auto 16px;animation:agspin 1s linear infinite;}',
       '@keyframes agspin{to{transform:rotate(360deg);}}',
       '#ag-badge{position:fixed;top:10px;right:10px;z-index:99998;background:#182430;color:#cfe0ea;',
-      'border:1px solid #2c3b48;border-radius:999px;padding:6px 12px;font-size:11.5px;',
-      "font-family:'Segoe UI',system-ui,sans-serif;display:flex;gap:8px;align-items:center;}",
-      '#ag-badge button{background:none;border:none;color:#a9702f;font-size:11px;cursor:pointer;',
-      'text-decoration:underline;font-family:inherit;}'
+      'border:1px solid #2c3b48;border-radius:999px;padding:6px 8px 6px 12px;font-size:11.5px;',
+      "font-family:'Segoe UI',system-ui,sans-serif;display:flex;gap:6px;align-items:center;}",
+      '#ag-badge .ag-email{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
+      '#ag-badge button{background:none;border:none;color:#a9702f;font-size:15px;cursor:pointer;',
+      'line-height:1;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;',
+      'justify-content:center;font-family:inherit;}',
+      '#ag-badge button:hover{background:rgba(169,112,47,0.18);}'
     ].join('');
     document.head.appendChild(css);
     var ov = document.getElementById('ag-overlay');
@@ -69,7 +72,8 @@
   function showBadge(user, role, auth){
     var old = document.getElementById('ag-badge'); if(old) old.remove();
     var b = document.createElement('div'); b.id='ag-badge';
-    b.innerHTML = '<span>'+(role==='owner'?'\u2605 ':'')+ (user.email||'') +'</span><button id="ag-out-btn">Sign out</button>';
+    b.innerHTML = '<span class="ag-email" title="'+(user.email||'')+'">'+(role==='owner'?'\u2605 ':'')+ (user.email||'') +'</span>'+
+      '<button id="ag-out-btn" title="Sign out">\u23FB</button>';
     document.body.appendChild(b);
     document.getElementById('ag-out-btn').onclick = function(){ auth.signOut(); location.reload(); };
   }

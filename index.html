@@ -3,58 +3,92 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Job Preparation — Study Hub</title>
+<title>পথিক — My Job Preparation</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js?v=2"></script>
 <script>window.AG_PAGE = {"id":"index","title":"Study Hub","admin":true};</script>
-<script src="auth-gate.js?v=2"></script>
+<script src="auth-gate.js?v=3"></script>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,500;1,600&family=Courier+Prime&display=swap" rel="stylesheet">
 
 <style>
   :root{
-    --ink:#12181f; --paper:#f6f4ef; --panel:#ffffff; --rule:#dcd6c8;
-    --brass:#a9702f; --brass-deep:#7c4f1e; --navy:#1f3a4d; --ok:#3c6e52; --muted:#6b6558;
+    --ink:#171310; --paper:#f5efe4; --panel:#fffdf8; --rule:#ddd0b8;
+    --brass:#a9702f; --brass-deep:#7c4f1e; --maroon:#6e2a2a; --navy:#1f3a4d;
+    --ok:#3c6e52; --muted:#6b6154; --gold:#b8863b;
   }
   *{box-sizing:border-box;}
   body{
     margin:0;background:var(--paper);color:var(--ink);
-    font-family:'Noto Sans Bengali','Nirmala UI','Segoe UI',system-ui,-apple-system,sans-serif;
-    line-height:1.5;
+    background-image: radial-gradient(circle at 20% 0%, rgba(110,42,42,0.05), transparent 45%),
+                       radial-gradient(circle at 100% 30%, rgba(169,112,47,0.06), transparent 40%);
+    font-family:'Hind Siliguri','Nirmala UI','Segoe UI',system-ui,-apple-system,sans-serif;
+    line-height:1.55;
   }
   a{color:inherit;text-decoration:none;}
-  .wrap{max-width:1080px;margin:0 auto;padding:0 24px 80px;}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 24px 80px;}
+  .bn-head{font-family:'Baloo Da 2','Hind Siliguri',sans-serif;}
+  .accent{font-family:'Playfair Display',serif;font-style:italic;}
 
-  header.top{padding:52px 24px 34px;border-bottom:1px solid var(--rule);
-    background:linear-gradient(180deg, rgba(31,58,77,0.05), transparent);}
-  .top-inner{max-width:1080px;margin:0 auto;}
-  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'Courier New',monospace;
-    font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass-deep);
+  header.top{padding:50px 24px 30px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden;}
+  header.top::before{
+    content:"";position:absolute;inset:0;
+    background-image:repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 22px);
+    opacity:.045;pointer-events:none;
+  }
+  .top-inner{max-width:1100px;margin:0 auto;position:relative;}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'Courier Prime',monospace;
+    font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass-deep);
     border:1px solid var(--brass);padding:4px 10px;border-radius:999px;background:rgba(169,112,47,0.08);}
-  h1{font-size:clamp(28px,5vw,42px);margin:16px 0 6px;font-weight:800;letter-spacing:-0.01em;}
-  .sub{color:var(--muted);font-size:15px;max-width:640px;margin-top:8px;}
+  h1{font-family:'Baloo Da 2',sans-serif;font-size:clamp(30px,5.5vw,48px);margin:16px 0 2px;font-weight:800;letter-spacing:-0.01em;color:var(--maroon);}
+  .byline{font-size:14px;color:var(--muted);margin:0 0 14px;font-family:'Courier Prime',monospace;letter-spacing:.02em;}
+  .manifesto{
+    font-family:'Playfair Display',serif;font-style:italic;font-weight:500;
+    font-size:clamp(15px,2vw,18px);color:var(--ink);max-width:680px;
+    border-left:3px solid var(--brass);padding-left:16px;margin:10px 0 18px;line-height:1.6;
+  }
+  .manifesto .en{display:block;font-size:0.72em;color:var(--muted);margin-top:6px;}
 
-  section.dash{margin-top:34px;}
+  .countdown{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;}
+  .cd-box{background:var(--panel);border:1px solid var(--rule);border-radius:10px;
+    padding:10px 14px;min-width:72px;text-align:center;}
+  .cd-box b{display:block;font-family:'Courier Prime',monospace;font-size:24px;color:var(--maroon);}
+  .cd-box span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
+  .cd-label{font-size:11.5px;color:var(--muted);margin-top:6px;font-family:'Courier Prime',monospace;}
+
+  section.dash{margin-top:38px;display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;}
+  .ring-card{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:22px;
+    display:flex;flex-direction:column;align-items:center;min-width:200px;}
+  .ring-card h2{font-family:'Baloo Da 2',sans-serif;font-size:15px;margin:0 0 12px;font-weight:700;}
+  .ring-num{font-family:'Courier Prime',monospace;font-size:13px;color:var(--muted);margin-top:8px;}
+  .ring-num b{color:var(--maroon);font-size:16px;}
+
+  .dash-list{flex:1;min-width:260px;}
   .dash-head{display:flex;align-items:baseline;gap:10px;margin-bottom:14px;}
-  .dash-head h2{font-size:16px;margin:0;font-weight:700;}
-  .dash-head span{font-size:11.5px;color:var(--muted);font-family:'Courier New',monospace;}
+  .dash-head h2{font-family:'Baloo Da 2',sans-serif;font-size:15px;margin:0;font-weight:700;}
+  .dash-head span{font-size:11.5px;color:var(--muted);font-family:'Courier Prime',monospace;}
   .dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;}
   .dcard{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:12px 14px;}
-  .dcard .t{font-size:13px;font-weight:700;margin-bottom:4px;}
-  .dcard .s{font-size:11.5px;color:var(--muted);font-family:'Courier New',monospace;}
+  .dcard .t{font-size:13px;font-weight:700;margin-bottom:6px;}
+  .dcard .bar{height:5px;border-radius:99px;background:var(--rule);overflow:hidden;margin-bottom:6px;}
+  .dcard .bar i{display:block;height:100%;width:0%;background:var(--ok);border-radius:99px;transition:width .4s ease;}
+  .dcard .s{font-size:11px;color:var(--muted);font-family:'Courier Prime',monospace;}
   .dcard .s.done{color:var(--ok);}
 
   main{margin-top:36px;}
   .category{margin-bottom:14px;border:1px solid var(--rule);border-radius:12px;background:var(--panel);overflow:hidden;}
   .cat-head{display:flex;align-items:center;gap:12px;padding:18px 20px;cursor:pointer;user-select:none;}
   .cat-head:hover{background:rgba(169,112,47,0.05);}
-  .cat-head .icon{font-size:18px;transition:transform .15s ease;}
+  .cat-head .icon{font-size:18px;transition:transform .15s ease;color:var(--brass-deep);}
   .category.open .cat-head .icon{transform:rotate(90deg);}
-  .cat-head .titles .bn{font-size:16px;font-weight:800;}
+  .cat-head .titles .bn{font-family:'Baloo Da 2',sans-serif;font-size:17px;font-weight:700;}
   .cat-head .titles .en{font-size:12px;color:var(--muted);}
-  .cat-head .soon{margin-left:auto;font-size:11px;font-family:'Courier New',monospace;color:var(--brass-deep);
+  .cat-head .soon{margin-left:auto;font-size:11px;font-family:'Courier Prime',monospace;color:var(--brass-deep);
     border:1px solid var(--brass);padding:3px 9px;border-radius:999px;}
   .cat-body{max-height:0;overflow:hidden;transition:max-height .2s ease;}
   .category.open .cat-body{max-height:4000px;}
@@ -71,36 +105,85 @@
   .card:hover::before{opacity:1;}
   .card .name{font-size:14px;font-weight:700;}
   .card .meta{display:flex;justify-content:space-between;align-items:center;margin-top:10px;
-    font-size:10.5px;font-family:'Courier New',monospace;color:var(--muted);}
+    font-size:10.5px;font-family:'Courier Prime',monospace;color:var(--muted);}
   .card .go{color:var(--ok);font-weight:700;}
 
-  footer{max-width:1080px;margin:50px auto 0;padding:24px;border-top:1px solid var(--rule);
-    color:var(--muted);font-size:12px;}
+  footer{max-width:1100px;margin:50px auto 0;padding:24px;border-top:1px solid var(--rule);
+    color:var(--muted);font-size:12px;font-family:'Courier Prime',monospace;}
 </style>
 </head>
 <body>
 
 <header class="top">
   <div class="top-inner">
-    <span class="eyebrow">Offline Study Hub · Job Preparation</span>
-    <h1>My Job Preparation</h1>
-    <p class="sub">প্রতিটি পরীক্ষার জন্য আলাদা ইন্টারেক্টিভ স্টাডি টুল — একটি জায়গা থেকেই সব খুঁজে নিন।</p>
+    <span class="eyebrow">Personal Study Hub · Offline Ready</span>
+    <h1 class="bn-head">পথিক রায়</h1>
+    <p class="byline">Film student · University of Dhaka — preparing for BCS</p>
+    <p class="manifesto">
+      চলচ্চিত্রের ছাত্র, মনে-প্রাণে বামপন্থী — তবু সিস্টেমে ঢুকতে চাই, ভেতর থেকে বদলাতে বলেই।
+      <span class="en">Film student. Left at heart. Entering the system to change it from within.</span>
+    </p>
+
+    <div class="cd-label">পরবর্তী বিসিএস প্রিলিমিনারি — আনুমানিক তারিখ (ঘোষণা হলে আপডেট হবে)</div>
+    <div class="countdown" id="countdown">
+      <div class="cd-box"><b id="cdD">--</b><span>Days</span></div>
+      <div class="cd-box"><b id="cdH">--</b><span>Hours</span></div>
+      <div class="cd-box"><b id="cdM">--</b><span>Min</span></div>
+      <div class="cd-box"><b id="cdS">--</b><span>Sec</span></div>
+    </div>
   </div>
 </header>
 
 <div class="wrap">
 
   <section class="dash">
-    <div class="dash-head"><h2>আপনার অগ্রগতি</h2><span>Progress Dashboard</span></div>
-    <div class="dash-grid" id="dashGrid"><div class="dcard"><div class="t">সাইন ইন করুন</div><div class="s">Sign in to see your progress</div></div></div>
+    <div class="ring-card">
+      <h2>অগ্রগতি</h2>
+      <svg width="140" height="140" viewBox="0 0 140 140">
+        <circle cx="70" cy="70" r="58" fill="none" stroke="#ddd0b8" stroke-width="14"/>
+        <circle id="ringFg" cx="70" cy="70" r="58" fill="none" stroke="#3c6e52" stroke-width="14"
+          stroke-linecap="round" stroke-dasharray="364" stroke-dashoffset="364"
+          transform="rotate(-90 70 70)" style="transition:stroke-dashoffset .6s ease;"/>
+        <text id="ringText" x="70" y="76" text-anchor="middle" font-family="Courier Prime, monospace"
+          font-size="22" fill="#171310">0/12</text>
+      </svg>
+      <div class="ring-num" id="ringSub">সাইন ইন করুন প্রথমে</div>
+    </div>
+
+    <div class="dash-list">
+      <div class="dash-head"><h2>বিষয়ভিত্তিক অগ্রগতি</h2><span>Per-subject activity</span></div>
+      <div class="dash-grid" id="dashGrid"><div class="dcard"><div class="t">সাইন ইন করুন</div><div class="s">Sign in to see your progress</div></div></div>
+    </div>
   </section>
 
   <main id="catRoot"></main>
 
-  <footer>My Job Preparation — Personal Study Hub</footer>
+  <footer>পথিক রায় — Personal Study Hub · বিসিএস প্রস্তুতি</footer>
 </div>
 
 <script>
+/* ============================================================
+   EXAM COUNTDOWN — placeholder date. Tell Claude the real
+   announced date and this one line gets updated.
+   ============================================================ */
+const EXAM_DATE = new Date('2027-01-01T00:00:00+06:00');
+
+function tickCountdown(){
+  const now = new Date();
+  let diff = EXAM_DATE - now;
+  if(diff < 0) diff = 0;
+  const d = Math.floor(diff/86400000);
+  const h = Math.floor((diff%86400000)/3600000);
+  const m = Math.floor((diff%3600000)/60000);
+  const s = Math.floor((diff%60000)/1000);
+  document.getElementById('cdD').textContent = d;
+  document.getElementById('cdH').textContent = String(h).padStart(2,'0');
+  document.getElementById('cdM').textContent = String(m).padStart(2,'0');
+  document.getElementById('cdS').textContent = String(s).padStart(2,'0');
+}
+tickCountdown();
+setInterval(tickCountdown, 1000);
+
 /* ============================================================
    CATALOG — the whole site map lives here. To add a new subject
    or a new category (e.g. Bank Preparation) later, add one more
@@ -155,7 +238,7 @@ CATALOG.forEach(cat => {
   inner.className = 'cat-body-inner';
 
   if(cat.subcategories.length === 0){
-    inner.innerHTML = '<p style="color:#6b6558;font-size:13px;">এই বিভাগের কনটেন্ট শীঘ্রই যোগ করা হবে।</p>';
+    inner.innerHTML = '<p style="color:#6b6154;font-size:13px;">এই বিভাগের কনটেন্ট শীঘ্রই যোগ করা হবে।</p>';
   }
   cat.subcategories.forEach(sub => {
     const subEl = document.createElement('div');
@@ -183,23 +266,47 @@ CATALOG.forEach(cat => {
 function loadDashboard(db, uid){
   const grid = document.getElementById('dashGrid');
   grid.innerHTML = '';
+  const total = allItems.length;
+  let started = 0;
+  let done = 0;
+
   allItems.forEach(item => {
     const card = document.createElement('div');
     card.className = 'dcard';
-    card.innerHTML = '<div class="t">'+item.bn+'</div><div class="s">Checking...</div>';
+    card.innerHTML = '<div class="t">'+item.bn+'</div><div class="bar"><i></i></div><div class="s">Checking...</div>';
     grid.appendChild(card);
     db.collection('users').doc(uid).collection('progress').doc(item.id).get().then(snap => {
       const s = card.querySelector('.s');
+      const bar = card.querySelector('.bar i');
       if(snap.exists && snap.data().updatedAt){
         const d = snap.data().updatedAt.toDate();
         s.textContent = 'Last studied: ' + d.toLocaleDateString();
         s.classList.add('done');
+        bar.style.width = '100%';
+        started++;
       } else {
         s.textContent = 'Not started yet';
+        bar.style.width = '4%';
       }
-    }).catch(()=>{ card.querySelector('.s').textContent = '—'; });
+      done++;
+      if(done === total) updateRing(started, total);
+    }).catch(()=>{
+      card.querySelector('.s').textContent = '—';
+      done++;
+      if(done === total) updateRing(started, total);
+    });
   });
 }
+
+function updateRing(started, total){
+  const circumference = 364; // 2 * PI * 58, rounded
+  const frac = total ? started/total : 0;
+  const offset = circumference * (1 - frac);
+  document.getElementById('ringFg').setAttribute('stroke-dashoffset', offset);
+  document.getElementById('ringText').textContent = started + '/' + total;
+  document.getElementById('ringSub').innerHTML = '<b>' + Math.round(frac*100) + '%</b> শুরু হয়েছে';
+}
+
 window.AG_ON_GRANT = loadDashboard;
 </script>
 </body>
