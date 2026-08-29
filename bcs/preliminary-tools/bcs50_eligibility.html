@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="../../firebase-config.js?v=2"></script>
+  <script>window.AG_PAGE = {"id": "bcs50-eligibility", "title": "BCS 50th Eligibility Analysis"};</script>
+  <script src="../../auth-gate.js?v=5"></script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>৫০তম বি.সি.এস — আমার যোগ্যতা বিশ্লেষণ (TFP, ঢাকা বিশ্ববিদ্যালয়)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#20221c;
+  --ink-soft:#4b4d43;
+  --paper:#f6f2e6;
+  --paper-2:#efe9d8;
+  --card:#fffdf7;
+  --line:#d8cfb4;
+  --seal:#0b3d2e;
+  --seal-2:#124d3a;
+  --brass:#a97c34;
+  --brass-2:#c99a4e;
+  --green:#1f6f4e;
+  --green-bg:#e4f1e8;
+  --amber:#b3711f;
+  --amber-bg:#faf0dd;
+  --red:#a3402a;
+  --red-bg:#f7e6df;
+  --shadow: 0 6px 20px rgba(20,20,10,.10);
+  --radius: 14px;
+  --maxw: 1180px;
+}
+[data-theme="dark"]{
+  --ink:#efe9d8;
+  --ink-soft:#c9c3ac;
+  --paper:#161811;
+  --paper-2:#1e2118;
+  --card:#1c1f17;
+  --line:#3a3c2f;
+  --seal:#8fd6b4;
+  --seal-2:#bfe9d3;
+  --brass:#e0b467;
+  --brass-2:#f0cf8f;
+  --green:#7fd6a6;
+  --green-bg:#173327;
+  --amber:#f0b968;
+  --amber-bg:#332510;
+  --red:#e79484;
+  --red-bg:#3a1f19;
+  --shadow: 0 8px 26px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:'Hind Siliguri','Noto Sans Bengali',sans-serif;
+  font-size:16px; line-height:1.65;
+  padding-bottom:78px;
+  transition:background .25s ease,color .25s ease;
+}
+h1,h2,h3,h4{font-family:'Noto Serif Bengali','Noto Sans Bengali',serif; font-weight:700; margin:0 0 .4em; color:var(--ink);}
+h1{font-size:1.9rem;} h2{font-size:1.5rem;} h3{font-size:1.15rem;} h4{font-size:1rem;}
+a{color:inherit;}
+p{margin:.3em 0 .8em;}
+.container{max-width:var(--maxw); margin:0 auto; padding:0 18px;}
+.eyebrow{font-size:.78rem; letter-spacing:.14em; text-transform:uppercase; color:var(--brass); font-weight:700;}
+
+/* ===== Top bar ===== */
+.topbar{
+  position:sticky; top:0; z-index:60; background:var(--seal); color:#fdf8ec;
+  box-shadow:var(--shadow);
+}
+.topbar-inner{display:flex; align-items:center; justify-content:space-between; gap:14px; padding:10px 18px; max-width:var(--maxw); margin:0 auto;}
+.brand{display:flex; align-items:center; gap:10px; font-family:'Noto Serif Bengali',serif; font-weight:700; font-size:1.05rem;}
+.brand .stamp-mini{
+  width:34px; height:34px; border-radius:50%; border:2px solid var(--brass-2); display:flex; align-items:center; justify-content:center;
+  font-size:.62rem; color:var(--brass-2); text-align:center; line-height:1.05; font-family:'Noto Serif Bengali',serif; flex-shrink:0;
+}
+.topnav{display:flex; gap:2px; flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none;}
+.topnav::-webkit-scrollbar{display:none;}
+.topnav a{
+  white-space:nowrap; padding:8px 12px; border-radius:20px; font-size:.85rem; color:#f2ead6; text-decoration:none; opacity:.85;
+}
+.topnav a:hover{background:rgba(255,255,255,.12); opacity:1;}
+.icon-btn{
+  background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.25); color:#fdf8ec; border-radius:10px;
+  padding:7px 10px; cursor:pointer; font-size:.85rem; display:flex; align-items:center; gap:6px;
+}
+.icon-btn:hover{background:rgba(255,255,255,.2);}
+@media (max-width: 880px){ .topnav{display:none;} }
+
+/* ===== Bottom nav (mobile) ===== */
+.bottom-nav{
+  position:fixed; bottom:0; left:0; right:0; z-index:70; background:var(--card); border-top:1px solid var(--line);
+  display:none; padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+}
+.bottom-nav select{
+  width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--line); background:var(--paper); color:var(--ink); font-size:.95rem;
+}
+@media (max-width: 880px){ .bottom-nav{display:block;} body{padding-bottom:70px;} }
+
+/* ===== Hero / Dashboard ===== */
+.hero{
+  background: linear-gradient(180deg, var(--seal) 0%, var(--seal-2) 100%); color:#fbf6e8; padding:34px 0 40px; position:relative; overflow:hidden;
+}
+.hero::after{
+  content:""; position:absolute; inset:0; opacity:.05; pointer-events:none;
+  background-image: radial-gradient(circle at 10% 20%, #fff 1px, transparent 1px), radial-gradient(circle at 80% 60%, #fff 1px, transparent 1px);
+  background-size:60px 60px;
+}
+.hero-grid{display:grid; grid-template-columns: 1.2fr .8fr; gap:26px; align-items:center;}
+@media (max-width:900px){ .hero-grid{grid-template-columns:1fr;} }
+.hero h1{color:#fbf6e8; font-size:1.7rem;}
+.profile-card{
+  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.25); border-radius:var(--radius); padding:16px 18px; backdrop-filter:blur(2px);
+}
+.profile-card .row{display:flex; gap:8px; margin:3px 0; font-size:.92rem; color:#f2ead6;}
+.profile-card .row b{min-width:auto; color:#fff;}
+.stamp{
+  width:150px; height:150px; border-radius:50%; border:4px double var(--brass-2); display:flex; flex-direction:column; align-items:center; justify-content:center;
+  transform:rotate(-8deg); margin:8px auto 0; text-align:center; flex-shrink:0;
+}
+.stamp .big{font-family:'Noto Serif Bengali',serif; font-weight:800; font-size:1.5rem; color:var(--brass-2); line-height:1;}
+.stamp .small{font-size:.66rem; color:#f2ead6; margin-top:4px; padding:0 10px;}
+.stat-row{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:22px;}
+@media (max-width:760px){ .stat-row{grid-template-columns:repeat(2,1fr);} }
+.stat{
+  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.22); border-radius:12px; padding:14px; text-align:center;
+}
+.stat .n{font-family:'Noto Serif Bengali',serif; font-size:1.7rem; font-weight:800;}
+.stat .l{font-size:.78rem; color:#e9e1c8; margin-top:2px;}
+.stat.g .n{color:#a9e8c4;} .stat.a .n{color:#f3ce8f;} .stat.r .n{color:#f3a99a;} .stat.t .n{color:#fbf6e8;}
+.hero-final{
+  margin-top:20px; background:rgba(0,0,0,.18); border:1px dashed var(--brass-2); border-radius:12px; padding:14px 16px; font-size:.95rem;
+}
+.hero-final b{color:var(--brass-2);}
+
+/* ===== Section ===== */
+section.block{padding:38px 0; border-bottom:1px solid var(--line);}
+section.block:last-of-type{border-bottom:none;}
+.section-head{margin-bottom:18px;}
+.section-head p.sub{color:var(--ink-soft); font-size:.94rem; max-width:760px;}
+
+/* ===== Cards ===== */
+.card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px; box-shadow:var(--shadow);}
+.grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+.grid-2{display:grid; grid-template-columns:repeat(2,1fr); gap:14px;}
+@media (max-width:820px){ .grid-3{grid-template-columns:1fr;} .grid-2{grid-template-columns:1fr;} }
+
+/* ===== Badges ===== */
+.badge{display:inline-flex; align-items:center; gap:5px; font-size:.78rem; font-weight:700; padding:4px 10px; border-radius:20px;}
+.badge.eligible{background:var(--green-bg); color:var(--green);}
+.badge.conditional{background:var(--amber-bg); color:var(--amber);}
+.badge.not-eligible{background:var(--red-bg); color:var(--red);}
+.badge.verify{background:var(--amber-bg); color:var(--amber); border:1px dashed var(--amber);}
+.dot{width:8px; height:8px; border-radius:50%; display:inline-block;}
+.dot.eligible{background:var(--green);} .dot.conditional{background:var(--amber);} .dot.not-eligible{background:var(--red);}
+
+/* ===== Filter bar ===== */
+.filter-bar{
+  display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:16px; position:sticky; top:56px; z-index:40;
+  background:var(--paper); padding:10px 0;
+}
+@media (max-width:880px){ .filter-bar{top:0;} }
+.filter-bar input[type=text]{
+  flex:1; min-width:180px; padding:10px 14px; border-radius:10px; border:1px solid var(--line); background:var(--card); color:var(--ink); font-size:.92rem;
+}
+.chip{
+  padding:7px 13px; border-radius:20px; border:1px solid var(--line); background:var(--card); color:var(--ink-soft); font-size:.83rem; cursor:pointer; user-select:none;
+}
+.chip.active{background:var(--seal); color:#fbf6e8; border-color:var(--seal);}
+[data-theme="dark"] .chip.active{background:var(--brass); color:#161811;}
+.toggle-only{display:flex; align-items:center; gap:8px; font-size:.85rem; color:var(--ink-soft); padding:7px 12px; border:1px solid var(--line); border-radius:20px; background:var(--card); cursor:pointer;}
+.toggle-only input{accent-color:var(--seal);}
+
+/* ===== Table ===== */
+.table-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius); background:var(--card);}
+table{width:100%; border-collapse:collapse; min-width:760px; font-size:.88rem;}
+thead th{
+  background:var(--paper-2); text-align:right; padding:10px 12px; font-size:.78rem; color:var(--ink-soft); border-bottom:1px solid var(--line); white-space:nowrap;
+}
+thead th:first-child, tbody td:first-child{text-align:right; padding-right:14px;}
+tbody td{padding:11px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--paper-2);}
+.why-btn{
+  background:var(--paper-2); border:1px solid var(--line); color:var(--ink); padding:6px 12px; border-radius:8px; font-size:.8rem; cursor:pointer; white-space:nowrap;
+}
+.why-btn:hover{background:var(--brass); color:#fff; border-color:var(--brass);}
+.cadre-name{font-weight:700;}
+.muted{color:var(--ink-soft); font-size:.85rem;}
+
+/* card list for mobile */
+.card-list{display:none; flex-direction:column; gap:12px;}
+@media (max-width:760px){ .table-wrap{display:none;} .card-list{display:flex;} }
+.entry-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px;}
+.entry-card .top{display:flex; justify-content:space-between; gap:10px; align-items:flex-start;}
+.entry-card .meta{font-size:.8rem; color:var(--ink-soft); margin:6px 0;}
+
+/* ===== Options cards (My options) ===== */
+.opt-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:16px; border-top:4px solid var(--green);}
+.opt-card .code{font-size:.75rem; color:var(--ink-soft);}
+.opt-card .vac{font-size:.8rem; margin-top:6px; color:var(--ink-soft);}
+
+/* ===== Modal ===== */
+.modal-backdrop{position:fixed; inset:0; background:rgba(10,10,5,.55); display:none; align-items:center; justify-content:center; z-index:100; padding:20px;}
+.modal-backdrop.open{display:flex;}
+.modal{
+  background:var(--card); border-radius:16px; max-width:560px; width:100%; max-height:86vh; overflow:auto; padding:22px 24px; box-shadow:0 20px 60px rgba(0,0,0,.4);
+  border:1px solid var(--line);
+}
+.modal h3{margin-bottom:4px;}
+.modal .close{float:left; background:none; border:none; font-size:1.3rem; cursor:pointer; color:var(--ink-soft);}
+.modal-section{margin-top:14px; padding-top:12px; border-top:1px dashed var(--line);}
+.modal-section .lbl{font-size:.75rem; text-transform:uppercase; letter-spacing:.06em; color:var(--brass); font-weight:700; margin-bottom:4px;}
+.compare-box{background:var(--paper-2); border-radius:10px; padding:10px 12px; font-size:.9rem; margin-top:6px;}
+
+/* ===== Warning badges ===== */
+.warn-badge{display:inline-flex; align-items:center; gap:5px; background:var(--amber-bg); color:var(--amber); font-size:.76rem; padding:4px 9px; border-radius:16px; margin:2px 4px 2px 0;}
+
+/* ===== Timeline ===== */
+.timeline{display:flex; flex-direction:column; gap:0; position:relative; margin-top:6px;}
+.tl-item{display:flex; gap:16px; padding:14px 0; position:relative;}
+.tl-item .line{width:2px; background:var(--line); position:absolute; left:9px; top:0; bottom:0;}
+.tl-item:last-child .line{display:none;}
+.tl-dot{width:20px; height:20px; border-radius:50%; background:var(--brass); flex-shrink:0; z-index:2; display:flex; align-items:center; justify-content:center;}
+.tl-dot::after{content:""; width:8px; height:8px; background:#fff; border-radius:50%;}
+.tl-content b{display:block; font-size:.95rem;}
+.tl-content .date{color:var(--brass); font-weight:700; font-size:.9rem;}
+
+/* ===== Steps ===== */
+.steps{counter-reset:step; display:flex; flex-direction:column; gap:10px;}
+.step{display:flex; gap:14px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px;}
+.step .num{
+  counter-increment:step; flex-shrink:0; width:32px; height:32px; border-radius:50%; background:var(--seal); color:#fbf6e8; display:flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:.9rem;
+}
+.step .num::before{content:counter(step);}
+[data-theme="dark"] .step .num{background:var(--brass); color:#161811;}
+
+/* ===== Mini tool ===== */
+.mini-tool{background:var(--paper-2); border:1px dashed var(--brass); border-radius:var(--radius); padding:18px;}
+.mini-tool label{display:flex; align-items:center; gap:10px; margin:8px 0; cursor:pointer; font-size:.94rem;}
+.mini-tool input[type=checkbox]{width:18px; height:18px; accent-color:var(--seal);}
+.mini-result{margin-top:14px; padding:12px 14px; background:var(--card); border-radius:10px; border:1px solid var(--line); font-size:.92rem; display:none;}
+
+/* ===== Footer ===== */
+footer{padding:28px 0 60px; text-align:center;}
+.disclaimer{max-width:680px; margin:0 auto; font-size:.82rem; color:var(--ink-soft); line-height:1.7; background:var(--paper-2); border-radius:12px; padding:16px 20px;}
+.back-top{
+  position:fixed; right:18px; bottom:88px; z-index:50; background:var(--seal); color:#fbf6e8; border:none; width:44px; height:44px; border-radius:50%;
+  cursor:pointer; box-shadow:var(--shadow); display:none; align-items:center; justify-content:center; font-size:1.1rem;
+}
+@media (max-width:880px){ .back-top{bottom:80px;} }
+.back-top.show{display:flex;}
+
+.source-tag{font-size:.72rem; color:var(--brass); margin-top:8px;}
+.faq-item{border-bottom:1px solid var(--line); padding:12px 0;}
+.faq-item summary{cursor:pointer; font-weight:600;}
+.faq-item summary::-webkit-details-marker{color:var(--brass);}
+
+@media print{
+  .topbar,.bottom-nav,.filter-bar,.back-top,.icon-btn{display:none !important;}
+  body{background:#fff; color:#000;}
+  .card,.table-wrap{box-shadow:none; border-color:#999;}
+}
+::selection{background:var(--brass-2); color:#1c1a12;}
+</style>
+</head>
+<body data-theme="light">
+<div id="ag-overlay"></div>
+
+
+<!-- ===================== TOP BAR ===================== -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand"><span class="stamp-mini">৫০<br>BCS</span> আমার BCS যোগ্যতা</div>
+    <nav class="topnav">
+      <a href="#overview">সংক্ষিপ্ত বিবরণ</a>
+      <a href="#dashboard">আমার যোগ্যতা</a>
+      <a href="#general">সাধারণ ক্যাডার</a>
+      <a href="#technical">টেকনিক্যাল</a>
+      <a href="#both">General+Tech</a>
+      <a href="#exam">পরীক্ষা কাঠামো</a>
+      <a href="#application">আবেদন প্রক্রিয়া</a>
+      <a href="#fee">ফি</a>
+      <a href="#dates">গুরুত্বপূর্ণ তারিখ</a>
+      <a href="#docs">ছবি/স্বাক্ষর</a>
+      <a href="#faq">FAQ</a>
+      <a href="#source">সোর্স</a>
+    </nav>
+    <button class="icon-btn" id="themeToggle">🌓 <span id="themeLabel">ডার্ক মোড</span></button>
+  </div>
+</div>
+
+<!-- ===================== HERO / DASHBOARD ===================== -->
+<div class="hero" id="dashboard">
+  <div class="container">
+    <div class="eyebrow" style="color:var(--brass-2)">MY 50th BCS ELIGIBILITY DASHBOARD</div>
+    <div class="hero-grid">
+      <div>
+        <h1>আমার ৫০তম বি.সি.এস যোগ্যতা — এক নজরে</h1>
+        <div class="profile-card">
+          <div class="row"><b>🎓 বিশ্ববিদ্যালয়:</b> University of Dhaka</div>
+          <div class="row"><b>🏛️ অনুষদ:</b> Faculty of Social Sciences</div>
+          <div class="row"><b>📽️ বিভাগ / ডিগ্রি:</b> Television, Film &amp; Photography (TFP)</div>
+          <div class="row"><b>📘 HSC ব্যাকগ্রাউন্ড:</b> বিজ্ঞান</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat g"><div class="n" id="statGen">–</div><div class="l">🟢 Eligible General Cadre পদ</div></div>
+          <div class="stat g"><div class="n" id="statTech">–</div><div class="l">🟢 Eligible Technical/Professional</div></div>
+          <div class="stat a"><div class="n" id="statVerify">–</div><div class="l">🟡 Needs Verification</div></div>
+          <div class="stat r"><div class="n" id="statNot">–</div><div class="l">🔴 Not Eligible</div></div>
+        </div>
+        <div class="hero-final">
+          <b>চূড়ান্ত সংক্ষিপ্ত উত্তর:</b> আমার TFP ডিগ্রি দিয়ে আমি ঢাকা বিশ্ববিদ্যালয়ের যেকোনো স্নাতকোত্তর/৪-বছর মেয়াদি ডিগ্রি হিসেবে
+          <b>সবগুলো "সাধারণ ক্যাডার" (General Cadre)</b> পদের জন্য আবেদন করতে পারি, কারণ সেগুলোর শিক্ষাগত যোগ্যতায় কোনো নির্দিষ্ট
+          বিষয়/ডিগ্রি চাওয়া হয়নি। সার্কুলারে বর্ণিত <b>প্রফেশনাল/টেকনিক্যাল ক্যাডার</b>-গুলোর প্রতিটিতে সুনির্দিষ্ট বিষয়ের ডিগ্রি
+          (প্রকৌশল, পরিসংখ্যান, কৃষি, চিকিৎসা, বন ইত্যাদি) আবশ্যক — এসবের কোথাও TFP/Film/Television/Mass Communication জাতীয় ডিগ্রি
+          গ্রহণযোগ্য বিষয় হিসেবে উল্লেখ নেই, তাই এগুলো আমার জন্য প্রযোজ্য নয়। বিস্তারিত নিচের টেবিলে দেখুন।
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center;">
+        <div class="stamp">
+          <div class="big">General<br>Cadre</div>
+          <div class="small">সব সাধারণ ক্যাডারে যোগ্য · প্রফেশনাল/টেকনিক্যালে অযোগ্য</div>
+        </div>
+        <div style="margin-top:14px; text-align:center; font-size:.82rem; color:#e9e1c8;">
+          মোট আবেদনযোগ্য অপশন: <b id="statTotal" style="color:#fff; font-size:1rem;">–</b>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== OVERVIEW ===================== -->
+<section class="block" id="overview">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">Overview</div>
+      <h2>৫০তম বি.সি.এস পরীক্ষা-২০২৫ — সংক্ষিপ্ত বিবরণ</h2>
+      <p class="sub">বাংলাদেশ সরকারী কর্ম কমিশন (BPSC) কর্তৃক প্রকাশিত ৫০তম বি.সি.এস পরীক্ষা-২০২৫-এর সার্কুলার (তারিখ: ২৬ নভেম্বর ২০২৫, নথি নং ৮০.০০.০০০০.২০০.৪৬.১২৮.২৫-৫৩২) অনুযায়ী এই তথ্য উপস্থাপন করা হয়েছে।</p>
+    </div>
+    <div class="grid-3">
+      <div class="card"><h4>মোট শূন্য পদ (ক্যাডার)</h4><div style="font-size:1.6rem; font-weight:800; color:var(--seal);" id="ovTotalCadre">১৭৫৫</div><div class="muted">সাধারণ ৪৫২ + প্রফেশনাল/টেকনিক্যাল ১১২২ + সাধারণ শিক্ষা ১৩৯+২৬ + কারিগরি শিক্ষা ২১ <span class="source-tag">Source: page 11</span></div></div>
+      <div class="card"><h4>মোট শূন্য পদ (নন-ক্যাডার)</h4><div style="font-size:1.6rem; font-weight:800; color:var(--brass);">৩৯৫</div><div class="muted">৯ম গ্রেড ৭১ + ১০ম গ্রেড ৪২ + ১১তম গ্রেড ২৭৮ + ১২তম গ্রেড ৪ <span class="source-tag">Source: page 28</span></div></div>
+      <div class="card"><h4>বয়সসীমা</h4><div style="font-size:1.6rem; font-weight:800;">২১–৩২ বছর</div><div class="muted">০১ নভেম্বর ২০২৫ তারিখে হিসাব করা হবে <span class="source-tag">Source: page 12</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== MAIN ELIGIBILITY TABLE ===================== -->
+<section class="block" id="eligibility-table">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">সবচেয়ে গুরুত্বপূর্ণ টেবিল</div>
+      <h2>Cadre / Post Eligibility Table</h2>
+      <p class="sub">প্রতিটি সারিতে "Why?" চাপলে required qualification, আমার degree, তুলনা এবং circular-এর page reference দেখা যাবে।</p>
+    </div>
+
+    <div class="filter-bar">
+      <input type="text" id="searchBox" placeholder="🔎 ক্যাডার/পদের নাম খুঁজুন...">
+    </div>
+    <div class="filter-bar" style="margin-top:-10px;">
+      <div class="chip active" data-filter-type="type" data-value="all">সব</div>
+      <div class="chip" data-filter-type="type" data-value="general">General</div>
+      <div class="chip" data-filter-type="type" data-value="technical">Technical/Professional</div>
+      <div class="chip" data-filter-type="type" data-value="education">সাধারণ/কারিগরি শিক্ষা</div>
+      <div class="chip" data-filter-type="type" data-value="noncadre">নন-ক্যাডার</div>
+      <span style="width:1px; height:22px; background:var(--line);"></span>
+      <div class="chip" data-filter-type="elig" data-value="eligible">🟢 Eligible</div>
+      <div class="chip" data-filter-type="elig" data-value="conditional">🟡 Conditional</div>
+      <div class="chip" data-filter-type="elig" data-value="not-eligible">🔴 Not Eligible</div>
+      <label class="toggle-only"><input type="checkbox" id="onlyMine"> শুধু আমার অপশন দেখাও</label>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ক্যাডার/পদ</th><th>ধরন</th><th>শূন্য পদ</th><th>গ্রেড</th><th>যোগ্যতা</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <div class="card-list" id="cardList"></div>
+    <p class="muted" id="resultCount" style="margin-top:10px;"></p>
+  </div>
+</section>
+
+<!-- ===================== GENERAL CADRES ===================== -->
+<section class="block" id="general">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">General Cadres</div>
+      <h2>সাধারণ ক্যাডারসমূহ — আমার জন্য প্রযোজ্য</h2>
+      <p class="sub">শিক্ষাগত যোগ্যতা: "কোন স্বীকৃত বিশ্ববিদ্যালয় হতে স্নাতকোত্তর ডিগ্রি অথবা স্বীকৃত বোর্ড হতে এইচ.এস.সি পরীক্ষা পাসের পর ৪ (চার) বছর মেয়াদি শিক্ষা সমাপনী ডিগ্রি অথবা সমমানের ডিগ্রি" — কোনো নির্দিষ্ট বিষয়ের শর্ত নেই, তাই TFP ডিগ্রি সরাসরি satisfy করে। <span class="source-tag">Source: page 1–2</span></p>
+    </div>
+    <h3 style="margin-top:22px;">✅ My General Cadre Options</h3>
+    <div class="grid-3" id="myGeneralOptions"></div>
+  </div>
+</section>
+
+<!-- ===================== TECHNICAL/PROFESSIONAL ===================== -->
+<section class="block" id="technical">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">Technical / Professional Cadres</div>
+      <h2>টেকনিক্যাল/প্রফেশনাল ক্যাডারসমূহ</h2>
+      <p class="sub">এই গ্রুপের প্রতিটি ক্যাডারে সুনির্দিষ্ট বিষয়ে ডিগ্রি (প্রকৌশল, পরিসংখ্যান, কৃষি, বন, মৎস্য, পশুসম্পদ, চিকিৎসা ইত্যাদি) আবশ্যক করা হয়েছে। কোথাও Television, Film &amp; Photography / Mass Communication / Journalism ধরনের ডিগ্রি গ্রহণযোগ্য বিষয় হিসেবে উল্লেখ নেই — তাই এই গ্রুপে আমার জন্য কোনো নিশ্চিত বা শর্তসাপেক্ষ যোগ্যতা পাওয়া যায়নি। <span class="source-tag">Source: page 2–7</span></p>
+    </div>
+    <div class="card" style="border-left:4px solid var(--red);">
+      <h4>🔴 My Technical/Professional Options: <span style="color:var(--red)">কোনোটি নেই (০)</span></h4>
+      <p class="muted">নিচের ফিল্টারযুক্ত টেবিলে "Technical/Professional" চিপ চেপে সম্পূর্ণ তালিকা ও প্রতিটির "Why?" ব্যাখ্যা দেখুন। প্রতিটি ক্যাডারের নির্দিষ্ট বিষয় circular অনুযায়ী তালিকাভুক্ত করা আছে; TFP এর সাথে সরাসরি বা "equivalent" হিসেবে কোনো মিল circular-এর wording-এ পাওয়া যায়নি।</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== BOTH ===================== -->
+<section class="block" id="both">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">Application Form Choice</div>
+      <h2>General + Technical/Professional (Both) — ব্যাখ্যা</h2>
+      <p class="sub">সার্কুলারের ৭.১ ও ৭.২ অনুচ্ছেদ অনুযায়ী Application Form-এর ৩টি ক্যাটাগরি রয়েছে। <span class="source-tag">Source: page 13</span></p>
+    </div>
+    <div class="grid-3">
+      <div class="card">
+        <h4>(I) General Cadres Form</h4>
+        <p>শুধুমাত্র সাধারণ ক্যাডারের (প্রশাসন, পুলিশ, কর, তথ্য, ডাক ইত্যাদি) জন্য আবেদন করতে চাইলে এই ফর্ম নির্বাচন করতে হয়।</p>
+      </div>
+      <div class="card">
+        <h4>(II) Technical/Professional Cadres Form</h4>
+        <p>শুধুমাত্র প্রফেশনাল/টেকনিক্যাল ক্যাডারের (প্রকৌশল, কৃষি, স্বাস্থ্য, বন, পরিসংখ্যান ইত্যাদি) জন্য আবেদন করতে চাইলে এই ফর্ম নির্বাচন করতে হয়।</p>
+      </div>
+      <div class="card">
+        <h4>(III) General and Technical/Professional (Both) Form</h4>
+        <p>যিনি উভয় ধরনের ক্যাডারেই আবেদন করতে ইচ্ছুক ও যোগ্য, তিনি এই ফর্ম নির্বাচন করবেন — Bangla বিষয়ের জন্য ২০০ নম্বরের পরীক্ষা দিতে হয়, এবং পাশাপাশি Technical/Professional পদের জন্য নির্দিষ্ট "সংশ্লিষ্ট বিষয়ে প্রাসঙ্গিক" পত্র বাধ্যতামূলক (২৪.৪ অনুচ্ছেদ)।</p>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px; border-left:4px solid var(--amber);">
+      <h4>⚠️ আমার ক্ষেত্রে প্রযোজ্যতা</h4>
+      <p>যেহেতু circular অনুযায়ী আমার TFP ডিগ্রি কোনো Technical/Professional ক্যাডারের নির্দিষ্ট বিষয়ের সাথে মিলছে না, তাই আমার জন্য <b>শুধু General Cadres Form (I)</b> প্রযোজ্য। "Both" ফর্ম নির্বাচন করলেও Technical/Professional অংশে আমি কোনো পদে যোগ্য বিবেচিত হব না বলেই circular-এর তথ্য থেকে প্রতীয়মান হয় — এই বিষয়ে সন্দেহ থাকলে BPSC-এর সাথে verify করা উচিত।</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PRIORITY VIEW ===================== -->
+<section class="block" id="priority">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">My Priority View</div>
+      <h2>আমার জন্য সবচেয়ে গুরুত্বপূর্ণ Cadre Options</h2>
+      <p class="sub">কোন cadre "ভালো" তা subjective ranking করা হয়নি — শুধু circular-সমর্থিত factual sorting দেখানো হলো (বেশি vacancy অনুযায়ী)।</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ক্যাডার</th><th>শূন্য পদ</th><th>গ্রেড</th><th>কেন গুরুত্বপূর্ণ হতে পারে</th></tr></thead>
+        <tbody id="priorityBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== EXAM STRUCTURE ===================== -->
+<section class="block" id="exam">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">Exam Structure</div>
+      <h2>পরীক্ষা কাঠামো ও নম্বর বণ্টন</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h4>প্রিলিমিনারি টেস্ট — ২০০ নম্বর, MCQ, ২ ঘণ্টা</h4>
+        <div class="table-wrap" style="margin-top:8px;">
+          <table style="min-width:auto;">
+            <tbody>
+              <tr><td>বাংলা ভাষা ও সাহিত্য</td><td>৩০</td></tr>
+              <tr><td>ইংরেজি ভাষা ও সাহিত্য</td><td>৩০</td></tr>
+              <tr><td>বাংলাদেশ বিষয়াবলি</td><td>২৫</td></tr>
+              <tr><td>আন্তর্জাতিক বিষয়াবলি</td><td>২৫</td></tr>
+              <tr><td>ভূগোল, পরিবেশ ও দুর্যোগ ব্যবস্থাপনা</td><td>১০</td></tr>
+              <tr><td>সাধারণ বিজ্ঞান</td><td>১৫</td></tr>
+              <tr><td>কম্পিউটার ও তথ্যপ্রযুক্তি</td><td>১৫</td></tr>
+              <tr><td>গাণিতিক যুক্তি</td><td>২০</td></tr>
+              <tr><td>মানসিক দক্ষতা</td><td>১৫</td></tr>
+              <tr><td>নৈতিকতা, মূল্যবোধ ও সুশাসন</td><td>১৫</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">প্রতি সঠিক উত্তরে +১, প্রতি ভুল উত্তরে −০.৫০ নম্বর কাটা যাবে। <span class="source-tag">Source: page 17–19</span></p>
+      </div>
+      <div class="card">
+        <h4>লিখিত পরীক্ষা (সাধারণ ক্যাডার) — মোট ১০০০</h4>
+        <div class="table-wrap" style="margin-top:8px;">
+          <table style="min-width:auto;">
+            <tbody>
+              <tr><td>বাংলা</td><td>২০০</td></tr>
+              <tr><td>ইংরেজি</td><td>২০০</td></tr>
+              <tr><td>বাংলাদেশ বিষয়াবলি</td><td>২০০</td></tr>
+              <tr><td>আন্তর্জাতিক বিষয়াবলি</td><td>১০০</td></tr>
+              <tr><td>গাণিতিক যুক্তি ও মানসিক দক্ষতা</td><td>১০০</td></tr>
+              <tr><td>সাধারণ বিজ্ঞান ও প্রযুক্তি</td><td>১০০</td></tr>
+              <tr><td>মৌখিক পরীক্ষা</td><td>১০০</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted">প্রফেশনাল/টেকনিক্যাল ক্যাডারের জন্য নম্বর বণ্টন ভিন্ন (বাংলা ১০০ + "সংশ্লিষ্ট পদ/সার্ভিসের প্রাসঙ্গিক বিষয়" ২০০)। যেহেতু আমি কোনো Technical/Professional পদে যোগ্য নই, এই কাঠামো আমার জন্য প্রযোজ্য নয়। <span class="source-tag">Source: page 18</span></p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px; border-left:4px solid var(--brass);">
+      <h4>📽️ TFP / Media-related Candidate Alert</h4>
+      <p>Circular-এর ২৯ পৃষ্ঠায় TFP, Film, Television, Mass Communication, Journalism বা Media Studies সংক্রান্ত কোনো পৃথক written subject/syllabus বা post-specific পরীক্ষা পাওয়া যায়নি। BCS (তথ্য) ক্যাডারের অধীনে যে পদগুলো আছে (Assistant Director, Information Officer, Assistant Controller of News ইত্যাদি) — এগুলো সবই <b>General Cadre</b>-এর অংশ এবং এখানে যেকোনো বিষয়ের ডিগ্রিধারী আবেদন করতে পারেন, subject-specific অগ্রাধিকার circular-এ উল্লেখ নেই।</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== APPLICATION PROCESS ===================== -->
+<section class="block" id="application">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">Application Process</div>
+      <h2>অনলাইনে আবেদন প্রক্রিয়া (BPSC Form-1)</h2>
+      <p class="sub">Website: <b>www.bpsc.gov.bd</b> অথবা <b>http://bpsc.teletalk.com.bd</b> <span class="source-tag">Source: page 7, 13</span></p>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="num"></div><div><b>Application Form নির্বাচন</b><div class="muted">General / Technical-Professional / Both — এই ৩টি ক্যাটাগরির মধ্যে ক্যাডার পছন্দ অনুযায়ী একটি নির্বাচন করতে হবে।</div></div></div>
+      <div class="step"><div class="num"></div><div><b>Part-1: Personal Information</b><div class="muted">ব্যক্তিগত তথ্য পূরণ।</div></div></div>
+      <div class="step"><div class="num"></div><div><b>Part-2: Academic Qualification</b><div class="muted">শিক্ষাগত যোগ্যতা সংক্রান্ত তথ্য পূরণ।</div></div></div>
+      <div class="step"><div class="num"></div><div><b>Part-3: Cadre Option</b><div class="muted">পছন্দক্রম অনুযায়ী ক্যাডার/পদ নির্বাচন।</div></div></div>
+      <div class="step"><div class="num"></div><div><b>ছবি (Photo) আপলোড</b><div class="muted">৩০০×৩০০ পিক্সেল, সর্বোচ্চ ১০০ KB, রঙিন, তিন মাসের বেশি পুরনো নয়।</div></div></div>
+      <div class="step"><div class="num"></div><div><b>স্বাক্ষর (Signature) আপলোড</b><div class="muted">৩০০×৮০ পিক্সেল, সর্বোচ্চ ৬০ KB।</div></div></div>
+      <div class="step"><div class="num"></div><div><b>Application Preview</b><div class="muted">সব তথ্য নির্ভুলভাবে পূরণ হয়েছে কিনা যাচাই।</div></div></div>
+      <div class="step"><div class="num"></div><div><b>Submit &amp; User ID প্রাপ্তি</b><div class="muted">সফল সাবমিশনের পর User ID তৈরি হবে।</div></div></div>
+      <div class="step"><div class="num"></div><div><b>ফি জমাদান (SMS)</b><div class="muted">User ID প্রাপ্তির পরবর্তী ৭২ ঘণ্টার মধ্যে Teletalk SMS-এর মাধ্যমে ফি জমা দিতে হবে।</div></div></div>
+      <div class="step"><div class="num"></div><div><b>Admit Card ডাউনলোড</b><div class="muted">ফি প্রদানের পর প্রাপ্ত User ID ও Password দিয়ে যথাসময়ে Admit Card ডাউনলোড করা যাবে।</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FORM CHOICE HELPER ===================== -->
+<section class="block" id="helper">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">Mini Tool</div>
+      <h2>Which Application Form Should I Use?</h2>
+    </div>
+    <div class="mini-tool">
+      <label><input type="radio" name="formChoice" value="general"> আমি General Cadre-এ আবেদন করতে চাই</label>
+      <label><input type="radio" name="formChoice" value="tech"> আমি Technical/Professional Cadre-এ আবেদন করতে চাই</label>
+      <label><input type="radio" name="formChoice" value="both"> আমি উভয় ক্ষেত্রেই আবেদন করতে চাই</label>
+      <div class="mini-result" id="formResult"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FEE ===================== -->
+<section class="block" id="fee">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">Fee &amp; Payment</div>
+      <h2>আবেদন ফি ও SMS পদ্ধতি</h2>
+      <p class="sub">ফি: <b>২০০ টাকা</b> (প্রতিবন্ধী, ক্ষুদ্র নৃ-গোষ্ঠী ও তৃতীয় লিঙ্গের প্রার্থীদের জন্য <b>৫০ টাকা</b>) <span class="source-tag">Source: page 16</span></p>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="num"></div><div><b>প্রথম SMS</b><div class="muted">BCS &lt;space&gt; User ID লিখে <b>16222</b> নম্বরে send করুন। উদাহরণ: <code>BCS QRNTCBTP</code></div></div></div>
+      <div class="step"><div class="num"></div><div><b>Reply-এ PIN প্রাপ্তি</b><div class="muted">"...will be charged as Application Fee. Your PIN is (8-digit number) ..."</div></div></div>
+      <div class="step"><div class="num"></div><div><b>দ্বিতীয় SMS</b><div class="muted">BCS &lt;space&gt; Yes &lt;space&gt; PIN লিখে <b>16222</b> নম্বরে send করুন। উদাহরণ: <code>BCS YES 12345678</code></div></div></div>
+      <div class="step"><div class="num"></div><div><b>Payment Confirmation</b><div class="muted">"Congratulations! ... payment completed successfully... User ID is &lt;xxxxxxxx&gt; and Password &lt;xxxxxxxx&gt;."</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== IMPORTANT DATES ===================== -->
+<section class="block" id="dates">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">Important Dates</div>
+      <h2>গুরুত্বপূর্ণ তারিখসমূহ</h2>
+    </div>
+    <div class="timeline">
+      <div class="tl-item"><div class="line"></div><div class="tl-dot"></div><div class="tl-content"><span class="date">০৪ ডিসেম্বর ২০২৫, সকাল ১০.০০</span><b>আবেদন শুরু</b><div class="muted">অনলাইন আবেদনপত্র পূরণ ও ফি জমাদান শুরু</div></div></div>
+      <div class="tl-item"><div class="line"></div><div class="tl-dot"></div><div class="tl-content"><span class="date">৩১ ডিসেম্বর ২০২৫, রাত ১১.৫৯</span><b>আবেদনের শেষ তারিখ</b><div class="muted">এর মধ্যেই User ID পেতে হবে</div></div></div>
+      <div class="tl-item"><div class="line"></div><div class="tl-dot"></div><div class="tl-content"><span class="date">০৩ জানুয়ারি ২০২৬, রাত ১১.৫৯</span><b>ফি জমাদানের শেষ সময়</b><div class="muted">User ID প্রাপ্তির পরবর্তী ৭২ ঘণ্টা পর্যন্ত</div></div></div>
+      <div class="tl-item"><div class="line"></div><div class="tl-dot"></div><div class="tl-content"><span class="date">৩০ জানুয়ারি ২০২৬ (শুক্রবার)</span><b>প্রিলিমিনারি টেস্ট শুরু</b><div class="muted">ফলাফল: ১০ ফেব্রুয়ারি ২০২৬</div></div></div>
+      <div class="tl-item"><div class="line"></div><div class="tl-dot"></div><div class="tl-content"><span class="date">০৯ এপ্রিল ২০২৬</span><b>লিখিত পরীক্ষা শুরু</b><div class="muted">ফলাফল: ৩০ জুলাই ২০২৬</div></div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-content"><span class="date">১০ আগস্ট ২০২৬</span><b>মৌখিক পরীক্ষা শুরু</b><div class="muted">ফলাফল: ২৫ নভেম্বর ২০২৬</div></div></div>
+    </div>
+    <p class="muted" style="margin-top:10px;">সব তারিখ Source: page 17। কেন্দ্র পরিবর্তনের কোনো আবেদন গ্রহণ করা হবে না বলে circular-এ স্পষ্ট উল্লেখ আছে।</p>
+  </div>
+</section>
+
+<!-- ===================== PHOTO/SIGNATURE + AGE/NATIONALITY ===================== -->
+<section class="block" id="docs">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">Requirements</div>
+      <h2>ছবি, স্বাক্ষর, বয়স ও জাতীয়তা সংক্রান্ত শর্ত</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h4>📷 ছবি (Photo)</h4>
+        <p>মাপ: ৩০০×৩০০ পিক্সেল (দৈর্ঘ্য×প্রস্থ), ফাইল সাইজ সর্বোচ্চ ১০০ KB। সাম্প্রতিক (৩ মাসের বেশি পুরনো নয়) রঙিন ছবি — সাদাকালো ছবি গ্রহণযোগ্য নয়। <span class="source-tag">Source: page 13, 15</span></p>
+      </div>
+      <div class="card">
+        <h4>✍️ স্বাক্ষর (Signature)</h4>
+        <p>মাপ: ৩০০×৮০ পিক্সেল (দৈর্ঘ্য×প্রস্থ), ফাইল সাইজ সর্বোচ্চ ৬০ KB। <span class="source-tag">Source: page 13</span></p>
+      </div>
+      <div class="card">
+        <h4>🎂 বয়সসীমা</h4>
+        <p>০১ নভেম্বর ২০২৫ তারিখে সকল ক্ষেত্রে প্রার্থীর বয়স <b>২১ থেকে ৩২ বছর</b> হতে হবে। <span class="source-tag">Source: page 12</span></p>
+      </div>
+      <div class="card">
+        <h4>🇧🇩 জাতীয়তা</h4>
+        <p>প্রার্থীকে অবশ্যই বাংলাদেশের নাগরিক হতে হবে। সরকারের পূর্বানুমতি ব্যতিরেকে কোনো বিদেশি নাগরিককে বিবাহ করলে বা বিবাহ করতে প্রতিজ্ঞাবদ্ধ থাকলে আবেদনের অযোগ্য বিবেচিত হবেন। <span class="source-tag">Source: page 12</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FAQ ===================== -->
+<section class="block" id="faq">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">FAQ</div>
+      <h2>প্রায়শই জিজ্ঞাসিত প্রশ্ন</h2>
+    </div>
+    <details class="faq-item" open>
+      <summary>আমার TFP ডিগ্রি দিয়ে আমি ঠিক কোন কোন cadre-এ apply করতে পারি?</summary>
+      <p style="margin-top:8px;">Circular অনুযায়ী TFP ডিগ্রি সব <b>General Cadre</b>-এর (BCS প্রশাসন, পররাষ্ট্র, পুলিশ, আনসার, নিরীক্ষা ও হিসাব, কর, শুল্ক ও আবগারি, সমবায়, রেলওয়ে পরিবহন ও বাণিজ্যিক, তথ্য, ডাক, পরিবার পরিকল্পনা, খাদ্য) শিক্ষাগত যোগ্যতা পূরণ করে, কারণ এসব পদে কোনো নির্দিষ্ট বিষয় চাওয়া হয়নি। কোনো Technical/Professional, সাধারণ শিক্ষা (কলেজ প্রভাষক) বা কারিগরি শিক্ষা ক্যাডারে TFP ডিগ্রি circular-এর wording অনুযায়ী satisfy করে না।</p>
+    </details>
+    <details class="faq-item">
+      <summary>"সমাজবিজ্ঞান অনুষদ" হওয়ায় কি Sociology/Social Science-related সব পদে আমি যোগ্য?</summary>
+      <p style="margin-top:8px;">না। Circular-এ যেখানে "সমাজবিজ্ঞান" বা "Social Science" নির্দিষ্ট বিষয় হিসেবে উল্লেখ আছে (যেমন কলেজ প্রভাষক (সমাজবিজ্ঞান), (সমাজকল্যাণ) পদে), সেখানে exact বিষয় হিসেবে "সমাজবিজ্ঞান/সমাজকল্যাণ" ডিগ্রিধারীদের কথা বলা হয়েছে — TFP ভিন্ন একটি নির্দিষ্ট বিষয়, তাই এটি স্বয়ংক্রিয়ভাবে যোগ্য নয়।</p>
+    </details>
+    <details class="faq-item">
+      <summary>"Equivalent Degree" নিয়ে circular কী বলে?</summary>
+      <p style="margin-top:8px;">সার্কুলারের ১.২ অনুচ্ছেদ অনুযায়ী, কোনো প্রার্থী বিদেশ হতে অর্জিত ডিগ্রি বা ভিন্ন নামের ডিগ্রিকে প্রযোজ্য শিক্ষাগত যোগ্যতার সমমানের দাবি করলে তাকে Equivalence সনদ (মেডিকেল ডিগ্রির ক্ষেত্রে BM&amp;DC, ভেটেরিনারির ক্ষেত্রে Veterinary Council, অন্যান্য ক্ষেত্রে শিক্ষা মন্ত্রণালয়/বিশ্ববিদ্যালয় মঞ্জুরি কমিশন) মৌখিক পরীক্ষার বোর্ডে জমা দিতে হবে। TFP ডিগ্রিকে কোনো নির্দিষ্ট বিষয়ের সমমান হিসেবে এই ওয়েবসাইট নিজে থেকে ঘোষণা করছে না — প্রয়োজনে BPSC-এর সাথে verify করুন। <span class="source-tag">Source: page 12</span></p>
+    </details>
+    <details class="faq-item">
+      <summary>নন-ক্যাডার পদে কীভাবে সুপারিশ করা হয়?</summary>
+      <p style="margin-top:8px;">লিখিত ও মৌখিক পরীক্ষায় উত্তীর্ণ হয়েও পদস্বল্পতার কারণে যাঁরা ক্যাডার পদে সুপারিশপ্রাপ্ত হবেন না, তাঁদের মধ্যে যোগ্যদের নন-ক্যাডার (৯ম–১২তম গ্রেড) পদে মেধাক্রম অনুযায়ী সুপারিশের বিবেচনা করা হবে। এটি কোনো নিশ্চয়তা নয়। <span class="source-tag">Source: page 20</span></p>
+    </details>
+  </div>
+</section>
+
+<!-- ===================== SOURCE ===================== -->
+<section class="block" id="source">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">Official Source &amp; Verification</div>
+      <h2>সোর্স তথ্য</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="row"><b>সার্কুলার শিরোনাম:</b> ৫০তম বি.সি.এস. পরীক্ষা-২০২৫ — বিজ্ঞপ্তি</div>
+        <div class="row"><b>প্রদানকারী কর্তৃপক্ষ:</b> বাংলাদেশ সরকারী কর্ম কমিশন (BPSC)</div>
+        <div class="row"><b>তারিখ:</b> ১১ অগ্রহায়ণ ১৪৩২ বঙ্গাব্দ / ২৬ নভেম্বর ২০২৫ খ্রিষ্টাব্দ</div>
+        <div class="row"><b>নথি নম্বর:</b> ৮০.০০.০০০০.২০০.৪৬.১২৮.২৫-৫৩২</div>
+        <div class="row"><b>অফিসিয়াল ওয়েবসাইট:</b> www.bpsc.gov.bd</div>
+        <div class="row"><b>Source PDF পৃষ্ঠা সংখ্যা:</b> ২৯ পৃষ্ঠা</div>
+      </div>
+      <div class="card" style="border-left:4px solid var(--amber);">
+        <h4>⚠️ OCR Accuracy Note</h4>
+        <p>এই ওয়েবসাইটের ডেটা মূল PDF-এর টেবিল visually inspect করে তৈরি। প্রথম ১৯ পৃষ্ঠার ক্যাডার তালিকা (সাধারণ + প্রফেশনাল/টেকনিক্যাল + সাধারণ/কারিগরি শিক্ষা) উচ্চ নির্ভরযোগ্যতার সাথে যাচাই করা হয়েছে। ২০–২৯ পৃষ্ঠার <b>নন-ক্যাডার পদসমূহ</b>-এর কিছু এন্ট্রির scan quality কম থাকায় সেগুলোর কিছু অংশে সুনির্দিষ্ট বিষয় কোড পুরোপুরি নিশ্চিতভাবে পড়া যায়নি — এসব ক্ষেত্রে <span class="badge verify">🟡 Needs Verification</span> চিহ্নিত করা হয়েছে। যেকোনো সন্দেহের ক্ষেত্রে মূল PDF ও BPSC-এর অফিসিয়াল ক্লারিফিকেশন-ই চূড়ান্ত।</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="disclaimer">
+      এই ওয়েবসাইটটি ৫০তম BCS-এর প্রদত্ত সার্কুলারের তথ্যকে পরীক্ষার্থীবান্ধবভাবে উপস্থাপন করার জন্য তৈরি। Eligibility সম্পর্কিত সন্দেহ বা equivalent qualification-এর ক্ষেত্রে BPSC-এর official clarification-ই চূড়ান্ত কর্তৃপক্ষ।
+    </div>
+  </div>
+</footer>
+
+<button class="back-top" id="backTop" title="উপরে যান">↑</button>
+
+<div class="bottom-nav">
+  <select id="mobileNav">
+    <option value="#overview">সংক্ষিপ্ত বিবরণ</option>
+    <option value="#dashboard">আমার যোগ্যতা</option>
+    <option value="#eligibility-table">Eligibility Table</option>
+    <option value="#general">সাধারণ ক্যাডার</option>
+    <option value="#technical">টেকনিক্যাল</option>
+    <option value="#both">General+Tech</option>
+    <option value="#exam">পরীক্ষা কাঠামো</option>
+    <option value="#application">আবেদন প্রক্রিয়া</option>
+    <option value="#fee">ফি</option>
+    <option value="#dates">গুরুত্বপূর্ণ তারিখ</option>
+    <option value="#docs">ছবি/স্বাক্ষর</option>
+    <option value="#faq">FAQ</option>
+    <option value="#source">সোর্স</option>
+  </select>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <button class="close" id="modalClose">×</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   DATA — extracted from 50th BCS circular (BPSC), Nov 2025
+   ========================================================= */
+const cadres = [
+/* ---------------- GENERAL CADRES (page 1-2) — all TFP-eligible ---------------- */
+{name:"বি.সি.এস. (প্রশাসন) — সহকারী কমিশনার", type:"general", code:"110", vacancies:200, grade:"৯ম গ্রেড",
+ qualification:"কোন স্বীকৃত বিশ্ববিদ্যালয় হতে স্নাতকোত্তর ডিগ্রি অথবা স্বীকৃত বোর্ড হতে এইচ.এস.সি. পাসের পর ৪ (চার) বছর মেয়াদি শিক্ষা সমাপনী ডিগ্রি অথবা সমমানের ডিগ্রি।",
+ eligibility:"eligible", reason:"কোনো নির্দিষ্ট বিষয়ের শর্ত নেই — TFP ডিগ্রি (৪ বছর মেয়াদি স্নাতক) সরাসরি এই যোগ্যতা পূরণ করে।", sourcePage:"পৃষ্ঠা ১"},
+{name:"বি.সি.এস. (পররাষ্ট্র বিষয়ক) — সহকারী সচিব", type:"general", code:"115", vacancies:15, grade:"৯ম গ্রেড",
+ qualification:"-ঐ- (উপরের সাধারণ শিক্ষাগত যোগ্যতা প্রযোজ্য)", eligibility:"eligible",
+ reason:"General Cadre — নির্দিষ্ট বিষয়ের শর্ত নেই, TFP ডিগ্রি যোগ্য।", sourcePage:"পৃষ্ঠা ১"},
+{name:"বি.সি.এস. (পুলিশ) — সহকারী পুলিশ সুপার", type:"general", code:"117", vacancies:50, grade:"৯ম গ্রেড",
+ qualification:"-ঐ-", eligibility:"eligible", reason:"General Cadre — TFP ডিগ্রি যোগ্য। (উচ্চতা/ওজনসহ শারীরিক মান আলাদাভাবে পূরণ করতে হবে)", sourcePage:"পৃষ্ঠা ১"},
+{name:"বি.সি.এস. (আনসার) — সহকারী পরিচালক/সহকারী জেলা কমান্ড্যান্ট", type:"general", code:"118", vacancies:13, grade:"৯ম গ্রেড",
+ qualification:"-ঐ-", eligibility:"eligible", reason:"General Cadre — TFP ডিগ্রি যোগ্য।", sourcePage:"পৃষ্ঠা ১"},
+{name:"বি.সি.এস. (নিরীক্ষা ও হিসাব) — সহকারী মহা-হিসাবরক্ষক", type:"general", code:"112", vacancies:4, grade:"৯ম গ্রেড",
+ qualification:"-ঐ-", eligibility:"eligible", reason:"General Cadre — TFP ডিগ্রি যোগ্য।", sourcePage:"পৃষ্ঠা ১"},
+{name:"বি.সি.এস. (কর) — সহকারী কর কমিশনার", type:"general", code:"114", vacancies:57, grade:"৯ম গ্রেড",
+ qualification:"-ঐ-", eligibility:"eligible", reason:"General Cadre — TFP ডিগ্রি যোগ্য।", sourcePage:"পৃষ্ঠা ১"},
+{name:"বি.সি.এস. (শুল্ক ও আবগারি) — সহকারী কমিশনার", type:"general", code:"113", vacancies:40, grade:"৯ম গ্রেড",
+ qualification:"-ঐ-", eligibility:"eligible", reason:"General Cadre — TFP ডিগ্রি যোগ্য।", sourcePage:"পৃষ্ঠা ১"},
+{name:"বি.সি.এস. (সমবায়) — সহকারী নিবন্ধক", type:"general", code:"119", vacancies:9, grade:"৯ম গ্রেড",
+ qualification:"-ঐ-", eligibility:"eligible", reason:"General Cadre — TFP ডিগ্রি যোগ্য।", sourcePage:"পৃষ্ঠা ১"},
+{name:"বি.সি.এস. (রেলওয়ে পরিবহন ও বাণিজ্যিক) — সহকারী ট্রাফিক সুপারিনটেনডেন্ট", type:"general", code:"125", vacancies:1, grade:"৯ম গ্রেড",
+ qualification:"-ঐ-", eligibility:"eligible", reason:"General Cadre — TFP ডিগ্রি যোগ্য।", sourcePage:"পৃষ্ঠা ১"},
+{name:"বি.সি.এস. (তথ্য) — সহকারী পরিচালক/তথ্য অফিসার/গবেষণা কর্মকর্তা", type:"general", code:"121", vacancies:5, grade:"৯ম গ্রেড",
+ qualification:"-ঐ-", eligibility:"eligible", reason:"তথ্য ক্যাডারের এই পদটি General Cadre-এর অংশ — এখানে Media/Journalism-নির্দিষ্ট কোনো ডিগ্রির শর্ত circular-এ নেই, তাই যেকোনো বিষয়ের ডিগ্রি (TFP সহ) যোগ্য।", sourcePage:"পৃষ্ঠা ১"},
+{name:"বি.সি.এস. (তথ্য) — সহকারী পরিচালক (অনুষ্ঠান)", type:"general", code:"122", vacancies:7, grade:"৯ম গ্রেড",
+ qualification:"-ঐ-", eligibility:"eligible", reason:"General Cadre — নির্দিষ্ট বিষয়ের শর্ত নেই, TFP ডিগ্রি যোগ্য। (Media/Broadcasting-সংশ্লিষ্ট পদ হওয়ায় TFP প্রাসঙ্গিকও হতে পারে, তবে circular এটি আলাদাভাবে অগ্রাধিকার দেয়নি)", sourcePage:"পৃষ্ঠা ১"},
+{name:"বি.সি.এস. (তথ্য) — সহকারী বার্তা নিয়ন্ত্রক", type:"general", code:"123", vacancies:2, grade:"৯ম গ্রেড",
+ qualification:"-ঐ-", eligibility:"eligible", reason:"General Cadre — TFP ডিগ্রি যোগ্য।", sourcePage:"পৃষ্ঠা ১"},
+{name:"বি.সি.এস. (ডাক) — সহকারী পোস্টমাস্টার জেনারেল/সমমানের পদ", type:"general", code:"116", vacancies:8, grade:"৯ম গ্রেড",
+ qualification:"-ঐ-", eligibility:"eligible", reason:"General Cadre — TFP ডিগ্রি যোগ্য।", sourcePage:"পৃষ্ঠা ২"},
+{name:"বি.সি.এস. (পরিবার পরিকল্পনা) — পরিবার পরিকল্পনা কর্মকর্তা (সাধারণ)", type:"general", code:"124", vacancies:36, grade:"৯ম গ্রেড",
+ qualification:"-ঐ-", eligibility:"eligible", reason:"General Cadre — TFP ডিগ্রি যোগ্য।", sourcePage:"পৃষ্ঠা ২"},
+{name:"বি.সি.এস. (খাদ্য) — সহকারী খাদ্য নিয়ন্ত্রক/সমমানের পদ", type:"general", code:"111", vacancies:5, grade:"৯ম গ্রেড",
+ qualification:"-ঐ-", eligibility:"eligible", reason:"General Cadre — TFP ডিগ্রি যোগ্য।", sourcePage:"পৃষ্ঠা ২ (মোট সাধারণ ক্যাডার = ৪৫২)"},
+
+/* ---------------- PROFESSIONAL / TECHNICAL CADRES (page 2-7) — not eligible ---------------- */
+{name:"বি.সি.এস. (পরিসংখ্যান) — পরিসংখ্যান কর্মকর্তা", type:"technical", code:"540", vacancies:1, grade:"৯ম গ্রেড",
+ qualification:"অর্থনীতি/পরিসংখ্যান/পরিসংখ্যানসহ অর্থনীতি/গণিতে স্নাতক (সম্মান)/স্নাতকোত্তর ডিগ্রি, বা বাণিজ্য/সমাজ বিজ্ঞানের নির্দিষ্ট বিষয়ে ৪ বছর মেয়াদি ডিগ্রি।",
+ eligibility:"not-eligible", reason:"শুধুমাত্র অর্থনীতি, পরিসংখ্যান, গণিত ও নির্দিষ্ট বাণিজ্য/সমাজবিজ্ঞান বিষয়ের ডিগ্রি গ্রহণযোগ্য। Television, Film & Photography এই তালিকায় নেই।", sourcePage:"পৃষ্ঠা ২"},
+{name:"বি.সি.এস. (রেলওয়ে প্রকৌশল) — সহকারী নির্বাহী/যন্ত্র/সংকেত/সরঞ্জাম/বৈদ্যুতিক প্রকৌশলী", type:"technical", code:"351–355", vacancies:14, grade:"৯ম গ্রেড",
+ qualification:"সিভিল/মেকানিক্যাল/ইলেকট্রিক্যাল/টেলিকমিউনিকেশন ইঞ্জিনিয়ারিং-এ B.Sc ডিগ্রি অথবা AMIE-এর 'এ' ও 'বি' সেকশন পাস।",
+ eligibility:"not-eligible", reason:"শুধুমাত্র ইঞ্জিনিয়ারিং ডিগ্রি গ্রহণযোগ্য — TFP ডিগ্রি ইঞ্জিনিয়ারিং ডিগ্রি নয়।", sourcePage:"পৃষ্ঠা ৩"},
+{name:"বি.সি.এস. (সড়ক ও জনপথ) — সহকারী প্রকৌশলী (সিভিল/যান্ত্রিক)", type:"technical", code:"331–332", vacancies:41, grade:"৯ম গ্রেড",
+ qualification:"সিভিল/মেকানিক্যাল ইঞ্জিনিয়ারিং-এ B.Sc ডিগ্রি অথবা AMIE 'এ' ও 'বি' সেকশন পাস।",
+ eligibility:"not-eligible", reason:"ইঞ্জিনিয়ারিং-নির্দিষ্ট ডিগ্রি আবশ্যক — TFP প্রযোজ্য নয়।", sourcePage:"পৃষ্ঠা ৪"},
+{name:"বি.সি.এস. (তথ্য) — সহকারী বেতার প্রকৌশলী", type:"technical", code:"530", vacancies:33, grade:"৯ম গ্রেড",
+ qualification:"ফলিত পদার্থবিদ্যা/ইলেকট্রিক্যাল/ইলেকট্রনিক্স/মাইক্রোওয়েভ ইঞ্জিনিয়ারিং-এ প্রথম শ্রেণির স্নাতকোত্তর বা সংশ্লিষ্ট বিষয়ে অনার্সসহ ডিগ্রি।",
+ eligibility:"not-eligible", reason:"'তথ্য' মন্ত্রণালয়াধীন হলেও এই পদটি Technical/Professional ক্যাডারভুক্ত এবং শুধুমাত্র পদার্থবিজ্ঞান/ইলেকট্রনিক্স ইঞ্জিনিয়ারিং ডিগ্রি গ্রহণযোগ্য — Media/TFP ডিগ্রি নয়। এটি সম্প্রচার-প্রকৌশল (broadcast engineering) পদ, সম্প্রচার-বিষয়বস্তু (content) পদ নয়।", sourcePage:"পৃষ্ঠা ৪"},
+{name:"বি.সি.এস. (জনস্বাস্থ্য প্রকৌশল) — সহকারী প্রকৌশলী", type:"technical", code:"320", vacancies:22, grade:"৯ম গ্রেড",
+ qualification:"সিভিল ইঞ্জিনিয়ারিং-এ B.Sc ডিগ্রি অথবা AMIE 'এ' ও 'বি' সেকশন পাস।",
+ eligibility:"not-eligible", reason:"ইঞ্জিনিয়ারিং-নির্দিষ্ট ডিগ্রি আবশ্যক — TFP প্রযোজ্য নয়।", sourcePage:"পৃষ্ঠা ৪"},
+{name:"বি.সি.এস. (বন) — সহকারী বন সংরক্ষক", type:"technical", code:"550", vacancies:12, grade:"৯ম গ্রেড",
+ qualification:"বনবিদ্যা/বি.এসসি.(কৃষি)/উদ্ভিদবিজ্ঞান/প্রাণিবিজ্ঞান/মৃত্তিকা-পানি-পরিবেশ বিজ্ঞানে ন্যূনতম ২য় শ্রেণি বা সমমানের ডিগ্রি।",
+ eligibility:"not-eligible", reason:"শুধুমাত্র বন/কৃষি/বিজ্ঞান বিষয়ক ডিগ্রি গ্রহণযোগ্য — TFP প্রযোজ্য নয়।", sourcePage:"পৃষ্ঠা ৫"},
+{name:"বি.সি.এস. (মৎস্য) — উপজেলা মৎস্য কর্মকর্তা", type:"technical", code:"240", vacancies:55, grade:"৯ম গ্রেড",
+ qualification:"মৎস্য বিষয়ে অনার্সসহ ডিগ্রি।", eligibility:"not-eligible",
+ reason:"শুধুমাত্র Fisheries বিষয়ের ডিগ্রি গ্রহণযোগ্য — TFP প্রযোজ্য নয়।", sourcePage:"পৃষ্ঠা ৫"},
+{name:"বি.সি.এস. (পশুসম্পদ) — ভেটেরিনারি সার্জন/সায়েন্টিফিক অফিসার", type:"technical", code:"270/281", vacancies:10, grade:"৯ম গ্রেড",
+ qualification:"ডক্টর অব ভেটেরিনারি মেডিসিন (DVM) ডিগ্রিসহ রেজিস্টার্ড ভেটেরিনারি প্র্যাকটিশনার অথবা পশু পালন বিষয়ে B.Sc.",
+ eligibility:"not-eligible", reason:"শুধুমাত্র ভেটেরিনারি/এনিমেল হাজবেন্ড্রি ডিগ্রি গ্রহণযোগ্য — TFP প্রযোজ্য নয়।", sourcePage:"পৃষ্ঠা ৫"},
+{name:"বি.সি.এস. (কৃষি) — কৃষি সম্প্রসারণ কর্মকর্তা / মৃত্তিকা / কৃষি বিপণন কর্মকর্তা", type:"technical", code:"227/226/229", vacancies:158, grade:"৯ম গ্রেড",
+ qualification:"B.Sc.(কৃষি) অনার্স, মৃত্তিকা/পরিবেশ বিজ্ঞান, বা কৃষি অর্থনীতি/ব্যবসা ব্যবস্থাপনা/বিপণনে ডিগ্রি।",
+ eligibility:"not-eligible", reason:"শুধুমাত্র কৃষি-সম্পর্কিত নির্দিষ্ট বিষয়ের ডিগ্রি গ্রহণযোগ্য — TFP প্রযোজ্য নয়।", sourcePage:"পৃষ্ঠা ৬"},
+{name:"বি.সি.এস. (স্বাস্থ্য) — সহকারী সার্জন", type:"technical", code:"450", vacancies:650, grade:"৯ম গ্রেড",
+ qualification:"এম.বি.বি.এস. অথবা সমমানের ডিগ্রি।", eligibility:"not-eligible",
+ reason:"শুধুমাত্র মেডিকেল (MBBS) ডিগ্রি গ্রহণযোগ্য — TFP প্রযোজ্য নয়।", sourcePage:"পৃষ্ঠা ৭"},
+{name:"বি.সি.এস. (পরিবার পরিকল্পনা) — মেডিকেল অফিসার (কারিগরি মেডিকেল)", type:"technical", code:"455", vacancies:48, grade:"৯ম গ্রেড",
+ qualification:"বি.এম.ডি.সি. কর্তৃক স্বীকৃত এম.বি.বি.এস. ডিগ্রি ও রেজিস্ট্রেশন প্রাপ্ত।", eligibility:"not-eligible",
+ reason:"শুধুমাত্র মেডিকেল ডিগ্রি গ্রহণযোগ্য — TFP প্রযোজ্য নয়।", sourcePage:"পৃষ্ঠা ৭"},
+{name:"বি.সি.এস. (খাদ্য) — সহকারী প্রধান মিলার/রক্ষণ প্রকৌশলী/ম্যানেজার (টেকনিক্যাল)", type:"technical", code:"360", vacancies:7, grade:"৯ম গ্রেড",
+ qualification:"যন্ত্রকৌশলে B.Sc. ইঞ্জিনিয়ারিং ডিগ্রি বা সমমান।", eligibility:"not-eligible",
+ reason:"ইঞ্জিনিয়ারিং-নির্দিষ্ট ডিগ্রি আবশ্যক — TFP প্রযোজ্য নয়।", sourcePage:"পৃষ্ঠা ৭"},
+{name:"বি.সি.এস. (গণপূর্ত) — সহকারী প্রকৌশলী (সিভিল/ই-এম)", type:"technical", code:"311–312", vacancies:71, grade:"৯ম গ্রেড",
+ qualification:"সিভিল/ইলেকট্রিক্যাল/মেকানিক্যাল ইঞ্জিনিয়ারিং-এ B.Sc ডিগ্রি বা AMIE 'এ' ও 'বি' সেকশন পাস।",
+ eligibility:"not-eligible", reason:"ইঞ্জিনিয়ারিং-নির্দিষ্ট ডিগ্রি আবশ্যক — TFP প্রযোজ্য নয়। (মোট প্রফেশনাল/টেকনিক্যাল = ১১২২)", sourcePage:"পৃষ্ঠা ৭"},
+
+/* ---------------- GENERAL EDUCATION — Govt College Lecturer (page 9-10) ---------------- */
+{name:"বি.সি.এস. (সাধারণ শিক্ষা) — প্রভাষক, সরকারি সাধারণ কলেজ [ইংরেজি/সমাজকল্যাণ/রসায়ন/ইসলামী শিক্ষা/পদার্থবিদ্যা/উদ্ভিদবিদ্যা/সমাজবিজ্ঞান/গণিত/হিসাববিজ্ঞান/ব্যবস্থাপনা/আরবি/আইসিটি ইত্যাদি]", type:"education", code:"610", vacancies:139, grade:"৯ম গ্রেড",
+ qualification:"সংশ্লিষ্ট বিষয়ে (যেমন ইংরেজি, রসায়ন, পদার্থবিদ্যা, সমাজবিজ্ঞান, গণিত, আইসিটি ইত্যাদি) প্রথম শ্রেণি/২য় শ্রেণি অনার্সসহ স্নাতকোত্তর বা ৪ বছর মেয়াদি স্নাতক (সম্মান) ডিগ্রি — প্রতিটি পদের জন্য নির্দিষ্ট বিষয় নির্ধারিত।",
+ eligibility:"not-eligible", reason:"প্রতিটি লেকচারার পদে একটি নির্দিষ্ট বিষয়ের ডিগ্রি আবশ্যক (subject code অনুযায়ী)। সার্কুলারে তালিকাভুক্ত বিষয়সমূহের মধ্যে Television, Film & Photography / Mass Communication / Journalism নেই — তাই কোনো লেকচারার পদেই TFP ডিগ্রি সরাসরি প্রযোজ্য নয়।", sourcePage:"পৃষ্ঠা ৯–১০"},
+{name:"বি.সি.এস. (সাধারণ শিক্ষা) — প্রভাষক, সরকারি মাদ্রাসা-ই-আলিয়া [হাদিস/তাফসির/বাংলা/ইংরেজি/পদার্থবিদ্যা/রসায়ন/রাষ্ট্রবিজ্ঞান/আইসিটি ইত্যাদি]", type:"education", code:"660", vacancies:97, grade:"৯ম গ্রেড",
+ qualification:"সংশ্লিষ্ট ইসলামিক/একাডেমিক বিষয়ে নির্দিষ্ট ডিগ্রি — প্রতিটি পদের জন্য পৃথক বিষয় নির্ধারিত।",
+ eligibility:"not-eligible", reason:"মাদ্রাসা প্রভাষক পদেও প্রতিটি বিষয়ের জন্য সুনির্দিষ্ট ডিগ্রি আবশ্যক; TFP তালিকাভুক্ত বিষয়ের মধ্যে নেই।", sourcePage:"পৃষ্ঠা ৯–১০"},
+{name:"বি.সি.এস. (কারিগরি শিক্ষা) — ইন্সট্রাক্টর, পলিটেকনিক ইনস্টিটিউট / গ্লাস অ্যান্ড সিরামিক ইনস্টিটিউট", type:"education", code:"901–916", vacancies:21, grade:"৯ম গ্রেড",
+ qualification:"সংশ্লিষ্ট বিষয়ে (সিভিল/ইলেকট্রিক্যাল/মেকানিক্যাল/পাওয়ার/কেমিক্যাল/আর্কিটেকচার/সিরামিক) B.Sc ইঞ্জিনিয়ারিং বা সমমানের ডিগ্রি।",
+ eligibility:"not-eligible", reason:"ইঞ্জিনিয়ারিং/টেকনিক্যাল বিষয়ের ডিগ্রি আবশ্যক — TFP প্রযোজ্য নয়।", sourcePage:"পৃষ্ঠা ১১"},
+
+/* ---------------- NON-CADRE — representative entries where qualification is subject-open ("সকল বিষয়") ---------------- */
+{name:"নন-ক্যাডার (৯ম গ্রেড) — সহকারী পরিচালক, সরকারী আবাসন পরিদপ্তর, গৃহায়ন ও গণপূর্ত মন্ত্রণালয়", type:"noncadre", code:"3301", vacancies:1, grade:"৯ম গ্রেড",
+ qualification:"কোন স্বীকৃত বিশ্ববিদ্যালয় হতে ১ম শ্রেণির স্নাতকোত্তর ডিগ্রি অথবা ২য় শ্রেণির স্নাতক (সম্মান)সহ ২য় শ্রেণির স্নাতকোত্তর বা ৪ বছর মেয়াদি স্নাতক (সম্মান) ডিগ্রি — বিষয়: সকল বিষয়।",
+ eligibility:"eligible", reason:"শিক্ষাগত যোগ্যতার বিষয় কলামে 'সকল বিষয়' উল্লেখ থাকায় TFP ডিগ্রি যোগ্য।", sourcePage:"পৃষ্ঠা ২০ (নন-ক্যাডার)"},
+{name:"নন-ক্যাডার (৯ম গ্রেড) — সহকারী পরিচালক, পাট অধিদপ্তর, বস্ত্র ও পাট মন্ত্রণালয়", type:"noncadre", code:"3701", vacancies:2, grade:"৯ম গ্রেড",
+ qualification:"সকল বিষয়ে ১ম শ্রেণির স্নাতকোত্তর/২য় শ্রেণির স্নাতক(সম্মান)সহ স্নাতকোত্তর ডিগ্রি, অথবা জুট/টেক্সটাইল টেকনোলজি ইনস্টিটিউট থেকে ডিগ্রি।",
+ eligibility:"eligible", reason:"মূল যোগ্যতা 'সকল বিষয়' ভিত্তিক — TFP ডিগ্রি এই শর্তে যোগ্য (বিকল্প শর্ত হিসেবে জুট/টেক্সটাইল ডিগ্রিও গ্রহণযোগ্য, তবে তা প্রযোজ্য নয়)।", sourcePage:"পৃষ্ঠা ২০ (নন-ক্যাডার)"},
+{name:"নন-ক্যাডার (৯ম গ্রেড) — সিভিলিয়ান স্টাফ অফিসার-৩, বাংলাদেশ কোস্ট গার্ড, স্বরাষ্ট্র মন্ত্রণালয়", type:"noncadre", code:"3201", vacancies:1, grade:"৯ম গ্রেড",
+ qualification:"সকল বিষয়ে ২য় শ্রেণির স্নাতক(সম্মান)সহ স্নাতকোত্তর বা ৪ বছর মেয়াদি স্নাতক(সম্মান) ডিগ্রি।",
+ eligibility:"eligible", reason:"'সকল বিষয়' শর্তে TFP ডিগ্রি যোগ্য।", sourcePage:"পৃষ্ঠা ২০ (নন-ক্যাডার)"},
+{name:"নন-ক্যাডার (৯ম গ্রেড) — সহকারী পরিচালক, বহিরাগমন ও পাসপোর্ট অধিদপ্তর, স্বরাষ্ট্র মন্ত্রণালয়", type:"noncadre", code:"3202", vacancies:2, grade:"৯ম গ্রেড",
+ qualification:"সকল বিষয়ে স্নাতকোত্তর অথবা ২য় শ্রেণির স্নাতক(সম্মান)সহ স্নাতকোত্তর ডিগ্রি।",
+ eligibility:"eligible", reason:"'সকল বিষয়' শর্তে TFP ডিগ্রি যোগ্য।", sourcePage:"পৃষ্ঠা ২০ (নন-ক্যাডার)"},
+{name:"নন-ক্যাডার (৯ম গ্রেড) — সহকারী রক্ষণাবেক্ষণ প্রকৌশলী, অর্থনৈতিক সম্পর্ক বিভাগ", type:"noncadre", code:"2901", vacancies:1, grade:"৯ম গ্রেড",
+ qualification:"কম্পিউটার সায়েন্স/ইলেকট্রিক্যাল/ইলেকট্রনিক্স/ইনফরমেশন অ্যান্ড কমিউনিকেশন টেকনোলজি সংশ্লিষ্ট বিষয়ে স্নাতক/স্নাতকোত্তর ডিগ্রি।",
+ eligibility:"not-eligible", reason:"নির্দিষ্টভাবে কম্পিউটার সায়েন্স/ইঞ্জিনিয়ারিং-সংশ্লিষ্ট বিষয় আবশ্যক — TFP প্রযোজ্য নয়।", sourcePage:"পৃষ্ঠা ২০ (নন-ক্যাডার)"},
+{name:"নন-ক্যাডার (৯ম গ্রেড) — এডুকেশন অফিসার (ইংলিশ), মেরিন ফিশারিজ একাডেমি", type:"noncadre", code:"2801", vacancies:1, grade:"৯ম গ্রেড",
+ qualification:"ইংরেজি বিষয়ে ন্যূনতম প্রথম/দ্বিতীয় শ্রেণির স্নাতক(সম্মান)/স্নাতকোত্তর ডিগ্রি।",
+ eligibility:"not-eligible", reason:"নির্দিষ্টভাবে ইংরেজি বিষয়ের ডিগ্রি আবশ্যক — TFP প্রযোজ্য নয়।", sourcePage:"পৃষ্ঠা ২১ (নন-ক্যাডার)"},
+{name:"নন-ক্যাডার (১০ম গ্রেড) — প্রশাসনিক কর্মকর্তা, গৃহায়ন ও গণপূর্ত মন্ত্রণালয়", type:"noncadre", code:"3302", vacancies:1, grade:"১০ম গ্রেড",
+ qualification:"সকল বিষয়ে স্নাতকোত্তর বা সমমানের ডিগ্রি অথবা ২য় শ্রেণির স্নাতক বা সমমানের ডিগ্রি।",
+ eligibility:"eligible", reason:"'সকল বিষয়' শর্তে TFP ডিগ্রি যোগ্য।", sourcePage:"পৃষ্ঠা ২৫ (নন-ক্যাডার)"},
+{name:"নন-ক্যাডার (১০ম গ্রেড) — প্রশাসনিক কর্মকর্তা, পরিকল্পনা বিভাগ", type:"noncadre", code:"4102", vacancies:2, grade:"১০ম গ্রেড",
+ qualification:"সকল বিষয়ে স্নাতকোত্তর বা সমমানের ডিগ্রি অথবা ২য় শ্রেণির স্নাতক বা সমমানের ডিগ্রি।",
+ eligibility:"eligible", reason:"'সকল বিষয়' শর্তে TFP ডিগ্রি যোগ্য।", sourcePage:"পৃষ্ঠা ২৫ (নন-ক্যাডার)"},
+{name:"নন-ক্যাডার (১১তম গ্রেড) — অডিটর, অভ্যন্তরীণ নিরীক্ষা পরিদপ্তর, গৃহায়ন ও গণপূর্ত মন্ত্রণালয়", type:"noncadre", code:"3303", vacancies:3, grade:"১১তম গ্রেড",
+ qualification:"সকল বিষয়ে ন্যূনতম দ্বিতীয় শ্রেণি বা সমমানের সি.জি.পি.এ.-তে ৪(চার) বছর মেয়াদি স্নাতক(সম্মান) অথবা স্নাতকোত্তর বা সমমানের ডিগ্রি।",
+ eligibility:"eligible", reason:"'সকল বিষয়' শর্তে TFP ডিগ্রি যোগ্য।", sourcePage:"পৃষ্ঠা ২৭ (নন-ক্যাডার)"},
+{name:"নন-ক্যাডার — অন্যান্য প্রকৌশল/বিজ্ঞান/বাণিজ্য-নির্দিষ্ট পদসমূহ (৯ম–১২তম গ্রেড, একত্রে)", type:"noncadre", code:"বিভিন্ন", vacancies:381, grade:"৯ম–১২তম গ্রেড",
+ qualification:"প্রতিটি পদের জন্য পৃথকভাবে নির্দিষ্ট বিষয় (যেমন প্রকৌশল, পরিসংখ্যান, বাণিজ্য, চারুকলা, গ্রন্থাগার বিজ্ঞান, রসায়ন, ইতিহাস ইত্যাদি) নির্ধারিত রয়েছে — সার্কুলারের মূল পৃষ্ঠা ২০-২৯-এ বিস্তারিত।",
+ eligibility:"verify", reason:"এই সম্মিলিত এন্ট্রিতে থাকা পদগুলোর মধ্যে কিছু 'সকল বিষয়' ভিত্তিক (সেগুলো পৃথকভাবে উপরে তালিকাভুক্ত) এবং কিছু নির্দিষ্ট বিষয়-ভিত্তিক। PDF-এর ২০-২৯ পৃষ্ঠার scan quality তুলনামূলক কম থাকায় প্রতিটি পদের সুনির্দিষ্ট বিষয় কোড এই ওয়েবসাইটে পৃথকভাবে যাচাই করা হয়নি — নিশ্চিত হতে মূল সার্কুলার PDF সরাসরি দেখুন। এই পদগুলো নন-ক্যাডার হওয়ায় (কেবল ক্যাডার পদে সুপারিশ না পেলে বিবেচিত) এগুলো অগ্রাধিকারের বিষয় নয়।", sourcePage:"পৃষ্ঠা ২০–২৯ (নন-ক্যাডার, verify with BPSC)"},
+];
+
+/* =========================================================
+   RENDER LOGIC
+   ========================================================= */
+const eligBadge = e => e==="eligible" ? '<span class="badge eligible"><span class="dot eligible"></span>🟢 Eligible</span>'
+                 : e==="conditional" ? '<span class="badge conditional"><span class="dot conditional"></span>🟡 Conditional</span>'
+                 : e==="verify" ? '<span class="badge verify">🟡 Needs Verification</span>'
+                 : '<span class="badge not-eligible"><span class="dot not-eligible"></span>🔴 Not Eligible</span>';
+
+const typeLabel = t => ({general:"General", technical:"Technical/Professional", education:"সাধারণ/কারিগরি শিক্ষা", noncadre:"নন-ক্যাডার"}[t] || t);
+
+let state = { type:"all", elig:null, search:"", onlyMine:false };
+
+function computeStats(){
+  const genElig = cadres.filter(c=>c.type==="general" && c.eligibility==="eligible").length;
+  const techElig = cadres.filter(c=>c.type==="technical" && c.eligibility==="eligible").length;
+  const verify = cadres.filter(c=>c.eligibility==="verify").length;
+  const notElig = cadres.filter(c=>c.eligibility==="not-eligible").length;
+  const totalOptions = cadres.filter(c=>c.eligibility==="eligible" || c.eligibility==="conditional").length;
+  document.getElementById('statGen').textContent = genElig;
+  document.getElementById('statTech').textContent = techElig;
+  document.getElementById('statVerify').textContent = verify;
+  document.getElementById('statNot').textContent = notElig;
+  document.getElementById('statTotal').textContent = totalOptions;
+}
+
+function filteredCadres(){
+  return cadres.filter(c=>{
+    if(state.type!=="all" && c.type!==state.type) return false;
+    if(state.elig && c.eligibility!==state.elig) return false;
+    if(state.onlyMine && !(c.eligibility==="eligible"||c.eligibility==="conditional")) return false;
+    if(state.search){
+      const s = state.search.toLowerCase();
+      if(!c.name.toLowerCase().includes(s) && !c.code.toLowerCase().includes(s)) return false;
+    }
+    return true;
+  });
+}
+
+function renderTable(){
+  const list = filteredCadres();
+  const tbody = document.getElementById('tableBody');
+  const cardList = document.getElementById('cardList');
+  tbody.innerHTML = "";
+  cardList.innerHTML = "";
+  list.forEach((c,idx)=>{
+    const realIdx = cadres.indexOf(c);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="cadre-name">${c.name}<div class="muted">কোড: ${c.code}</div></td>
+      <td>${typeLabel(c.type)}</td><td>${c.vacancies}</td><td>${c.grade}</td>
+      <td>${eligBadge(c.eligibility)}</td>
+      <td><button class="why-btn" data-idx="${realIdx}">Why?</button></td>`;
+    tbody.appendChild(tr);
+
+    const card = document.createElement('div');
+    card.className = "entry-card";
+    card.innerHTML = `<div class="top"><div><div class="cadre-name">${c.name}</div><div class="meta">কোড ${c.code} · ${c.grade} · শূন্য পদ ${c.vacancies} · ${typeLabel(c.type)}</div></div>${eligBadge(c.eligibility)}</div>
+      <button class="why-btn" style="margin-top:8px; width:100%;" data-idx="${realIdx}">Why?</button>`;
+    cardList.appendChild(card);
+  });
+  document.getElementById('resultCount').textContent = `${list.length} টি ফলাফল দেখানো হচ্ছে (মোট ${cadres.length}-এর মধ্যে)`;
+  document.querySelectorAll('.why-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> openModal(cadres[parseInt(btn.dataset.idx)]));
+  });
+}
+
+function renderMyGeneralOptions(){
+  const wrap = document.getElementById('myGeneralOptions');
+  wrap.innerHTML = "";
+  cadres.filter(c=>c.type==="general" && c.eligibility==="eligible").forEach(c=>{
+    const div = document.createElement('div');
+    div.className = "opt-card";
+    div.innerHTML = `<h4>${c.name.split('—')[0].trim()}</h4><div class="code">পদ: ${c.name.split('—')[1]||''}</div><div class="vac">শূন্য পদ: ${c.vacancies} · কোড ${c.code} · ${c.grade}</div>`;
+    wrap.appendChild(div);
+  });
+}
+
+function renderPriority(){
+  const tbody = document.getElementById('priorityBody');
+  tbody.innerHTML = "";
+  const eligibleGeneral = cadres.filter(c=>c.type==="general" && c.eligibility==="eligible")
+    .slice().sort((a,b)=>b.vacancies-a.vacancies);
+  eligibleGeneral.forEach(c=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="cadre-name">${c.name}</td><td>${c.vacancies}</td><td>${c.grade}</td>
+      <td class="muted">বেশি শূন্য পদ থাকা ক্যাডারে প্রতিযোগিতা তুলনামূলক প্রশস্ত হতে পারে — এটি factual পর্যবেক্ষণ, career suggestion নয়।</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function openModal(c){
+  document.getElementById('modalContent').innerHTML = `
+    <button class="close" id="modalClose2">×</button>
+    <h3>${c.name}</h3>
+    <div>${eligBadge(c.eligibility)} <span class="muted">কোড ${c.code} · ${c.grade} · শূন্য পদ ${c.vacancies}</span></div>
+    <div class="modal-section"><div class="lbl">Circular-এ প্রয়োজনীয় যোগ্যতা</div><div class="compare-box">${c.qualification}</div></div>
+    <div class="modal-section"><div class="lbl">আমার Degree</div><div class="compare-box">Television, Film &amp; Photography (TFP) — University of Dhaka, Faculty of Social Sciences</div></div>
+    <div class="modal-section"><div class="lbl">তুলনা ও কারণ</div><div class="compare-box">${c.reason}</div></div>
+    <div class="modal-section"><div class="lbl">Source</div><div class="compare-box">${c.sourcePage}</div></div>
+  `;
+  document.getElementById('modalBackdrop').classList.add('open');
+  document.getElementById('modalClose2').addEventListener('click', closeModal);
+}
+function closeModal(){ document.getElementById('modalBackdrop').classList.remove('open'); }
+document.getElementById('modalClose').addEventListener('click', closeModal);
+document.getElementById('modalBackdrop').addEventListener('click', (e)=>{ if(e.target.id==='modalBackdrop') closeModal(); });
+
+/* Filters */
+document.querySelectorAll('.chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    const ftype = chip.dataset.filterType, val = chip.dataset.value;
+    document.querySelectorAll(`.chip[data-filter-type="${ftype}"]`).forEach(c2=>c2.classList.remove('active'));
+    if(ftype==="type"){ state.type = val; chip.classList.add('active'); }
+    if(ftype==="elig"){
+      if(state.elig===val){ state.elig=null; }
+      else { state.elig = val; chip.classList.add('active'); }
+    }
+    renderTable();
+  });
+});
+document.getElementById('searchBox').addEventListener('input', (e)=>{ state.search=e.target.value; renderTable(); });
+document.getElementById('onlyMine').addEventListener('change', (e)=>{ state.onlyMine=e.target.checked; renderTable(); });
+
+/* Theme toggle */
+const themeToggle = document.getElementById('themeToggle');
+themeToggle.addEventListener('click', ()=>{
+  const body = document.body;
+  const isDark = body.getAttribute('data-theme')==="dark";
+  body.setAttribute('data-theme', isDark ? 'light':'dark');
+  document.getElementById('themeLabel').textContent = isDark ? 'ডার্ক মোড' : 'লাইট মোড';
+});
+
+/* Mobile nav */
+document.getElementById('mobileNav').addEventListener('change', (e)=>{
+  document.querySelector(e.target.value)?.scrollIntoView({behavior:'smooth'});
+});
+
+/* Back to top */
+const backTop = document.getElementById('backTop');
+window.addEventListener('scroll', ()=>{ backTop.classList.toggle('show', window.scrollY>500); });
+backTop.addEventListener('click', ()=>window.scrollTo({top:0, behavior:'smooth'}));
+
+/* Form choice helper */
+document.querySelectorAll('input[name="formChoice"]').forEach(r=>{
+  r.addEventListener('change', ()=>{
+    const val = r.value;
+    const box = document.getElementById('formResult');
+    box.style.display = 'block';
+    if(val==="general"){
+      box.innerHTML = "✅ আপনার জন্য প্রযোজ্য: <b>Application Form for General Cadres</b>। আপনার TFP ডিগ্রি অনুযায়ী এই ফর্মে আপনি সবগুলো সাধারণ ক্যাডারে (মোট ১৩টি ক্যাডারের পদ, সর্বমোট ৪৫২ শূন্য পদ) আবেদনের যোগ্য।";
+    } else if(val==="tech"){
+      box.innerHTML = "⚠️ Circular অনুযায়ী আমাদের বিশ্লেষণে আপনার TFP ডিগ্রি কোনো Technical/Professional ক্যাডারের শিক্ষাগত যোগ্যতা পূরণ করছে না। এই ফর্ম নির্বাচন করলে Technical/Professional অংশে কোনো পদে আপনি যোগ্য বিবেচিত নাও হতে পারেন — সিদ্ধান্তের আগে BPSC-এর সাথে verify করার পরামর্শ দেওয়া হচ্ছে।";
+    } else {
+      box.innerHTML = "ℹ️ 'Both' ফর্মে Bangla বিষয়ের জন্য ২০০ নম্বরের পরীক্ষা দিতে হবে এবং Technical/Professional অংশের জন্য নির্দিষ্ট 'প্রাসঙ্গিক বিষয়' পত্র বাধ্যতামূলক। যেহেতু আমাদের বিশ্লেষণ অনুযায়ী TFP ডিগ্রি কোনো Technical/Professional পদের যোগ্যতা পূরণ করে না, তাই বাস্তবে <b>শুধু General Cadres Form</b> নির্বাচন করাই যুক্তিসঙ্গত হতে পারে — চূড়ান্ত সিদ্ধান্তের আগে BPSC নির্দেশনা দেখুন।";
+    }
+  });
+});
+
+/* Init */
+computeStats();
+renderTable();
+renderMyGeneralOptions();
+renderPriority();
+</script>
+</body>
+</html>

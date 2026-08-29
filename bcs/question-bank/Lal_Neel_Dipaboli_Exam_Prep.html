@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="../../firebase-config.js?v=2"></script>
+  <script>window.AG_PAGE = {"id": "lal-neel-dipaboli", "title": "Lal Neel Dipaboli", "storage": {"type": "keys", "keys": ["lndp_state_v2"]}};</script>
+  <script src="../../auth-gate.js?v=5"></script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>লাল নীল দীপাবলি — পরীক্ষা প্রস্তুতি</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Noto+Serif+Bengali:wght@400;500;600;700&family=Hind+Siliguri:wght@400;500;600;700&display=swap');
+
+:root{
+  /* Light theme — warm paper, terracotta (lal) + indigo (nil) from the book's own title */
+  --paper: #F6EFDF;
+  --paper-2: #EFE5CE;
+  --ink: #2B2118;
+  --ink-soft: #5B4E3F;
+  --line: #DDD0B0;
+  --card: #FFFBF2;
+  --lal: #B8451F;       /* red diya */
+  --lal-soft: #E9DCC9;
+  --nil: #1F3A5F;       /* blue diya */
+  --nil-soft: #DCE4EC;
+  --gold: #A9782E;
+  --green: #3F6B3A;
+  --amber: #B8791C;
+  --red: #A63B2A;
+  --shadow: 0 2px 10px rgba(43,33,24,0.08);
+  --radius: 10px;
+  --font-display: 'Tiro Bangla','Noto Serif Bengali','Hind Siliguri',serif;
+  --font-body: 'Hind Siliguri','Noto Serif Bengali',sans-serif;
+  --content-width: 720px;
+  --font-scale: 1;
+  --line-height: 1.85;
+}
+[data-theme="dark"]{
+  --paper:#181410;
+  --paper-2:#211b15;
+  --ink:#EEE6D6;
+  --ink-soft:#B9AC93;
+  --line:#3A2F23;
+  --card:#211b15;
+  --lal:#E07A50;
+  --lal-soft:#3A241B;
+  --nil:#8CA9CC;
+  --nil-soft:#1E2A38;
+  --gold:#D2A85A;
+  --green:#7FB57A;
+  --amber:#E0AC53;
+  --red:#E28068;
+  --shadow: 0 2px 14px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:calc(16px * var(--font-scale));
+  line-height:1.6;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  transition:background .25s, color .25s;
+}
+h1,h2,h3,h4{font-family:var(--font-display); font-weight:700; margin:0 0 .4em; letter-spacing:.2px;}
+a{color:inherit;}
+button{font-family:inherit; cursor:pointer;}
+::selection{background:var(--lal-soft);}
+
+/* ---- App shell ---- */
+#app{display:flex; min-height:100vh;}
+
+/* Sidebar nav (desktop) */
+#sidenav{
+  width:230px; flex-shrink:0; background:var(--paper-2); border-right:1px solid var(--line);
+  padding:20px 14px; position:sticky; top:0; height:100vh; overflow-y:auto;
+}
+.brand{display:flex; align-items:center; gap:10px; padding:6px 8px 18px; border-bottom:1px solid var(--line); margin-bottom:14px;}
+.brand-flame{font-size:26px; line-height:1;}
+.brand-title{font-family:var(--font-display); font-weight:700; font-size:17px; line-height:1.15;}
+.brand-sub{font-size:11px; color:var(--ink-soft);}
+
+.navlist{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;}
+.navlist button{
+  display:flex; align-items:center; gap:10px; width:100%; text-align:left; background:none; border:none;
+  color:var(--ink); padding:10px 12px; border-radius:8px; font-size:14.5px; font-weight:500;
+}
+.navlist button:hover{background:var(--lal-soft);}
+.navlist button.active{background:var(--lal); color:#fff;}
+.navlist .navicon{width:20px; text-align:center; flex-shrink:0;}
+.nav-section-label{font-size:11px; text-transform:uppercase; letter-spacing:.6px; color:var(--ink-soft); margin:16px 8px 6px;}
+
+/* Main content */
+#main{flex:1; min-width:0; padding-bottom:70px;}
+.topbar{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:14px 22px; border-bottom:1px solid var(--line); position:sticky; top:0; background:var(--paper); z-index:20;
+}
+.topbar-title{font-family:var(--font-display); font-size:19px; font-weight:700;}
+.topbar-actions{display:flex; gap:8px; align-items:center;}
+.iconbtn{
+  background:var(--card); border:1px solid var(--line); border-radius:8px; padding:7px 10px; font-size:15px; color:var(--ink);
+}
+.iconbtn:hover{border-color:var(--lal);}
+.view{padding:20px 22px 30px; max-width:1100px; margin:0 auto;}
+.view.narrow{max-width:var(--content-width);}
+
+/* Cards / grid */
+.grid{display:grid; gap:14px;}
+.grid-2{grid-template-columns:repeat(2,1fr);}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+.grid-4{grid-template-columns:repeat(4,1fr);}
+@media (max-width:900px){.grid-4{grid-template-columns:repeat(2,1fr);} .grid-3{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:600px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}}
+
+.card{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px;
+  box-shadow:var(--shadow);
+}
+.card h3{font-size:14px; color:var(--ink-soft); font-weight:600; text-transform:uppercase; letter-spacing:.4px; margin-bottom:8px;}
+.stat-num{font-family:var(--font-display); font-size:30px; font-weight:700; color:var(--nil);}
+.stat-sub{font-size:12.5px; color:var(--ink-soft); margin-top:2px;}
+
+.btn{
+  display:inline-flex; align-items:center; gap:8px; padding:10px 16px; border-radius:8px; border:1px solid var(--line);
+  background:var(--card); color:var(--ink); font-weight:600; font-size:14px;
+}
+.btn:hover{border-color:var(--lal);}
+.btn-primary{background:var(--lal); border-color:var(--lal); color:#fff;}
+.btn-primary:hover{filter:brightness(1.08);}
+.btn-nil{background:var(--nil); border-color:var(--nil); color:#fff;}
+.btn-ghost{background:transparent; border-color:transparent;}
+.btn-sm{padding:6px 11px; font-size:12.5px;}
+.btn-block{width:100%; justify-content:center;}
+.btn:disabled{opacity:.45; cursor:not-allowed;}
+
+.pill{display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:999px; font-size:11.5px; font-weight:600;}
+.pill-must{background:var(--lal-soft); color:var(--lal);}
+.pill-important{background:var(--nil-soft); color:var(--nil);}
+.pill-quick{background:#EDE6D0; color:var(--gold);}
+.pill-trap{background:#F3DCC9; color:var(--red);}
+[data-theme="dark"] .pill-quick{background:#332c1c;}
+[data-theme="dark"] .pill-trap{background:#3a241b;}
+
+.tag{font-size:11px; color:var(--ink-soft); border:1px solid var(--line); padding:2px 8px; border-radius:6px;}
+
+/* Progress bar/ring */
+.progress-track{height:8px; background:var(--paper-2); border-radius:6px; overflow:hidden; border:1px solid var(--line);}
+.progress-fill{height:100%; background:linear-gradient(90deg,var(--lal),var(--gold));}
+.ring-wrap{position:relative; width:120px; height:120px; margin:0 auto;}
+.ring-label{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+.ring-num{font-family:var(--font-display); font-size:26px; font-weight:700;}
+.ring-cap{font-size:10.5px; color:var(--ink-soft);}
+
+/* Reader */
+.reader-layout{display:flex; gap:0; align-items:flex-start;}
+.chapter-sidebar{
+  width:270px; flex-shrink:0; border-right:1px solid var(--line); padding:16px 12px; max-height:calc(100vh - 110px);
+  overflow-y:auto; position:sticky; top:60px;
+}
+.chapter-sidebar .search-mini{width:100%; margin-bottom:10px; padding:8px 10px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--ink); font-size:13px;}
+.chlist{list-style:none; margin:0; padding:0;}
+.chlist li button{
+  width:100%; text-align:left; background:none; border:none; color:var(--ink); padding:8px 9px; border-radius:7px;
+  font-size:13px; display:flex; gap:8px; align-items:flex-start;
+}
+.chlist li button:hover{background:var(--paper-2);}
+.chlist li button.active{background:var(--lal-soft); color:var(--lal); font-weight:600;}
+.chlist .chnum{flex-shrink:0; color:var(--ink-soft); font-variant-numeric:tabular-nums; width:20px;}
+.chlist .chdone{color:var(--green);}
+
+.reader-content{flex:1; min-width:0; padding:24px 34px; max-width:var(--content-width); margin:0 auto;}
+.reader-content .chtitle{font-size:26px; margin-bottom:4px;}
+.reader-content .chmeta{font-size:12.5px; color:var(--ink-soft); margin-bottom:18px;}
+.reading-text{font-size:calc(16.5px*var(--font-scale)); line-height:var(--line-height); white-space:pre-line; color:var(--ink);}
+.reading-text p{margin:0 0 1.1em;}
+.facts-block{margin-top:26px; border-top:1px dashed var(--line); padding-top:18px;}
+.fact-item{display:flex; gap:10px; padding:10px 0; border-bottom:1px solid var(--line);}
+.fact-item:last-child{border-bottom:none;}
+.fact-text{font-size:14.5px; line-height:1.6;}
+.reader-toolbar{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;}
+
+/* Flashcard */
+.flip-card-wrap{max-width:520px; margin:0 auto; perspective:1400px;}
+.flip-card{
+  position:relative; min-height:260px; border-radius:16px; cursor:pointer;
+}
+.flip-face{
+  position:relative; min-height:260px; border-radius:16px; border:1px solid var(--line); background:var(--card);
+  display:flex; align-items:center; justify-content:center; text-align:center; padding:30px; box-shadow:var(--shadow);
+}
+.flip-face.back{background:var(--nil-soft);}
+.flip-hint{position:absolute; bottom:12px; font-size:11.5px; color:var(--ink-soft);}
+.flip-front-text{font-size:19px; font-weight:600; line-height:1.5;}
+.flip-back-text{font-size:16px; line-height:1.6;}
+
+.srs-btns{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:16px; max-width:520px; margin-left:auto; margin-right:auto;}
+.srs-btn{padding:11px 6px; border-radius:9px; text-align:center; font-size:13px; font-weight:700; border:1px solid var(--line); background:var(--card);}
+.srs-again{color:#fff; background:#A63B2A; border-color:#A63B2A;}
+.srs-hard{color:#fff; background:#B8791C; border-color:#B8791C;}
+.srs-good{color:#fff; background:#3F6B3A; border-color:#3F6B3A;}
+.srs-easy{color:#fff; background:#1F3A5F; border-color:#1F3A5F;}
+
+/* Quiz */
+.quiz-progress{display:flex; align-items:center; gap:10px; margin-bottom:18px;}
+.quiz-q{font-size:19px; font-weight:600; margin-bottom:20px; line-height:1.5;}
+.opt-list{display:flex; flex-direction:column; gap:10px;}
+.opt{
+  text-align:left; padding:13px 16px; border-radius:10px; border:1.5px solid var(--line); background:var(--card);
+  font-size:15px; display:flex; gap:10px; align-items:center;
+}
+.opt:hover{border-color:var(--nil);}
+.opt.selected{border-color:var(--nil); background:var(--nil-soft);}
+.opt.correct{border-color:var(--green); background:#E4EFE0;}
+.opt.incorrect{border-color:var(--red); background:#F5DFDA;}
+[data-theme="dark"] .opt.correct{background:#1d3220;}
+[data-theme="dark"] .opt.incorrect{background:#3a2018;}
+.opt .optkey{font-weight:700; color:var(--ink-soft); width:20px; flex-shrink:0;}
+.explain-box{margin-top:16px; padding:14px 16px; border-radius:10px; background:var(--paper-2); border:1px solid var(--line); font-size:14px; line-height:1.6;}
+
+/* Mock exam nav grid */
+.exam-nav-grid{display:grid; grid-template-columns:repeat(8,1fr); gap:6px;}
+.exam-nav-grid button{aspect-ratio:1; border-radius:6px; border:1px solid var(--line); background:var(--card); font-size:12px; font-weight:700;}
+.exam-nav-grid button.answered{background:var(--nil-soft); border-color:var(--nil);}
+.exam-nav-grid button.marked{background:var(--lal-soft); border-color:var(--lal);}
+.exam-nav-grid button.current{outline:2px solid var(--gold); outline-offset:1px;}
+
+/* Misc */
+.empty-state{text-align:center; padding:50px 20px; color:var(--ink-soft);}
+.empty-state .emoji{font-size:38px; margin-bottom:10px;}
+hr.rule{border:none; border-top:1px solid var(--line); margin:20px 0;}
+.flex{display:flex;}
+.flex-between{display:flex; align-items:center; justify-content:space-between;}
+.gap-8{gap:8px;} .gap-10{gap:10px;} .gap-14{gap:14px;}
+.mt-8{margin-top:8px;} .mt-14{margin-top:14px;} .mt-20{margin-top:20px;} .mt-26{margin-top:26px;}
+.mb-8{margin-bottom:8px;} .mb-14{margin-bottom:14px;}
+.muted{color:var(--ink-soft);}
+.small{font-size:12.5px;}
+.center{text-align:center;}
+.badge-dot{width:8px; height:8px; border-radius:50%; display:inline-block;}
+textarea, input[type=text], input[type=number], select{
+  font-family:inherit; background:var(--card); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:9px 11px; font-size:14px;
+}
+table{width:100%; border-collapse:collapse; font-size:14px;}
+table th, table td{padding:9px 10px; border-bottom:1px solid var(--line); text-align:left;}
+table th{color:var(--ink-soft); font-size:12px; text-transform:uppercase;}
+
+/* Bottom nav (mobile) */
+#bottomnav{display:none;}
+@media (max-width:840px){
+  #sidenav{display:none;}
+  #bottomnav{
+    display:flex; position:fixed; bottom:0; left:0; right:0; background:var(--card); border-top:1px solid var(--line);
+    z-index:50; padding:6px 2px calc(6px + env(safe-area-inset-bottom));
+  }
+  #bottomnav button{flex:1; background:none; border:none; color:var(--ink-soft); font-size:10px; display:flex; flex-direction:column; align-items:center; gap:3px; padding:5px 0;}
+  #bottomnav button.active{color:var(--lal);}
+  #bottomnav .navicon{font-size:18px;}
+  .reader-layout{flex-direction:column;}
+  .chapter-sidebar{width:100%; position:static; max-height:220px;}
+  .reader-content{padding:18px 16px;}
+  .view{padding:16px 14px 20px;}
+  .exam-nav-grid{grid-template-columns:repeat(6,1fr);}
+}
+
+/* modal */
+.modal-overlay{position:fixed; inset:0; background:rgba(20,15,8,0.5); display:flex; align-items:center; justify-content:center; z-index:100; padding:16px;}
+.modal{background:var(--card); border-radius:14px; max-width:480px; width:100%; padding:22px; box-shadow:0 12px 40px rgba(0,0,0,0.3); max-height:85vh; overflow-y:auto;}
+
+.kbd{border:1px solid var(--line); border-bottom-width:2px; border-radius:5px; padding:1px 6px; font-size:12px; font-family:monospace; background:var(--paper-2);}
+
+.heatmap{display:grid; grid-template-columns:repeat(26,1fr); gap:3px;}
+.heat-cell{aspect-ratio:1; border-radius:2px; background:var(--paper-2);}
+
+.toast{position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--ink); color:var(--paper); padding:10px 18px; border-radius:8px; font-size:13.5px; z-index:200; box-shadow:0 6px 20px rgba(0,0,0,.3);}
+</style>
+</head>
+<body data-theme="light">
+<div id="ag-overlay"></div>
+
+<div id="app">
+  <nav id="sidenav"></nav>
+  <main id="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbarTitle">ড্যাশবোর্ড</div>
+      <div class="topbar-actions" id="topbarActions"></div>
+    </div>
+    <div id="viewRoot" class="view"></div>
+  </main>
+</div>
+<nav id="bottomnav"></nav>
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+<script id="content-data">
+window.CONTENT = {"book": {"title": "লাল নীল দীপাবলি", "author": "হুমায়ুন আজাদ", "subtitle": "বাঙলা সাহিত্যের ইতিহাস — ইন্টারেক্টিভ পরীক্ষা-প্রস্তুতি অ্যাপ"}, "chapters": [{"id": 1, "title": "লাল নীল দীপাবলি (ভূমিকা)", "page": "৭-৮", "reading": "হুমায়ুন আজাদ বইয়ের শুরুতে বলছেন, বাঙলা সাহিত্য হাজার বছরেরও বেশি সময় ধরে রচিত হচ্ছে — একেকটি বই যেন একেকটি প্রদীপ, যা লাল-নীল-সবুজ নানা রঙে আলো দেয়। এই দীর্ঘ পথে বহু কবি-লেখকের নাম হারিয়ে গেছে, কিন্তু বিদ্যাসাগর, মধুসূদন, বিহারীলাল, বঙ্কিমচন্দ্র, রবীন্দ্রনাথ, নজরুল, জীবনানন্দ কিংবা চণ্ডীদাস, বিদ্যাপতি, মুকুন্দরাম, ভারতচন্দ্র, আলাওলের মতো নাম সময় মুছে ফেলতে পারেনি।\n\nবাঙলা সাহিত্যের প্রথম বইয়ের নাম চর্যাপদ। এরপর আসে বড় বড় কাহিনিকাব্য, তারপর বৈষ্ণব পদাবলির মতো ছোট আবেগময় কবিতা — সাহিত্য এভাবেই যুগে যুগে রূপ বদলেছে। লেখক আরও বলছেন, বাঙলা সাহিত্য জন্ম থেকেই বিদ্রোহী: দশম শতকে যখন এর জন্ম হচ্ছিল, তখন সমাজের উঁচুশ্রেণী সংস্কৃতচর্চা করত এবং বাঙলা ভাষাকে অবহেলা করত। তবু সাধারণ মানুষের ভালোবাসায় এই ভাষা ও সাহিত্য টিকে থেকে শেষ পর্যন্ত জয়ী হয়েছে।\n\nচর্যাপদ রচিত হয়েছিল ৯৫০ থেকে ১২০০ খ্রিস্টাব্দের মধ্যে। ১৮০০ সালের আগ পর্যন্ত বাঙলা সাহিত্যে গদ্য বিশেষ ছিল না — সবকিছুই লেখা হতো কবিতা বা পদ্যে।", "facts": [{"level": "must", "text": "চর্যাপদ বাঙলা সাহিত্যের প্রথম বই/কাব্যগ্রন্থ, রচনাকাল ৯৫০–১২০০ খ্রিস্টাব্দ।"}, {"level": "must", "text": "১৮০০ সালের আগে বাঙলা সাহিত্যে গদ্য বিশেষ ছিল না; সবকিছু রচিত হতো কবিতা/পদ্যে।"}, {"level": "important", "text": "বাঙলা সাহিত্যের বয়স এক হাজার বছরেরও বেশি।"}, {"level": "quick", "text": "বাঙলা সাহিত্য জন্মলগ্ন থেকেই সমাজের উচ্চশ্রেণীর অবহেলা ও অত্যাচার সয়ে সাধারণ মানুষের ভালোবাসায় টিকে ছিল।"}]}, {"id": 2, "title": "বাঙালি বাঙলা বাঙলাদেশ", "page": "৯-১৩", "reading": "এই অধ্যায়ে হুমায়ুন আজাদ বাঙালি জাতির উৎপত্তি ও বাঙলা ভাষার জন্মকথা বলেছেন। নৃতাত্ত্বিকদের মতে বাঙালির আদি পূর্বপুরুষ সিংহলের ভেড্ডারা, যারা এক সময় সারা ভারতে ছড়িয়ে ছিল। পরে এর সঙ্গে মিশেছে মঙ্গোলীয় রক্তধারা, তারপর ইন্দো-আর্য রক্তধারা, এবং শক, আরব, পারস্য থেকে আসা মানুষের রক্ত। বাঙালি মুসলমানরাও প্রকৃতপক্ষে বাঙালি — মূলত ত্রয়োদশ শতাব্দীর পর দরিদ্র, নিম্নবর্ণের হিন্দু ও উৎপীড়িত বৌদ্ধদের একাংশ ইসলাম গ্রহণ করে। মধ্যযুগের কবি আবদুল হাকিম তাই তীব্র ভাষায় বলেছিলেন, যারা বাঙলায় জন্মেও বাঙলা ভাষাকে ঘৃণা করে তাদের এদেশ ছেড়ে চলে যাওয়া উচিত।\n\nবাঙলা ভাষার উৎস প্রাচীন ভারতীয় আর্যভাষা, যা ক্রমে পালি, তারপর প্রাকৃত ভাষায় রূপান্তরিত হয়, এবং দশম শতকের মাঝামাঝি প্রাকৃতেরই আরও পরিবর্তিত রূপ থেকে জন্ম নেয় বাঙলা ভাষা। বাঙলা ভাষাকে তিনটি স্তরে ভাগ করা হয়: প্রাচীন বাঙলা (৯৫০–১২০০), মধ্যযুগের বাঙলা (১৩৫০–১৮০০), ও আধুনিক বাঙলা (১৮০০-বর্তমান)। মাঝের দেড়শো বছর (১২০০-১৩৫০) কোনো সাহিত্যের নমুনা পাওয়া যায় না। এদেশের নাম 'বাঙ্গালা'/'বাঙলা' এসেছে বলে সম্রাট আকবরের সভাসদ আবুল ফজল জানিয়েছেন — 'বঙ্গ' শব্দের সঙ্গে 'আল' (বাঁধ) শব্দ যুক্ত হয়ে এই নাম হয়েছে, কারণ এদেশে বৃষ্টির প্রকোপে বাঁধ/আল বেশি প্রয়োজন হতো। প্রাচীনকালে অঞ্চলটি বঙ্গ, গৌড়, পুণ্ড্র, রাঢ় ইত্যাদি পৃথক জনপদে বিভক্ত ছিল। ১৯৪৭ সালে ভারত বিভক্ত হলে বাঙলার একাংশ হয় পূর্ব পাকিস্তান, এবং ১৯৭১ সালে জন্ম নেয় স্বাধীন বাঙলাদেশ।", "facts": [{"level": "must", "text": "নৃতাত্ত্বিকদের মতে বাঙালির আদি পূর্বপুরুষ সিংহলের ভেড্ডারা।"}, {"level": "must", "text": "বাঙালির রক্তে ক্রমান্বয়ে মিশেছে: ভেড্ডা → মঙ্গোলীয় → ইন্দো-আর্য → শক → আরব/পারস্য।"}, {"level": "must", "text": "বাঙলা ভাষার বিবর্তনধারা: প্রাচীন ভারতীয় আর্যভাষা → পালি → প্রাকৃত → বাঙলা (জন্ম আনু. ৯৫০ খ্রি.)।"}, {"level": "must", "text": "বাঙলা ভাষার তিনটি স্তর — প্রাচীন যুগ ৯৫০-১২০০, মধ্যযুগ ১৩৫০-১৮০০, আধুনিক যুগ ১৮০০-বর্তমান।"}, {"level": "important", "text": "আবুল ফজলের মতে 'বঙ্গ' + 'আল' (বাঁধ) মিলে 'বাঙ্গালা/বাঙলা' নামের উৎপত্তি।"}, {"level": "important", "text": "প্রাচীন জনপদ: বঙ্গ, গৌড়, পুণ্ড্র, রাঢ়। শশাঙ্ক সপ্তম শতাব্দীর প্রথমভাগে পশ্চিম বাংলাকে প্রথম ঐক্যবদ্ধ করেন, নিজেকে বলতেন 'গৌড়াধিপতি'।"}, {"level": "important", "text": "মুসলমান শাসনের পরে, বিশেষত ত্রয়োদশ শতাব্দীর পরে, দরিদ্র-নিম্নবর্ণের হিন্দু ও উৎপীড়িত বৌদ্ধরা ইসলাম গ্রহণ করতে থাকে।"}, {"level": "must", "text": "১৯৪৭-এ ভারত বিভাগের পর পূর্ব বাংলা হয় 'পূর্ব পাকিস্তান'; ১৯৭১ সালে জন্ম নেয় স্বাধীন বাংলাদেশ।"}, {"level": "quick", "text": "মধ্যযুগের কবি আবদুল হাকিম বাংলাভাষা-বিদ্বেষীদের নিন্দা করে বিখ্যাত পঙক্তি লিখেছিলেন তাঁর 'নূরনামা' কাব্যে।"}, {"level": "trap", "text": "⚠️ চর্যাপদ-এর ভাষা বাঙলা প্রমাণ করেন ডক্টর সুনীতিকুমার চট্টোপাধ্যায় (গ্রন্থ: বাঙলা ভাষার উৎপত্তি ও বিকাশ, ১৯২৬) — একে হরপ্রসাদ শাস্ত্রীর আবিষ্কারের সাথে গুলিয়ে ফেলা যায় না।"}]}, {"id": 3, "title": "বাঙলা সাহিত্যের তিন যুগ", "page": "১২-১৪", "reading": "হাজার বছরের বাঙলা সাহিত্যকে তিনটি যুগে ভাগ করা হয়: (ক) প্রাচীন যুগ ৯৫০-১২০০ খ্রিস্টাব্দ, (খ) মধ্যযুগ ১৩৫০-১৮০০ খ্রিস্টাব্দ, (গ) আধুনিক যুগ ১৮০০ থেকে আজ পর্যন্ত। প্রাচীন যুগে পাওয়া যায় কেবল একটি বই — চর্যাপদ, যার কবিরা ছিলেন বৌদ্ধ সাধক, নিজেদের সাধনার গোপন কথাই কবিতায় গেঁথেছেন। এরপর দেড়শো বছর (১২০০-১৩৫০) কোনো সাহিত্য রচিত হয়নি বলে একে বলা হয় 'অন্ধকার যুগ'।\n\nমধ্যযুগ শুরু হয় চতুর্দশ শতাব্দীর দ্বিতীয়ভাগ থেকে, আর তা দীর্ঘকাল স্থায়ী হয়। এ যুগে রচিত হয় অসংখ্য কাহিনিকাব্য ('মঙ্গলকাব্য') আর বৈষ্ণব পদাবলির মতো গীতিকবিতা। মধ্যযুগের সাহিত্য মূলত দেবতাকেন্দ্রিক, যদিও দেবতার আড়ালে মানুষের সুখ-দুঃখের কথাও এসেছে। মধ্যযুগে মুসলমান কবিরা মানুষের গল্প (যেমন ইউসুফ-জুলেখা, লাইলি-মজনু) বলে নতুন ধারার সূচনা করেন। মধ্যযুগের অবসানে ১৮০০ সালে শুরু হয় আধুনিক যুগ, যার সবচেয়ে বড়ো অবদান গদ্যের বিকাশ — এর নেতৃত্বে ছিলেন ফোর্ট উইলিয়ম কলেজের লেখকরা, প্রধানত উইলিয়ম কেরি ও তাঁর সহায়ক রামরাম বসু।", "facts": [{"level": "must", "text": "তিন যুগ: (ক) প্রাচীন যুগ ৯৫০-১২০০ (খ) মধ্যযুগ ১৩৫০-১৮০০ (গ) আধুনিক যুগ ১৮০০-বর্তমান।"}, {"level": "must", "text": "১২০০-১৩৫০ সময়কাল 'অন্ধকার যুগ' নামে পরিচিত — এ সময়ের কোনো সাহিত্যকর্ম পাওয়া যায়নি।"}, {"level": "important", "text": "মধ্যযুগের শ্রেষ্ঠ কবিদের মধ্যে আছেন বড়ু চণ্ডীদাস, মুকুন্দরাম চক্রবর্তী, বিজয়গুপ্ত, চণ্ডীদাস, বিদ্যাপতি, জ্ঞানদাস, গোবিন্দদাস, ভারতচন্দ্র, আলাওল, কাজী দৌলত।"}, {"level": "important", "text": "আধুনিক যুগের সবচেয়ে বড়ো অবদান: গদ্যের বিকাশ, যার নেতৃত্বে ফোর্ট উইলিয়ম কলেজ (প্রধান: উইলিয়ম কেরি, সহায়ক: রামরাম বসু)।"}, {"level": "quick", "text": "মুসলমান কবিরাই মধ্যযুগে সর্বপ্রথম দেবতার বদলে নিছক মানুষের গল্প বলার সূচনা করেন।"}]}, {"id": 4, "title": "প্রথম প্রদীপ : চর্যাপদ", "page": "১৪-১৮", "reading": "বাঙলা ভাষার প্রথম বই চর্যাপদ। এর অন্য নাম 'চর্যাচর্যবিনিশ্চয়'। ১৯০৭ খ্রিস্টাব্দে পণ্ডিত মহামহোপাধ্যায় হরপ্রসাদ শাস্ত্রী নেপালের রাজদরবারের গ্রন্থাগার থেকে এটি আবিষ্কার করেন, সঙ্গে পান আরও দুটি বই — ডাকার্ণব ও দোহাকোষ। ১৯১৬ খ্রিস্টাব্দে তিনি এগুলো একত্র করে 'হাজার বছরের পুরাণ বাঙ্গালা ভাষায় বৌদ্ধ গান ও দোহা' নামে প্রকাশ করেন। শুরুতে অসমীয়া, ওড়িয়া, মৈথিলি, হিন্দিভাষীরাও চর্যাপদকে নিজেদের ভাষার বলে দাবি করেছিল, কিন্তু ডক্টর সুনীতিকুমার চট্টোপাধ্যায় তাঁর 'বাঙলা ভাষার উৎপত্তি ও বিকাশ' (১৯২৬) গ্রন্থে এবং প্রবোধচন্দ্র বাগচী, মুহম্মদ শহীদুল্লাহ, সুকুমার সেন, শশিভূষণ দাশগুপ্তের মতো পণ্ডিতেরা প্রমাণ করেন এটি বাঙলা ভাষায় রচিত।\n\nচর্যাপদে আছে ৪৬টি পূর্ণ কবিতা ও একটি খণ্ডিত কবিতা (মোট সাড়ে ছেচল্লিশটি), যা লিখেছিলেন ২৪ জন বৌদ্ধ সহজিয়া কবি — যাদের নামের শেষে থাকে 'পাদ' শব্দ (কাহ্নপাদ, লুইপাদ, সরহপাদ, শবরপাদ প্রভৃতি)। সবচেয়ে বেশি কবিতা লিখেছেন কাহ্নপাদ (বারোটি; অন্য নাম কৃষ্ণাচার্য), ভুসুকুপাদ ছয়টি, সরহপাদ চারটি। কবিরা ছিলেন গৃহহীন বৌদ্ধ সহজিয়া সাধক, তাই কবিতায় গোপন সাধন-তত্ত্বের পাশাপাশি সমাজের ছবি, দারিদ্র্যের বেদনা ও শ্রেণীবৈষম্যের প্রতিবাদ ফুটে উঠেছে। এই দুর্বোধ্য প্রতীকী ভাষাকে বলা হয় 'সন্ধ্যাভাষা'। কবিতাগুলো ছিল গীত/গান — প্রতিটির শুরুতে রাগ-রাগিণীর উল্লেখ আছে (যেমন রাগ পটমঞ্জরী, রাগ ভৈরবী)।\n\nচর্যাপদ রচিত হয় ৯৫০-১২০০ খ্রিস্টাব্দের মধ্যে। এর পরেই নেমে আসে দেড়শো বছরের অন্ধকার যুগ (১২০০-১৩৫০), যখন কোনো সাহিত্য রচিত হয়নি বলে জানা যায়। ১২০০-১২০৭ খ্রিস্টাব্দের মধ্যে বখতিয়ার খিলজি লক্ষ্মণ সেনকে পরাজিত করে বাঙলায় মুসলমান শাসনের সূচনা করেন।", "facts": [{"level": "must", "text": "চর্যাপদ আবিষ্কার করেন হরপ্রসাদ শাস্ত্রী, ১৯০৭ সালে নেপালের রাজদরবারের গ্রন্থাগার থেকে (সঙ্গে ডাকার্ণব ও দোহাকোষ)।"}, {"level": "must", "text": "হরপ্রসাদ শাস্ত্রী ১৯১৬ সালে গ্রন্থগুলো 'হাজার বছরের পুরাণ বাঙ্গালা ভাষায় বৌদ্ধ গান ও দোহা' নামে প্রকাশ করেন।"}, {"level": "must", "text": "চর্যাপদের ভাষা বাঙলা প্রমাণ করেন ডক্টর সুনীতিকুমার চট্টোপাধ্যায় (গ্রন্থ: বাঙলা ভাষার উৎপত্তি ও বিকাশ, ১৯২৬)।"}, {"level": "important", "text": "চর্যাপদে আছে ৪৬টি পূর্ণ কবিতা + ১টি খণ্ডিত পদ (মোট সাড়ে ছেচল্লিশ), রচয়িতা ২৪ জন বৌদ্ধ সহজিয়া কবি।"}, {"level": "important", "text": "সর্বাধিক পদ রচয়িতা কাহ্নপাদ (১২টি, অন্য নাম কৃষ্ণাচার্য); এরপর ভুসুকুপাদ (৬টি), সরহপাদ (৪টি)।"}, {"level": "important", "text": "চর্যাপদের কবিদের নামের শেষে 'পাদ' যুক্ত থাকে; দুর্বোধ্য প্রতীকী ভাষাকে বলা হয় 'সন্ধ্যাভাষা'।"}, {"level": "quick", "text": "চর্যাপদের অন্য নাম চর্যাচর্যবিনিশ্চয়; কবিতাগুলো গীত হতো, শুরুতে রাগের (যেমন পটমঞ্জরী, ভৈরবী) উল্লেখ থাকত।"}, {"level": "must", "text": "১২০০-১২০৭ খ্রিস্টাব্দের মধ্যে বখতিয়ার খিলজি লক্ষ্মণ সেনকে পরাজিত করে বাঙলায় মুসলমান শাসনের সূচনা করেন।"}, {"level": "trap", "text": "⚠️ পরীক্ষায় বিভ্রান্তি: চর্যাপদ আবিষ্কার (১৯০৭, হরপ্রসাদ শাস্ত্রী) বনাম বাঙলা ভাষা প্রমাণ (১৯২৬, সুনীতিকুমার চট্টোপাধ্যায়) — দুটি আলাদা ঘটনা, আলাদা ব্যক্তি।"}]}, {"id": 5, "title": "অন্ধকারে দেড়শো বছর", "page": "১৭-১৮", "reading": "চর্যাপদের পর, অর্থাৎ ১২০০ থেকে ১৩৫০ খ্রিস্টাব্দ পর্যন্ত, বাঙলা সাহিত্যে কোনো রচনার সন্ধান পাওয়া যায় না। এই সময়কেই বলা হয় 'অন্ধকার যুগ'। কেউ কেউ মনে করেন এ সময় মুসলমান বিজয়ের অত্যাচারে সাহিত্যচর্চা সম্ভব হয়নি, কিন্তু হুমায়ুন আজাদ এই যুক্তি মানতে নারাজ — কারণ দেড়শো বছর ধরে টানা রক্তপাত চলতে পারে না এবং মুসলমান রাজারা পরবর্তীকালে সাহিত্যে যথেষ্ট উৎসাহ দিয়েছেন। প্রকৃত কারণ সম্ভবত এই যে তখন কবিতা লেখা হতো না, মুখে মুখে গাওয়া হতো এবং সংরক্ষণের কোনো ব্যবস্থা ছিল না, তাই তা কালক্রমে হারিয়ে গেছে।\n\nকেউ কেউ মনে করেন চর্যাপদকে বাঙলা না ধরলে 'অন্ধকার যুগ' বলে কিছু থাকে না, বাঙলা সাহিত্য চতুর্দশ শতক থেকেই শুরু ধরা যায় — কিন্তু চর্যাপদ যেহেতু প্রমাণিতভাবে বাঙলা, তাই এই ফাঁকটি রহস্যই থেকে গেছে।", "facts": [{"level": "must", "text": "অন্ধকার যুগ: ১২০০-১৩৫০ খ্রিস্টাব্দ — এই সময়ের কোনো সাহিত্যকর্মের সন্ধান নেই।"}, {"level": "important", "text": "সম্ভাব্য কারণ: রচনা মুখে মুখে গীত হতো, লিখিত সংরক্ষণ ছিল না, তাই কালে হারিয়ে গেছে (নিশ্চিত কারণ জানা নেই)।"}, {"level": "quick", "text": "হুমায়ুন আজাদ মুসলমান আক্রমণকে একমাত্র কারণ মানতে রাজি নন, কারণ মুসলমান রাজারা পরে সাহিত্যে উৎসাহ দিয়েছেন।"}]}, {"id": 6, "title": "প্রদীপ জ্বললো আবার : মঙ্গলকাব্য", "page": "১৮-২১", "reading": "অন্ধকার যুগের পর, চতুর্দশ শতাব্দীর দ্বিতীয়ভাগ থেকে শুরু হয় মধ্যযুগ। এ যুগের প্রথম উল্লেখযোগ্য কাব্য শ্রীকৃষ্ণকীর্তন, রচয়িতা বড়ু চণ্ডীদাস — বাঙলা ভাষার প্রথম মহাকবি। এই কাব্যের পাণ্ডুলিপি ১৯০৯ সালে বাঁকুড়ার এক গৃহস্থের গোয়ালঘর থেকে উদ্ধার করেন বসন্তরঞ্জন রায় বিদ্বদ্বল্লভ। এর নায়ক-নায়িকা কৃষ্ণ ও রাধা।\n\nমধ্যযুগের সবচেয়ে বিখ্যাত কাব্যধারা 'মঙ্গলকাব্য' — প্রায় পাঁচশো বছর ধরে রচিত। প্রতিটি মঙ্গলকাব্যের মূল কাঠামো একরকম: স্বর্গের কোনো দেবতা শাপগ্রস্ত হয়ে মর্ত্যে জন্ম নেয়, নানা দুর্ভোগের পর দেবতার (যাঁর নামে কাব্য) পূজা প্রচার করে আবার স্বর্গে ফিরে যায়। দেবতার নাম অনুসারেই কাব্যের নাম হয় — চণ্ডীমঙ্গল, মনসামঙ্গল, ধর্মমঙ্গল, শিবমঙ্গল ইত্যাদি। মনসামঙ্গল লিখেছেন হরি দত্ত, নারায়ণ দেব, বিজয় গুপ্ত, বিপ্রদাস প্রমুখ। চণ্ডীমঙ্গল লিখেছেন মাণিক দত্ত, দ্বিজ মাধব, মুকুন্দরাম চক্রবর্তী, ভারতচন্দ্র রায় প্রমুখ। ধর্মমঙ্গল লিখেছেন ময়ূর ভট্ট, মাণিকরাম, রূপরাম, ঘনরাম প্রমুখ। চণ্ডীমঙ্গলের শ্রেষ্ঠ দুই কবি কবিকঙ্কণ মুকুন্দরাম চক্রবর্তী ও রায়গুণাকর ভারতচন্দ্র; মনসামঙ্গলের শ্রেষ্ঠ দুই কবি বিজয়গুপ্ত ও বংশীদাস। আধুনিক কবি সুধীন্দ্রনাথ দত্ত মধ্যযুগের পুনরাবৃত্তিমূলক প্রকৃতি নিয়ে বিরক্ত হয়ে বলেছিলেন, 'বাঙলা সাহিত্যে মধ্যযুগ অপাঠ্য' — যদিও মঙ্গলকাব্যে সেকালের সমাজজীবনের অমূল্য পরিচয় মেলে।", "facts": [{"level": "must", "text": "শ্রীকৃষ্ণকীর্তন কাব্যের রচয়িতা বড়ু চণ্ডীদাস — বাঙলা ভাষার প্রথম মহাকবি; নায়ক-নায়িকা কৃষ্ণ ও রাধা।"}, {"level": "must", "text": "শ্রীকৃষ্ণকীর্তন-এর পুঁথি ১৯০৯ সালে বাঁকুড়ার এক গৃহস্থের গোয়ালঘর থেকে উদ্ধার করেন বসন্তরঞ্জন রায় বিদ্বদ্বল্লভ।"}, {"level": "must", "text": "মনসামঙ্গলের কবি: হরি দত্ত, নারায়ণ দেব, বিজয় গুপ্ত, বিপ্রদাস। শ্রেষ্ঠ দুই কবি: বিজয়গুপ্ত ও বংশীদাস।"}, {"level": "must", "text": "চণ্ডীমঙ্গলের কবি: মাণিক দত্ত, দ্বিজ মাধব, মুকুন্দরাম চক্রবর্তী, ভারতচন্দ্র রায়। শ্রেষ্ঠ দুই কবি: মুকুন্দরাম চক্রবর্তী ও ভারতচন্দ্র রায়।"}, {"level": "important", "text": "ধর্মমঙ্গলের কবি: ময়ূর ভট্ট, মাণিকরাম, রূপরাম, সীতারাম, ঘনরাম।"}, {"level": "important", "text": "চণ্ডীমঙ্গলের দুই কাহিনি: কালকেতু-ফুল্লরা এবং ধনপতি-লহনা-খুল্লনা। মনসামঙ্গলের কাহিনি: বেহুলা-লখিন্দর।"}, {"level": "quick", "text": "সুধীন্দ্রনাথ দত্ত মন্তব্য করেছিলেন: 'বাঙলা সাহিত্যে মধ্যযুগ অপাঠ্য।'"}, {"level": "trap", "text": "⚠️ মনসামঙ্গল বনাম চণ্ডীমঙ্গলের শ্রেষ্ঠ কবিদের গুলিয়ে ফেলা সাধারণ ভুল — মনে রাখুন: চণ্ডী → মুকুন্দরাম/ভারতচন্দ্র, মনসা → বিজয়গুপ্ত/বংশীদাস।"}]}, {"id": 7, "title": "চণ্ডীমঙ্গলের সোনালি গল্প", "page": "২১-২৪", "reading": "চণ্ডীমঙ্গলের প্রথম কাহিনি কালকেতু-ফুল্লরার। স্বর্গের নীলাম্বর নামের এক দেবতা চণ্ডীর ষড়যন্ত্রে শাপগ্রস্ত হয়ে মর্ত্যে ব্যাধ কালকেতু রূপে জন্ম নেয়, তার স্ত্রী ছায়া হয় ফুল্লরা। চণ্ডীদেবী নানা কৌশলে কালকেতুকে বিপদে ফেলে শেষে সোনার গোধিকা রূপে ধরা দেন ও প্রচুর ধনসম্পদ দান করেন, বিনিময়ে চান পৃথিবীতে নিজের পূজা প্রচার। কালকেতু ধনী হয়ে গুজরাট নগর স্থাপন করে রাজা হয়, শত্রু ভাঁড়ুদত্তের চক্রান্তে যুদ্ধে পরাজিত ও বন্দি হয়, কিন্তু চণ্ডীর কৃপায় মুক্তি ও রাজ্য ফিরে পায়। এই কাহিনি রচনা করেন কবি মুকুন্দরাম চক্রবর্তী, যিনি তাঁর কাহিনির শুরুতে নিজের সংক্ষিপ্ত জীবনকথা বলেছেন — অত্যাচারী ডিহিদার মামুদ শরিফের অত্যাচারে গ্রাম ছেড়ে বহু জায়গা ঘুরে অবশেষে আরড়া গ্রামের জমিদার বাঁকুড়া রায়ের আশ্রয়ে স্থিত হন এবং তাঁর পুত্র রঘুনাথের গৃহশিক্ষক হয়ে চণ্ডীমঙ্গল রচনা করেন।", "facts": [{"level": "must", "text": "চণ্ডীমঙ্গলের প্রথম কাহিনি: কালকেতু-ফুল্লরা — রচয়িতা মুকুন্দরাম চক্রবর্তী।"}, {"level": "important", "text": "নীলাম্বর ও ছায়া নামের দুই দেবতা শাপগ্রস্ত হয়ে মর্ত্যে যথাক্রমে কালকেতু ও ফুল্লরা রূপে জন্ম নেন।"}, {"level": "important", "text": "কালকেতুর শত্রু ভাঁড়ুদত্ত কলিঙ্গরাজের সাহায্যে যুদ্ধ বাধায়; কালকেতু পরাজিত হয়ে বন্দি হন, পরে চণ্ডীর কৃপায় মুক্তি পান।"}, {"level": "quick", "text": "কালকেতুর রাজ্যের নাম গুজরাট নগর।"}]}, {"id": 8, "title": "মনসামঙ্গলের নীল দুঃখ", "page": "২৪-২৭", "reading": "মনসামঙ্গলের কেন্দ্রীয় কাহিনি চাঁদ সদাগর ও তাঁর পুত্র লখিন্দর-বেহুলার। স্বর্গচ্যুত চাঁদ সদাগর মর্ত্যে জন্ম নিয়ে শিবের ভক্ত হয়, কিন্তু সাপের দেবী মনসার পূজা বারবার প্রত্যাখ্যান করে। ক্ষুব্ধ মনসা তার বাণিজ্যতরী ডুবিয়ে দেয়, ছয় পুত্রকে হত্যা করে। সপ্তম পুত্র লখিন্দরের জন্মের সময় মনসা ভবিষ্যদ্বাণী করেন বিয়ের রাতেই সাপের কামড়ে তার মৃত্যু হবে। চাঁদ ছিদ্রহীন লোহার বাসরঘর বানান, কিন্তু মনসার কৌশলে সাপ প্রবেশ করে লখিন্দরকে দংশন করে। তার স্ত্রী বেহুলা স্বামীর মৃতদেহ ভেলায় ভাসিয়ে স্বর্গে যান, দেবতাদের নাচ দেখিয়ে মুগ্ধ করে স্বামীর প্রাণ ফিরে পান — শর্ত থাকে চাঁদকে মনসার পূজা করতে হবে। শেষে চাঁদ অনিচ্ছাসত্ত্বেও বাঁ হাতে মুখ ফিরিয়ে ফুল দিয়ে মনসাপূজা সম্পন্ন করেন।", "facts": [{"level": "must", "text": "মনসামঙ্গলের কাহিনি: চাঁদ সদাগর, স্ত্রী সনকা, পুত্র লখিন্দর ও পুত্রবধূ বেহুলা — বেহুলা-লখিন্দরের কাহিনি নামে পরিচিত।"}, {"level": "important", "text": "বেহুলা স্বামীর মৃতদেহ ভেলায় ভাসিয়ে স্বর্গে গিয়ে নৃত্য দেখিয়ে দেবতাদের মুগ্ধ করে স্বামীর প্রাণ ফিরিয়ে আনেন।"}, {"level": "quick", "text": "চাঁদ সদাগর শেষ পর্যন্ত মুখ ফিরিয়ে বাঁ হাতে ফুল দিয়ে অনিচ্ছায় মনসাপূজা করেন।"}]}, {"id": 9, "title": "কবিকঙ্কণ মুকুন্দরাম চক্রবর্তী", "page": "২৭-৩০", "reading": "মুকুন্দরাম চক্রবর্তীর উপাধি ছিল 'কবিকঙ্কণ'। তাঁর জন্ম ষোড়শ শতাব্দীর প্রথম দিকে, চণ্ডীমঙ্গল কাব্য রচনা করেন আনুমানিক ১৫৭৫ খ্রিস্টাব্দের কাছাকাছি সময়ে। ডিহিদার মামুদ শরিফের অত্যাচারে গ্রাম (দামুন্যা) ছেড়ে বহু নদীপথ পাড়ি দিয়ে তিনি অবশেষে আরড়া গ্রামের জমিদার বাঁকুড়া রায়ের আশ্রয়ে স্থিত হন এবং তাঁর পুত্র রঘুনাথের গৃহশিক্ষক হন। মুকুন্দরামকে বলা হয় মধ্যযুগের সবচেয়ে বাস্তববাদী কবি — তিনি কালকেতু, ফুল্লরা, মুরারি শীল, ভাঁড়ুদত্তের মতো চরিত্রকে এত জীবন্তভাবে এঁকেছেন যে তাঁকে আধুনিক কালের হলে ঔপন্যাসিক হতেন বলে মনে করা হয়। তিনি ছিলেন নির্বিকার স্বভাবের — আবেগ তাঁকে বিহ্বল করত না। তাঁর কাব্যের প্রথম অংশের নায়ক-নায়িকা কালকেতু-ফুল্লরা।", "facts": [{"level": "must", "text": "মুকুন্দরাম চক্রবর্তীর উপাধি 'কবিকঙ্কণ'; কাব্যের নাম চণ্ডীমঙ্গল, রচনাকাল আনু. ১৫৭৫ খ্রিস্টাব্দ (ষোড়শ শতাব্দী)।"}, {"level": "important", "text": "মামুদ শরিফের অত্যাচারে গ্রাম (দামুন্যা) ছেড়ে পালিয়ে অবশেষে জমিদার বাঁকুড়া রায়ের আশ্রয়ে আরড়া গ্রামে বসতি; পুত্র রঘুনাথের গৃহশিক্ষক হন।"}, {"level": "important", "text": "মুকুন্দরামকে বাস্তববাদী, চরিত্র-নির্মাণে দক্ষ কবি মনে করা হয় — আধুনিক কালে জন্মালে তিনি ঔপন্যাসিক হতেন বলে সমালোচকদের অভিমত।"}, {"level": "quick", "text": "মুকুন্দরামের চরিত্র: কালকেতু, ফুল্লরা, ধূর্ত বেনে মুরারি শীল, প্রতিপক্ষ ভাঁড়ুদত্ত।"}]}, {"id": 10, "title": "রায়গুণাকর ভারতচন্দ্র", "page": "৩০-৩২", "reading": "ভারতচন্দ্র রায়ের জন্ম আনুমানিক ১৭১২ খ্রিস্টাব্দে, বর্ধমানের (বর্তমান হাওড়া জেলা) পেঁড়ো-বসন্তপুর বা পাঁচুয়া গ্রামে; পিতা নরেন্দ্রনারায়ণ রায়। শৈশবে পারিবারিক জমিজমা হারিয়ে বহু ঘটনাবহুল জীবন কাটে — সংস্কৃত শেখা, চোদ্দ বছর বয়সে বিবাহ, ফারসি শেখা, বন্দিদশা থেকে পলায়ন, সন্ন্যাসজীবন — অবশেষে ফরাসডাঙ্গার ইন্দ্রনারায়ণ চৌধুরীর মাধ্যমে নদিয়ার রাজা কৃষ্ণচন্দ্রের সভাকবি নিযুক্ত হন। কৃষ্ণচন্দ্র তাঁকে 'রায়গুণাকর' উপাধি দেন। তাঁর একমাত্র কাব্য অন্নদামঙ্গল, যার তিনটি ভাগ: অন্নদামঙ্গল, বিদ্যাসুন্দর, ও ভবানন্দ-মানসিংহ কাহিনি। ভারতচন্দ্র রূপবর্ণনায়, বাক্‌পটুতায় ও চাতুর্যে অসাধারণ — 'মন্ত্রের সাধন কিংবা শরীর পাতন', 'নগর পুড়িলে দেবালয় কি এড়ায়' -র মতো তাঁর অনেক পংক্তি প্রবাদে পরিণত হয়েছে। তিনি মৃত্যুর তিন বছর আগে (১৭৫৭-এর কাছাকাছি) ইংরেজদের দেশ দখলের সাক্ষী হন।", "facts": [{"level": "must", "text": "ভারতচন্দ্র রায়ের উপাধি 'রায়গুণাকর' (দাতা: নদিয়ার রাজা কৃষ্ণচন্দ্র); কাব্য: অন্নদামঙ্গল (আনু. জন্ম ১৭১২ খ্রি.)।"}, {"level": "important", "text": "অন্নদামঙ্গল কাব্যের তিন ভাগ: অন্নদামঙ্গল, বিদ্যাসুন্দর, ভবানন্দ-মানসিংহ কাহিনি।"}, {"level": "quick", "text": "বিখ্যাত পঙক্তি: 'মন্ত্রের সাধন কিংবা শরীর পাতন', 'নগর পুড়িলে দেবালয় কি এড়ায়'।"}, {"level": "trap", "text": "⚠️ মুকুন্দরাম চক্রবর্তী ও ভারতচন্দ্র রায় উভয়েই চণ্ডীমঙ্গল ধারার কবি হলেও প্রায় দুইশ বছরের ব্যবধানে — মুকুন্দরাম ষোড়শ শতাব্দীর, ভারতচন্দ্র অষ্টাদশ শতাব্দীর কবি।"}]}, {"id": 11, "title": "উজ্জ্বলতম আলো : বৈষ্ণব পদাবলি", "page": "৩২-৩৭", "reading": "চতুর্দশ শতকের শেষভাগ থেকে রচিত হতে থাকে বৈষ্ণব পদাবলি — রাধা-কৃষ্ণের প্রেমকে কেন্দ্র করে রচিত ছোট ছোট গীতিকবিতা, যা মধ্যযুগের সবচেয়ে উজ্জ্বল সৃষ্টি। ১৪৮৬ সালে চৈতন্যদেবের জন্মের পর থেকে এসব কবিতায় বৈষ্ণব দর্শনের (রাধা=জীবাত্মা, কৃষ্ণ=পরমাত্মা) প্রভাব বাড়ে। ডক্টর দীনেশচন্দ্র সেন ১৬৫ জন বৈষ্ণব কবির নাম জানিয়েছেন। চার মহাকবি: বিদ্যাপতি (জন্ম আনু. ১৩৭৪), চণ্ডীদাস, জ্ঞানদাস, গোবিন্দদাস (১৫৩৪-১৬১৩)। বিদ্যাপতি ও গোবিন্দদাস লিখতেন কৃত্রিম মিশ্র ভাষা 'ব্রজবুলি'-তে, অলংকারবহুল রীতিতে; চণ্ডীদাস ও জ্ঞানদাস লিখতেন সহজ-সরল খাঁটি বাঙলায়, গভীর সহজাত আবেগে। বৈষ্ণব কবিতা পাঁচ রসে বিভক্ত — শান্ত, দাস্য, বাৎসল্য, সখ্য, মধুর। প্রথম বৈষ্ণব পদ সংকলনকারী বাবা আউল মনোহর দাস, তাঁর গ্রন্থ পদসমুদ্র-এ পনেরো হাজার পদ সংকলিত। পরে রাধামোহন ঠাকুরের পদামৃতসমুদ্র ও বৈষ্ণবদাসের পদকল্পতরু-ও উল্লেখযোগ্য সংকলন।", "facts": [{"level": "must", "text": "বৈষ্ণব পদাবলির চার মহাকবি: বিদ্যাপতি, চণ্ডীদাস, জ্ঞানদাস, গোবিন্দদাস।"}, {"level": "must", "text": "বিদ্যাপতি ও গোবিন্দদাস লিখতেন ব্রজবুলি ভাষায় (অলংকারবহুল); চণ্ডীদাস ও জ্ঞানদাস লিখতেন খাঁটি বাঙলায় (সহজ-সরল)।"}, {"level": "must", "text": "চৈতন্যদেবের জন্ম ১৪৮৬ খ্রিস্টাব্দে — এর পর থেকে বৈষ্ণব পদাবলিতে বৈষ্ণব দর্শনের প্রভাব বৃদ্ধি পায়।"}, {"level": "important", "text": "বৈষ্ণব দর্শনে রাধা = জীবাত্মা, কৃষ্ণ = পরমাত্মা; পাঁচ রস — শান্ত, দাস্য, বাৎসল্য, সখ্য, মধুর।"}, {"level": "important", "text": "প্রথম বৈষ্ণব পদ সংকলনকারী বাবা আউল মনোহর দাস, গ্রন্থ: পদসমুদ্র (পনেরো হাজার পদ)।"}, {"level": "quick", "text": "ডক্টর দীনেশচন্দ্র সেন ১৬৫ জন বৈষ্ণব কবির নাম জানিয়েছেন।"}, {"level": "trap", "text": "⚠️ বিদ্যাপতি মিথিলার (আজকের বিহার) কবি ও ব্রজবুলি ভাষায় লিখতেন, কিন্তু তবু তাঁকে বাঙলা কবিতার কবি গণ্য করা হয় কারণ তাঁর কবিতা বাঙালিদের দ্বারা গৃহীত ও চর্চিত।"}]}, {"id": 12, "title": "বিদ্যাপতি", "page": "৩৭-৩৯", "reading": "বিদ্যাপতি ছিলেন মিথিলার রাজা শিবসিংহের রাজসভার মহাকবি (পঞ্চদশ শতক)। যদিও তিনি বাঙলা ভাষায় একটি কবিতাও লেখেননি — লিখতেন ব্রজবুলি নামক মিশ্র ভাষায় (হিন্দি+বাঙলা+প্রাকৃত শব্দের মিশ্রণ) — তবু তাঁর কবিতা বাঙলা কবিতা হয়ে উঠেছে, কারণ বাঙলার পণ্ডিতরা মিথিলা থেকে জ্ঞানার্জন করে তাঁর কবিতা নিয়ে আসতেন। রাজা শিবসিংহ তাঁকে 'কবিকণ্ঠহার' উপাধি দেন। বাঙলায় রচিত অন্যান্য গ্রন্থ: পুরুষপরীক্ষা (সংস্কৃত), কীর্তিলতা, ভূপরিক্রমা। বিদ্যাপতি রূপক ও উপমার ব্যবহারে অসাধারণ দক্ষ — চণ্ডীদাসের মতো আবেগে ভেসে না গিয়ে তিনি ভাবকে সুসজ্জিত ভাষায় প্রকাশ করেন।", "facts": [{"level": "must", "text": "বিদ্যাপতি মিথিলার রাজা শিবসিংহের সভাকবি (পঞ্চদশ শতক), উপাধি 'কবিকণ্ঠহার'।"}, {"level": "must", "text": "বিদ্যাপতি একটিও কবিতা বাঙলা ভাষায় লেখেননি — লিখতেন ব্রজবুলি ভাষায়, তবু তাঁকে বাঙলার কবি গণ্য করা হয়।"}, {"level": "important", "text": "বিদ্যাপতির সংস্কৃত গ্রন্থ: পুরুষপরীক্ষা, কীর্তিলতা, ভূপরিক্রমা (ভূপরিক্রমা/গঙ্গাবাক্যাবলী)।"}]}, {"id": 13, "title": "চণ্ডীদাস", "page": "৩৮-৪১", "reading": "চণ্ডীদাস নামে বাঙলা সাহিত্যে একাধিক কবির কবিতা পাওয়া যায়, যা নিয়ে সৃষ্টি হয়েছে বিখ্যাত 'চণ্ডীদাস-সমস্যা'। আজকাল মনে করা হয় তিনজন চণ্ডীদাস আছেন: বড়ু চণ্ডীদাস (শ্রীকৃষ্ণকীর্তন-এর রচয়িতা, প্রথম মহাকবি), দ্বিজ চণ্ডীদাস (চতুর্দশ শতকের শেষভাগে বীরভূম জেলার নানুর গ্রামে জন্ম, বাশুলীদেবীর ভক্ত), এবং দীন চণ্ডীদাস। দ্বিজ চণ্ডীদাসের রাধা-বিষয়ক পদগুলো গভীর সহজাত আবেগে পূর্ণ, ভাষা সহজ-সরল অথচ গভীর। চৈতন্যদেব পাগলের মতো চণ্ডীদাসের পদাবলি জপ করতেন বলে কথিত আছে।", "facts": [{"level": "must", "text": "'চণ্ডীদাস-সমস্যা': বাঙলা সাহিত্যে তিনজন চণ্ডীদাস চিহ্নিত — বড়ু চণ্ডীদাস, দ্বিজ চণ্ডীদাস, দীন চণ্ডীদাস।"}, {"level": "must", "text": "বড়ু চণ্ডীদাস শ্রীকৃষ্ণকীর্তন-এর রচয়িতা ও বাঙলার প্রথম মহাকবি; দ্বিজ চণ্ডীদাস বীরভূমের নানুর গ্রামের, বাশুলীদেবীর ভক্ত।"}, {"level": "quick", "text": "চৈতন্যদেব চণ্ডীদাসের পদাবলি গভীর ভক্তিতে জপ করতেন বলে কথিত।"}, {"level": "trap", "text": "⚠️ পরীক্ষায় সাধারণ বিভ্রান্তি: 'শ্রীকৃষ্ণকীর্তন' লিখেছেন বড়ু চণ্ডীদাস, কিন্তু বৈষ্ণব পদাবলির চার মহাকবির তালিকায় উল্লেখিত 'চণ্ডীদাস' সাধারণত দ্বিজ চণ্ডীদাসকে বোঝানো হয়।"}]}, {"id": 14, "title": "চৈতন্য ও বৈষ্ণবজীবনী", "page": "৪০-৪৭", "reading": "শ্রীচৈতন্যদেব (১৪৮৬-১৫৩৩) নবদ্বীপে জন্মগ্রহণ করেন; পিতা জগন্নাথ মিশ্র, মাতা শচীদেবী। আসল নাম বিশ্বম্ভর, ডাকনাম নিমাই, গায়ের রঙের জন্য পরিচিত গৌরাঙ্গ/গোরা নামেও। গয়ায় ঈশ্বরপুরীর কাছে দীক্ষা নিয়ে তিনি বৈষ্ণব ধর্ম প্রচার শুরু করেন — 'সবার উপরে মানুষ সত্য' এই মানবিক বাণী প্রচার করে সমাজে জাগরণ আনেন। মাত্র ৪৮ বছর বয়সে ১৫৩৩ সালে পুরীতে তাঁর মৃত্যু হয়। তাঁর জীবনী নিয়ে রচিত গ্রন্থগুলো বাঙলা সাহিত্যের মূল্যবান সম্পদ: বৃন্দাবন দাসের চৈতন্যভাগবত (মৃত্যুর ১৫ বছরের মধ্যে রচিত), লোচন দাসের চৈতন্যমঙ্গল, এবং সবচেয়ে বিখ্যাত কৃষ্ণদাস কবিরাজের (১৫৩০-১৬১৫) চৈতন্যচরিতামৃত, যাতে জীবনীর সঙ্গে বৈষ্ণব দর্শনও ব্যাখ্যাত হয়েছে।", "facts": [{"level": "must", "text": "শ্রীচৈতন্যদেবের জন্ম ১৪৮৬, মৃত্যু ১৫৩৩ (৪৮ বছর বয়সে, পুরীতে); নবদ্বীপে জন্ম, পিতা জগন্নাথ মিশ্র, মাতা শচীদেবী; আসল নাম বিশ্বম্ভর/নিমাই।"}, {"level": "must", "text": "চৈতন্যজীবনী গ্রন্থ: বৃন্দাবন দাসের চৈতন্যভাগবত, লোচন দাসের চৈতন্যমঙ্গল, কৃষ্ণদাস কবিরাজের চৈতন্যচরিতামৃত।"}, {"level": "important", "text": "চৈতন্যদেব নিজে কোনো কবিতা লেখেননি, কিন্তু বাঙলা সাহিত্যে তাঁর প্রভাব অপরিসীম — 'সবার উপরে মানুষ সত্য' এই মানবিক বাণী প্রচার করেন।"}, {"level": "quick", "text": "চৈতন্যদেবের অন্য নাম: বিশ্বম্ভর, নিমাই, গৌরাঙ্গ/গোরা।"}]}, {"id": 15, "title": "দেবতার মতো দুজন এবং কয়েকজন অনুবাদক", "page": "৪২-৪৭", "reading": "মধ্যযুগে হিন্দু কবিরা রামায়ণ-মহাভারত অনুবাদ করেন — যদিও এগুলো ছিল প্রায়শই স্বাধীন পুনর্লিখন, নিছক অনুবাদ নয়। এই অনুবাদে মুসলমান সম্রাটরা প্রচুর উৎসাহ দিয়েছিলেন। রামায়ণের শ্রেষ্ঠ ও সবচেয়ে জনপ্রিয় অনুবাদক কৃত্তিবাস (পঞ্চদশ শতক), যিনি প্রেরণা ও পৃষ্ঠপোষকতা পান গৌড়ের রাজা রুকনুদ্দিন বারবক শাহের (১৪৫৯-৭৪) কাছ থেকে। তাঁর রামায়ণের অন্য নাম শ্রীরামপাঁচালী; জন্ম নদিয়ার ফুলিয়া গ্রামে, পিতা বনমালী। কৃত্তিবাসী রামায়ণ প্রথম মুদ্রিত হয় ১৮০২-০৩ সালে শ্রীরামপুরের পাদ্রিদের দ্বারা।\n\nমহাভারতের শ্রেষ্ঠ অনুবাদক কাশীরাম দাস (সপ্তদশ শতক, আনু. ১৬০২-১৬১০ সালে রচনা), যদিও তিনি প্রথম অনুবাদক নন — তার আগে পরাগল খানের অনুপ্রেরণায় কবীন্দ্র পরমেশ্বর এবং পরাগল খানের পুত্র ছুটি খানের অনুপ্রেরণায় শ্রীকর নন্দী মহাভারতের অংশবিশেষ অনুবাদ করেছিলেন। কাশীরাম নিজে সম্পূর্ণ মহাভারত শেষ করে যেতে পারেননি; তাঁর ভাইপো ও অন্যরা তা সম্পূর্ণ করেন। এছাড়া হিন্দুধর্মের পবিত্র গ্রন্থ ভাগবত অনুবাদ করেন মালাধর বসু, যিনি মুসলমান রাজার কাছ থেকে 'গুণরাজ খান' উপাধি পান — তাঁর অনুবাদের নাম শ্রীকৃষ্ণবিজয়।", "facts": [{"level": "must", "text": "রামায়ণের শ্রেষ্ঠ/প্রথম অনুবাদক কৃত্তিবাস (পঞ্চদশ শতক); পৃষ্ঠপোষক রাজা রুকনুদ্দিন বারবক শাহ (১৪৫৯-৭৪); অন্য নাম শ্রীরামপাঁচালী।"}, {"level": "must", "text": "মহাভারতের শ্রেষ্ঠ অনুবাদক কাশীরাম দাস (সপ্তদশ শতক, আনু. ১৬০২-১৬১০); তিনি প্রথম অনুবাদক নন, কাজ অসমাপ্ত রেখে যান, ভাইপো তা সম্পূর্ণ করেন।"}, {"level": "important", "text": "মহাভারতের প্রথম অনুবাদক শ্রীকর নন্দী, পৃষ্ঠপোষক ছুটি খান (পরাগল খানের পুত্র); এর আগে কবীন্দ্র পরমেশ্বরও (পরাগল খানের অনুপ্রেরণায়) আংশিক অনুবাদ করেন।"}, {"level": "important", "text": "ভাগবত অনুবাদ করেন মালাধর বসু, উপাধি 'গুণরাজ খান'; অনুবাদের নাম শ্রীকৃষ্ণবিজয়।"}, {"level": "quick", "text": "কৃত্তিবাসী রামায়ণ প্রথম মুদ্রিত হয় ১৮০২/১৮০৩ সালে শ্রীরামপুরের খ্রিস্টান পাদ্রিদের দ্বারা।"}, {"level": "trap", "text": "⚠️ 'প্রথম অনুবাদক' বনাম 'শ্রেষ্ঠ অনুবাদক' গুলিয়ে ফেলা ভুল: কৃত্তিবাস রামায়ণে প্রথম ও শ্রেষ্ঠ উভয়ই, কিন্তু কাশীরাম মহাভারতে শ্রেষ্ঠ হলেও প্রথম নন (শ্রীকর নন্দী প্রথম)।"}]}, {"id": 16, "title": "ভিন্ন প্রদীপ : মুসলমান কবিরা", "page": "৪৭-৫২", "reading": "বাঙলা ভাষায় প্রথম মুসলমান কবি শাহ মুহম্মদ সগীর, যিনি সুলতান গিয়াসউদ্দিন আজম শাহের রাজত্বকালে (চতুর্দশ শতকের শেষ/পঞ্চদশ শতকের প্রথম) ইউসুফ-জুলেখা কাব্য রচনা করেন। মুসলমান কবিরা দেবতার বদলে মানুষের গল্প (ইউসুফ-জুলেখা, লাইলি-মজনু) বলে নতুন ধারার সূচনা করেন, যদিও তাঁদের অধিকাংশ রচনাই ফারসি-হিন্দি-আরবি থেকে ভাবানুবাদ। ষোড়শ শতকের উল্লেখযোগ্য কবি: সাবিরিদ খান (বিদ্যাসুন্দর, হানিফা ও কয়রা পরী, রসুলবিজয়), মুহম্মদ কবির (মধুমালতী, শুরু ১৫৮৩), বাহরাম খান (লাইলি-মজনু), আফজল আলী (নসিহতনামা), শেখ ফয়জুল্লাহ (গাজিবিজয়, গোরক্ষবিজয়), জৈনুদ্দিন (রসুলবিজয়)। আবদুল হাকিম নিজেকে বাঙালি বলতে গর্ববোধ করতেন এবং যারা বাঙলা ভাষাকে ঘৃণা করত তাদের কড়া ভাষায় নিন্দা করেছেন তাঁর নূরনামা কাব্যে। আরাকান রাজদরবারে (সপ্তদশ শতক) বাঙলা সাহিত্যচর্চা হতো — সেখানকার কবি আলাওল, কাজী দৌলত (সতীময়না), মাগন ঠাকুর (চন্দ্রাবতী)। বাঙলার মুসলমান কবিদের রচনা সংগ্রহে বিশেষ অবদান রাখেন আবদুল করিম সাহিত্যবিশারদ (১৮৭১-১৯৫৩)।", "facts": [{"level": "must", "text": "বাঙলা ভাষায় প্রথম মুসলমান কবি শাহ মুহম্মদ সগীর, কাব্য ইউসুফ-জুলেখা; সুলতান গিয়াসউদ্দিন আজম শাহের রাজত্বকালে রচিত।"}, {"level": "important", "text": "আরাকান রাজদরবারের কবি: আলাওল, কাজী দৌলত (সতীময়না/লোরচন্দ্রানী), মাগন ঠাকুর (চন্দ্রাবতী) — সবাই সপ্তদশ শতকের।"}, {"level": "important", "text": "আবদুল হাকিম বাংলাভাষা-বিদ্বেষীদের নিন্দা করেন তাঁর নূরনামা কাব্যে।"}, {"level": "important", "text": "মুসলমান কবিদের পুঁথি সংগ্রহে অগ্রণী ভূমিকা রাখেন আবদুল করিম সাহিত্যবিশারদ (১৮৭১-১৯৫৩), চট্টগ্রামের অধিবাসী।"}, {"level": "quick", "text": "সাবিরিদ খান: বিদ্যাসুন্দর, হানিফা ও কয়রা পরী; বাহরাম খান: লাইলি-মজনু।"}]}, {"id": 17, "title": "আলাওল", "page": "৫২-৫৫", "reading": "আলাওল (আনু. ১৫৯৭-১৬৭৩) মধ্যযুগের মুসলমান কবিদের মধ্যে শ্রেষ্ঠ, সমগ্র বাঙলা সাহিত্যেরও অন্যতম বড় কবি। পিতা ফতেহাবাদ অঞ্চলের মজলিশ কুতুবের কর্মচারী ছিলেন; নৌকায় যাত্রাকালে পর্তুগিজ জলদস্যুদের আক্রমণে পিতার মৃত্যু হলে আলাওল আরাকানে আশ্রয় নেন এবং রাজার অশ্বারোহী বাহিনীতে যোগ দেন। সেখানে মাগন ঠাকুরের উৎসাহে কবিতা লেখা শুরু করেন। তাঁর শ্রেষ্ঠ কাব্য পদ্মাবতী (১৬৪৮), হিন্দি কবি মালিক মুহম্মদ জায়সির পদুমাবত অবলম্বনে রচিত। অন্যান্য কাব্য: সয়ফুলমুলুক-বদিউজ্জামাল (অসমাপ্ত, ফারসি থেকে), হপ্তপয়কর (ফারসি কবি নিজামীর রচনা অবলম্বনে), সেকেন্দারনামা, তোহফা। তিনি কাজী দৌলতের অসমাপ্ত সতীময়না কাব্যও সমাপ্ত করেন। শাহ সুজার সাথে সংশ্লিষ্টতার অভিযোগে পঞ্চাশ দিন বিনা বিচারে কারাবন্দি ছিলেন।", "facts": [{"level": "must", "text": "আলাওলের শ্রেষ্ঠ কাব্য পদ্মাবতী (১৬৪৮), হিন্দি কবি মালিক মুহম্মদ জায়সির পদুমাবত অবলম্বনে রচিত।"}, {"level": "important", "text": "আলাওল আরাকান রাজসভায় মাগন ঠাকুরের উৎসাহে কবি হয়ে ওঠেন; কাজী দৌলতের অসমাপ্ত সতীময়না কাব্য সমাপ্ত করেন।"}, {"level": "important", "text": "অন্যান্য কাব্য: সয়ফুলমুলুক-বদিউজ্জামাল, হপ্তপয়কর, সেকেন্দারনামা, তোহফা।"}, {"level": "quick", "text": "আলাওলের জন্ম আনু. ১৫৯৭, মৃত্যু আনু. ১৬৭৩; পিতা পর্তুগিজ জলদস্যুদের হাতে নিহত হন।"}]}, {"id": 18, "title": "লোকসাহিত্য : বুকের বাঁশরি", "page": "৫৫-৫৯", "reading": "লোকসাহিত্য হলো পল্লীর সাধারণ মানুষের মুখে মুখে বেঁচে থাকা সাহিত্য — ছড়া, প্রবাদ, গীতিকা, রূপকথা — যার রচয়িতার নাম প্রায়শই অজানা থেকে যায়। বাঙলার শ্রেষ্ঠ লোকসাহিত্য সংগ্রাহক চন্দ্রকুমার দে (১৮৮৯-১৯৪৬), ময়মনসিংহের অধিবাসী, যাঁর সংগৃহীত গীতিকাগুলো সম্পাদনা করে ডক্টর দীনেশচন্দ্র সেন ময়মনসিংহ গীতিকা (১৯২০) নামে প্রকাশ করেন। বিখ্যাত গীতিকা: মহুয়া, দেওয়ানা মদিনা, মলুয়া। রূপকথা সংগ্রাহক: দক্ষিণারঞ্জন মিত্রমজুমদার (ঠাকুরমার ঝুলি, ঠাকুরদাদার ঝুলি) ও উপেন্দ্রকিশোর রায়চৌধুরী (টুনটুনির বই)। রবীন্দ্রনাথও ছড়া সংগ্রহ করে লোকসাহিত্য নামক গ্রন্থ রচনা করেন। মহুয়া গীতিকায় বেদেকন্যা মহুয়া ও যুবক নদের চাঁদের করুণ প্রেমকাহিনি বর্ণিত, যেখানে হুমরা বেদের প্রতিহিংসায় উভয়েরই মৃত্যু হয়।", "facts": [{"level": "must", "text": "বাঙলার শ্রেষ্ঠ লোকসাহিত্য/গীতিকা সংগ্রাহক চন্দ্রকুমার দে (১৮৮৯-১৯৪৬); সম্পাদক ডক্টর দীনেশচন্দ্র সেন — গ্রন্থ ময়মনসিংহ গীতিকা (১৯২০)।"}, {"level": "important", "text": "বিখ্যাত গীতিকা: মহুয়া, দেওয়ানা মদিনা, মলুয়া — সবই ময়মনসিংহ অঞ্চল থেকে সংগৃহীত।"}, {"level": "important", "text": "রূপকথা সংগ্রাহক: দক্ষিণারঞ্জন মিত্রমজুমদার (ঠাকুরমার ঝুলি) ও উপেন্দ্রকিশোর রায়চৌধুরী (টুনটুনির বই)।"}, {"level": "quick", "text": "রবীন্দ্রনাথ ছড়া সংগ্রহ করে 'লোকসাহিত্য' নামে গ্রন্থ রচনা করেন।"}]}, {"id": 19, "title": "দ্বিতীয় অন্ধকার", "page": "৫৯-৬৩", "reading": "মধ্যযুগের অবসানে (১৭৬০-১৮৩০ সময়কালে) বাঙলা সাহিত্যে নেমে আসে দ্বিতীয় দফা পতনের ছায়া। ১৭৫৭ সালে পলাশীর যুদ্ধে স্বাধীনতা হারানোর পর ইংরেজরা শাসক হয়ে ওঠে, সমাজে নতুন ধনিক শ্রেণীর উদ্ভব হয় যাদের রুচি ছিল নিম্নমানের। এই সময়ের কবিদের বলা হতো 'কবিওয়ালা' বা মুসলমানদের ক্ষেত্রে 'শায়ের'। তাঁরা মঞ্চে দাঁড়িয়ে দুই দলে ভাগ হয়ে 'কবিগান' (চাপান-উতোর) করতেন। বিখ্যাত কবিওয়ালা: গোঁজলা গুই (প্রাচীনতম), রাম বসু (১৭৮৬-১৮২৮), অ্যান্টনি ফিরিঙ্গি (পর্তুগিজ বংশোদ্ভূত), নিধুবাবু/রামনিধি গুপ্ত (১৭৪১-১৮৩০, বিখ্যাত টপ্পাগান রচয়িতা), হরু ঠাকুর (১৭৪৯-১৮২৪)। মুসলমান সমাজে 'শায়ের'রা রচনা করতেন 'পুঁথিসাহিত্য' বা 'বটতলার পুঁথি' — আরবি-ফারসি শব্দবহুল রোমাঞ্চকর কাহিনি, যেমন গরীবুল্লাহ (ইউসুফ-জুলেখা, আমির হামজা) ও সৈয়দ হামজার রচনা। এই সময়ের একমাত্র উল্লেখযোগ্য সাহিত্যিক কবি ঈশ্বরচন্দ্র গুপ্ত (১৮১২-১৮৫৯), যিনি নিজেও এক সময় কবিওয়ালাদের দলে ছিলেন।", "facts": [{"level": "must", "text": "১৭৬০-১৮৩০ সময়কাল বাঙলা সাহিত্যের পতনের যুগ ('দ্বিতীয় অন্ধকার'); ১৭৫৭ সালে পলাশীর যুদ্ধে বাংলা স্বাধীনতা হারায়।"}, {"level": "must", "text": "এ যুগের কবিদের বলা হয় 'কবিওয়ালা' (হিন্দু) ও 'শায়ের' (মুসলমান); মঞ্চে কবিতা প্রতিযোগিতাকে বলে 'কবিগান' — প্রথম দলের বক্তব্য 'চাপান', জবাব 'উতোর'।"}, {"level": "important", "text": "বিখ্যাত কবিওয়ালা: রাম বসু, অ্যান্টনি ফিরিঙ্গি, নিধুবাবু (রামনিধি গুপ্ত, টপ্পাগান), হরু ঠাকুর, গোঁজলা গুই (প্রাচীনতম)।"}, {"level": "important", "text": "মুসলমান সমাজের 'শায়ের'দের রচনা 'পুঁথিসাহিত্য'/'বটতলার পুঁথি' নামে পরিচিত — প্রধান রচয়িতা ফকির গরীবুল্লাহ ও সৈয়দ হামজা।"}, {"level": "quick", "text": "ঈশ্বরচন্দ্র গুপ্ত (১৮১২-১৮৫৯) এ যুগের একমাত্র উল্লেখযোগ্য কবি, নিজেও কবিওয়ালাদের দলে ছিলেন।"}]}, {"id": 20, "title": "অভিনব আলোর ঝলক", "page": "৬৩-৬৪", "reading": "উনিশ শতক থেকে বাঙলা সাহিত্যের আধুনিক যুগের প্রকৃত সূচনা। এই শতকের সবচেয়ে বড় ঘটনা বাঙলা গদ্যের বিকাশ, যার সূচনা ১৮০০ সালে প্রতিষ্ঠিত ফোর্ট উইলিয়ম কলেজে। মুদ্রণযন্ত্রের প্রতিষ্ঠাও সাহিত্যে বৈচিত্র্য আনে। ঈশ্বরচন্দ্র বিদ্যাসাগর (১৮২০-১৮৯১) গদ্যসাহিত্যে বৈপ্লবিক অবদান রাখেন। প্যারীচাঁদ মিত্র (১৮১৪-১৮৮৩) রচনা করেন প্রথম উপন্যাস, কালীপ্রসন্ন সিংহ (১৮৪০-১৮৭০) ব্যঙ্গাত্মক রচনা লেখেন। কবিতায় নবযুগ আনেন মাইকেল মধুসূদন দত্ত (১৮২৪-১৮৭৩), যিনি বাঙলা ভাষায় প্রথম মহাকাব্য রচনা করেন এবং কবিতাকে সুরনির্ভরতা থেকে মুক্ত করে 'পাঠ্য' করে তোলেন, সৃষ্টি করেন অমিত্রাক্ষর ছন্দ। উপন্যাসে যথার্থ প্রতিষ্ঠা আসে বঙ্কিমচন্দ্র চট্টোপাধ্যায়ের (১৮৩৮-১৮৯৪) হাতে।", "facts": [{"level": "must", "text": "ফোর্ট উইলিয়ম কলেজ প্রতিষ্ঠিত হয় ১৮০০ খ্রিস্টাব্দে — বাঙলা গদ্যের সংগঠিত বিকাশের সূচনাবিন্দু।"}, {"level": "important", "text": "উনিশ শতকের অগ্রণী ব্যক্তিত্ব: বিদ্যাসাগর (গদ্য), প্যারীচাঁদ মিত্র (প্রথম উপন্যাস), মধুসূদন দত্ত (মহাকাব্য, অমিত্রাক্ষর ছন্দ), বঙ্কিমচন্দ্র (উপন্যাস)।"}]}, {"id": 21, "title": "গদ্য : নতুন সম্রাট", "page": "৬৪-৬৯", "reading": "বাঙলা গদ্যের প্রাচীনতম নমুনা মধ্যযুগের কিছু চম্পূকাব্য, দলিল ও চিঠিপত্রে (যেমন কোচবিহারের রাজা নরনারায়ণের ১৫৫৫ সালের চিঠি) পাওয়া যায়, তবে তা দুর্বোধ্য ও অপরিণত। ১৭৪৩ সালে পর্তুগাল থেকে রোমান হরফে তিনটি বাঙলা গদ্যগ্রন্থ ছাপা হয় — দোম আন্তোনিও ও পাদ্রি মনোএল দা আসসুম্পসাঁউ-এর রচনা। কিন্তু বাঙলা গদ্যের প্রকৃত জন্ম ফোর্ট উইলিয়ম কলেজে (স্থাপিত ৪ মে, ১৮০০)। এখানকার অধ্যক্ষ পাদ্রি উইলিয়ম কেরি (১৭৬১-১৮৩৪) ১৮০১ সালে যোগ দিয়ে পণ্ডিতদের সহায়তায় গদ্য বিকাশে মনোযোগ দেন। রামরাম বসুর প্রতাপাদিত্যচরিত্র (১৮০১) হলো ফোর্ট উইলিয়ম কলেজ থেকে প্রকাশিত প্রথম বাঙলা গদ্যগ্রন্থ। মৃত্যুঞ্জয় বিদ্যালঙ্কার সবচেয়ে বেশি বই লিখেছিলেন (বত্রিশ সিংহাসন, হিতোপদেশ, রাজাবলি, প্রবোধচন্দ্রিকা)। পরবর্তীতে বাঙলা প্রথম পত্রিকা প্রকাশ করে শ্রীরামপুরের মিশনারিরা — দিগ্দর্শন (১৮১৮)। বাঙালিদের প্রথম পত্রিকা বাঙ্গাল গেজেটি (১৮১৮)। সবচেয়ে প্রভাবশালী পত্রিকা সম্বাদ প্রভাকর, সম্পাদক ঈশ্বরচন্দ্র গুপ্ত (সাপ্তাহিক শুরু ১৮৩১, দৈনিক ১৮৩৯)।", "facts": [{"level": "must", "text": "ফোর্ট উইলিয়ম কলেজ প্রতিষ্ঠিত হয় ৪ মে ১৮০০ খ্রিস্টাব্দ; অধ্যক্ষ পাদ্রি উইলিয়ম কেরি (১৭৬১-১৮৩৪), যোগ দেন ১৮০১ সালে।"}, {"level": "must", "text": "ফোর্ট উইলিয়ম কলেজ থেকে প্রকাশিত প্রথম বাঙলা গদ্যগ্রন্থ রামরাম বসুর প্রতাপাদিত্যচরিত্র (১৮০১)।"}, {"level": "important", "text": "মৃত্যুঞ্জয় বিদ্যালঙ্কার (১৭৬২-১৮১৯) ফোর্ট উইলিয়ম কলেজের সবচেয়ে ফলপ্রসূ লেখক — বত্রিশ সিংহাসন, হিতোপদেশ, রাজাবলি, প্রবোধচন্দ্রিকা।"}, {"level": "important", "text": "বাঙলার প্রথম পত্রিকা (মিশনারি) দিগ্দর্শন (১৮১৮, শ্রীরামপুর); বাঙালিদের প্রথম পত্রিকা বাঙ্গাল গেজেটি (১৮১৮)।"}, {"level": "important", "text": "সবচেয়ে প্রভাবশালী পত্রিকা সম্বাদ প্রভাকর, সম্পাদক ঈশ্বরচন্দ্র গুপ্ত — সাপ্তাহিক শুরু ১৮৩১, দৈনিক ১৮৩৯।"}, {"level": "quick", "text": "১৭৪৩ সালে পর্তুগাল থেকে রোমান হরফে বাঙলা গদ্যগ্রন্থ ছাপা হয় (দোম আন্তোনিও, পাদ্রি মনোএল দা আসসুম্পসাঁউ)।"}, {"level": "trap", "text": "⚠️ 'প্রথম বাঙলা গদ্যগ্রন্থ' (আঠারো শতকের পর্তুগিজ প্রকাশনা) বনাম 'ফোর্ট উইলিয়ম কলেজের প্রথম গদ্যগ্রন্থ' (প্রতাপাদিত্যচরিত্র, ১৮০১) — দুটি ভিন্ন দাবি, প্রশ্নে সতর্ক থাকুন।"}]}, {"id": 22, "title": "গদ্যের জনক ও প্রধান পুরুষেরা", "page": "৬৯-৭৩", "reading": "রামমোহন রায় (১৭৭২-১৮৩৩) গদ্যকে পাঠ্যবইয়ের গণ্ডি ছাড়িয়ে তর্ক-বিতর্কের উপযোগী করে তোলেন (বেদান্ত গ্রন্থ, গৌড়ীয় ব্যাকরণ)। কিন্তু 'বাঙলা গদ্যের জনক' বলা হয় ঈশ্বরচন্দ্র বিদ্যাসাগরকে (১৮২০-১৮৯১, মেদিনীপুরের বীরসিংহ গ্রামে জন্ম, পিতা ঠাকুরদাস) — তিনিই প্রথম গদ্যের ছন্দ ও যতিচিহ্নের (দাঁড়ি, কমা) সুশৃঙ্খল ব্যবহার প্রবর্তন করেন। রবীন্দ্রনাথ বলেছিলেন বিদ্যাসাগর গদ্যকে সংস্কৃত দীর্ঘ সমাসের কবল থেকে মুক্তি দেন। তাঁর গ্রন্থ: বেতালপঞ্চবিংশতি (১৮৪৭), শকুন্তলা (১৮৫৪), সীতার বনবাস (১৮৬০), ভ্রান্তিবিলাস (১৮৬৯), বর্ণপরিচয় (১৮৫৪), বিধবাবিবাহ প্রচলিত হওয়া উচিত কিনা (১৮৫৫)। প্যারীচাঁদ মিত্র (ছদ্মনাম টেকচাঁদ ঠাকুর) কথ্যরীতিতে লেখেন আলালের ঘরের দুলাল (১৮৫৮); কালীপ্রসন্ন সিংহ (১৮৪০-১৮৭০) লেখেন হুতোম প্যাঁচার নকশা (১৮৬২) — এই দুজন বাঙলা চলতি গদ্যের অগ্রপথিক। পরবর্তীতে বঙ্কিমচন্দ্র, রবীন্দ্রনাথ, এবং প্রমথ চৌধুরী (১৮৬৮-১৯৪৬, চলতি গদ্যরীতির প্রধান প্রবক্তা, সবুজপত্র পত্রিকা) গদ্যকে পূর্ণতা দেন।", "facts": [{"level": "must", "text": "'বাঙলা গদ্যের জনক' ঈশ্বরচন্দ্র বিদ্যাসাগর (১৮২০-১৮৯১); জন্ম মেদিনীপুরের বীরসিংহ গ্রামে; গদ্যের ছন্দ ও যতিচিহ্নের প্রবর্তক।"}, {"level": "must", "text": "রামমোহন রায় (১৭৭২-১৮৩৩) গদ্যকে পাঠ্যবইয়ের সীমা ছাড়িয়ে তর্কবিতর্কের উপযোগী করেন — গ্রন্থ: বেদান্ত গ্রন্থ, গৌড়ীয় ব্যাকরণ।"}, {"level": "important", "text": "প্যারীচাঁদ মিত্র (ছদ্মনাম টেকচাঁদ ঠাকুর) ও কালীপ্রসন্ন সিংহ বাঙলা চলতি (কথ্য) গদ্যরীতির অগ্রপথিক — যথাক্রমে আলালের ঘরের দুলাল (১৮৫৮) ও হুতোম প্যাঁচার নকশা (১৮৬২)।"}, {"level": "important", "text": "চলতি গদ্যরীতির প্রধান প্রবক্তা প্রমথ চৌধুরী (১৮৬৮-১৯৪৬, ছদ্মনাম বীরবল), পত্রিকা সবুজপত্র (১৯১৪) — তাঁর প্রভাবেই রবীন্দ্রনাথ শেষজীবনে চলতি গদ্য লেখেন।"}, {"level": "quick", "text": "বিদ্যাসাগরের বর্ণপরিচয়-এর বিখ্যাত পঙক্তি: 'জল পড়ে, পাতা নড়ে।'"}, {"level": "trap", "text": "⚠️ রামমোহন রায় ও ঈশ্বরচন্দ্র বিদ্যাসাগর উভয়েই গদ্যের অগ্রপথিক, কিন্তু 'গদ্যের জনক' উপাধি একমাত্র বিদ্যাসাগরের জন্য প্রযোজ্য।"}]}, {"id": 23, "title": "কবিতা : অন্তর হ'তে আহরি বচন", "page": "৭৪-৭৯", "reading": "উনিশ শতকের প্রথমার্ধ ছিল গদ্যের রাজত্ব; কবিতায় আকাল চলছিল। এ সময়ের একমাত্র কবি ঈশ্বরচন্দ্র গুপ্ত (১৮২২-১৮৫৯), যাঁর কবিতা ছিল হালকা, ব্যঙ্গবিদ্রূপাত্মক। বাঙলা কবিতায় আধুনিকতা আনেন মাইকেল মধুসূদন দত্ত (১৮২৪-১৮৭৩) — বাঙলা ভাষার প্রথম মহাকাব্য মেঘনাদবধ কাব্য (১৮৬১) রচনা করেন, যার নায়ক রাবণ; তিনি সৃষ্টি করেন অমিত্রাক্ষর ছন্দ (প্রবহমাণ পয়ার), লেখেন প্রথম সনেট ('চতুর্দশপদী কবিতা')। তাঁর অন্যান্য কাব্য: তিলোত্তমাসম্ভবকাব্য (১৮৫৯), ব্রজাঙ্গনাকাব্য (১৮৬১), বীরাঙ্গনাকাব্য (১৮৬২)। মধুসূদন-পরবর্তী মহাকাব্যধারার কবি: হেমচন্দ্র বন্দ্যোপাধ্যায়, নবীনচন্দ্র সেন, কায়কোবাদ (মহাশ্মশান কাব্য, ১৯০৪)। বাঙলা কবিতার প্রথম রোম্যান্টিক কবি বিহারীলাল চক্রবর্তী (১৮৩৫-১৮৯৪), যাঁকে রবীন্দ্রনাথ বলেছেন বাঙলা কাব্যের 'ভোরের পাখি' — তাঁর শ্রেষ্ঠ কাব্য সারদামঙ্গল, বঙ্গসুন্দরী। বিহারীলালের পথ ধরে আসেন রবীন্দ্রনাথ।", "facts": [{"level": "must", "text": "মাইকেল মধুসূদন দত্ত (১৮২৪-১৮৭৩): বাঙলার প্রথম মহাকাব্য মেঘনাদবধ কাব্য (১৮৬১, নায়ক রাবণ); সৃষ্টি করেন অমিত্রাক্ষর ছন্দ ও প্রথম সনেট ('চতুর্দশপদী কবিতা')।"}, {"level": "important", "text": "মধুসূদনের অন্যান্য কাব্য: তিলোত্তমাসম্ভবকাব্য (১৮৫৯), ব্রজাঙ্গনাকাব্য (১৮৬১), বীরাঙ্গনাকাব্য (১৮৬২)।"}, {"level": "must", "text": "বাঙলা কবিতার প্রথম রোম্যান্টিক কবি বিহারীলাল চক্রবর্তী (১৮৩৫-১৮৯৪); রবীন্দ্রনাথ তাঁকে 'ভোরের পাখি' বলেছেন; শ্রেষ্ঠ কাব্য সারদামঙ্গল।"}, {"level": "important", "text": "মধুসূদন-পরবর্তী ছদ্ম-মহাকাব্যধারার কবি: হেমচন্দ্র বন্দ্যোপাধ্যায়, নবীনচন্দ্র সেন, কায়কোবাদ (মহাশ্মশান কাব্য, ১৯০৪)।"}, {"level": "quick", "text": "উনিশ শতকের প্রথমার্ধের একমাত্র উল্লেখযোগ্য কবি ঈশ্বরচন্দ্র গুপ্ত (১৮২২-১৮৫৯), হাস্যরসাত্মক ও ব্যঙ্গাত্মক রচনার জন্য পরিচিত।"}, {"level": "trap", "text": "⚠️ 'বাঙলার প্রথম মহাকাব্য' নিশ্চিতভাবে মেঘনাদবধ কাব্য — এর আগের দীর্ঘ কাব্য (যেমন অন্নদামঙ্গল) মহাকাব্য নয়, মঙ্গলকাব্য।"}]}, {"id": 24, "title": "উপন্যাস : মানুষের মহাকাব্য", "page": "৭৯-৮২", "reading": "বাঙলা ভাষার প্রথম উপন্যাস হিসেবে গণ্য প্যারীচাঁদ মিত্রের আলালের ঘরের দুলাল (১৮৫৮), যদিও হেনা ক্যাথরিন ম্যুলেন্স নামের এক বিদেশিনীর ফুলমণি ও করুণার বিবরণ (১৮৫২) কালানুক্রমে আগে প্রকাশিত হলেও তা ধর্মপ্রচারমূলক রচনা বলে উপন্যাসের মর্যাদা পায় না। বাঙলা ভাষায় প্রথম প্রকৃত (সার্থক) উপন্যাসিক বঙ্কিমচন্দ্র চট্টোপাধ্যায় (১৮৩৮-১৮৯৪, হুগলির কাঁঠালপাড়া গ্রামে জন্ম) — তিনি ভারতের প্রথম গ্র্যাজুয়েটদের একজন (১৮৫৮ সালে বিএ পাশ)। তাঁর প্রথম বাঙলা উপন্যাস দুর্গেশনন্দিনী (১৮৬৫)। ঐতিহাসিক-কাল্পনিক উপন্যাস: কপালকুণ্ডলা, চন্দ্রশেখর, আনন্দমঠ, দেবী চৌধুরানী; সামাজিক উপন্যাস: বিষবৃক্ষ, কৃষ্ণকান্তের উইল।", "facts": [{"level": "must", "text": "প্যারীচাঁদ মিত্রের আলালের ঘরের দুলাল (১৮৫৮) বাঙলা ভাষার প্রথম উপন্যাস হিসেবে গণ্য।"}, {"level": "important", "text": "হেনা ক্যাথরিন ম্যুলেন্সের ফুলমণি ও করুণার বিবরণ (১৮৫২) কালানুক্রমে আগে, কিন্তু ধর্মপ্রচারমূলক বলে উপন্যাসের মর্যাদা পায় না।"}, {"level": "must", "text": "বঙ্কিমচন্দ্র চট্টোপাধ্যায় (১৮৩৮-১৮৯৪) — প্রথম সার্থক ঔপন্যাসিক; প্রথম বাঙলা উপন্যাস দুর্গেশনন্দিনী (১৮৬৫); ভারতের প্রথম গ্র্যাজুয়েটদের একজন (১৮৫৮)।"}, {"level": "quick", "text": "বঙ্কিমের সামাজিক উপন্যাস: বিষবৃক্ষ, কৃষ্ণকান্তের উইল; ঐতিহাসিক: আনন্দমঠ, দেবী চৌধুরানী।"}, {"level": "trap", "text": "⚠️ 'প্রথম উপন্যাস' (আলালের ঘরের দুলাল) বনাম 'প্রথম সার্থক/যথার্থ উপন্যাসিক' (বঙ্কিমচন্দ্র) — দুটি ভিন্ন দাবি।"}]}, {"id": 25, "title": "নাটক : জীবনের বন্দনা", "page": "৮১-৮৭", "reading": "বাঙলায় প্রথম নাটক মঞ্চস্থ করেন রুশ পরিব্রাজক গেরাসিম লেবেদেফ (১৭৯৫, প্রহসন 'ডিসগাইস'-এর অনুবাদ)। প্রথম বাঙলা মৌলিক নাটক ভদ্রার্জুন (১৮৫২, তারাচরণ শিকদার); প্রথম ট্র্যাজেডি কীর্তিবিলাস (১৮৫২, যোগেন্দ্রচন্দ্র গুপ্ত)। নাটকে বৈপ্লবিক অবদান রাখেন মধুসূদন দত্ত — শর্মিষ্ঠা (১৮৫৯) বাঙলা ভাষার প্রথম প্রকৃত আধুনিক নাটক; তাঁর শ্রেষ্ঠ নাটক কৃষ্ণকুমারী (১৮৬১)। দীনবন্ধু মিত্র (১৮৩০-১৮৭৩) লেখেন নীলদর্পণ নাটক (১৮৬০), যা নীলকরদের অত্যাচারের বিরুদ্ধে যুগান্তকারী রচনা — এর ইংরেজি অনুবাদ করেন পাদ্রি লং ও মধুসূদন। উনিশ শতকের শেষভাগের নাট্যকার: জ্যোতিরিন্দ্রনাথ ঠাকুর (রবীন্দ্রনাথের দাদা), গিরিশচন্দ্র ঘোষ (পঁচাত্তরটি নাটক লিখেছিলেন — সর্বাধিক), দ্বিজেন্দ্রলাল রায়, ক্ষীরোদপ্রসাদ বিদ্যাবিনোদ (আলিবাবা, ১৮৯৭)।", "facts": [{"level": "must", "text": "বাঙলায় প্রথম নাটক মঞ্চস্থ করেন রুশ পরিব্রাজক গেরাসিম লেবেদেফ (১৭৯৫, প্রহসন 'ডিসগাইস')।"}, {"level": "must", "text": "প্রথম বাঙলা মৌলিক নাটক ভদ্রার্জুন (১৮৫২, তারাচরণ শিকদার); প্রথম ট্র্যাজেডি কীর্তিবিলাস (১৮৫২, যোগেন্দ্রচন্দ্র গুপ্ত)।"}, {"level": "must", "text": "মধুসূদন দত্তের শর্মিষ্ঠা (১৮৫৯) বাঙলা ভাষার প্রথম প্রকৃত আধুনিক নাটক; শ্রেষ্ঠ নাটক কৃষ্ণকুমারী (১৮৬১, ট্র্যাজেডি)।"}, {"level": "must", "text": "দীনবন্ধু মিত্রের (১৮৩০-১৮৭৩) নীলদর্পণ নাটক (১৮৬০) নীলকরদের অত্যাচারের বিরুদ্ধে বিপ্লবী রচনা; ইংরেজি অনুবাদক পাদ্রি লং ও মধুসূদন।"}, {"level": "quick", "text": "গিরিশচন্দ্র ঘোষ পঁচাত্তরটি নাটক রচনা করেন — বাঙলা সাহিত্যে একক নাট্যকারের সর্বাধিক নাটক।"}, {"level": "trap", "text": "⚠️ 'প্রথম মঞ্চস্থ নাটক' (লেবেদেফ, ১৭৯৫, অনূদিত) বনাম 'প্রথম মৌলিক নাটক' (তারাচরণ শিকদারের ভদ্রার্জুন, ১৮৫২) — গুলিয়ে ফেলা সাধারণ ভুল।"}]}, {"id": 26, "title": "রবীন্দ্রনাথ : প্রতিদিনের সূর্য", "page": "৮৬-৯১", "reading": "রবীন্দ্রনাথ ঠাকুর (৭ মে ১৮৬১ – ৭ আগস্ট ১৯৪১) জোড়াসাঁকো ঠাকুরবাড়িতে জন্মগ্রহণ করেন; পিতা দেবেন্দ্রনাথ ঠাকুর, মাতা সারদা দেবী; পিতামাতার চতুর্দশ সন্তান। তাঁর প্রথম প্রকাশিত বই কাব্যগ্রন্থ বনফুল (১৮৭৮-এর দুই বছর আগে লেখা); প্রথম প্রকাশিত ('ছাপা হওয়া') বই কবিকাহিনী (১৮৭৮)। ১৯১৩ সালে গীতাঞ্জলি কাব্যের জন্য তিনি এশীয়দের মধ্যে সর্বপ্রথম নোবেল পুরস্কার লাভ করেন। তাঁর সাহিত্যকর্ম বিস্তৃত — কবিতা, ছোটগল্প, উপন্যাস, নাটক, প্রবন্ধ, গান, ভ্রমণকাহিনি সবক্ষেত্রেই তিনি অসামান্য। উল্লেখযোগ্য কাব্য: মানসী, সোনার তরী, চিত্রা, ক্ষণিকা, গীতাঞ্জলি (১৯১০), বলাকা, পুনশ্চ। উপন্যাস: চোখের বালি (১৯০৩, আধুনিক উপন্যাসের সূচনা), গোরা (১৯১০), ঘরে বাইরে (১৯১৬), শেষের কবিতা (১৯২৯)। জীবনীগ্রন্থ: জীবনস্মৃতি, ছেলেবেলা। তাঁর মৃত্যু হয় অস্ত্রোপচারের পর, ১৩৪৮ বঙ্গাব্দের ২২ শ্রাবণ।", "facts": [{"level": "must", "text": "রবীন্দ্রনাথ ঠাকুরের জন্ম ৭ মে ১৮৬১ (২৫ বৈশাখ), মৃত্যু ৭ আগস্ট ১৯৪১ (২২ শ্রাবণ); জোড়াসাঁকো ঠাকুরবাড়িতে জন্ম; পিতা দেবেন্দ্রনাথ ঠাকুর, মাতা সারদা দেবী।"}, {"level": "must", "text": "রবীন্দ্রনাথ ১৯১৩ সালে গীতাঞ্জলি কাব্যের জন্য এশীয়দের মধ্যে সর্বপ্রথম নোবেল পুরস্কার লাভ করেন।"}, {"level": "must", "text": "রবীন্দ্রনাথের প্রথম রচিত (অপ্রকাশিত পূর্বতন) কাব্যগ্রন্থ বনফুল; প্রথম প্রকাশিত/মুদ্রিত বই কবিকাহিনী (১৮৭৮)।"}, {"level": "important", "text": "চোখের বালি (১৯০৩) থেকে বাঙলা উপন্যাসের আধুনিক যুগের সূচনা ধরা হয়; অন্যান্য উপন্যাস: গোরা (১৯১০), ঘরে বাইরে (১৯১৬), শেষের কবিতা (১৯২৯)।"}, {"level": "important", "text": "আত্মজীবনীমূলক গ্রন্থ: জীবনস্মৃতি (১৯১২), ছেলেবেলা (১৯৪০)।"}, {"level": "quick", "text": "রবীন্দ্রনাথ ছিলেন পিতামাতার চতুর্দশ সন্তান।"}]}, {"id": 27, "title": "বিশশতকের আলো : আধুনিকতা", "page": "৯১-১০৫", "reading": "বিশ শতকের তৃতীয় দশকের মাঝামাঝি বাঙলা কবিতায় দেখা দেয় 'আধুনিক কবিতা' — রবীন্দ্র-রোম্যান্টিকতার বিপরীতে জটিল, নগরকেন্দ্রিক, ক্লান্তি-অবিশ্বাস-নৈরাশ্যের কবিতা। পাঁচজন প্রধান আধুনিক কবি: বুদ্ধদেব বসু (১৯০৮-১৯৭৪), জীবনানন্দ দাশ (১৮৯৯-১৯৫৪, সবচেয়ে জনপ্রিয়/অনেকের মতে শ্রেষ্ঠ; রবীন্দ্রনাথ বলেছিলেন 'চিত্ররূপময়'; কাব্য: ঝরাপালক, ধূসর পাণ্ডুলিপি, বনলতা সেন, রূপসী বাংলা), সুধীন্দ্রনাথ দত্ত (১৯০১-১৯৬০, দুরূহতম কবি), বিষ্ণু দে (১৯০৯-১৯৮২, একমাত্র স্পষ্ট রাজনীতিক দর্শন-সাম্যবাদ), অমিয় চক্রবর্তী (১৯০১-১৯৮৬)। এঁদের আগে সেতুবন্ধকারী কবি কাজী নজরুল ইসলাম (১৮৯৯-১৯৭৬, 'বিদ্রোহী কবি'), মোহিতলাল মজুমদার, যতীন্দ্রনাথ সেনগুপ্ত এবং পল্লীকবি জসীমউদ্‌দীন (১৯০৩-১৯৭৬, নকশী কাঁথার মাঠ)। কল্লোল (১৯২৩), কালি-কলম (১৯২৬), প্রগতি (১৯২৭) পত্রিকাগুলো আধুনিক সাহিত্যের বিকাশে গুরুত্বপূর্ণ ভূমিকা রাখে।\n\nউপন্যাসে বিশ শতকের ছয় শ্রেষ্ঠ পুরুষ: বঙ্কিমচন্দ্র ও শরৎচন্দ্র চট্টোপাধ্যায় (১৮৭৬-১৯৩৮, সবচেয়ে জনপ্রিয় ঔপন্যাসিক, দেবদাস, শ্রীকান্ত), তারাশঙ্কর (১৮৯৮-১৯৭১, গণদেবতা), বিভূতিভূষণ (১৮৯৪-১৯৫০, পথের পাঁচালী) ও মানিক বন্দ্যোপাধ্যায় (১৯০৮-১৯৫৬, পদ্মানদীর মাঝি) — তিন বন্দ্যোপাধ্যায়, এবং রবীন্দ্রনাথ ঠাকুর। গদ্যশিল্পী অবনীন্দ্রনাথ ঠাকুর ও প্রমথ চৌধুরী রবীন্দ্রনাথের আত্মীয় ছিলেন এবং স্বতন্ত্র গদ্যশৈলীর জন্য স্মরণীয়। নাটকে বিশ শতকে রবীন্দ্রনাথ ছাড়া তেমন বড় প্রতিভা দেখা যায়নি; পরবর্তীতে বুদ্ধদেব বসু কিছু সাহিত্যিক নাটক লেখেন।", "facts": [{"level": "must", "text": "আধুনিক কবিতার পাঁচ প্রধান কবি (রবীন্দ্র-পরবর্তী): বুদ্ধদেব বসু, জীবনানন্দ দাশ, সুধীন্দ্রনাথ দত্ত, বিষ্ণু দে, অমিয় চক্রবর্তী।"}, {"level": "must", "text": "জীবনানন্দ দাশ (১৮৯৯-১৯৫৪) আধুনিকদের মধ্যে সবচেয়ে জনপ্রিয়; রবীন্দ্রনাথ তাঁকে বলেছিলেন 'চিত্ররূপময়' কবি; শ্রেষ্ঠ কাব্য বনলতা সেন।"}, {"level": "important", "text": "কাজী নজরুল ইসলাম (১৮৯৯-১৯৭৬) 'বিদ্রোহী কবি' নামে পরিচিত, রবীন্দ্র-যুগ ও আধুনিক যুগের মাঝামাঝি সময়ের কবি।"}, {"level": "important", "text": "বিশ শতকের ছয় শ্রেষ্ঠ ঔপন্যাসিক: বঙ্কিমচন্দ্র চট্টোপাধ্যায়, শরৎচন্দ্র চট্টোপাধ্যায় (দুই চট্টোপাধ্যায়), তারাশঙ্কর, বিভূতিভূষণ, মানিক বন্দ্যোপাধ্যায় (তিন বন্দ্যোপাধ্যায়), রবীন্দ্রনাথ ঠাকুর।"}, {"level": "important", "text": "বিভূতিভূষণ বন্দ্যোপাধ্যায়ের পথের পাঁচালী (১৯২৯) তাঁকে অমরত্ব দিয়েছে; মানিক বন্দ্যোপাধ্যায়ের পদ্মানদীর মাঝি (১৯৩৬)।"}, {"level": "quick", "text": "আধুনিক কবিতার বিকাশে গুরুত্বপূর্ণ পত্রিকা: কল্লোল (১৯২৩), কালি-কলম (১৯২৬), প্রগতি (১৯২৭)।"}, {"level": "quick", "text": "সুকান্ত ভট্টাচার্য (১৯২৬-১৯৪৭) মাত্র একুশ বছর বয়সে মারা যান — বাঙলা ভাষায় মার্কসীয় ধারার শ্রেষ্ঠ কবি বলা হয় তাঁকে।"}, {"level": "trap", "text": "⚠️ পাঁচ আধুনিক কবির নাম মুখস্থ করার সহজ উপায়: 'জী-সু-বি-অ-বু' (জীবনানন্দ, সুধীন্দ্রনাথ, বিষ্ণু দে, অমিয় চক্রবর্তী, বুদ্ধদেব বসু)। নজরুলকে এই পাঁচজনের তালিকায় রাখা ভুল।"}]}], "flashcards": [{"chapter": 1, "front": "বাঙলা সাহিত্যের প্রথম বইয়ের নাম কী?", "back": "চর্যাপদ। রচনাকাল ৯৫০-১২০০ খ্রিস্টাব্দ।", "id": "fc001"}, {"chapter": 1, "front": "১৮০০ সালের আগে বাঙলা সাহিত্যে কী ছিল না বললেই চলে?", "back": "গদ্য। তখন সবকিছু রচিত হতো কবিতা বা পদ্যে।", "id": "fc002"}, {"chapter": 2, "front": "নৃতাত্ত্বিকদের মতে বাঙালির আদি পূর্বপুরুষ কারা?", "back": "সিংহলের ভেড্ডারা।", "id": "fc003"}, {"chapter": 2, "front": "বাঙালির রক্তে মিশ্রিত জাতিধারাগুলোর ক্রম বলো।", "back": "ভেড্ডা → মঙ্গোলীয় → ইন্দো-আর্য → শক → আরব/পারস্য।", "id": "fc004"}, {"chapter": 2, "front": "'বাঙ্গালা/বাঙলা' নামের উৎপত্তি সম্পর্কে আবুল ফজল কী বলেছেন?", "back": "'বঙ্গ' শব্দের সাথে 'আল' (বাঁধ) শব্দ যুক্ত হয়ে এই নাম হয়েছে।", "id": "fc005"}, {"chapter": 2, "front": "বাঙলা ভাষার তিনটি স্তর ও তাদের সময়কাল বলো।", "back": "প্রাচীন যুগ (৯৫০-১২০০), মধ্যযুগ (১৩৫০-১৮০০), আধুনিক যুগ (১৮০০-বর্তমান)।", "id": "fc006"}, {"chapter": 2, "front": "বাঙলা ভাষার বিবর্তনক্রম কী?", "back": "প্রাচীন ভারতীয় আর্যভাষা → পালি → প্রাকৃত → বাঙলা।", "id": "fc007"}, {"chapter": 2, "front": "বাংলাদেশ কবে স্বাধীন হয়?", "back": "১৯৭১ সালে। এর আগে ১৯৪৭-এ ভারত বিভাগের পর এটি ছিল 'পূর্ব পাকিস্তান'।", "id": "fc008"}, {"chapter": 2, "front": "শশাঙ্ক কোন উপাধি ব্যবহার করতেন?", "back": "'গৌড়াধিপতি' — যদিও তিনি ছিলেন রাঢ়ের (পশ্চিম বঙ্গ) অধিপতি।", "id": "fc009"}, {"chapter": 4, "front": "চর্যাপদ কে, কবে, কোথা থেকে আবিষ্কার করেন?", "back": "হরপ্রসাদ শাস্ত্রী, ১৯০৭ সালে, নেপালের রাজদরবারের গ্রন্থাগার থেকে।", "id": "fc010"}, {"chapter": 4, "front": "হরপ্রসাদ শাস্ত্রী চর্যাপদের সাথে আর কোন দুটি গ্রন্থ আবিষ্কার করেন?", "back": "ডাকার্ণব ও দোহাকোষ।", "id": "fc011"}, {"chapter": 4, "front": "হরপ্রসাদ শাস্ত্রী আবিষ্কৃত গ্রন্থগুলো কবে, কী নামে প্রকাশ করেন?", "back": "১৯১৬ সালে, 'হাজার বছরের পুরাণ বাঙ্গালা ভাষায় বৌদ্ধ গান ও দোহা' নামে।", "id": "fc012"}, {"chapter": 4, "front": "চর্যাপদের ভাষা যে বাঙলা তা কে প্রমাণ করেন, কোন গ্রন্থে?", "back": "ডক্টর সুনীতিকুমার চট্টোপাধ্যায়, তাঁর 'বাঙলা ভাষার উৎপত্তি ও বিকাশ' (১৯২৬) গ্রন্থে।", "id": "fc013"}, {"chapter": 4, "front": "চর্যাপদে মোট কতটি পদ/কবিতা আছে?", "back": "৪৬টি পূর্ণ কবিতা ও ১টি খণ্ডিত পদ — মোট সাড়ে ছেচল্লিশটি।", "id": "fc014"}, {"chapter": 4, "front": "চর্যাপদে সবচেয়ে বেশি পদ রচনা করেন কোন কবি, কতটি?", "back": "কাহ্নপাদ (অন্য নাম কৃষ্ণাচার্য), ১২টি পদ।", "id": "fc015"}, {"chapter": 4, "front": "চর্যাপদের কবিদের নামের বৈশিষ্ট্য কী?", "back": "সকলের নামের শেষে 'পাদ' শব্দ যুক্ত থাকে (যেমন লুইপাদ, শবরপাদ)।", "id": "fc016"}, {"chapter": 4, "front": "চর্যাপদের দুর্বোধ্য প্রতীকী ভাষাকে কী বলা হয়?", "back": "'সন্ধ্যাভাষা'।", "id": "fc017"}, {"chapter": 4, "front": "বখতিয়ার খিলজি কাকে পরাজিত করে বাঙলায় মুসলিম শাসনের সূচনা করেন, কবে?", "back": "লক্ষ্মণ সেনকে, ১২০০-১২০৭ খ্রিস্টাব্দের মধ্যে।", "id": "fc018"}, {"chapter": 5, "front": "বাঙলা সাহিত্যে 'অন্ধকার যুগ' কোন সময়কালকে বলা হয়?", "back": "১২০০ থেকে ১৩৫০ খ্রিস্টাব্দ — এই সময়ের কোনো সাহিত্যকর্ম পাওয়া যায়নি।", "id": "fc019"}, {"chapter": 6, "front": "শ্রীকৃষ্ণকীর্তন কাব্যের রচয়িতা কে?", "back": "বড়ু চণ্ডীদাস — বাঙলা ভাষার প্রথম মহাকবি।", "id": "fc020"}, {"chapter": 6, "front": "শ্রীকৃষ্ণকীর্তন-এর পুঁথি কে, কবে, কোথা থেকে উদ্ধার করেন?", "back": "বসন্তরঞ্জন রায় বিদ্বদ্বল্লভ, ১৯০৯ সালে, বাঁকুড়ার এক গৃহস্থের গোয়ালঘর থেকে।", "id": "fc021"}, {"chapter": 6, "front": "মঙ্গলকাব্যের সাধারণ কাঠামো/গল্পছক কী?", "back": "স্বর্গের এক দেবতা শাপগ্রস্ত হয়ে মর্ত্যে জন্ম নেয়, দুর্ভোগের পর নির্দিষ্ট দেবতার পূজা প্রচার করে আবার স্বর্গে ফেরে।", "id": "fc022"}, {"chapter": 6, "front": "চণ্ডীমঙ্গলের শ্রেষ্ঠ দুই কবি কারা?", "back": "মুকুন্দরাম চক্রবর্তী ও ভারতচন্দ্র রায়।", "id": "fc023"}, {"chapter": 6, "front": "মনসামঙ্গলের শ্রেষ্ঠ দুই কবি কারা?", "back": "বিজয়গুপ্ত ও বংশীদাস।", "id": "fc024"}, {"chapter": 6, "front": "ধর্মমঙ্গল কাব্যের কবিদের নাম বলো।", "back": "ময়ূর ভট্ট, মাণিকরাম, রূপরাম, সীতারাম, ঘনরাম প্রমুখ।", "id": "fc025"}, {"chapter": 6, "front": "সুধীন্দ্রনাথ দত্ত মধ্যযুগের সাহিত্য সম্বন্ধে কী মন্তব্য করেছিলেন?", "back": "'বাঙলা সাহিত্যে মধ্যযুগ অপাঠ্য।'", "id": "fc026"}, {"chapter": 7, "front": "চণ্ডীমঙ্গলের কালকেতু-ফুল্লরা কাহিনির রচয়িতা কে?", "back": "মুকুন্দরাম চক্রবর্তী।", "id": "fc027"}, {"chapter": 7, "front": "কালকেতুর রাজ্যের নাম কী?", "back": "গুজরাট নগর।", "id": "fc028"}, {"chapter": 8, "front": "মনসামঙ্গলের কেন্দ্রীয় কাহিনির চরিত্রগুলো কারা?", "back": "চাঁদ সদাগর, স্ত্রী সনকা, পুত্র লখিন্দর, পুত্রবধূ বেহুলা।", "id": "fc029"}, {"chapter": 8, "front": "বেহুলা কীভাবে স্বামীর প্রাণ ফিরিয়ে আনেন?", "back": "স্বামীর মৃতদেহ ভেলায় ভাসিয়ে স্বর্গে গিয়ে দেবতাদের নৃত্য দেখিয়ে মুগ্ধ করে।", "id": "fc030"}, {"chapter": 9, "front": "মুকুন্দরাম চক্রবর্তীর উপাধি কী?", "back": "কবিকঙ্কণ।", "id": "fc031"}, {"chapter": 9, "front": "মুকুন্দরাম চক্রবর্তী কোন সময়কালে চণ্ডীমঙ্গল রচনা করেন?", "back": "ষোড়শ শতাব্দী, আনুমানিক ১৫৭৫ খ্রিস্টাব্দের কাছাকাছি।", "id": "fc032"}, {"chapter": 9, "front": "মুকুন্দরাম কোন জমিদারের আশ্রয়ে চণ্ডীমঙ্গল রচনা করেন?", "back": "আরড়া গ্রামের জমিদার বাঁকুড়া রায়; তাঁর পুত্র রঘুনাথের গৃহশিক্ষক ছিলেন।", "id": "fc033"}, {"chapter": 10, "front": "ভারতচন্দ্র রায়ের উপাধি কী, কে দিয়েছিলেন?", "back": "'রায়গুণাকর', দিয়েছিলেন নদিয়ার রাজা কৃষ্ণচন্দ্র।", "id": "fc034"}, {"chapter": 10, "front": "ভারতচন্দ্রের একমাত্র কাব্যের নাম ও তিনটি ভাগের নাম বলো।", "back": "অন্নদামঙ্গল — ভাগ তিনটি: অন্নদামঙ্গল, বিদ্যাসুন্দর, ভবানন্দ-মানসিংহ কাহিনি।", "id": "fc035"}, {"chapter": 11, "front": "বৈষ্ণব পদাবলির চার মহাকবির নাম বলো।", "back": "বিদ্যাপতি, চণ্ডীদাস, জ্ঞানদাস, গোবিন্দদাস।", "id": "fc036"}, {"chapter": 11, "front": "কোন দুই বৈষ্ণব কবি ব্রজবুলি ভাষায় লিখতেন?", "back": "বিদ্যাপতি ও গোবিন্দদাস।", "id": "fc037"}, {"chapter": 11, "front": "কোন দুই বৈষ্ণব কবি খাঁটি বাঙলায় লিখতেন?", "back": "চণ্ডীদাস ও জ্ঞানদাস।", "id": "fc038"}, {"chapter": 11, "front": "বৈষ্ণব দর্শনে রাধা ও কৃষ্ণ কিসের প্রতীক?", "back": "রাধা = জীবাত্মা, কৃষ্ণ = পরমাত্মা।", "id": "fc039"}, {"chapter": 11, "front": "বৈষ্ণব কবিতার পাঁচ রস কী কী?", "back": "শান্ত, দাস্য, বাৎসল্য, সখ্য, মধুর।", "id": "fc040"}, {"chapter": 11, "front": "প্রথম বৈষ্ণব পদ সংকলনকারী কে, গ্রন্থের নাম কী?", "back": "বাবা আউল মনোহর দাস, গ্রন্থ 'পদসমুদ্র' (পনেরো হাজার পদ)।", "id": "fc041"}, {"chapter": 12, "front": "বিদ্যাপতি কার সভাকবি ছিলেন?", "back": "মিথিলার রাজা শিবসিংহের; উপাধি 'কবিকণ্ঠহার'।", "id": "fc042"}, {"chapter": 12, "front": "বিদ্যাপতি কোন ভাষায় কবিতা লিখতেন?", "back": "ব্রজবুলি (হিন্দি-বাঙলা-প্রাকৃতের মিশ্র ভাষা) — একটিও বাঙলায় লেখেননি।", "id": "fc043"}, {"chapter": 13, "front": "'চণ্ডীদাস-সমস্যা' কী?", "back": "চণ্ডীদাস নামে একাধিক কবির (বড়ু, দ্বিজ, দীন চণ্ডীদাস) পদ পাওয়া যাওয়ায় সৃষ্ট বিভ্রান্তি।", "id": "fc044"}, {"chapter": 13, "front": "দ্বিজ চণ্ডীদাসের জন্মস্থান কোথায়?", "back": "বীরভূম জেলার নানুর গ্রামে; তিনি বাশুলীদেবীর ভক্ত ছিলেন।", "id": "fc045"}, {"chapter": 14, "front": "চৈতন্যদেবের জন্ম ও মৃত্যুসাল বলো।", "back": "জন্ম ১৪৮৬, মৃত্যু ১৫৩৩ (৪৮ বছর বয়সে, পুরীতে)।", "id": "fc046"}, {"chapter": 14, "front": "চৈতন্যদেবের পিতা-মাতার নাম কী?", "back": "পিতা জগন্নাথ মিশ্র, মাতা শচীদেবী; আসল নাম বিশ্বম্ভর, ডাকনাম নিমাই।", "id": "fc047"}, {"chapter": 14, "front": "চৈতন্যচরিতামৃত-এর রচয়িতা কে?", "back": "কৃষ্ণদাস কবিরাজ (১৫৩০-১৬১৫)।", "id": "fc048"}, {"chapter": 14, "front": "চৈতন্যভাগবত-এর রচয়িতা কে?", "back": "বৃন্দাবন দাস, চৈতন্যদেবের মৃত্যুর ১৫ বছরের মধ্যে রচিত।", "id": "fc049"}, {"chapter": 15, "front": "রামায়ণের শ্রেষ্ঠ অনুবাদক কে?", "back": "কৃত্তিবাস (পঞ্চদশ শতক); অন্য নাম শ্রীরামপাঁচালী।", "id": "fc050"}, {"chapter": 15, "front": "কৃত্তিবাসের পৃষ্ঠপোষক রাজা কে ছিলেন?", "back": "গৌড়ের রাজা রুকনুদ্দিন বারবক শাহ (১৪৫৯-৭৪)।", "id": "fc051"}, {"chapter": 15, "front": "মহাভারতের শ্রেষ্ঠ অনুবাদক কে?", "back": "কাশীরাম দাস (সপ্তদশ শতক, আনু. ১৬০২-১৬১০ সালে রচনা)।", "id": "fc052"}, {"chapter": 15, "front": "মহাভারতের প্রথম অনুবাদক কে?", "back": "শ্রীকর নন্দী, পৃষ্ঠপোষক ছুটি খান (পরাগল খানের পুত্র)।", "id": "fc053"}, {"chapter": 15, "front": "ভাগবত কে অনুবাদ করেন, তাঁর উপাধি কী?", "back": "মালাধর বসু; উপাধি 'গুণরাজ খান'; অনুবাদের নাম শ্রীকৃষ্ণবিজয়।", "id": "fc054"}, {"chapter": 16, "front": "বাঙলা ভাষায় প্রথম মুসলমান কবি কে, কাব্যের নাম কী?", "back": "শাহ মুহম্মদ সগীর, কাব্য 'ইউসুফ-জুলেখা'।", "id": "fc055"}, {"chapter": 16, "front": "আরাকান রাজসভার তিন প্রধান কবির নাম বলো।", "back": "আলাওল, কাজী দৌলত, মাগন ঠাকুর।", "id": "fc056"}, {"chapter": 16, "front": "মুসলমান কবিদের পুঁথি সংগ্রহে অগ্রণী ভূমিকা কার?", "back": "আবদুল করিম সাহিত্যবিশারদ (১৮৭১-১৯৫৩)।", "id": "fc057"}, {"chapter": 17, "front": "আলাওলের শ্রেষ্ঠ কাব্যের নাম ও রচনাসাল বলো।", "back": "পদ্মাবতী (১৬৪৮), হিন্দি কবি মালিক মুহম্মদ জায়সির 'পদুমাবত' অবলম্বনে।", "id": "fc058"}, {"chapter": 17, "front": "আলাওল কার উৎসাহে কবি হয়ে ওঠেন?", "back": "আরাকান রাজসভার কর্মকর্তা মাগন ঠাকুরের উৎসাহে।", "id": "fc059"}, {"chapter": 18, "front": "ময়মনসিংহ গীতিকা কে সংকলন করেন, কে সম্পাদনা করেন?", "back": "সংগ্রাহক চন্দ্রকুমার দে, সম্পাদক ডক্টর দীনেশচন্দ্র সেন (প্রকাশ ১৯২০)।", "id": "fc060"}, {"chapter": 18, "front": "'ঠাকুরমার ঝুলি'র সংকলক কে?", "back": "দক্ষিণারঞ্জন মিত্রমজুমদার।", "id": "fc061"}, {"chapter": 19, "front": "উনিশ শতকের শুরুর দিকের হিন্দু ও মুসলমান কবিদের কী বলা হতো?", "back": "হিন্দুদের 'কবিওয়ালা', মুসলমানদের 'শায়ের'।", "id": "fc062"}, {"chapter": 19, "front": "পলাশীর যুদ্ধ কবে হয়, এর ফলাফল কী?", "back": "১৭৫৭ সালে; ফলে বাংলা স্বাধীনতা হারায়, ইংরেজ শাসন শুরু হয়।", "id": "fc063"}, {"chapter": 19, "front": "নিধুবাবুর আসল নাম কী, তিনি কী গানের জন্য বিখ্যাত?", "back": "রামনিধি গুপ্ত (১৭৪১-১৮৩০); টপ্পাগানের জন্য বিখ্যাত।", "id": "fc064"}, {"chapter": 20, "front": "ফোর্ট উইলিয়ম কলেজ কবে প্রতিষ্ঠিত হয়?", "back": "১৮০০ খ্রিস্টাব্দে (৪ মে)।", "id": "fc065"}, {"chapter": 21, "front": "ফোর্ট উইলিয়ম কলেজ থেকে প্রকাশিত প্রথম বাঙলা গদ্যগ্রন্থের নাম ও রচয়িতা কে?", "back": "প্রতাপাদিত্যচরিত্র (১৮০১), রচয়িতা রামরাম বসু।", "id": "fc066"}, {"chapter": 21, "front": "ফোর্ট উইলিয়ম কলেজের অধ্যক্ষ কে ছিলেন?", "back": "পাদ্রি উইলিয়ম কেরি (১৭৬১-১৮৩৪), যোগ দেন ১৮০১ সালে।", "id": "fc067"}, {"chapter": 21, "front": "বাঙলার প্রথম পত্রিকার নাম কী, কারা প্রকাশ করেন?", "back": "দিগ্দর্শন (১৮১৮), শ্রীরামপুরের মিশনারিরা।", "id": "fc068"}, {"chapter": 21, "front": "বাঙালিদের নিজস্ব প্রথম পত্রিকার নাম কী?", "back": "বাঙ্গাল গেজেটি (১৮১৮)।", "id": "fc069"}, {"chapter": 22, "front": "'বাঙলা গদ্যের জনক' কাকে বলা হয়?", "back": "ঈশ্বরচন্দ্র বিদ্যাসাগর (১৮২০-১৮৯১)।", "id": "fc070"}, {"chapter": 22, "front": "বিদ্যাসাগরের জন্মস্থান কোথায়?", "back": "মেদিনীপুর জেলার বীরসিংহ গ্রাম; পিতা ঠাকুরদাস।", "id": "fc071"}, {"chapter": 22, "front": "বাঙলা চলতি গদ্যরীতির দুই অগ্রপথিকের নাম ও গ্রন্থ বলো।", "back": "প্যারীচাঁদ মিত্র (আলালের ঘরের দুলাল, ১৮৫৮) ও কালীপ্রসন্ন সিংহ (হুতোম প্যাঁচার নকশা, ১৮৬২)।", "id": "fc072"}, {"chapter": 22, "front": "প্যারীচাঁদ মিত্রের ছদ্মনাম কী?", "back": "টেকচাঁদ ঠাকুর।", "id": "fc073"}, {"chapter": 22, "front": "চলতি গদ্যরীতির প্রধান প্রবক্তা কে, পত্রিকার নাম কী?", "back": "প্রমথ চৌধুরী (ছদ্মনাম বীরবল), পত্রিকা সবুজপত্র (১৯১৪)।", "id": "fc074"}, {"chapter": 23, "front": "বাঙলা ভাষার প্রথম মহাকাব্যের নাম ও রচয়িতা কে?", "back": "মেঘনাদবধ কাব্য (১৮৬১), রচয়িতা মাইকেল মধুসূদন দত্ত; নায়ক রাবণ।", "id": "fc075"}, {"chapter": 23, "front": "মধুসূদন দত্ত কোন ছন্দ ও কোন কাব্যরূপ প্রথম প্রবর্তন করেন?", "back": "অমিত্রাক্ষর ছন্দ এবং সনেট ('চতুর্দশপদী কবিতা')।", "id": "fc076"}, {"chapter": 23, "front": "বাঙলা কবিতার প্রথম রোম্যান্টিক কবি কে?", "back": "বিহারীলাল চক্রবর্তী (১৮৩৫-১৮৯৪); রবীন্দ্রনাথ তাঁকে 'ভোরের পাখি' বলেছেন।", "id": "fc077"}, {"chapter": 24, "front": "বাঙলা ভাষার প্রথম উপন্যাসের নাম ও রচয়িতা কে?", "back": "আলালের ঘরের দুলাল (১৮৫৮), রচয়িতা প্যারীচাঁদ মিত্র।", "id": "fc078"}, {"chapter": 24, "front": "বাঙলার প্রথম সার্থক ঔপন্যাসিক কে, প্রথম উপন্যাসের নাম কী?", "back": "বঙ্কিমচন্দ্র চট্টোপাধ্যায়; প্রথম উপন্যাস দুর্গেশনন্দিনী (১৮৬৫)।", "id": "fc079"}, {"chapter": 25, "front": "বাঙলায় প্রথম নাটক মঞ্চস্থ করেন কে, কবে?", "back": "রুশ পরিব্রাজক গেরাসিম লেবেদেফ, ১৭৯৫ সালে (প্রহসন 'ডিসগাইস')।", "id": "fc080"}, {"chapter": 25, "front": "প্রথম বাঙলা মৌলিক নাটকের নাম ও রচয়িতা বলো।", "back": "ভদ্রার্জুন (১৮৫২), রচয়িতা তারাচরণ শিকদার।", "id": "fc081"}, {"chapter": 25, "front": "বাঙলা ভাষার প্রথম প্রকৃত আধুনিক নাটকের নাম ও রচয়িতা বলো।", "back": "শর্মিষ্ঠা (১৮৫৯), রচয়িতা মাইকেল মধুসূদন দত্ত।", "id": "fc082"}, {"chapter": 25, "front": "নীলদর্পণ নাটকের রচয়িতা কে, বিষয়বস্তু কী?", "back": "দীনবন্ধু মিত্র (১৮৬০); নীলকরদের অত্যাচারের বিরুদ্ধে রচিত।", "id": "fc083"}, {"chapter": 26, "front": "রবীন্দ্রনাথ কবে জন্মগ্রহণ করেন ও কবে নোবেল পুরস্কার পান?", "back": "জন্ম ৭ মে ১৮৬১; নোবেল পুরস্কার ১৯১৩ সালে (গীতাঞ্জলি কাব্যের জন্য)।", "id": "fc084"}, {"chapter": 26, "front": "রবীন্দ্রনাথের কোন উপন্যাস থেকে বাঙলা উপন্যাসের আধুনিক যুগের সূচনা ধরা হয়?", "back": "চোখের বালি (১৯০৩)।", "id": "fc085"}, {"chapter": 27, "front": "বিশ শতকের পাঁচজন প্রধান আধুনিক কবির নাম বলো।", "back": "জীবনানন্দ দাশ, সুধীন্দ্রনাথ দত্ত, বিষ্ণু দে, অমিয় চক্রবর্তী, বুদ্ধদেব বসু।", "id": "fc086"}, {"chapter": 27, "front": "জীবনানন্দ দাশকে রবীন্দ্রনাথ কোন বিশেষণে ভূষিত করেন?", "back": "'চিত্ররূপময়' কবি।", "id": "fc087"}, {"chapter": 27, "front": "'বিদ্রোহী কবি' নামে কে পরিচিত?", "back": "কাজী নজরুল ইসলাম (১৮৯৯-১৯৭৬)।", "id": "fc088"}, {"chapter": 27, "front": "পথের পাঁচালী উপন্যাসের রচয়িতা কে?", "back": "বিভূতিভূষণ বন্দ্যোপাধ্যায় (১৯২৯)।", "id": "fc089"}, {"chapter": 27, "front": "পদ্মানদীর মাঝি উপন্যাসের রচয়িতা কে?", "back": "মানিক বন্দ্যোপাধ্যায় (১৯৩৬)।", "id": "fc090"}, {"chapter": 27, "front": "আধুনিক বাঙলা কবিতার বিকাশে গুরুত্বপূর্ণ তিনটি পত্রিকার নাম বলো।", "back": "কল্লোল (১৯২৩), কালি-কলম (১৯২৬), প্রগতি (১৯২৭)।", "id": "fc091"}], "questions": [{"chapter": 1, "type": "mcq", "difficulty": "easy", "prompt": "বাঙলা সাহিত্যের প্রথম বইয়ের নাম কী?", "options": ["মেঘনাদবধ কাব্য", "চর্যাপদ", "শ্রীকৃষ্ণকীর্তন", "অন্নদামঙ্গল"], "answer": 1, "explanation": "চর্যাপদ বাঙলা সাহিত্যের প্রথম গ্রন্থ, রচনাকাল ৯৫০-১২০০ খ্রিস্টাব্দ।", "id": "q001"}, {"chapter": 1, "type": "mcq", "difficulty": "medium", "prompt": "১৮০০ সালের আগে বাঙলা সাহিত্য প্রধানত কোন রূপে রচিত হতো?", "options": ["গদ্যে", "পদ্যে/কবিতায়", "নাটকে", "প্রবন্ধে"], "answer": 1, "explanation": "১৮০০ সালের আগ পর্যন্ত বাঙলা সাহিত্যে গদ্য বিশেষ ছিল না; রচনা হতো কবিতা/পদ্যে।", "id": "q002"}, {"chapter": 2, "type": "mcq", "difficulty": "easy", "prompt": "নৃতাত্ত্বিকদের মতে বাঙালির আদি পূর্বপুরুষ কারা?", "options": ["আর্য", "ভেড্ডা", "মঙ্গোলীয়", "দ্রাবিড়"], "answer": 1, "explanation": "নৃতাত্ত্বিকদের মতে বাঙালির আদি পূর্বপুরুষ সিংহলের ভেড্ডারা।", "id": "q003"}, {"chapter": 2, "type": "mcq", "difficulty": "medium", "prompt": "বাঙালির রক্তে জাতিধারা মিশ্রণের সঠিক ক্রম কোনটি?", "options": ["আর্য → শক → ভেড্ডা → মঙ্গোলীয়", "ভেড্ডা → মঙ্গোলীয় → ইন্দো-আর্য → শক", "মঙ্গোলীয় → ভেড্ডা → শক → আর্য", "শক → ভেড্ডা → আর্য → মঙ্গোলীয়"], "answer": 1, "explanation": "বইয়ের বিবরণ অনুসারে ক্রমটি: ভেড্ডা → মঙ্গোলীয় → ইন্দো-আর্য → শক → আরব/পারস্য।", "id": "q004"}, {"chapter": 2, "type": "mcq", "difficulty": "hard", "prompt": "আবুল ফজলের মতে 'বাঙ্গালা' নামের উৎপত্তি কীভাবে?", "options": ["'বঙ্গ' + 'দেশ' মিলে", "'বঙ্গ' + 'আল' (বাঁধ) মিলে", "'বাং' + 'গালা' (নদী) মিলে", "'বন' + 'গোলা' মিলে"], "answer": 1, "explanation": "সম্রাট আকবরের সভাসদ আবুল ফজলের মতে 'বঙ্গ' শব্দের সাথে 'আল' (বাঁধ) যুক্ত হয়ে এই নাম হয়েছে।", "id": "q005"}, {"chapter": 2, "type": "mcq", "difficulty": "medium", "prompt": "বাঙলা ভাষার মধ্যযুগ কোন সময়কালকে বলা হয়?", "options": ["৯৫০-১২০০", "১২০০-১৩৫০", "১৩৫০-১৮০০", "১৮০০-বর্তমান"], "answer": 2, "explanation": "মধ্যযুগের বাঙলা ভাষার সময়কাল ১৩৫০ থেকে ১৮০০ খ্রিস্টাব্দ।", "id": "q006"}, {"chapter": 2, "type": "mcq", "difficulty": "easy", "prompt": "বাংলাদেশ কোন সালে স্বাধীন হয়?", "options": ["১৯৪৭", "১৯৫২", "১৯৬৯", "১৯৭১"], "answer": 3, "explanation": "১৯৭১ সালে বাংলাদেশ স্বাধীন হয়।", "id": "q007"}, {"chapter": 2, "type": "mcq", "difficulty": "hard", "prompt": "প্রাচীন বাঙলার কোন কোন জনপদের নাম বইয়ে উল্লেখ আছে?", "options": ["দিল্লি, আগ্রা, লাহোর", "বঙ্গ, গৌড়, পুণ্ড্র, রাঢ়", "ঢাকা, চট্টগ্রাম, সিলেট", "পাটলিপুত্র, তক্ষশীলা"], "answer": 1, "explanation": "প্রাচীন বাঙলা বিভক্ত ছিল বঙ্গ, গৌড়, পুণ্ড্র, রাঢ় প্রভৃতি জনপদে।", "id": "q008"}, {"chapter": 3, "type": "mcq", "difficulty": "easy", "prompt": "বাঙলা সাহিত্যের প্রাচীন যুগ কোন সময়কাল?", "options": ["৯৫০-১২০০", "১২০০-১৩৫০", "১৩৫০-১৮০০", "১৮০০-বর্তমান"], "answer": 0, "explanation": "প্রাচীন যুগ ৯৫০ থেকে ১২০০ খ্রিস্টাব্দ পর্যন্ত বিস্তৃত।", "id": "q009"}, {"chapter": 3, "type": "tf", "difficulty": "medium", "prompt": "প্রাচীন যুগে বাঙলা সাহিত্যে একাধিক গ্রন্থ পাওয়া যায়।", "options": ["সত্য", "মিথ্যা"], "answer": 1, "explanation": "প্রাচীন যুগে একটিমাত্র গ্রন্থ পাওয়া যায় — চর্যাপদ।", "id": "q010"}, {"chapter": 4, "type": "mcq", "difficulty": "easy", "prompt": "চর্যাপদ আবিষ্কার করেন কে?", "options": ["সুনীতিকুমার চট্টোপাধ্যায়", "হরপ্রসাদ শাস্ত্রী", "দীনেশচন্দ্র সেন", "সুকুমার সেন"], "answer": 1, "explanation": "হরপ্রসাদ শাস্ত্রী ১৯০৭ সালে নেপালের রাজদরবারের গ্রন্থাগার থেকে চর্যাপদ আবিষ্কার করেন।", "id": "q011"}, {"chapter": 4, "type": "mcq", "difficulty": "medium", "prompt": "চর্যাপদের সাথে হরপ্রসাদ শাস্ত্রী আর কোন দুটি গ্রন্থ আবিষ্কার করেন?", "options": ["রামচরিত ও গীতগোবিন্দ", "ডাকার্ণব ও দোহাকোষ", "পদসমুদ্র ও পদকল্পতরু", "শ্রীকৃষ্ণকীর্তন ও পদাবলি"], "answer": 1, "explanation": "সাথে পাওয়া যায় ডাকার্ণব ও দোহাকোষ।", "id": "q012"}, {"chapter": 4, "type": "mcq", "difficulty": "medium", "prompt": "হরপ্রসাদ শাস্ত্রী আবিষ্কৃত গ্রন্থগুলো কত সালে প্রকাশ করেন?", "options": ["১৯০৭", "১৯১৬", "১৯২৬", "১৯৩৬"], "answer": 1, "explanation": "তিনি ১৯১৬ সালে 'হাজার বছরের পুরাণ বাঙ্গালা ভাষায় বৌদ্ধ গান ও দোহা' নামে প্রকাশ করেন।", "id": "q013"}, {"chapter": 4, "type": "mcq", "difficulty": "hard", "prompt": "চর্যাপদের ভাষা যে বাঙলা তা প্রমাণ করে কোন গ্রন্থ রচনা করেন সুনীতিকুমার চট্টোপাধ্যায়?", "options": ["চর্যাচর্যবিনিশ্চয়", "বাঙলা ভাষার উৎপত্তি ও বিকাশ", "বাঙালির ইতিহাস", "ভাষা ও সাহিত্য"], "answer": 1, "explanation": "১৯২৬ সালে প্রকাশিত এই ইংরেজি গ্রন্থে তিনি চর্যাপদের বাঙলা-স্বরূপ প্রমাণ করেন।", "id": "q014"}, {"chapter": 4, "type": "mcq", "difficulty": "medium", "prompt": "চর্যাপদে মোট কতজন কবির পদ পাওয়া যায়?", "options": ["১২ জন", "১৮ জন", "২৪ জন", "৪৬ জন"], "answer": 2, "explanation": "চর্যাপদের ৪৬টি (+১টি খণ্ডিত) পদ রচনা করেন ২৪ জন বৌদ্ধ সহজিয়া কবি।", "id": "q015"}, {"chapter": 4, "type": "mcq", "difficulty": "medium", "prompt": "চর্যাপদে সর্বাধিক পদ রচনা করেন কোন কবি?", "options": ["লুইপাদ", "শবরপাদ", "কাহ্নপাদ", "ভুসুকুপাদ"], "answer": 2, "explanation": "কাহ্নপাদ (কৃষ্ণাচার্য) ১২টি পদ রচনা করেন, যা সর্বাধিক।", "id": "q016"}, {"chapter": 4, "type": "mcq", "difficulty": "hard", "prompt": "চর্যাপদের কবিদের ভাষাশৈলীকে কী বলা হয়?", "options": ["ব্রজবুলি", "সাধুভাষা", "সন্ধ্যাভাষা", "চলিতভাষা"], "answer": 2, "explanation": "এর দুর্বোধ্য প্রতীকী ভাষাকে বলা হয় 'সন্ধ্যাভাষা'।", "id": "q017"}, {"chapter": 4, "type": "fill", "difficulty": "easy", "prompt": "চর্যাপদের কবিদের নামের শেষে ______ শব্দটি যুক্ত থাকে।", "options": ["পাদ", "দাস", "আচার্য", "ঠাকুর"], "answer": 0, "explanation": "যেমন লুইপাদ, কাহ্নপাদ, শবরপাদ — সকলের নামে 'পাদ' যুক্ত।", "id": "q018"}, {"chapter": 4, "type": "mcq", "difficulty": "medium", "prompt": "বখতিয়ার খিলজি কাকে পরাজিত করে বাঙলায় মুসলিম শাসন প্রতিষ্ঠা করেন?", "options": ["শশাঙ্ক", "লক্ষ্মণ সেন", "বল্লাল সেন", "গৌড়েশ্বর"], "answer": 1, "explanation": "১২০০-১২০৭ খ্রিস্টাব্দের মধ্যে বখতিয়ার খিলজি লক্ষ্মণ সেনকে পরাজিত করেন।", "id": "q019"}, {"chapter": 5, "type": "mcq", "difficulty": "easy", "prompt": "'অন্ধকার যুগ' কোন সময়কালকে বলা হয়?", "options": ["৯৫০-১২০০", "১২০০-১৩৫০", "১৩৫০-১৫০০", "১৭৬০-১৮৩০"], "answer": 1, "explanation": "১২০০-১৩৫০ সময়কালে কোনো সাহিত্যকর্মের সন্ধান পাওয়া যায় না বলে একে অন্ধকার যুগ বলা হয়।", "id": "q020"}, {"chapter": 5, "type": "tf", "difficulty": "hard", "prompt": "হুমায়ুন আজাদ মনে করেন অন্ধকার যুগের একমাত্র কারণ মুসলিম আক্রমণ।", "options": ["সত্য", "মিথ্যা"], "answer": 1, "explanation": "লেখক এই একমাত্র-কারণ যুক্তি মানতে রাজি নন, কারণ মুসলিম রাজারা পরবর্তীতে সাহিত্যে উৎসাহ দিয়েছেন।", "id": "q021"}, {"chapter": 6, "type": "mcq", "difficulty": "easy", "prompt": "শ্রীকৃষ্ণকীর্তন কাব্যের রচয়িতা কে?", "options": ["মুকুন্দরাম চক্রবর্তী", "বড়ু চণ্ডীদাস", "বিদ্যাপতি", "জ্ঞানদাস"], "answer": 1, "explanation": "বড়ু চণ্ডীদাস এই কাব্যের রচয়িতা, যাকে বাঙলা ভাষার প্রথম মহাকবি বলা হয়।", "id": "q022"}, {"chapter": 6, "type": "mcq", "difficulty": "medium", "prompt": "শ্রীকৃষ্ণকীর্তন-এর পুঁথি কে উদ্ধার করেন?", "options": ["হরপ্রসাদ শাস্ত্রী", "বসন্তরঞ্জন রায় বিদ্বদ্বল্লভ", "দীনেশচন্দ্র সেন", "সুনীতিকুমার চট্টোপাধ্যায়"], "answer": 1, "explanation": "১৯০৯ সালে বসন্তরঞ্জন রায় বিদ্বদ্বল্লভ বাঁকুড়ার এক গোয়ালঘর থেকে এই পুঁথি উদ্ধার করেন।", "id": "q023"}, {"chapter": 6, "type": "mcq", "difficulty": "medium", "prompt": "চণ্ডীমঙ্গলের শ্রেষ্ঠ দুই কবি কারা?", "options": ["বিজয়গুপ্ত ও বংশীদাস", "মুকুন্দরাম চক্রবর্তী ও ভারতচন্দ্র রায়", "চণ্ডীদাস ও বিদ্যাপতি", "কৃত্তিবাস ও কাশীরাম দাস"], "answer": 1, "explanation": "চণ্ডীমঙ্গলের শ্রেষ্ঠ কবি মুকুন্দরাম চক্রবর্তী ও ভারতচন্দ্র রায়।", "id": "q024"}, {"chapter": 6, "type": "mcq", "difficulty": "medium", "prompt": "মনসামঙ্গলের শ্রেষ্ঠ দুই কবি কারা?", "options": ["মুকুন্দরাম ও ভারতচন্দ্র", "বিজয়গুপ্ত ও বংশীদাস", "ময়ূর ভট্ট ও ঘনরাম", "কাশীরাম ও কৃত্তিবাস"], "answer": 1, "explanation": "মনসামঙ্গলের শ্রেষ্ঠ দুই কবি বিজয়গুপ্ত ও বংশীদাস।", "id": "q025"}, {"chapter": 6, "type": "mcq", "difficulty": "hard", "prompt": "কোন আধুনিক কবি মধ্যযুগীয় সাহিত্যকে 'অপাঠ্য' বলেছিলেন?", "options": ["জীবনানন্দ দাশ", "সুধীন্দ্রনাথ দত্ত", "বুদ্ধদেব বসু", "বিষ্ণু দে"], "answer": 1, "explanation": "সুধীন্দ্রনাথ দত্ত মন্তব্য করেছিলেন, 'বাঙলা সাহিত্যে মধ্যযুগ অপাঠ্য।'", "id": "q026"}, {"chapter": 6, "type": "mcq", "difficulty": "easy", "prompt": "মঙ্গলকাব্যের নাম কীসের ভিত্তিতে রাখা হতো?", "options": ["কবির নামে", "যে দেবতার পূজা প্রচার করা হয় তাঁর নামে", "রাজার নামে", "রচনাস্থলের নামে"], "answer": 1, "explanation": "যেমন চণ্ডীর পূজা প্রচারের কাব্য 'চণ্ডীমঙ্গল', মনসার জন্য 'মনসামঙ্গল'।", "id": "q027"}, {"chapter": 7, "type": "mcq", "difficulty": "medium", "prompt": "চণ্ডীমঙ্গলের কালকেতু-ফুল্লরা কাহিনির রচয়িতা কে?", "options": ["ভারতচন্দ্র রায়", "মুকুন্দরাম চক্রবর্তী", "বিজয়গুপ্ত", "মাণিক দত্ত"], "answer": 1, "explanation": "মুকুন্দরাম চক্রবর্তী এই কাহিনি রচনা করেন।", "id": "q028"}, {"chapter": 7, "type": "mcq", "difficulty": "hard", "prompt": "কালকেতুর প্রতিষ্ঠিত রাজ্যের নাম কী?", "options": ["উজানীনগর", "গুজরাট নগর", "চিতোর", "নবদ্বীপ"], "answer": 1, "explanation": "কালকেতু 'গুজরাট নগর' নামে রাজ্য স্থাপন করেন।", "id": "q029"}, {"chapter": 8, "type": "mcq", "difficulty": "easy", "prompt": "মনসামঙ্গলের প্রধান চরিত্র কারা?", "options": ["কালকেতু-ফুল্লরা", "চাঁদ সদাগর-বেহুলা-লখিন্দর", "রাধা-কৃষ্ণ", "রত্নসেন-পদ্মাবতী"], "answer": 1, "explanation": "মনসামঙ্গলের কেন্দ্রীয় কাহিনি চাঁদ সদাগর, পুত্র লখিন্দর ও পুত্রবধূ বেহুলাকে নিয়ে।", "id": "q030"}, {"chapter": 8, "type": "mcq", "difficulty": "medium", "prompt": "বেহুলা কীভাবে স্বামী লখিন্দরের প্রাণ ফিরে পান?", "options": ["ওষুধ দিয়ে", "স্বর্গে গিয়ে নৃত্য দেখিয়ে দেবতাদের মুগ্ধ করে", "মন্ত্র পাঠ করে", "মনসাকে হত্যা করে"], "answer": 1, "explanation": "বেহুলা স্বর্গে গিয়ে নাচ দেখিয়ে দেবতাদের মুগ্ধ করে স্বামীর প্রাণভিক্ষা করেন।", "id": "q031"}, {"chapter": 9, "type": "mcq", "difficulty": "easy", "prompt": "মুকুন্দরাম চক্রবর্তীর উপাধি কী?", "options": ["রায়গুণাকর", "কবিকঙ্কণ", "কবিকণ্ঠহার", "বিদ্বদ্বল্লভ"], "answer": 1, "explanation": "তাঁর উপাধি 'কবিকঙ্কণ'।", "id": "q032"}, {"chapter": 9, "type": "mcq", "difficulty": "medium", "prompt": "মুকুন্দরাম চক্রবর্তী কোন শতাব্দীর কবি?", "options": ["চতুর্দশ", "পঞ্চদশ", "ষোড়শ", "অষ্টাদশ"], "answer": 2, "explanation": "তিনি ষোড়শ শতাব্দীর কবি, আনু. ১৫৭৫ সালের কাছাকাছি চণ্ডীমঙ্গল রচনা করেন।", "id": "q033"}, {"chapter": 10, "type": "mcq", "difficulty": "easy", "prompt": "ভারতচন্দ্র রায়ের উপাধি কী?", "options": ["কবিকঙ্কণ", "রায়গুণাকর", "কবিকণ্ঠহার", "গুণরাজ খান"], "answer": 1, "explanation": "নদিয়ার রাজা কৃষ্ণচন্দ্র তাঁকে 'রায়গুণাকর' উপাধি দেন।", "id": "q034"}, {"chapter": 10, "type": "mcq", "difficulty": "medium", "prompt": "ভারতচন্দ্রের একমাত্র কাব্যগ্রন্থের নাম কী?", "options": ["চণ্ডীমঙ্গল", "অন্নদামঙ্গল", "মনসামঙ্গল", "ধর্মমঙ্গল"], "answer": 1, "explanation": "তাঁর একমাত্র কাব্য অন্নদামঙ্গল, যার তিনটি ভাগ আছে।", "id": "q035"}, {"chapter": 10, "type": "mcq", "difficulty": "hard", "prompt": "অন্নদামঙ্গল কাব্যের তিনটি ভাগের একটি কোনটি?", "options": ["বিদ্যাসুন্দর", "কালকেতু-ফুল্লরা", "বেহুলা-লখিন্দর", "শ্রীকৃষ্ণকীর্তন"], "answer": 0, "explanation": "অন্নদামঙ্গলের তিন ভাগ: অন্নদামঙ্গল, বিদ্যাসুন্দর, ভবানন্দ-মানসিংহ কাহিনি।", "id": "q036"}, {"chapter": 11, "type": "mcq", "difficulty": "easy", "prompt": "বৈষ্ণব পদাবলির চার মহাকবির মধ্যে নেই কে?", "options": ["বিদ্যাপতি", "চণ্ডীদাস", "গোবিন্দদাস", "মুকুন্দরাম চক্রবর্তী"], "answer": 3, "explanation": "চার মহাকবি: বিদ্যাপতি, চণ্ডীদাস, জ্ঞানদাস, গোবিন্দদাস — মুকুন্দরাম চণ্ডীমঙ্গলের কবি, বৈষ্ণব পদাবলির নন।", "id": "q037"}, {"chapter": 11, "type": "mcq", "difficulty": "medium", "prompt": "কোন দুই কবি ব্রজবুলি ভাষায় কবিতা লিখতেন?", "options": ["চণ্ডীদাস ও জ্ঞানদাস", "বিদ্যাপতি ও গোবিন্দদাস", "বিদ্যাপতি ও চণ্ডীদাস", "জ্ঞানদাস ও গোবিন্দদাস"], "answer": 1, "explanation": "বিদ্যাপতি ও গোবিন্দদাস অলংকারবহুল ব্রজবুলি ভাষায় লিখতেন।", "id": "q038"}, {"chapter": 11, "type": "mcq", "difficulty": "medium", "prompt": "বৈষ্ণব দর্শনে 'পরমাত্মা' বলতে কাকে বোঝানো হয়?", "options": ["রাধা", "কৃষ্ণ", "চৈতন্য", "বিষ্ণু"], "answer": 1, "explanation": "বৈষ্ণব দর্শনে কৃষ্ণ = পরমাত্মা, রাধা = জীবাত্মা।", "id": "q039"}, {"chapter": 11, "type": "mcq", "difficulty": "hard", "prompt": "বৈষ্ণব কবিতার পাঁচ রসের মধ্যে নেই কোনটি?", "options": ["শান্ত", "বাৎসল্য", "করুণ", "মধুর"], "answer": 2, "explanation": "পাঁচ রস: শান্ত, দাস্য, বাৎসল্য, সখ্য, মধুর — 'করুণ' এই তালিকায় নেই।", "id": "q040"}, {"chapter": 11, "type": "mcq", "difficulty": "hard", "prompt": "প্রথম বৈষ্ণব পদ সংকলনকারী কে?", "options": ["রাধামোহন ঠাকুর", "বৈষ্ণব দাস", "বাবা আউল মনোহর দাস", "দীনেশচন্দ্র সেন"], "answer": 2, "explanation": "বাবা আউল মনোহর দাস তাঁর 'পদসমুদ্র' গ্রন্থে সর্বপ্রথম বৈষ্ণব পদ সংকলন করেন।", "id": "q041"}, {"chapter": 12, "type": "mcq", "difficulty": "medium", "prompt": "বিদ্যাপতি কোন রাজার সভাকবি ছিলেন?", "options": ["কৃষ্ণচন্দ্র", "শিবসিংহ", "মানসিংহ", "লক্ষ্মণ সেন"], "answer": 1, "explanation": "মিথিলার রাজা শিবসিংহের সভাকবি ছিলেন বিদ্যাপতি।", "id": "q042"}, {"chapter": 12, "type": "mcq", "difficulty": "hard", "prompt": "বিদ্যাপতি কোন ভাষায় কবিতা লিখতেন?", "options": ["খাঁটি বাঙলা", "সংস্কৃত", "ব্রজবুলি", "ফারসি"], "answer": 2, "explanation": "বিদ্যাপতি ব্রজবুলি ভাষায় লিখতেন, বাঙলায় নয়।", "id": "q043"}, {"chapter": 13, "type": "mcq", "difficulty": "medium", "prompt": "'চণ্ডীদাস-সমস্যা'র সাথে কতজন চণ্ডীদাসের নাম যুক্ত?", "options": ["দুই", "তিন", "চার", "পাঁচ"], "answer": 1, "explanation": "তিনজন চণ্ডীদাস চিহ্নিত: বড়ু, দ্বিজ, দীন চণ্ডীদাস।", "id": "q044"}, {"chapter": 13, "type": "mcq", "difficulty": "hard", "prompt": "শ্রীকৃষ্ণকীর্তন-এর রচয়িতা কোন চণ্ডীদাস?", "options": ["দ্বিজ চণ্ডীদাস", "দীন চণ্ডীদাস", "বড়ু চণ্ডীদাস", "কোনোটিই নয়"], "answer": 2, "explanation": "বড়ু চণ্ডীদাস শ্রীকৃষ্ণকীর্তন-এর রচয়িতা ও বাঙলার প্রথম মহাকবি।", "id": "q045"}, {"chapter": 14, "type": "mcq", "difficulty": "easy", "prompt": "চৈতন্যদেবের জন্মসাল কত?", "options": ["১৩৭৪", "১৪৮৬", "১৫৩৩", "১৬১৫"], "answer": 1, "explanation": "চৈতন্যদেবের জন্ম ১৪৮৬ সালে নবদ্বীপে।", "id": "q046"}, {"chapter": 14, "type": "mcq", "difficulty": "medium", "prompt": "চৈতন্যদেবের আসল নাম কী ছিল?", "options": ["গৌরাঙ্গ", "নিমাই", "বিশ্বম্ভর", "গোরা"], "answer": 2, "explanation": "তাঁর আসল নাম বিশ্বম্ভর; নিমাই ও গোরা তাঁর ডাকনাম।", "id": "q047"}, {"chapter": 14, "type": "mcq", "difficulty": "medium", "prompt": "চৈতন্যচরিতামৃত গ্রন্থের রচয়িতা কে?", "options": ["বৃন্দাবন দাস", "লোচন দাস", "কৃষ্ণদাস কবিরাজ", "জয়ানন্দ"], "answer": 2, "explanation": "কৃষ্ণদাস কবিরাজ (১৫৩০-১৬১৫) এই বিখ্যাত গ্রন্থ রচনা করেন।", "id": "q048"}, {"chapter": 14, "type": "mcq", "difficulty": "hard", "prompt": "চৈতন্যদেব কত বছর বয়সে মৃত্যুবরণ করেন?", "options": ["৩৩", "৪৮", "৫৬", "৬৫"], "answer": 1, "explanation": "১৫৩৩ সালে মাত্র ৪৮ বছর বয়সে পুরীতে তাঁর মৃত্যু হয়।", "id": "q049"}, {"chapter": 15, "type": "mcq", "difficulty": "easy", "prompt": "রামায়ণের শ্রেষ্ঠ অনুবাদক কে?", "options": ["কাশীরাম দাস", "কৃত্তিবাস", "মালাধর বসু", "শ্রীকর নন্দী"], "answer": 1, "explanation": "কৃত্তিবাস (পঞ্চদশ শতক) রামায়ণের শ্রেষ্ঠ ও সবচেয়ে জনপ্রিয় অনুবাদক।", "id": "q050"}, {"chapter": 15, "type": "mcq", "difficulty": "medium", "prompt": "মহাভারতের শ্রেষ্ঠ অনুবাদক কে?", "options": ["কৃত্তিবাস", "কাশীরাম দাস", "শ্রীকর নন্দী", "মালাধর বসু"], "answer": 1, "explanation": "কাশীরাম দাস (সপ্তদশ শতক) মহাভারতের শ্রেষ্ঠ অনুবাদক, যদিও প্রথম নন।", "id": "q051"}, {"chapter": 15, "type": "mcq", "difficulty": "hard", "prompt": "মহাভারতের প্রথম অনুবাদক কে?", "options": ["কাশীরাম দাস", "শ্রীকর নন্দী", "কৃত্তিবাস", "কবীন্দ্র পরমেশ্বর"], "answer": 1, "explanation": "শ্রীকর নন্দী ছুটি খানের পৃষ্ঠপোষকতায় মহাভারতের প্রথম অনুবাদ করেন।", "id": "q052"}, {"chapter": 15, "type": "mcq", "difficulty": "medium", "prompt": "কৃত্তিবাসের পৃষ্ঠপোষক রাজা কে ছিলেন?", "options": ["হুসেন শাহ", "রুকনুদ্দিন বারবক শাহ", "গিয়াসউদ্দিন আজম শাহ", "নাসির খাঁ"], "answer": 1, "explanation": "গৌড়ের রাজা রুকনুদ্দিন বারবক শাহ (১৪৫৯-৭৪) কৃত্তিবাসকে পৃষ্ঠপোষকতা দেন।", "id": "q053"}, {"chapter": 15, "type": "mcq", "difficulty": "hard", "prompt": "ভাগবত অনুবাদ করে কোন কবি 'গুণরাজ খান' উপাধি পান?", "options": ["কৃত্তিবাস", "মালাধর বসু", "শ্রীকর নন্দী", "কাশীরাম দাস"], "answer": 1, "explanation": "মালাধর বসু ভাগবত অনুবাদ (শ্রীকৃষ্ণবিজয়) করে এই উপাধি পান।", "id": "q054"}, {"chapter": 16, "type": "mcq", "difficulty": "easy", "prompt": "বাঙলা ভাষায় প্রথম মুসলমান কবি কে?", "options": ["আলাওল", "শাহ মুহম্মদ সগীর", "সাবিরিদ খান", "আবদুল হাকিম"], "answer": 1, "explanation": "শাহ মুহম্মদ সগীর প্রথম মুসলমান কবি, কাব্য ইউসুফ-জুলেখা।", "id": "q055"}, {"chapter": 16, "type": "mcq", "difficulty": "medium", "prompt": "আরাকান রাজসভার তিন প্রধান কবির মধ্যে নেই কে?", "options": ["আলাওল", "কাজী দৌলত", "মাগন ঠাকুর", "শাহ মুহম্মদ সগীর"], "answer": 3, "explanation": "আরাকানের কবি: আলাওল, কাজী দৌলত, মাগন ঠাকুর — শাহ মুহম্মদ সগীর তাঁদের আগের যুগের কবি।", "id": "q056"}, {"chapter": 16, "type": "mcq", "difficulty": "hard", "prompt": "মুসলমান কবিদের পুঁথি সংগ্রহে অগ্রণী ভূমিকা রাখেন কে?", "options": ["আবদুল হাকিম", "আবদুল করিম সাহিত্যবিশারদ", "কাজী দৌলত", "মাগন ঠাকুর"], "answer": 1, "explanation": "আবদুল করিম সাহিত্যবিশারদ (১৮৭১-১৯৫৩) গ্রামে গ্রামে ঘুরে মুসলমান কবিদের পুঁথি সংগ্রহ করেন।", "id": "q057"}, {"chapter": 17, "type": "mcq", "difficulty": "easy", "prompt": "আলাওলের শ্রেষ্ঠ কাব্যের নাম কী?", "options": ["সতীময়না", "চন্দ্রাবতী", "পদ্মাবতী", "হপ্তপয়কর"], "answer": 2, "explanation": "পদ্মাবতী (১৬৪৮) আলাওলের শ্রেষ্ঠ কাব্য।", "id": "q058"}, {"chapter": 17, "type": "mcq", "difficulty": "medium", "prompt": "আলাওলের পদ্মাবতী কোন মূল কাব্য অবলম্বনে রচিত?", "options": ["ফেরদৌসির শাহনামা", "মালিক মুহম্মদ জায়সির পদুমাবত", "জামির ইউসুফ-জুলেখা", "নিজামীর হপ্তপয়কর"], "answer": 1, "explanation": "হিন্দি কবি মালিক মুহম্মদ জায়সির পদুমাবত অবলম্বনে আলাওল পদ্মাবতী রচনা করেন।", "id": "q059"}, {"chapter": 17, "type": "mcq", "difficulty": "medium", "prompt": "আলাওল কার উৎসাহে কবি হয়ে ওঠেন?", "options": ["মাগন ঠাকুর", "কাজী দৌলত", "শাহ সুজা", "থদোমিন্তার"], "answer": 0, "explanation": "আরাকান রাজসভার কর্মকর্তা মাগন ঠাকুরের উৎসাহে আলাওল কাব্যরচনায় মনোনিবেশ করেন।", "id": "q060"}, {"chapter": 18, "type": "mcq", "difficulty": "medium", "prompt": "ময়মনসিংহ গীতিকা কে সম্পাদনা করেন?", "options": ["চন্দ্রকুমার দে", "দীনেশচন্দ্র সেন", "দক্ষিণারঞ্জন মিত্রমজুমদার", "উপেন্দ্রকিশোর রায়চৌধুরী"], "answer": 1, "explanation": "চন্দ্রকুমার দে সংগ্রহ করেন, দীনেশচন্দ্র সেন সম্পাদনা করে ১৯২০ সালে প্রকাশ করেন।", "id": "q061"}, {"chapter": 18, "type": "mcq", "difficulty": "hard", "prompt": "'ঠাকুরমার ঝুলি' রূপকথা সংকলনের সংকলক কে?", "options": ["উপেন্দ্রকিশোর রায়চৌধুরী", "দক্ষিণারঞ্জন মিত্রমজুমদার", "রবীন্দ্রনাথ ঠাকুর", "চন্দ্রকুমার দে"], "answer": 1, "explanation": "দক্ষিণারঞ্জন মিত্রমজুমদার 'ঠাকুরমার ঝুলি' ও 'ঠাকুরদাদার ঝুলি' সংকলন করেন।", "id": "q062"}, {"chapter": 19, "type": "mcq", "difficulty": "easy", "prompt": "পলাশীর যুদ্ধ কোন সালে হয়?", "options": ["১৭৫৭", "১৭৬০", "১৮০০", "১৮৫৭"], "answer": 0, "explanation": "১৭৫৭ সালে পলাশীর যুদ্ধে বাংলা স্বাধীনতা হারায়।", "id": "q063"}, {"chapter": 19, "type": "mcq", "difficulty": "medium", "prompt": "উনিশ শতকের শুরুর দিকের মুসলমান কবিদের কী বলা হতো?", "options": ["কবিওয়ালা", "শায়ের", "কবিয়াল", "ভাট"], "answer": 1, "explanation": "মুসলমান কবিদের 'শায়ের' বলা হতো, হিন্দুদের 'কবিওয়ালা'।", "id": "q064"}, {"chapter": 19, "type": "mcq", "difficulty": "hard", "prompt": "নিধুবাবুর (রামনিধি গুপ্ত) বিখ্যাত সঙ্গীতরীতির নাম কী?", "options": ["কীর্তন", "টপ্পা", "ভাটিয়ালি", "বাউল"], "answer": 1, "explanation": "নিধুবাবু টপ্পাগানের জন্য বিখ্যাত।", "id": "q065"}, {"chapter": 20, "type": "mcq", "difficulty": "easy", "prompt": "ফোর্ট উইলিয়ম কলেজ কোন সালে প্রতিষ্ঠিত হয়?", "options": ["১৭৯৫", "১৮০০", "১৮০১", "১৮১৮"], "answer": 1, "explanation": "ফোর্ট উইলিয়ম কলেজ ১৮০০ সালের ৪ মে প্রতিষ্ঠিত হয়।", "id": "q066"}, {"chapter": 21, "type": "mcq", "difficulty": "medium", "prompt": "ফোর্ট উইলিয়ম কলেজ থেকে প্রকাশিত প্রথম বাঙলা গদ্যগ্রন্থের নাম কী?", "options": ["কথোপকথন", "প্রতাপাদিত্যচরিত্র", "হিতোপদেশ", "রাজাবলি"], "answer": 1, "explanation": "রামরাম বসুর প্রতাপাদিত্যচরিত্র (১৮০১) এই কলেজের প্রথম প্রকাশিত বাঙলা গদ্যগ্রন্থ।", "id": "q067"}, {"chapter": 21, "type": "mcq", "difficulty": "medium", "prompt": "ফোর্ট উইলিয়ম কলেজের অধ্যক্ষ কে ছিলেন?", "options": ["রামরাম বসু", "উইলিয়ম কেরি", "মৃত্যুঞ্জয় বিদ্যালঙ্কার", "গেরাসিম লেবেদেফ"], "answer": 1, "explanation": "পাদ্রি উইলিয়ম কেরি (১৭৬১-১৮৩৪) অধ্যক্ষ ছিলেন।", "id": "q068"}, {"chapter": 21, "type": "mcq", "difficulty": "hard", "prompt": "বাঙলার প্রথম পত্রিকা কোনটি?", "options": ["সম্বাদ প্রভাকর", "বাঙ্গাল গেজেটি", "দিগ্‌দর্শন", "সমাচার দর্পণ"], "answer": 2, "explanation": "শ্রীরামপুরের মিশনারিরা ১৮১৮ সালে 'দিগ্‌দর্শন' প্রকাশ করেন, যা বাঙলার প্রথম পত্রিকা।", "id": "q069"}, {"chapter": 22, "type": "mcq", "difficulty": "easy", "prompt": "'বাঙলা গদ্যের জনক' কাকে বলা হয়?", "options": ["রামমোহন রায়", "ঈশ্বরচন্দ্র বিদ্যাসাগর", "রামরাম বসু", "প্যারীচাঁদ মিত্র"], "answer": 1, "explanation": "ঈশ্বরচন্দ্র বিদ্যাসাগর গদ্যের ছন্দ ও যতিচিহ্নের সুশৃঙ্খল ব্যবহার প্রবর্তন করে এই মর্যাদা পান।", "id": "q070"}, {"chapter": 22, "type": "mcq", "difficulty": "medium", "prompt": "বিদ্যাসাগরের জন্মস্থান কোথায়?", "options": ["হুগলি", "মেদিনীপুরের বীরসিংহ গ্রাম", "নদিয়া", "২৪ পরগণা"], "answer": 1, "explanation": "বিদ্যাসাগরের জন্ম মেদিনীপুর জেলার বীরসিংহ গ্রামে, ১৮২০ সালে।", "id": "q071"}, {"chapter": 22, "type": "mcq", "difficulty": "medium", "prompt": "আলালের ঘরের দুলাল-এর রচয়িতার ছদ্মনাম কী?", "options": ["বীরবল", "টেকচাঁদ ঠাকুর", "পরশুরাম", "হুতোম প্যাঁচা"], "answer": 1, "explanation": "প্যারীচাঁদ মিত্রের ছদ্মনাম টেকচাঁদ ঠাকুর।", "id": "q072"}, {"chapter": 22, "type": "mcq", "difficulty": "medium", "prompt": "হুতোম প্যাঁচার নকশা-র রচয়িতা কে?", "options": ["প্যারীচাঁদ মিত্র", "কালীপ্রসন্ন সিংহ", "বঙ্কিমচন্দ্র চট্টোপাধ্যায়", "ঈশ্বরচন্দ্র গুপ্ত"], "answer": 1, "explanation": "কালীপ্রসন্ন সিংহ (১৮৪০-১৮৭০) ১৮৬২ সালে এই গ্রন্থ রচনা করেন।", "id": "q073"}, {"chapter": 22, "type": "mcq", "difficulty": "hard", "prompt": "চলতি গদ্যরীতির প্রধান প্রবক্তা কে?", "options": ["বঙ্কিমচন্দ্র চট্টোপাধ্যায়", "প্রমথ চৌধুরী", "রবীন্দ্রনাথ ঠাকুর", "ঈশ্বরচন্দ্র বিদ্যাসাগর"], "answer": 1, "explanation": "প্রমথ চৌধুরী (ছদ্মনাম বীরবল) সবুজপত্র পত্রিকার (১৯১৪) মাধ্যমে চলতি গদ্যরীতি প্রতিষ্ঠা করেন।", "id": "q074"}, {"chapter": 23, "type": "mcq", "difficulty": "easy", "prompt": "বাঙলা ভাষার প্রথম মহাকাব্যের নাম কী?", "options": ["মেঘনাদবধ কাব্য", "অন্নদামঙ্গল", "শ্রীকৃষ্ণকীর্তন", "পদ্মাবতী"], "answer": 0, "explanation": "মধুসূদন দত্তের মেঘনাদবধ কাব্য (১৮৬১) বাঙলার প্রথম মহাকাব্য, নায়ক রাবণ।", "id": "q075"}, {"chapter": 23, "type": "mcq", "difficulty": "medium", "prompt": "মেঘনাদবধ কাব্যের নায়ক কে?", "options": ["রাম", "লক্ষ্মণ", "রাবণ", "মেঘনাদ"], "answer": 2, "explanation": "প্রথাগত রীতি ভেঙে মধুসূদন দণ্ডিত রাবণকে নায়ক করেন।", "id": "q076"}, {"chapter": 23, "type": "mcq", "difficulty": "medium", "prompt": "মধুসূদন দত্ত প্রবর্তিত ছন্দের নাম কী?", "options": ["পয়ার", "অমিত্রাক্ষর ছন্দ", "মাত্রাবৃত্ত", "স্বরবৃত্ত"], "answer": 1, "explanation": "তিনি পয়ারকে প্রবহমাণ রূপ দিয়ে অমিত্রাক্ষর ছন্দ সৃষ্টি করেন।", "id": "q077"}, {"chapter": 23, "type": "mcq", "difficulty": "hard", "prompt": "বাঙলা কবিতার প্রথম রোম্যান্টিক কবি কে?", "options": ["ঈশ্বরচন্দ্র গুপ্ত", "বিহারীলাল চক্রবর্তী", "মধুসূদন দত্ত", "রবীন্দ্রনাথ ঠাকুর"], "answer": 1, "explanation": "বিহারীলাল চক্রবর্তী (১৮৩৫-১৮৯৪) বাঙলার প্রথম রোম্যান্টিক কবি, রবীন্দ্রনাথ যাঁকে 'ভোরের পাখি' বলেছেন।", "id": "q078"}, {"chapter": 23, "type": "mcq", "difficulty": "hard", "prompt": "কায়কোবাদের মহাশ্মশান কাব্য কোন যুদ্ধ অবলম্বনে রচিত?", "options": ["পলাশীর যুদ্ধ", "পানিপথের তৃতীয় যুদ্ধ", "কুরুক্ষেত্র যুদ্ধ", "প্লাসীর যুদ্ধ"], "answer": 1, "explanation": "কায়কোবাদ পানিপথের তৃতীয় যুদ্ধ অবলম্বনে মহাশ্মশান কাব্য (১৯০৪) রচনা করেন।", "id": "q079"}, {"chapter": 24, "type": "mcq", "difficulty": "easy", "prompt": "বাঙলা ভাষার প্রথম উপন্যাস কোনটি বলে গণ্য?", "options": ["দুর্গেশনন্দিনী", "আলালের ঘরের দুলাল", "কপালকুণ্ডলা", "ফুলমণি ও করুণার বিবরণ"], "answer": 1, "explanation": "প্যারীচাঁদ মিত্রের আলালের ঘরের দুলাল (১৮৫৮) প্রথম উপন্যাস হিসেবে গণ্য।", "id": "q080"}, {"chapter": 24, "type": "mcq", "difficulty": "medium", "prompt": "বাঙলার প্রথম সার্থক ঔপন্যাসিক কে?", "options": ["প্যারীচাঁদ মিত্র", "বঙ্কিমচন্দ্র চট্টোপাধ্যায়", "শরৎচন্দ্র চট্টোপাধ্যায়", "রবীন্দ্রনাথ ঠাকুর"], "answer": 1, "explanation": "বঙ্কিমচন্দ্র চট্টোপাধ্যায়কে প্রথম সার্থক/যথার্থ ঔপন্যাসিক গণ্য করা হয়।", "id": "q081"}, {"chapter": 24, "type": "mcq", "difficulty": "hard", "prompt": "বঙ্কিমচন্দ্রের প্রথম বাঙলা উপন্যাসের নাম কী?", "options": ["কপালকুণ্ডলা", "দুর্গেশনন্দিনী", "আনন্দমঠ", "বিষবৃক্ষ"], "answer": 1, "explanation": "দুর্গেশনন্দিনী (১৮৬৫) তাঁর প্রথম বাঙলা উপন্যাস।", "id": "q082"}, {"chapter": 25, "type": "mcq", "difficulty": "medium", "prompt": "বাঙলায় প্রথম নাটক মঞ্চস্থ করেন কে?", "options": ["তারাচরণ শিকদার", "গেরাসিম লেবেদেফ", "মধুসূদন দত্ত", "দীনবন্ধু মিত্র"], "answer": 1, "explanation": "রুশ পরিব্রাজক গেরাসিম লেবেদেফ ১৭৯৫ সালে প্রথম নাটক মঞ্চস্থ করেন।", "id": "q083"}, {"chapter": 25, "type": "mcq", "difficulty": "medium", "prompt": "প্রথম বাঙলা মৌলিক নাটকের নাম কী?", "options": ["শর্মিষ্ঠা", "ভদ্রার্জুন", "কীর্তিবিলাস", "নীলদর্পণ"], "answer": 1, "explanation": "তারাচরণ শিকদারের ভদ্রার্জুন (১৮৫২) প্রথম বাঙলা মৌলিক নাটক।", "id": "q084"}, {"chapter": 25, "type": "mcq", "difficulty": "hard", "prompt": "বাঙলা ভাষার প্রথম প্রকৃত আধুনিক নাটক কোনটি?", "options": ["ভদ্রার্জুন", "কীর্তিবিলাস", "শর্মিষ্ঠা", "কৃষ্ণকুমারী"], "answer": 2, "explanation": "মধুসূদন দত্তের শর্মিষ্ঠা (১৮৫৯) প্রথম প্রকৃত আধুনিক নাটক।", "id": "q085"}, {"chapter": 25, "type": "mcq", "difficulty": "medium", "prompt": "নীলদর্পণ নাটকের বিষয়বস্তু কী?", "options": ["রাজদ্রোহ", "নীলকরদের অত্যাচার", "বিধবাবিবাহ", "জমিদারি প্রথা"], "answer": 1, "explanation": "দীনবন্ধু মিত্রের নীলদর্পণ (১৮৬০) নীলকরদের অত্যাচারের বিরুদ্ধে রচিত।", "id": "q086"}, {"chapter": 26, "type": "mcq", "difficulty": "easy", "prompt": "রবীন্দ্রনাথ ঠাকুর কোন সালে নোবেল পুরস্কার পান?", "options": ["১৯০৩", "১৯১০", "১৯১৩", "১৯১৬"], "answer": 2, "explanation": "১৯১৩ সালে গীতাঞ্জলি কাব্যের জন্য রবীন্দ্রনাথ নোবেল পুরস্কার পান — এশীয়দের মধ্যে প্রথম।", "id": "q087"}, {"chapter": 26, "type": "mcq", "difficulty": "medium", "prompt": "রবীন্দ্রনাথের কোন উপন্যাসকে বাঙলা উপন্যাসের আধুনিক যুগের সূচনা ধরা হয়?", "options": ["গোরা", "চোখের বালি", "ঘরে বাইরে", "শেষের কবিতা"], "answer": 1, "explanation": "চোখের বালি (১৯০৩) থেকে বাঙলা উপন্যাসে আধুনিক যুগের সূচনা ধরা হয়।", "id": "q088"}, {"chapter": 26, "type": "mcq", "difficulty": "hard", "prompt": "রবীন্দ্রনাথের প্রথম প্রকাশিত (মুদ্রিত) কাব্যগ্রন্থের নাম কী?", "options": ["বনফুল", "কবিকাহিনী", "সন্ধ্যাসঙ্গীত", "মানসী"], "answer": 1, "explanation": "কবিকাহিনী (১৮৭৮) তাঁর প্রথম প্রকাশিত/মুদ্রিত গ্রন্থ (যদিও বনফুল আগে লেখা)।", "id": "q089"}, {"chapter": 26, "type": "tf", "difficulty": "medium", "prompt": "রবীন্দ্রনাথ ঠাকুর তাঁর পিতামাতার প্রথম সন্তান ছিলেন।", "options": ["সত্য", "মিথ্যা"], "answer": 1, "explanation": "তিনি ছিলেন পিতামাতার চতুর্দশ সন্তান।", "id": "q090"}, {"chapter": 27, "type": "mcq", "difficulty": "easy", "prompt": "পাঁচজন প্রধান আধুনিক কবির মধ্যে নেই কে?", "options": ["জীবনানন্দ দাশ", "কাজী নজরুল ইসলাম", "সুধীন্দ্রনাথ দত্ত", "বিষ্ণু দে"], "answer": 1, "explanation": "পাঁচ প্রধান আধুনিক কবি: জীবনানন্দ দাশ, সুধীন্দ্রনাথ দত্ত, বিষ্ণু দে, অমিয় চক্রবর্তী, বুদ্ধদেব বসু — নজরুল এই তালিকায় নেই।", "id": "q091"}, {"chapter": 27, "type": "mcq", "difficulty": "medium", "prompt": "রবীন্দ্রনাথ জীবনানন্দ দাশের কবিতাকে কী বলেছিলেন?", "options": ["নির্জনতম", "চিত্ররূপময়", "দুরূহতম", "বিদ্রোহী"], "answer": 1, "explanation": "রবীন্দ্রনাথ জীবনানন্দকে 'চিত্ররূপময়' কবি বলেছিলেন (বুদ্ধদেব বসু বলেছিলেন 'নির্জনতম')।", "id": "q092"}, {"chapter": 27, "type": "mcq", "difficulty": "easy", "prompt": "'বিদ্রোহী কবি' নামে পরিচিত কে?", "options": ["জীবনানন্দ দাশ", "কাজী নজরুল ইসলাম", "সুকান্ত ভট্টাচার্য", "জসীমউদ্‌দীন"], "answer": 1, "explanation": "কাজী নজরুল ইসলাম (১৮৯৯-১৯৭৬) 'বিদ্রোহী কবি' নামে পরিচিত।", "id": "q093"}, {"chapter": 27, "type": "mcq", "difficulty": "medium", "prompt": "পথের পাঁচালী উপন্যাসের রচয়িতা কে?", "options": ["তারাশঙ্কর বন্দ্যোপাধ্যায়", "বিভূতিভূষণ বন্দ্যোপাধ্যায়", "মানিক বন্দ্যোপাধ্যায়", "শরৎচন্দ্র চট্টোপাধ্যায়"], "answer": 1, "explanation": "বিভূতিভূষণ বন্দ্যোপাধ্যায় ১৯২৯ সালে পথের পাঁচালী রচনা করেন।", "id": "q094"}, {"chapter": 27, "type": "mcq", "difficulty": "medium", "prompt": "পদ্মানদীর মাঝি উপন্যাসের রচয়িতা কে?", "options": ["বিভূতিভূষণ বন্দ্যোপাধ্যায়", "মানিক বন্দ্যোপাধ্যায়", "তারাশঙ্কর বন্দ্যোপাধ্যায়", "বঙ্কিমচন্দ্র চট্টোপাধ্যায়"], "answer": 1, "explanation": "মানিক বন্দ্যোপাধ্যায় ১৯৩৬ সালে পদ্মানদীর মাঝি রচনা করেন।", "id": "q095"}, {"chapter": 27, "type": "mcq", "difficulty": "hard", "prompt": "আধুনিক কবিতার বিকাশে গুরুত্বপূর্ণ পত্রিকা কোনটি নয়?", "options": ["কল্লোল", "কালি-কলম", "প্রগতি", "সবুজপত্র"], "answer": 3, "explanation": "কল্লোল (১৯২৩), কালি-কলম (১৯২৬), প্রগতি (১৯২৭) আধুনিক কবিতার পত্রিকা; সবুজপত্র (১৯১৪) চলতি গদ্যরীতির পত্রিকা।", "id": "q096"}, {"chapter": 27, "type": "mcq", "difficulty": "hard", "prompt": "বিশ শতকের ছয় শ্রেষ্ঠ ঔপন্যাসিকের মধ্যে নেই কে?", "options": ["তারাশঙ্কর বন্দ্যোপাধ্যায়", "মানিক বন্দ্যোপাধ্যায়", "জীবনানন্দ দাশ", "শরৎচন্দ্র চট্টোপাধ্যায়"], "answer": 2, "explanation": "ছয় শ্রেষ্ঠ ঔপন্যাসিক: বঙ্কিমচন্দ্র, শরৎচন্দ্র, তারাশঙ্কর, বিভূতিভূষণ, মানিক বন্দ্যোপাধ্যায়, রবীন্দ্রনাথ — জীবনানন্দ মূলত কবি হিসেবে পরিচিত।", "id": "q097"}], "timeline": [{"year": "৯৫০-১২০০", "event": "চর্যাপদ রচিত হয় — বাঙলা ভাষার প্রথম সাহিত্যকর্ম (প্রাচীন যুগ)।", "chapter": 4, "id": "tl001"}, {"year": "১২০০-১৩৫০", "event": "'অন্ধকার যুগ' — কোনো সাহিত্যকর্মের সন্ধান নেই।", "chapter": 5, "id": "tl002"}, {"year": "১২০০-১২০৭", "event": "বখতিয়ার খিলজি লক্ষ্মণ সেনকে পরাজিত করে মুসলিম শাসনের সূচনা করেন।", "chapter": 4, "id": "tl003"}, {"year": "১৩৫০-১৮০০", "event": "মধ্যযুগ — মঙ্গলকাব্য, বৈষ্ণব পদাবলি, অনুবাদ সাহিত্যের যুগ।", "chapter": 3, "id": "tl004"}, {"year": "১৪৮৬", "event": "শ্রীচৈতন্যদেবের জন্ম, নবদ্বীপে।", "chapter": 14, "id": "tl005"}, {"year": "১৫৩৩", "event": "চৈতন্যদেবের মৃত্যু, পুরীতে (৪৮ বছর বয়সে)।", "chapter": 14, "id": "tl006"}, {"year": "আনু. ১৫৭৫", "event": "মুকুন্দরাম চক্রবর্তী চণ্ডীমঙ্গল রচনা করেন।", "chapter": 9, "id": "tl007"}, {"year": "আনু. ১৫৯৭-১৬৭৩", "event": "আলাওলের জীবনকাল; শ্রেষ্ঠ কাব্য পদ্মাবতী রচনা করেন ১৬৪৮ সালে।", "chapter": 17, "id": "tl008"}, {"year": "আনু. ১৬০২-১৬১০", "event": "কাশীরাম দাস মহাভারত রচনা করেন।", "chapter": 15, "id": "tl009"}, {"year": "আনু. ১৭১২", "event": "ভারতচন্দ্র রায়ের জন্ম।", "chapter": 10, "id": "tl010"}, {"year": "১৭৫৭", "event": "পলাশীর যুদ্ধ — বাংলা স্বাধীনতা হারায়, ইংরেজ শাসনের সূচনা।", "chapter": 19, "id": "tl011"}, {"year": "১৭৯৫", "event": "গেরাসিম লেবেদেফ কলকাতায় প্রথম নাটক মঞ্চস্থ করেন।", "chapter": 25, "id": "tl012"}, {"year": "১৮০০", "event": "ফোর্ট উইলিয়ম কলেজ প্রতিষ্ঠিত হয় (৪ মে) — আধুনিক যুগের সূচনা।", "chapter": 20, "id": "tl013"}, {"year": "১৮০০-বর্তমান", "event": "আধুনিক যুগ শুরু — গদ্যের বিকাশ।", "chapter": 3, "id": "tl014"}, {"year": "১৮০১", "event": "রামরাম বসুর প্রতাপাদিত্যচরিত্র — ফোর্ট উইলিয়ম কলেজের প্রথম বাঙলা গদ্যগ্রন্থ।", "chapter": 21, "id": "tl015"}, {"year": "১৮১৮", "event": "বাঙলার প্রথম পত্রিকা দিগ্‌দর্শন ও বাঙালিদের প্রথম পত্রিকা বাঙ্গাল গেজেটি প্রকাশিত হয়।", "chapter": 21, "id": "tl016"}, {"year": "১৮২০", "event": "ঈশ্বরচন্দ্র বিদ্যাসাগরের জন্ম।", "chapter": 22, "id": "tl017"}, {"year": "১৮৫২", "event": "প্রথম বাঙলা মৌলিক নাটক ভদ্রার্জুন ও প্রথম ট্র্যাজেডি কীর্তিবিলাস রচিত হয়।", "chapter": 25, "id": "tl018"}, {"year": "১৮৫৮", "event": "প্যারীচাঁদ মিত্রের আলালের ঘরের দুলাল — বাঙলার প্রথম উপন্যাস; মধুসূদনের শর্মিষ্ঠা (১৮৫৯)।", "chapter": 24, "id": "tl019"}, {"year": "১৮৫৯", "event": "মধুসূদন দত্তের শর্মিষ্ঠা — প্রথম প্রকৃত আধুনিক নাটক।", "chapter": 25, "id": "tl020"}, {"year": "১৮৬০", "event": "দীনবন্ধু মিত্রের নীলদর্পণ নাটক প্রকাশিত হয়।", "chapter": 25, "id": "tl021"}, {"year": "১৮৬১", "event": "মধুসূদন দত্তের মেঘনাদবধ কাব্য — বাঙলার প্রথম মহাকাব্য। রবীন্দ্রনাথ ঠাকুরের জন্ম।", "chapter": 23, "id": "tl022"}, {"year": "১৮৬৫", "event": "বঙ্কিমচন্দ্রের দুর্গেশনন্দিনী — তাঁর প্রথম বাঙলা উপন্যাস।", "chapter": 24, "id": "tl023"}, {"year": "১৯০৩", "event": "রবীন্দ্রনাথের চোখের বালি — বাঙলা উপন্যাসের আধুনিক যুগের সূচনা।", "chapter": 26, "id": "tl024"}, {"year": "১৯০৭", "event": "হরপ্রসাদ শাস্ত্রী নেপালে চর্যাপদ আবিষ্কার করেন।", "chapter": 4, "id": "tl025"}, {"year": "১৯০৯", "event": "শ্রীকৃষ্ণকীর্তন-এর পুঁথি বাঁকুড়ায় আবিষ্কৃত হয় (বসন্তরঞ্জন রায়)।", "chapter": 6, "id": "tl026"}, {"year": "১৯১৩", "event": "রবীন্দ্রনাথ গীতাঞ্জলি কাব্যের জন্য নোবেল পুরস্কার লাভ করেন — এশীয়দের মধ্যে প্রথম।", "chapter": 26, "id": "tl027"}, {"year": "১৯১৬", "event": "হরপ্রসাদ শাস্ত্রী চর্যাপদসহ আবিষ্কৃত গ্রন্থগুলো প্রকাশ করেন।", "chapter": 4, "id": "tl028"}, {"year": "১৯২০", "event": "দীনেশচন্দ্র সেন সম্পাদিত ময়মনসিংহ গীতিকা প্রকাশিত হয়।", "chapter": 18, "id": "tl029"}, {"year": "১৯২৩", "event": "কল্লোল পত্রিকা প্রকাশিত হয় — আধুনিক কবিতার সূচনায় গুরুত্বপূর্ণ ভূমিকা রাখে।", "chapter": 27, "id": "tl030"}, {"year": "১৯২৬", "event": "সুনীতিকুমার চট্টোপাধ্যায়ের 'বাঙলা ভাষার উৎপত্তি ও বিকাশ' প্রকাশিত হয় — চর্যাপদ বাঙলা প্রমাণিত হয়।", "chapter": 4, "id": "tl031"}, {"year": "১৯২৯", "event": "বিভূতিভূষণ বন্দ্যোপাধ্যায়ের পথের পাঁচালী প্রকাশিত হয়।", "chapter": 27, "id": "tl032"}, {"year": "১৯৩৬", "event": "মানিক বন্দ্যোপাধ্যায়ের পদ্মানদীর মাঝি প্রকাশিত হয়।", "chapter": 27, "id": "tl033"}, {"year": "১৯৪১", "event": "রবীন্দ্রনাথ ঠাকুরের মৃত্যু (২২ শ্রাবণ)।", "chapter": 26, "id": "tl034"}, {"year": "১৯৪৭", "event": "ভারত বিভাগ — পূর্ববঙ্গ 'পূর্ব পাকিস্তান' নামে পরিচিত হয়।", "chapter": 2, "id": "tl035"}, {"year": "১৯৭১", "event": "বাংলাদেশের স্বাধীনতা লাভ।", "chapter": 2, "id": "tl036"}], "comparisons": [{"title": "চণ্ডীমঙ্গল বনাম মনসামঙ্গলের শ্রেষ্ঠ কবি", "colA": "চণ্ডীমঙ্গল", "colB": "মনসামঙ্গল", "rows": [{"label": "শ্রেষ্ঠ কবি (১)", "a": "মুকুন্দরাম চক্রবর্তী", "b": "বিজয়গুপ্ত"}, {"label": "শ্রেষ্ঠ কবি (২)", "a": "ভারতচন্দ্র রায়", "b": "বংশীদাস"}, {"label": "কেন্দ্রীয় দেবী", "a": "চণ্ডী", "b": "মনসা"}, {"label": "বিখ্যাত কাহিনি", "a": "কালকেতু-ফুল্লরা", "b": "বেহুলা-লখিন্দর"}], "id": "cmp001"}, {"title": "কৃত্তিবাস বনাম কাশীরাম দাস", "colA": "কৃত্তিবাস", "colB": "কাশীরাম দাস", "rows": [{"label": "অনূদিত গ্রন্থ", "a": "রামায়ণ", "b": "মহাভারত"}, {"label": "শতাব্দী", "a": "পঞ্চদশ শতক", "b": "সপ্তদশ শতক"}, {"label": "প্রথম অনুবাদক?", "a": "হ্যাঁ, প্রথম ও শ্রেষ্ঠ", "b": "না, শ্রেষ্ঠ কিন্তু প্রথম নয় (প্রথম শ্রীকর নন্দী)"}, {"label": "পৃষ্ঠপোষক", "a": "রুকনুদ্দিন বারবক শাহ", "b": "—(নির্দিষ্ট পৃষ্ঠপোষকের নাম উল্লেখ নেই)"}], "id": "cmp002"}, {"title": "বৈষ্ণব পদাবলির চার মহাকবি: ভাষারীতি", "colA": "ব্রজবুলি (অলংকারবহুল)", "colB": "খাঁটি বাঙলা (সহজ-সরল)", "rows": [{"label": "কবি ১", "a": "বিদ্যাপতি", "b": "চণ্ডীদাস"}, {"label": "কবি ২", "a": "গোবিন্দদাস", "b": "জ্ঞানদাস"}, {"label": "রচনাশৈলী", "a": "সুসজ্জিত, রূপক-উপমাবহুল", "b": "সহজাত, গভীর আবেগপূর্ণ"}], "id": "cmp003"}, {"title": "মুকুন্দরাম চক্রবর্তী বনাম ভারতচন্দ্র রায়", "colA": "মুকুন্দরাম চক্রবর্তী", "colB": "ভারতচন্দ্র রায়", "rows": [{"label": "উপাধি", "a": "কবিকঙ্কণ", "b": "রায়গুণাকর"}, {"label": "শতাব্দী", "a": "ষোড়শ শতাব্দী (আনু. ১৫৭৫)", "b": "অষ্টাদশ শতাব্দী (জন্ম আনু. ১৭১২)"}, {"label": "কাব্য", "a": "চণ্ডীমঙ্গল", "b": "অন্নদামঙ্গল"}, {"level": "style", "label": "শৈলী", "a": "বাস্তববাদী, সহজ-সরল, নির্বিকার", "b": "অলংকারবহুল, বাক্‌পটু, বিদ্রূপাত্মক"}, {"label": "পৃষ্ঠপোষক", "a": "জমিদার বাঁকুড়া রায়", "b": "রাজা কৃষ্ণচন্দ্র (নদিয়া)"}], "id": "cmp004"}, {"title": "তিন যুগের বাঙলা সাহিত্য", "colA": "সময়কাল ও প্রধান রূপ", "colB": "বৈশিষ্ট্য", "rows": [{"label": "প্রাচীন যুগ", "a": "৯৫০-১২০০, চর্যাপদ", "b": "বৌদ্ধ সহজিয়া সাধন-সঙ্গীত"}, {"label": "মধ্যযুগ", "a": "১৩৫০-১৮০০, মঙ্গলকাব্য+পদাবলি", "b": "দেবতাকেন্দ্রিক আখ্যান ও আবেগপ্রধান গীতিকবিতা"}, {"label": "আধুনিক যুগ", "a": "১৮০০-বর্তমান, গদ্য+উপন্যাস+আধুনিক কবিতা", "b": "মানবকেন্দ্রিক, বাস্তববাদী, বহুধা বিভক্ত রূপ"}], "id": "cmp005"}], "traps": [{"title": "চর্যাপদ আবিষ্কার বনাম বাঙলা-প্রমাণ", "note": "চর্যাপদ আবিষ্কার করেন হরপ্রসাদ শাস্ত্রী (১৯০৭, নেপাল); কিন্তু এর ভাষা যে বাঙলা তা প্রমাণ করেন সুনীতিকুমার চট্টোপাধ্যায় (১৯২৬, গ্রন্থ: বাঙলা ভাষার উৎপত্তি ও বিকাশ)। দুটি ভিন্ন কৃতিত্ব, ভিন্ন ব্যক্তি, ভিন্ন সময়।", "chapter": 4, "id": "tr001"}, {"title": "চণ্ডীমঙ্গল বনাম মনসামঙ্গলের শ্রেষ্ঠ কবি", "note": "চণ্ডীমঙ্গলের শ্রেষ্ঠ কবি মুকুন্দরাম চক্রবর্তী ও ভারতচন্দ্র রায়; মনসামঙ্গলের শ্রেষ্ঠ কবি বিজয়গুপ্ত ও বংশীদাস — এই দুই জোড়া প্রায়ই পরীক্ষায় গুলিয়ে ফেলা হয়।", "chapter": 6, "id": "tr002"}, {"title": "চণ্ডীদাস-সমস্যা", "note": "তিনজন চণ্ডীদাস: বড়ু চণ্ডীদাস (শ্রীকৃষ্ণকীর্তন, প্রথম মহাকবি), দ্বিজ চণ্ডীদাস (বীরভূমের নানুর গ্রাম, বাশুলীদেবীর ভক্ত), দীন চণ্ডীদাস। বৈষ্ণব পদাবলির 'চার মহাকবি' তালিকায় সাধারণত দ্বিজ চণ্ডীদাসকে বোঝানো হয়।", "chapter": 13, "id": "tr003"}, {"title": "কৃত্তিবাস বনাম কাশীরাম দাস", "note": "কৃত্তিবাস রামায়ণে প্রথম ও শ্রেষ্ঠ অনুবাদক উভয়ই; কাশীরাম দাস মহাভারতে শ্রেষ্ঠ অনুবাদক হলেও প্রথম নন (প্রথম শ্রীকর নন্দী)।", "chapter": 15, "id": "tr004"}, {"title": "প্রথম উপন্যাস বনাম প্রথম সার্থক ঔপন্যাসিক", "note": "আলালের ঘরের দুলাল (প্যারীচাঁদ মিত্র, ১৮৫৮) 'প্রথম উপন্যাস' হলেও, 'প্রথম সার্থক/যথার্থ ঔপন্যাসিক' মর্যাদা পান বঙ্কিমচন্দ্র চট্টোপাধ্যায় (দুর্গেশনন্দিনী, ১৮৬৫)।", "chapter": 24, "id": "tr005"}, {"title": "প্রথম মঞ্চস্থ নাটক বনাম প্রথম মৌলিক নাটক", "note": "গেরাসিম লেবেদেফ ১৭৯৫ সালে প্রথম নাটক মঞ্চস্থ করেন (অনূদিত প্রহসন)। কিন্তু প্রথম বাঙলা মৌলিক নাটক ভদ্রার্জুন (তারাচরণ শিকদার, ১৮৫২)।", "chapter": 25, "id": "tr006"}, {"title": "'বাঙলা গদ্যের জনক' বনাম গদ্যের প্রাথমিক পথিকৃৎ", "note": "রামমোহন রায় ও ফোর্ট উইলিয়ম কলেজের লেখকেরা (রামরাম বসু, মৃত্যুঞ্জয় বিদ্যালঙ্কার) গদ্যের প্রাথমিক পথিকৃৎ, কিন্তু 'বাঙলা গদ্যের জনক' উপাধি একমাত্র ঈশ্বরচন্দ্র বিদ্যাসাগরের জন্য প্রযোজ্য (গদ্যের ছন্দ ও যতিচিহ্নের প্রবর্তক)।", "chapter": 22, "id": "tr007"}, {"title": "পাঁচ আধুনিক কবি বনাম নজরুল ও রবীন্দ্রনাথ", "note": "বিশ শতকের 'পাঁচ প্রধান আধুনিক কবি' হলেন জীবনানন্দ দাশ, সুধীন্দ্রনাথ দত্ত, বিষ্ণু দে, অমিয় চক্রবর্তী, বুদ্ধদেব বসু। কাজী নজরুল ইসলাম ('বিদ্রোহী কবি') ও রবীন্দ্রনাথ এই সুনির্দিষ্ট তালিকার অংশ নন, যদিও তাঁরাও বিশ শতকের প্রধান কবি।", "chapter": 27, "id": "tr008"}, {"title": "বিদ্যাপতির ভাষা বনাম তাঁর পরিচয়", "note": "বিদ্যাপতি মিথিলার (আজকের বিহার) কবি, লিখতেন ব্রজবুলি ভাষায় — একটিও কবিতা বাঙলায় লেখেননি। তবু বাঙলা সাহিত্যের ইতিহাসে তাঁকে 'বাঙলা কবিতার কবি' গণ্য করা হয়, কারণ তাঁর কবিতা বাঙালিদের দ্বারা ব্যাপকভাবে গৃহীত ও অনুসৃত হয়েছে।", "chapter": 12, "id": "tr009"}, {"title": "রবীন্দ্রনাথের 'প্রথম লেখা' বনাম 'প্রথম প্রকাশিত' বই", "note": "রবীন্দ্রনাথের প্রথম রচিত (যদিও পরে প্রকাশিত) কাব্যগ্রন্থ বনফুল, কিন্তু সর্বপ্রথম মুদ্রিত/প্রকাশিত গ্রন্থ কবিকাহিনী (১৮৭৮)।", "chapter": 26, "id": "tr010"}]};
+</script>
+<script id="app-script">
+(function(){
+"use strict";
+var C = window.CONTENT;
+
+/* ============ STORAGE / STATE ============ */
+var STORE_KEY = "lndp_state_v2";
+function todayStr(d){ d=d||new Date(); return d.toISOString().slice(0,10); }
+function defaultState(){
+  return {
+    version:2,
+    chapterProgress:{},         // chId -> {read:true, readAt, percentDone}
+    cardSRS:{},                 // cardId -> {ease, interval(days), due(dateStr), reps, lapses, mastery(0-100)}
+    quizHistory:[],             // {id,date,mode,chapterId,score,total,timeSec,answers:[{qid,correct}]}
+    mistakes:{},                // qid -> {count, lastWrongDate, mastered:false, chapterId}
+    bookmarks:{},               // key("type:id") -> true
+    notes:{},                   // key -> text
+    settings:{theme:"light", fontScale:1, lineHeight:1.85, contentWidth:720, focusMode:false},
+    studyTime:0,                // seconds total
+    streak:{current:0, longest:0, lastDate:null, days:{}}, // days: dateStr-> seconds studied
+    lastPosition:{view:"dashboard", chapterId:1},
+    recallLog:{},               // cardId -> {knew,partial,forgot counts}
+    xp:0,
+    createdAt: todayStr(),
+  };
+}
+var state = null;
+function loadState(){
+  try{
+    var raw = localStorage.getItem(STORE_KEY);
+    if(!raw){ state = defaultState(); saveState(); return; }
+    var parsed = JSON.parse(raw);
+    // shallow-merge defaults for any missing keys (future-proofing)
+    var def = defaultState();
+    for(var k in def){ if(!(k in parsed)) parsed[k]=def[k]; }
+    state = parsed;
+  }catch(e){
+    console.error("state load failed, resetting", e);
+    state = defaultState();
+  }
+}
+var saveTimer=null;
+function saveState(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(function(){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){ console.error("save failed",e); }
+  }, 150);
+}
+
+/* ============ SRS (lightweight SM-2 variant) ============ */
+function ensureCard(id){
+  if(!state.cardSRS[id]){
+    state.cardSRS[id] = {ease:2.3, interval:0, due:todayStr(), reps:0, lapses:0, mastery:0};
+  }
+  return state.cardSRS[id];
+}
+function addDays(dateStr, days){
+  var d = new Date(dateStr+"T00:00:00");
+  d.setDate(d.getDate()+Math.round(days));
+  return todayStr(d);
+}
+function gradeCard(id, grade){ // grade: 'again'|'hard'|'good'|'easy'
+  var c = ensureCard(id);
+  c.reps++;
+  if(grade==="again"){
+    c.lapses++; c.interval=0; c.ease=Math.max(1.3, c.ease-0.2);
+    c.due = todayStr(); c.mastery=Math.max(0,c.mastery-20);
+  } else {
+    if(grade==="hard"){ c.ease=Math.max(1.3,c.ease-0.15); c.interval=Math.max(1,c.interval*1.2); c.mastery=Math.min(100,c.mastery+8);}
+    else if(grade==="good"){ c.interval = c.interval<1? 1 : (c.interval<6? 6 : c.interval*c.ease); c.mastery=Math.min(100,c.mastery+18);}
+    else if(grade==="easy"){ c.ease=Math.min(3.2,c.ease+0.15); c.interval = c.interval<1? 4 : (c.interval<6? 10: c.interval*c.ease*1.3); c.mastery=Math.min(100,c.mastery+28);}
+    c.due = addDays(todayStr(), c.interval);
+  }
+  saveState();
+}
+function cardBucket(id){
+  var c = state.cardSRS[id];
+  if(!c || c.reps===0) return "new";
+  if(c.due <= todayStr()) return "due";
+  var days = (new Date(c.due) - new Date(todayStr()))/86400000;
+  if(days<=3) return "soon";
+  if(c.mastery>=85) return "mastered";
+  return "later";
+}
+
+/* ============ STUDY TIME / STREAK TRACKING ============ */
+var sessionStart = Date.now();
+function tickStudyTime(sec){
+  state.studyTime += sec;
+  var t = todayStr();
+  state.streak.days[t] = (state.streak.days[t]||0) + sec;
+  updateStreak();
+  saveState();
+}
+function updateStreak(){
+  var t = todayStr();
+  var y = addDays(t,-1);
+  if(state.streak.lastDate===t) { /* already counted today */ }
+  else if(state.streak.lastDate===y){ state.streak.current++; state.streak.lastDate=t; }
+  else if(state.streak.lastDate===null){ state.streak.current=1; state.streak.lastDate=t; }
+  else { state.streak.current=1; state.streak.lastDate=t; }
+  if(state.streak.current > state.streak.longest) state.streak.longest = state.streak.current;
+}
+setInterval(function(){ tickStudyTime(20); }, 20000);
+
+/* ============ MISTAKES ============ */
+function recordAnswer(qid, correct, chapterId){
+  if(!correct){
+    if(!state.mistakes[qid]) state.mistakes[qid] = {count:0, mastered:false, chapterId:chapterId};
+    state.mistakes[qid].count++;
+    state.mistakes[qid].lastWrongDate = todayStr();
+    state.mistakes[qid].mastered=false;
+  } else if(state.mistakes[qid]){
+    // correct answer on a previously-mistaken question -> track toward mastery
+    state.mistakes[qid].correctStreak = (state.mistakes[qid].correctStreak||0)+1;
+    if(state.mistakes[qid].correctStreak>=2) state.mistakes[qid].mastered = true;
+  }
+  saveState();
+}
+
+/* ============ BOOKMARKS / NOTES ============ */
+function bmKey(type,id){ return type+":"+id; }
+function isBookmarked(type,id){ return !!state.bookmarks[bmKey(type,id)]; }
+function toggleBookmark(type,id,label){
+  var k = bmKey(type,id);
+  if(state.bookmarks[k]) delete state.bookmarks[k];
+  else state.bookmarks[k] = {type:type, id:id, label:label||"", at:todayStr()};
+  saveState();
+}
+
+/* ============ UTIL ============ */
+function $(sel,root){ return (root||document).querySelector(sel); }
+function $all(sel,root){ return Array.prototype.slice.call((root||document).querySelectorAll(sel)); }
+function el(tag, cls, html){ var e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; }
+function shuffle(arr){ var a=arr.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t;} return a; }
+function byId(arr,id){ for(var i=0;i<arr.length;i++) if(arr[i].id===id) return arr[i]; return null; }
+function chapterById(id){ for(var i=0;i<C.chapters.length;i++) if(C.chapters[i].id===id) return C.chapters[i]; return null; }
+function escapeHtml(s){ return (s||"").replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+function toast(msg){
+  var root = $("#toastRoot");
+  root.innerHTML = "";
+  var t = el("div","toast", escapeHtml(msg));
+  root.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 2400);
+}
+function fmtPct(n){ return Math.round(n)+"%"; }
+function levelLabel(l){ return {must:"অবশ্যই মনে রাখুন", important:"গুরুত্বপূর্ণ", quick:"দ্রুত তথ্য", trap:"পরীক্ষার ফাঁদ"}[l]||l; }
+function levelPillClass(l){ return "pill pill-"+l; }
+function difficultyIcon(d){ return {easy:"🟢",medium:"🟡",hard:"🔴"}[d]||""; }
+
+/* ============ DERIVED STATS ============ */
+function allFacts(){
+  var out=[];
+  C.chapters.forEach(function(ch){ ch.facts.forEach(function(f,idx){ out.push({chapterId:ch.id, chapterTitle:ch.title, level:f.level, text:f.text, key:"f:"+ch.id+":"+idx}); }); });
+  return out;
+}
+function chapterCompletion(){
+  var total = C.chapters.length;
+  var done=0; C.chapters.forEach(function(ch){ if(state.chapterProgress[ch.id] && state.chapterProgress[ch.id].read) done++; });
+  return {done:done, total:total, pct: total? (done/total*100):0};
+}
+function quizStats(){
+  var totalQ=0, correctQ=0;
+  state.quizHistory.forEach(function(h){ totalQ+=h.total; correctQ+=h.score; });
+  return {attempted:totalQ, correct:correctQ, accuracy: totalQ? (correctQ/totalQ*100):0};
+}
+function chapterAccuracy(chId){
+  var t=0,c=0;
+  state.quizHistory.forEach(function(h){
+    if(h.chapterId===chId || h.mode==="mixed" || h.mode==="mock"){
+      (h.answers||[]).forEach(function(a){
+        if(a.chapterId===chId){ t++; if(a.correct) c++; }
+      });
+    }
+  });
+  return t? {t:t,c:c,pct:c/t*100} : {t:0,c:0,pct:null};
+}
+function masteryLabel(pct){
+  if(pct==null) return {label:"অধ্যয়ন হয়নি", cls:"muted"};
+  if(pct<40) return {label:"দুর্বল", cls:"", color:"var(--red)"};
+  if(pct<70) return {label:"বিকাশমান", cls:"", color:"var(--amber)"};
+  if(pct<85) return {label:"ভালো", cls:"", color:"var(--nil)"};
+  if(pct<95) return {label:"শক্তিশালী", cls:"", color:"var(--green)"};
+  return {label:"আয়ত্তে এসেছে", cls:"", color:"var(--gold)"};
+}
+function dueCardsCount(){
+  var bins={red:0,orange:0,yellow:0,green:0};
+  C.flashcards.forEach(function(fc){
+    var b = cardBucket(fc.id);
+    if(b==="due") bins.red++;
+    else if(b==="soon") bins.orange++;
+    else if(b==="new"||b==="later") bins.yellow++;
+    else if(b==="mastered") bins.green++;
+  });
+  return bins;
+}
+function weakChapters(n){
+  var list = C.chapters.map(function(ch){
+    var a = chapterAccuracy(ch.id);
+    return {chapter:ch, acc:a.pct, attempted:a.t};
+  }).filter(function(x){ return x.attempted>0; });
+  list.sort(function(a,b){ return a.acc-b.acc; });
+  return list.slice(0, n||3);
+}
+function mistakeList(){
+  var out=[];
+  for(var qid in state.mistakes){
+    if(!state.mistakes[qid].mastered){
+      var q = byId(C.questions, qid);
+      if(q) out.push({q:q, meta:state.mistakes[qid]});
+    }
+  }
+  return out;
+}
+
+window.__LNDP = {state:state, C:C}; // debug hook, populated after load
+
+/* ============ ROUTER / NAV ============ */
+var ROUTES = [
+  {id:"dashboard", label:"ড্যাশবোর্ড", icon:"🏠"},
+  {id:"read", label:"পড়ুন", icon:"📖"},
+  {id:"learn", label:"জ্ঞান কার্ড", icon:"🗂️"},
+  {id:"recall", label:"রিকল", icon:"🧠"},
+  {id:"quiz", label:"কুইজ", icon:"📝"},
+  {id:"revision", label:"রিভিশন", icon:"🔁"},
+  {id:"mistakes", label:"ভুল খাতা", icon:"❌"},
+  {id:"mock", label:"মক পরীক্ষা", icon:"⏱️"},
+  {id:"analytics", label:"বিশ্লেষণ", icon:"📊"},
+];
+var SECONDARY_ROUTES = [
+  {id:"traps", label:"পরীক্ষার ফাঁদ", icon:"⚠️"},
+  {id:"timeline", label:"টাইমলাইন", icon:"📅"},
+  {id:"cram", label:"এক্সাম ক্র্যাম", icon:"🔥"},
+  {id:"bookmarks", label:"বুকমার্ক", icon:"🔖"},
+  {id:"search", label:"খুঁজুন", icon:"🔍"},
+  {id:"readiness", label:"আমি কি প্রস্তুত?", icon:"🎯"},
+  {id:"settings", label:"সেটিংস", icon:"⚙️"},
+];
+var currentView = "dashboard";
+var currentParams = {};
+
+function navigate(view, params){
+  currentView = view; currentParams = params||{};
+  state.lastPosition.view = view;
+  if(params && params.chapterId) state.lastPosition.chapterId = params.chapterId;
+  saveState();
+  renderShellActive();
+  renderView();
+  window.scrollTo(0,0);
+}
+
+function renderShellActive(){
+  $all("#sidenav [data-nav]").forEach(function(b){ b.classList.toggle("active", b.getAttribute("data-nav")===currentView); });
+  $all("#bottomnav [data-nav]").forEach(function(b){ b.classList.toggle("active", b.getAttribute("data-nav")===currentView); });
+  var r = ROUTES.concat(SECONDARY_ROUTES).find(function(r){ return r.id===currentView; });
+  $("#topbarTitle").textContent = r? r.label : "";
+}
+
+function buildSideNav(){
+  var nav = $("#sidenav");
+  nav.innerHTML = "";
+  var brand = el("div","brand","<div class='brand-flame'>🪔</div><div><div class='brand-title'>লাল নীল দীপাবলি</div><div class='brand-sub'>পরীক্ষা প্রস্তুতি অ্যাপ</div></div>");
+  nav.appendChild(brand);
+  var list = el("ul","navlist");
+  ROUTES.forEach(function(r){
+    var li = el("li");
+    var b = el("button", null, "<span class='navicon'>"+r.icon+"</span><span>"+r.label+"</span>");
+    b.setAttribute("data-nav", r.id);
+    b.onclick = function(){ navigate(r.id); };
+    li.appendChild(b); list.appendChild(li);
+  });
+  nav.appendChild(list);
+  nav.appendChild(el("div","nav-section-label","আরও টুলস"));
+  var list2 = el("ul","navlist");
+  SECONDARY_ROUTES.forEach(function(r){
+    var li = el("li");
+    var b = el("button", null, "<span class='navicon'>"+r.icon+"</span><span>"+r.label+"</span>");
+    b.setAttribute("data-nav", r.id);
+    b.onclick = function(){ navigate(r.id); };
+    li.appendChild(b); list2.appendChild(li);
+  });
+  nav.appendChild(list2);
+}
+function buildBottomNav(){
+  var nav = $("#bottomnav");
+  nav.innerHTML="";
+  var items = [ROUTES[0],ROUTES[1],ROUTES[4],ROUTES[5],{id:"more",label:"আরও",icon:"⋯"}];
+  items.forEach(function(r){
+    var b = el("button", null, "<span class='navicon'>"+r.icon+"</span><span>"+r.label+"</span>");
+    b.setAttribute("data-nav", r.id);
+    b.onclick = function(){ if(r.id==="more") openMoreMenu(); else navigate(r.id); };
+    nav.appendChild(b);
+  });
+}
+function openMoreMenu(){
+  var body = "<h3 class='mb-14'>আরও</h3><div class='grid grid-2'>";
+  ROUTES.concat(SECONDARY_ROUTES).forEach(function(r){
+    body += "<button class='btn' data-go='"+r.id+"'>"+r.icon+" "+r.label+"</button>";
+  });
+  body += "</div>";
+  openModal(body);
+  $all("[data-go]").forEach(function(b){ b.onclick=function(){ closeModal(); navigate(b.getAttribute("data-go")); }; });
+}
+
+/* ============ MODAL / TOAST ============ */
+function openModal(html){
+  var root = $("#modalRoot");
+  root.innerHTML = "";
+  var overlay = el("div","modal-overlay");
+  var modal = el("div","modal", html);
+  overlay.appendChild(modal);
+  overlay.onclick=function(e){ if(e.target===overlay) closeModal(); };
+  root.appendChild(overlay);
+}
+function closeModal(){ $("#modalRoot").innerHTML=""; }
+
+/* ============ TOPBAR ACTIONS ============ */
+function renderTopbarActions(){
+  var wrap = $("#topbarActions");
+  wrap.innerHTML="";
+  var searchBtn = el("button","iconbtn","🔍"); searchBtn.onclick=function(){ navigate("search"); };
+  var themeBtn = el("button","iconbtn", state.settings.theme==="dark" ? "☀️":"🌙");
+  themeBtn.onclick=toggleTheme;
+  var settingsBtn = el("button","iconbtn","⚙️"); settingsBtn.onclick=function(){ navigate("settings"); };
+  wrap.appendChild(searchBtn); wrap.appendChild(themeBtn); wrap.appendChild(settingsBtn);
+}
+function toggleTheme(){
+  state.settings.theme = state.settings.theme==="dark" ? "light":"dark";
+  applyTheme(); saveState(); renderTopbarActions();
+}
+function applyTheme(){
+  document.body.setAttribute("data-theme", state.settings.theme);
+  document.documentElement.style.setProperty("--font-scale", state.settings.fontScale);
+  document.documentElement.style.setProperty("--line-height", state.settings.lineHeight);
+  document.documentElement.style.setProperty("--content-width", state.settings.contentWidth+"px");
+}
+
+/* ============ VIEW DISPATCH ============ */
+function renderView(){
+  var root = $("#viewRoot");
+  root.innerHTML = "";
+  renderTopbarActions();
+  var fn = VIEW_RENDERERS[currentView];
+  if(fn) fn(root); else root.appendChild(el("div","empty-state","পাওয়া যায়নি"));
+}
+var VIEW_RENDERERS = {};
+
+/* ============ DASHBOARD ============ */
+VIEW_RENDERERS.dashboard = function(root){
+  var comp = chapterCompletion();
+  var qs = quizStats();
+  var due = dueCardsCount();
+  var streak = state.streak.current;
+  var weak = weakChapters(1)[0];
+  var mistakesN = mistakeList().length;
+
+  var html = "";
+
+  // Today's priority
+  html += "<div class='card' style='border-left:4px solid var(--lal);'>";
+  html += "<h3>🎯 আজকের অগ্রাধিকার</h3>";
+  var plan = buildTodayPlan();
+  html += "<ol style='margin:6px 0 0 18px; padding:0; font-size:14.5px; line-height:2;'>";
+  plan.forEach(function(p){ html += "<li>"+p.text+" <button class='btn btn-sm btn-nil' style='margin-left:6px' data-go='"+p.go+"' data-goparam='"+(p.param||"")+"'>শুরু করুন</button></li>"; });
+  html += "</ol></div>";
+
+  // stat cards
+  html += "<div class='grid grid-4 mt-20'>";
+  html += statCard("অধ্যায় সম্পন্ন", comp.done+"/"+comp.total, fmtPct(comp.pct)+" সম্পন্ন");
+  html += statCard("সঠিক উত্তরের হার", qs.attempted? fmtPct(qs.accuracy):"—", qs.attempted+"টি প্রশ্নের উত্তর দেওয়া হয়েছে");
+  html += statCard("স্ট্রিক", streak+" দিন", "সর্বোচ্চ "+state.streak.longest+" দিন");
+  html += statCard("আজ রিভিশন বাকি", due.red+due.orange, due.red+" জরুরি, "+due.orange+" শীঘ্রই");
+  html += "</div>";
+
+  // progress ring + weak/strong
+  html += "<div class='grid grid-3 mt-14'>";
+  html += "<div class='card center'><h3>সামগ্রিক অগ্রগতি</h3>"+progressRing(comp.pct)+"<div class='small muted mt-8'>"+comp.done+"টি অধ্যায় পড়া হয়েছে "+comp.total+"টির মধ্যে</div></div>";
+  html += "<div class='card'><h3>দুর্বল ক্ষেত্র</h3>"+(weak? ("<div style='font-weight:600;font-size:15px'>"+escapeHtml(weak.chapter.title)+"</div><div class='small muted mt-8'>নির্ভুলতা "+fmtPct(weak.acc)+"</div><button class='btn btn-sm btn-primary mt-14' data-go='quiz' data-goparam='"+weak.chapter.id+"'>এই অধ্যায় অনুশীলন করুন</button>") : "<div class='muted small'>এখনো পর্যাপ্ত কুইজ ডেটা নেই</div>")+"</div>";
+  html += "<div class='card'><h3>ভুল খাতা</h3><div class='stat-num'>"+mistakesN+"</div><div class='small muted mb-8'>সংশোধনযোগ্য ভুল প্রশ্ন</div>"+(mistakesN? "<button class='btn btn-sm btn-primary' data-go='mistakes'>ভুলগুলো অনুশীলন করুন</button>":"<div class='small muted'>এখনো কোনো ভুল রেকর্ড হয়নি — চমৎকার!</div>")+"</div>";
+  html += "</div>";
+
+  // revision queue
+  html += "<div class='card mt-14'><h3>রিভিশন সারি</h3><div class='grid grid-4'>";
+  html += revBox("🔴","এখনই জরুরি",due.red,"var(--red)");
+  html += revBox("🟠","আজকের মধ্যে",due.orange,"var(--amber)");
+  html += revBox("🟡","শীঘ্রই আসছে",due.yellow,"var(--gold)");
+  html += revBox("🟢","আয়ত্তে এসেছে",due.green,"var(--green)");
+  html += "</div><button class='btn btn-primary mt-14' data-go='revision'>রিভিশন শুরু করুন</button></div>";
+
+  // continue studying
+  var lastCh = chapterById(state.lastPosition.chapterId) || C.chapters[0];
+  html += "<div class='card mt-14'><h3>▶️ পড়া চালিয়ে যান</h3>";
+  html += "<div style='font-weight:600;font-size:15px'>অধ্যায় "+lastCh.id+": "+escapeHtml(lastCh.title)+"</div>";
+  html += "<button class='btn btn-primary mt-14' data-go='read' data-goparam='"+lastCh.id+"'>পড়া শুরু/চালিয়ে যান</button></div>";
+
+  root.innerHTML = html;
+  wireGoButtons(root);
+};
+
+function statCard(label, num, sub){
+  return "<div class='card'><h3>"+label+"</h3><div class='stat-num'>"+num+"</div><div class='stat-sub'>"+sub+"</div></div>";
+}
+function revBox(icon,label,n,color){
+  return "<div class='center'><div style='font-size:22px'>"+icon+"</div><div class='stat-num' style='color:"+color+";font-size:22px'>"+n+"</div><div class='small muted'>"+label+"</div></div>";
+}
+function progressRing(pct){
+  var r=50, c=2*Math.PI*r;
+  var off = c*(1-pct/100);
+  return "<div class='ring-wrap'><svg width='120' height='120' viewBox='0 0 120 120'>"+
+    "<circle cx='60' cy='60' r='"+r+"' fill='none' stroke='var(--paper-2)' stroke-width='10'/>"+
+    "<circle cx='60' cy='60' r='"+r+"' fill='none' stroke='var(--lal)' stroke-width='10' stroke-linecap='round' "+
+    "stroke-dasharray='"+c+"' stroke-dashoffset='"+off+"' transform='rotate(-90 60 60)'/></svg>"+
+    "<div class='ring-label'><div class='ring-num'>"+Math.round(pct)+"%</div><div class='ring-cap'>সম্পন্ন</div></div></div>";
+}
+function wireGoButtons(root){
+  $all("[data-go]",root).forEach(function(b){
+    b.onclick=function(){
+      var go=b.getAttribute("data-go"); var param=b.getAttribute("data-goparam");
+      if(go==="read") navigate("read",{chapterId: param?parseInt(param):undefined});
+      else if(go==="quiz") navigate("quiz",{chapterId: param?parseInt(param):undefined});
+      else navigate(go);
+    };
+  });
+}
+function buildTodayPlan(){
+  var plan=[];
+  var due = dueCardsCount();
+  if(due.red>0) plan.push({text:due.red+"টি জরুরি রিভিশন কার্ড সম্পূর্ণ করুন", go:"revision"});
+  var mistakesN = mistakeList().length;
+  if(mistakesN>0) plan.push({text: mistakesN+"টি ভুল প্রশ্ন পুনরায় অনুশীলন করুন", go:"mistakes"});
+  var comp = chapterCompletion();
+  if(comp.done<comp.total){
+    var next=null;
+    for(var i=0;i<C.chapters.length;i++){ if(!state.chapterProgress[C.chapters[i].id] || !state.chapterProgress[C.chapters[i].id].read){ next=C.chapters[i]; break; } }
+    if(next) plan.push({text:"অধ্যায় "+next.id+" ('"+next.title+"') পড়া শুরু/সম্পন্ন করুন", go:"read", param:next.id});
+  }
+  plan.push({text:"১০টি প্রশ্নের একটি মিশ্র কুইজ সম্পূর্ণ করুন", go:"quiz"});
+  if(plan.length===0) plan.push({text:"একটি মক পরীক্ষা দিয়ে নিজেকে যাচাই করুন", go:"mock"});
+  return plan.slice(0,4);
+}
+
+/* ============ READER ============ */
+VIEW_RENDERERS.read = function(root, params){
+  params = params || currentParams;
+  var chId = params.chapterId || state.lastPosition.chapterId || 1;
+  var ch = chapterById(chId) || C.chapters[0];
+  state.lastPosition.chapterId = ch.id; saveState();
+
+  var wrap = el("div","reader-layout");
+
+  // sidebar
+  var side = el("div","chapter-sidebar");
+  var search = el("input","search-mini"); search.placeholder="অধ্যায় খুঁজুন...";
+  side.appendChild(search);
+  var list = el("ul","chlist");
+  function renderList(filter){
+    list.innerHTML="";
+    C.chapters.filter(function(c){ return !filter || c.title.toLowerCase().indexOf(filter.toLowerCase())>-1 || (""+c.id)===filter; })
+    .forEach(function(c){
+      var li = el("li");
+      var done = state.chapterProgress[c.id] && state.chapterProgress[c.id].read;
+      var b = el("button", null, "<span class='chnum "+(done?"chdone":"")+"'>"+(done?"✓":c.id)+"</span><span>"+escapeHtml(c.title)+"</span>");
+      if(c.id===ch.id) b.classList.add("active");
+      b.onclick=function(){ navigate("read",{chapterId:c.id}); };
+      li.appendChild(b); list.appendChild(li);
+    });
+  }
+  renderList("");
+  search.oninput=function(){ renderList(search.value); };
+  side.appendChild(list);
+  wrap.appendChild(side);
+
+  // content
+  var content = el("div","reader-content");
+  var idx = C.chapters.findIndex(function(c){return c.id===ch.id;});
+  var prev = C.chapters[idx-1], next = C.chapters[idx+1];
+
+  var toolbar = "<div class='reader-toolbar'>"+
+    "<button class='btn btn-sm' id='fontDec'>A-</button><button class='btn btn-sm' id='fontInc'>A+</button>"+
+    "<button class='btn btn-sm' id='bmChapter'>"+(isBookmarked("chapter",ch.id)?"🔖 বুকমার্ক করা হয়েছে":"🔖 বুকমার্ক")+"</button>"+
+    "<button class='btn btn-sm' id='noteBtn'>📝 নোট</button>"+
+    "<button class='btn btn-sm' id='focusBtn'>🎯 ফোকাস মোড</button>"+
+    "</div>";
+
+  var done = state.chapterProgress[ch.id] && state.chapterProgress[ch.id].read;
+  var factsHtml = "<div class='facts-block'><h3 style='font-size:16px;margin-bottom:10px;'>মূল তথ্যসমূহ</h3>";
+  ch.facts.forEach(function(f,i){
+    factsHtml += "<div class='fact-item'><span class='"+levelPillClass(f.level)+"' style='flex-shrink:0;margin-top:2px;'>"+levelLabel(f.level)+"</span><span class='fact-text'>"+escapeHtml(f.text)+"</span></div>";
+  });
+  factsHtml += "</div>";
+
+  var paras = ch.reading.trim().split(/\n\s*\n/).map(function(p){ return "<p>"+escapeHtml(p.trim())+"</p>"; }).join("");
+
+  content.innerHTML =
+    toolbar +
+    "<div class='chtitle'>অধ্যায় "+ch.id+": "+escapeHtml(ch.title)+"</div>"+
+    "<div class='chmeta'>মূল বইয়ের পৃষ্ঠা "+escapeHtml(ch.page)+" · লাল নীল দীপাবলি, হুমায়ুন আজাদ</div>"+
+    "<div class='reading-text'>"+paras+"</div>"+
+    factsHtml+
+    "<div class='flex-between mt-26'>"+
+      (prev? "<button class='btn' id='prevCh'>← "+escapeHtml(prev.title)+"</button>" : "<span></span>")+
+      (next? "<button class='btn' id='nextCh'>"+escapeHtml(next.title)+" →</button>" : "<span></span>")+
+    "</div>"+
+    "<div class='mt-20 center'>"+
+      "<button class='btn "+(done?"":"btn-primary")+"' id='completeBtn'>"+(done? "✓ অধ্যায় সম্পন্ন হয়েছে":"অধ্যায় সম্পন্ন হিসেবে চিহ্নিত করুন")+"</button>"+
+    "</div>";
+
+  wrap.appendChild(content);
+  root.appendChild(wrap);
+
+  $("#completeBtn",content).onclick=function(){
+    if(!state.chapterProgress[ch.id]) state.chapterProgress[ch.id]={};
+    state.chapterProgress[ch.id].read = !done;
+    state.chapterProgress[ch.id].readAt = todayStr();
+    saveState(); toast(done? "অসম্পন্ন হিসেবে চিহ্নিত হলো":"অধ্যায় সম্পন্ন! 🎉");
+    navigate("read",{chapterId:ch.id});
+  };
+  if(prev) $("#prevCh",content).onclick=function(){ navigate("read",{chapterId:prev.id}); };
+  if(next) $("#nextCh",content).onclick=function(){ navigate("read",{chapterId:next.id}); };
+  $("#bmChapter",content).onclick=function(){ toggleBookmark("chapter",ch.id,ch.title); navigate("read",{chapterId:ch.id}); };
+  $("#fontDec",content).onclick=function(){ state.settings.fontScale=Math.max(0.85,state.settings.fontScale-0.1); applyTheme(); saveState(); };
+  $("#fontInc",content).onclick=function(){ state.settings.fontScale=Math.min(1.5,state.settings.fontScale+0.1); applyTheme(); saveState(); };
+  $("#focusBtn",content).onclick=function(){ document.body.classList.toggle("focus-mode"); side.style.display = side.style.display==="none"?"":"none"; };
+  $("#noteBtn",content).onclick=function(){ openNoteEditor("chapter:"+ch.id, "অধ্যায় "+ch.id+" সম্পর্কে নোট"); };
+};
+
+function openNoteEditor(key, title){
+  var val = state.notes[key] || "";
+  var html = "<h3>"+escapeHtml(title)+"</h3><textarea id='noteTa' style='width:100%;min-height:140px;'>"+escapeHtml(val)+"</textarea>"+
+    "<div class='flex gap-8 mt-14'><button class='btn btn-primary' id='saveNote'>সংরক্ষণ করুন</button><button class='btn' id='cancelNote'>বাতিল</button></div>";
+  openModal(html);
+  $("#saveNote").onclick=function(){ state.notes[key]=$("#noteTa").value; saveState(); closeModal(); toast("নোট সংরক্ষিত হয়েছে"); };
+  $("#cancelNote").onclick=closeModal;
+}
+
+/* ============ LEARN (FLASHCARDS) ============ */
+var learnQueue = []; var learnIdx = 0; var learnFlipped=false;
+VIEW_RENDERERS.learn = function(root, params){
+  params = params || currentParams;
+  var chId = params.chapterId;
+  var pool = chId? C.flashcards.filter(function(f){return f.chapter===chId;}) : C.flashcards;
+  if(!learnQueue.length || params.reset){
+    // prioritize due/new cards
+    learnQueue = shuffle(pool).sort(function(a,b){
+      var order={due:0,new:1,later:2,soon:3,mastered:4};
+      return order[cardBucket(a.id)]-order[cardBucket(b.id)];
+    });
+    learnIdx=0;
+  }
+  renderLearnCard(root);
+};
+function renderLearnCard(root){
+  root.innerHTML="";
+  if(!learnQueue.length){ root.appendChild(el("div","empty-state","<div class='emoji'>🗂️</div>কোনো ফ্ল্যাশকার্ড পাওয়া যায়নি।")); return; }
+  if(learnIdx>=learnQueue.length){
+    root.innerHTML = "<div class='empty-state'><div class='emoji'>🎉</div><h3>সব কার্ড শেষ!</h3><p class='muted'>আপনি এই সেশনে "+learnQueue.length+"টি কার্ড পর্যালোচনা করেছেন।</p><button class='btn btn-primary' id='again'>আবার শুরু করুন</button></div>";
+    $("#again").onclick=function(){ navigate("learn",{reset:true}); };
+    return;
+  }
+  var fc = learnQueue[learnIdx];
+  var ch = chapterById(fc.chapter);
+  var html = "<div class='flex-between mb-14'><div class='small muted'>কার্ড "+(learnIdx+1)+" / "+learnQueue.length+" · "+escapeHtml(ch?ch.title:"")+"</div>"+
+    "<button class='btn btn-sm' id='bmCard'>"+(isBookmarked("flashcard",fc.id)?"🔖":"🔖 বুকমার্ক")+"</button></div>";
+  html += "<div class='progress-track mb-14'><div class='progress-fill' style='width:"+(learnIdx/learnQueue.length*100)+"%'></div></div>";
+  html += "<div class='flip-card-wrap'><div class='flip-card' id='flipCard'>"+
+    "<div class='flip-face front'><div class='flip-front-text'>"+escapeHtml(fc.front)+"</div><div class='flip-hint'>উত্তর দেখতে ক্লিক করুন</div></div>"+
+    "</div></div>";
+  html += "<div id='srsArea'></div>";
+  root.innerHTML = html;
+  learnFlipped=false;
+  $("#flipCard").onclick=function(){ flipLearnCard(root, fc); };
+  $("#bmCard").onclick=function(){ toggleBookmark("flashcard",fc.id,fc.front); renderLearnCard(root); };
+}
+function flipLearnCard(root, fc){
+  if(learnFlipped) return;
+  learnFlipped=true;
+  var card = $("#flipCard");
+  card.innerHTML = "<div class='flip-face back'><div><div class='flip-back-text'>"+escapeHtml(fc.back)+"</div></div></div>";
+  var srsHtml = "<div class='srs-btns'>"+
+    "<button class='srs-btn srs-again' data-g='again'>আবার<br><span class='small'>ভুলে গেছি</span></button>"+
+    "<button class='srs-btn srs-hard' data-g='hard'>কঠিন</button>"+
+    "<button class='srs-btn srs-good' data-g='good'>ভালো</button>"+
+    "<button class='srs-btn srs-easy' data-g='easy'>সহজ</button>"+
+    "</div>";
+  $("#srsArea").innerHTML = srsHtml;
+  $all("[data-g]").forEach(function(b){
+    b.onclick=function(){
+      gradeCard(fc.id, b.getAttribute("data-g"));
+      learnIdx++;
+      renderLearnCard(root);
+    };
+  });
+}
+
+/* ============ RECALL MODE ============ */
+var recallQueue=[]; var recallIdx=0; var recallRevealed=false;
+VIEW_RENDERERS.recall = function(root, params){
+  params = params || currentParams;
+  var chId = params.chapterId;
+  var pool = chId? C.flashcards.filter(function(f){return f.chapter===chId;}) : C.flashcards;
+  if(!recallQueue.length || params.reset){ recallQueue = shuffle(pool); recallIdx=0; }
+  renderRecall(root);
+};
+function renderRecall(root){
+  root.innerHTML="";
+  if(!recallQueue.length){ root.appendChild(el("div","empty-state","কোনো কার্ড নেই")); return; }
+  if(recallIdx>=recallQueue.length){
+    root.innerHTML="<div class='empty-state'><div class='emoji'>🧠</div><h3>রিকল সেশন সম্পন্ন!</h3><button class='btn btn-primary' id='again'>আবার শুরু করুন</button></div>";
+    $("#again").onclick=function(){ navigate("recall",{reset:true}); };
+    return;
+  }
+  var fc = recallQueue[recallIdx];
+  recallRevealed=false;
+  var prompt = fc.front.replace(/[^?]*$/, function(m){return m;});
+  var html = "<div class='small muted mb-14'>রিকল "+(recallIdx+1)+" / "+recallQueue.length+"</div>";
+  html += "<div class='card center' style='padding:40px 24px;'><div style='font-size:20px;font-weight:600;line-height:1.6;'>"+escapeHtml(fc.front)+"</div>";
+  html += "<div class='small muted mt-14'>উত্তরটি মনে করার চেষ্টা করুন, তারপর প্রকাশ করুন</div>";
+  html += "<button class='btn btn-primary mt-20' id='revealBtn'>উত্তর প্রকাশ করুন</button>";
+  html += "<div id='answerArea' class='mt-20'></div></div>";
+  root.innerHTML = html;
+  $("#revealBtn").onclick=function(){
+    recallRevealed=true;
+    $("#answerArea").innerHTML = "<div class='explain-box' style='text-align:left'>"+escapeHtml(fc.back)+"</div>"+
+      "<div class='flex gap-8 mt-14' style='justify-content:center'>"+
+      "<button class='btn srs-easy' data-r='knew'>✅ জানতাম</button>"+
+      "<button class='btn srs-hard' data-r='partial'>➗ আংশিক জানতাম</button>"+
+      "<button class='btn srs-again' data-r='forgot'>❌ ভুলে গিয়েছিলাম</button></div>";
+    $("#revealBtn").style.display="none";
+    $all("[data-r]").forEach(function(b){
+      b.onclick=function(){
+        var r=b.getAttribute("data-r");
+        if(!state.recallLog[fc.id]) state.recallLog[fc.id]={knew:0,partial:0,forgot:0};
+        state.recallLog[fc.id][r]++;
+        gradeCard(fc.id, r==="knew"?"good":(r==="partial"?"hard":"again"));
+        recallIdx++; renderRecall(root);
+      };
+    });
+  };
+}
+
+/* ============ QUIZ ENGINE ============ */
+var quizState = null; // {questions, idx, answers:[], mode, chapterId, startTime}
+function startQuiz(opts){
+  var pool;
+  if(opts.mode==="chapter") pool = C.questions.filter(function(q){return q.chapter===opts.chapterId;});
+  else if(opts.mode==="mixed") pool = C.questions.slice();
+  else if(opts.mode==="weak"){
+    var weak = weakChapters(5).map(function(w){return w.chapter.id;});
+    pool = C.questions.filter(function(q){ return weak.indexOf(q.chapter)>-1; });
+    if(pool.length<5) pool = C.questions.slice();
+  }
+  else if(opts.mode==="rapid") pool = C.questions.filter(function(q){return q.difficulty==="easy"||q.difficulty==="medium";});
+  else if(opts.mode==="revision"){
+    var dueIds = C.flashcards.filter(function(f){ return cardBucket(f.id)==="due"||cardBucket(f.id)==="soon"; }).map(function(f){return f.chapter;});
+    pool = C.questions.filter(function(q){ return dueIds.indexOf(q.chapter)>-1; });
+    if(pool.length<5) pool = C.questions.slice();
+  }
+  else if(opts.mode==="mock") pool = C.questions.slice();
+  else pool = C.questions.slice();
+
+  pool = shuffle(pool);
+  var n = opts.count || Math.min(pool.length, opts.mode==="mock"? (opts.count||25) : 10);
+  var qs = pool.slice(0,n).map(function(q){
+    var opts2 = q.options.map(function(o,i){return {text:o, origIdx:i};});
+    opts2 = shuffle(opts2);
+    return {q:q, shuffledOptions:opts2, marked:false, selected:null, answered:false};
+  });
+  quizState = {
+    id:"quiz_"+Date.now(), questions:qs, idx:0, mode:opts.mode, chapterId:opts.chapterId,
+    startTime:Date.now(), timeLimitSec: opts.timeLimitSec||null, finished:false,
+    rapid: opts.mode==="rapid"
+  };
+}
+
+VIEW_RENDERERS.quiz = function(root, params){
+  params = params || currentParams;
+  if(!quizState || quizState.finished){
+    renderQuizSetup(root, params);
+  } else {
+    renderQuizQuestion(root);
+  }
+};
+
+function renderQuizSetup(root, params){
+  var chId = params.chapterId;
+  var ch = chId? chapterById(chId) : null;
+  var html = "<div class='card'><h3>কুইজ মোড বেছে নিন</h3>";
+  html += "<div class='grid grid-3 mt-14'>";
+  var modes = [
+    {id:"chapter", label:"অধ্যায় কুইজ", desc:(ch?ch.title:"একটি অধ্যায় বেছে নিন")},
+    {id:"mixed", label:"মিশ্র কুইজ", desc:"পুরো বই থেকে"},
+    {id:"weak", label:"দুর্বল ক্ষেত্র কুইজ", desc:"আপনার দুর্বল টপিক থেকে"},
+    {id:"rapid", label:"র‍্যাপিড ফায়ার", desc:"দ্রুত সহজ-মাঝারি প্রশ্ন"},
+    {id:"revision", label:"রিভিশন কুইজ", desc:"যেসব কার্ড রিভিশন বাকি"},
+  ];
+  modes.forEach(function(m){
+    html += "<button class='card' style='text-align:left;cursor:pointer' data-mode='"+m.id+"'><div style='font-weight:700'>"+m.label+"</div><div class='small muted mt-8'>"+escapeHtml(m.desc)+"</div></button>";
+  });
+  html += "</div></div>";
+  if(!ch){
+    html += "<div class='card mt-14'><h3>অথবা একটি নির্দিষ্ট অধ্যায় বেছে নিন</h3><select id='chSelect' style='width:100%'><option value=''>— অধ্যায় নির্বাচন করুন —</option>";
+    C.chapters.forEach(function(c){ html += "<option value='"+c.id+"'>অধ্যায় "+c.id+": "+escapeHtml(c.title)+"</option>"; });
+    html += "</select></div>";
+  }
+  root.innerHTML = html;
+  $all("[data-mode]",root).forEach(function(b){
+    b.onclick=function(){
+      var mode = b.getAttribute("data-mode");
+      var selChId = ch? ch.id : (($("#chSelect")&&$("#chSelect").value)? parseInt($("#chSelect").value):null);
+      if(mode==="chapter" && !selChId){ toast("দয়া করে একটি অধ্যায় নির্বাচন করুন"); return; }
+      startQuiz({mode:mode, chapterId:selChId, count: mode==="rapid"?15:10});
+      renderView();
+    };
+  });
+}
+
+function renderQuizQuestion(root){
+  var qs = quizState;
+  var cur = qs.questions[qs.idx];
+  var q = cur.q;
+  var ch = chapterById(q.chapter);
+  var html = "<div class='quiz-progress'><div class='small muted'>প্রশ্ন "+(qs.idx+1)+" / "+qs.questions.length+"</div>"+
+    "<div class='progress-track' style='flex:1'><div class='progress-fill' style='width:"+((qs.idx)/qs.questions.length*100)+"%'></div></div>"+
+    "<span class='tag'>"+difficultyIcon(q.difficulty)+" "+q.difficulty+"</span></div>";
+  html += "<div class='small muted mb-8'>"+escapeHtml(ch?ch.title:"")+"</div>";
+  html += "<div class='quiz-q'>"+escapeHtml(q.prompt)+"</div>";
+  html += "<div class='opt-list' id='optList'>";
+  var keys=["ক","খ","গ","ঘ","ঙ","চ"];
+  cur.shuffledOptions.forEach(function(o,i){
+    html += "<button class='opt' data-i='"+i+"'><span class='optkey'>"+keys[i]+"</span><span>"+escapeHtml(o.text)+"</span></button>";
+  });
+  html += "</div><div id='explainArea'></div>";
+  html += "<div class='flex-between mt-20'><button class='btn' id='quitQuiz'>কুইজ থেকে বের হন</button><button class='btn btn-primary' id='nextQ' style='display:none'>"+(qs.idx===qs.questions.length-1?"ফলাফল দেখুন":"পরবর্তী প্রশ্ন")+"</button></div>";
+  root.innerHTML = html;
+
+  if(cur.answered){ showAnswerState(root, cur, q); }
+
+  $all("#optList .opt",root).forEach(function(b){
+    b.onclick=function(){
+      if(cur.answered) return;
+      var i = parseInt(b.getAttribute("data-i"));
+      cur.selected = i; cur.answered = true;
+      var correctOrigIdx = q.answer;
+      var chosenOrigIdx = cur.shuffledOptions[i].origIdx;
+      cur.correct = (chosenOrigIdx === correctOrigIdx);
+      recordAnswer(q.id, cur.correct, q.chapter);
+      showAnswerState(root, cur, q);
+    };
+  });
+  $("#quitQuiz").onclick=function(){ if(confirm("এই কুইজ থেকে বের হতে চান? অগ্রগতি সংরক্ষিত হবে না।")){ quizState=null; navigate("quiz"); } };
+}
+function showAnswerState(root, cur, q){
+  var keys=["ক","খ","গ","ঘ","ঙ","চ"];
+  $all("#optList .opt",root).forEach(function(b,i){
+    b.classList.add("selected");
+    var origIdx = cur.shuffledOptions[i].origIdx;
+    if(origIdx===q.answer) b.classList.add("correct");
+    else if(i===cur.selected) b.classList.add("incorrect");
+  });
+  $("#explainArea").innerHTML = "<div class='explain-box'><strong>"+(cur.correct?"✅ সঠিক!":"❌ ভুল উত্তর।")+"</strong><br>"+escapeHtml(q.explanation)+"<div class='small muted mt-8'>উৎস: অধ্যায় "+q.chapter+"</div></div>";
+  $("#nextQ").style.display="";
+  $("#nextQ").onclick=function(){
+    quizState.idx++;
+    if(quizState.idx>=quizState.questions.length){ finishQuiz(); }
+    else renderView();
+  };
+}
+function finishQuiz(){
+  var qs = quizState;
+  var score=0; var answers=[];
+  qs.questions.forEach(function(cur){
+    if(cur.correct) score++;
+    answers.push({qid:cur.q.id, correct:!!cur.correct, chapterId:cur.q.chapter});
+  });
+  var timeSec = Math.round((Date.now()-qs.startTime)/1000);
+  state.quizHistory.push({id:qs.id, date:todayStr(), mode:qs.mode, chapterId:qs.chapterId, score:score, total:qs.questions.length, timeSec:timeSec, answers:answers});
+  tickStudyTime(timeSec);
+  qs.finished = true;
+  saveState();
+  renderQuizResult();
+}
+function renderQuizResult(){
+  var root = $("#viewRoot");
+  var qs = quizState;
+  var score=0; qs.questions.forEach(function(c){ if(c.correct) score++; });
+  var pct = Math.round(score/qs.questions.length*100);
+  var wrong = qs.questions.filter(function(c){return !c.correct;});
+  var html = "<div class='card center' style='padding:36px 20px;'>";
+  html += "<div style='font-size:44px'>"+(pct>=80?"🏆":pct>=50?"👍":"📚")+"</div>";
+  html += "<h2>"+score+" / "+qs.questions.length+" সঠিক ("+pct+"%)</h2>";
+  html += "<div class='muted small'>সময় লেগেছে: "+Math.round((Date.now()-qs.startTime)/1000)+" সেকেন্ড</div>";
+  html += "<div class='flex gap-8 mt-20' style='justify-content:center'>";
+  html += "<button class='btn btn-primary' id='retryQuiz'>আবার চেষ্টা করুন</button>";
+  html += "<button class='btn' id='backDash'>ড্যাশবোর্ডে ফিরুন</button></div></div>";
+  if(wrong.length){
+    html += "<div class='card mt-14'><h3>পর্যালোচনা প্রয়োজন ("+wrong.length+"টি)</h3>";
+    wrong.forEach(function(c){
+      html += "<div class='mt-14' style='padding-bottom:12px;border-bottom:1px solid var(--line)'><div style='font-weight:600'>"+escapeHtml(c.q.prompt)+"</div><div class='small mt-8'>সঠিক উত্তর: "+escapeHtml(c.q.options[c.q.answer])+"</div><div class='small muted'>"+escapeHtml(c.q.explanation)+"</div></div>";
+    });
+    html += "</div>";
+  }
+  root.innerHTML = html;
+  $("#retryQuiz").onclick=function(){ var mode=qs.mode, chId=qs.chapterId; quizState=null; startQuiz({mode:mode, chapterId:chId, count:qs.questions.length}); renderView(); };
+  $("#backDash").onclick=function(){ quizState=null; navigate("dashboard"); };
+}
+
+/* ============ REVISION QUEUE ============ */
+VIEW_RENDERERS.revision = function(root){
+  var bins = {red:[],orange:[],yellow:[],green:[]};
+  C.flashcards.forEach(function(fc){
+    var b = cardBucket(fc.id);
+    if(b==="due") bins.red.push(fc);
+    else if(b==="soon") bins.orange.push(fc);
+    else if(b==="new"||b==="later") bins.yellow.push(fc);
+    else bins.green.push(fc);
+  });
+  var html = "<div class='card'><h3>স্মার্ট রিভিশন সারি</h3><p class='muted small'>যেসব তথ্য আপনি বারবার ভুলে যাচ্ছেন তা অগ্রাধিকার পাবে।</p>";
+  html += "<div class='grid grid-4 mt-14'>";
+  html += revisionBox("🔴 এখনই জরুরি", bins.red.length, "due");
+  html += revisionBox("🟠 আজকের মধ্যে", bins.orange.length, "soon");
+  html += revisionBox("🟡 শীঘ্রই আসছে", bins.yellow.length, "new");
+  html += revisionBox("🟢 আয়ত্তে এসেছে", bins.green.length, "mastered");
+  html += "</div></div>";
+
+  html += "<div class='grid grid-3 mt-14'>";
+  html += "<button class='card' style='text-align:left;cursor:pointer' id='goLearn'><div style='font-weight:700'>🗂️ জ্ঞান কার্ড দিয়ে রিভিশন</div><div class='small muted mt-8'>ফ্ল্যাশকার্ড মোডে জরুরি কার্ডগুলো অনুশীলন করুন</div></button>";
+  html += "<button class='card' style='text-align:left;cursor:pointer' id='goRecall'><div style='font-weight:700'>🧠 রিকল মোডে রিভিশন</div><div class='small muted mt-8'>সক্রিয় স্মরণশক্তি দিয়ে যাচাই করুন</div></button>";
+  html += "<button class='card' style='text-align:left;cursor:pointer' id='goRevQuiz'><div style='font-weight:700'>📝 রিভিশন কুইজ</div><div class='small muted mt-8'>বাকি থাকা টপিক থেকে প্রশ্ন অনুশীলন</div></button>";
+  html += "</div>";
+
+  root.innerHTML = html;
+  $("#goLearn").onclick=function(){ navigate("learn",{reset:true}); };
+  $("#goRecall").onclick=function(){ navigate("recall",{reset:true}); };
+  $("#goRevQuiz").onclick=function(){ startQuiz({mode:"revision",count:12}); navigate("quiz"); };
+};
+function revisionBox(label,n,key){
+  return "<div class='center card' style='box-shadow:none;'><div class='stat-num'>"+n+"</div><div class='small muted'>"+label+"</div></div>";
+}
+
+/* ============ MISTAKES NOTEBOOK ============ */
+VIEW_RENDERERS.mistakes = function(root){
+  var list = mistakeList();
+  var allMistakes = Object.keys(state.mistakes).map(function(qid){ return {q:byId(C.questions,qid), meta:state.mistakes[qid]}; }).filter(function(x){return x.q;});
+  if(!allMistakes.length){
+    root.innerHTML = "<div class='empty-state'><div class='emoji'>✅</div><h3>কোনো ভুল রেকর্ড হয়নি</h3><p class='muted'>কুইজ দিতে থাকুন — ভুল উত্তরগুলো স্বয়ংক্রিয়ভাবে এখানে যোগ হবে।</p></div>";
+    return;
+  }
+  var html = "<div class='flex-between mb-14'>";
+  html += "<div class='muted small'>মোট "+allMistakes.length+"টি ভুল প্রশ্ন রেকর্ড করা হয়েছে, "+list.length+"টি এখনো অনুশীলন প্রয়োজন</div>";
+  html += "<button class='btn btn-primary' id='practiceMistakes' "+(list.length?"":"disabled")+">🔁 আমার ভুলগুলো অনুশীলন করুন</button></div>";
+  allMistakes.sort(function(a,b){ return b.meta.count-a.meta.count; });
+  allMistakes.forEach(function(item){
+    var ch = chapterById(item.q.chapter);
+    html += "<div class='card mt-14' style='border-left:4px solid "+(item.meta.mastered?"var(--green)":"var(--red)")+"'>";
+    html += "<div class='flex-between'><div style='font-weight:600'>"+escapeHtml(item.q.prompt)+"</div><span class='tag'>"+(item.meta.mastered?"✅ আয়ত্তে এসেছে":"❌ "+item.meta.count+"বার ভুল")+"</span></div>";
+    html += "<div class='small mt-8'>সঠিক উত্তর: <strong>"+escapeHtml(item.q.options[item.q.answer])+"</strong></div>";
+    html += "<div class='small muted mt-8'>"+escapeHtml(item.q.explanation)+"</div>";
+    html += "<div class='small muted mt-8'>উৎস: "+escapeHtml(ch?ch.title:"")+"</div>";
+    if(!item.meta.mastered) html += "<button class='btn btn-sm mt-8' data-remove='"+item.q.id+"'>আয়ত্তে এসেছে হিসেবে চিহ্নিত করুন</button>";
+    html += "</div>";
+  });
+  root.innerHTML = html;
+  $("#practiceMistakes").onclick=function(){
+    var pool = list.map(function(x){return x.q;});
+    quizState = {id:"mistakes_"+Date.now(), questions: pool.map(function(q){
+        var opts2 = q.options.map(function(o,i){return {text:o, origIdx:i};}); opts2=shuffle(opts2);
+        return {q:q, shuffledOptions:opts2, marked:false, selected:null, answered:false};
+      }), idx:0, mode:"mistakes-practice", chapterId:null, startTime:Date.now(), finished:false};
+    navigate("quiz");
+  };
+  $all("[data-remove]",root).forEach(function(b){
+    b.onclick=function(){ state.mistakes[b.getAttribute("data-remove")].mastered=true; saveState(); navigate("mistakes"); };
+  });
+};
+
+/* ============ MOCK EXAM ============ */
+var mockState=null;
+VIEW_RENDERERS.mock = function(root){
+  if(!mockState) renderMockSetup(root);
+  else if(!mockState.submitted) renderMockExam(root);
+  else renderMockResult(root);
+};
+function renderMockSetup(root){
+  var html = "<div class='card'><h3>⏱️ মক পরীক্ষা সেটআপ</h3>";
+  html += "<div class='mt-14'><label class='small muted'>প্রশ্ন সংখ্যা</label><br><select id='mockCount' style='margin-top:6px;width:100%'>"+
+    "<option value='15'>১৫টি প্রশ্ন</option><option value='25' selected>২৫টি প্রশ্ন</option><option value='40'>৪০টি প্রশ্ন</option><option value='"+C.questions.length+"'>সবগুলো প্রশ্ন ("+C.questions.length+"টি)</option></select></div>";
+  html += "<div class='mt-14'><label class='small muted'>সময়সীমা</label><br><select id='mockTime' style='margin-top:6px;width:100%'>"+
+    "<option value='0'>সময়সীমা নেই</option><option value='15'>১৫ মিনিট</option><option value='30' selected>৩০ মিনিট</option><option value='60'>৬০ মিনিট</option></select></div>";
+  html += "<button class='btn btn-primary mt-20 btn-block' id='startMock'>মক পরীক্ষা শুরু করুন</button></div>";
+  root.innerHTML = html;
+  $("#startMock").onclick=function(){
+    var n = parseInt($("#mockCount").value); var t = parseInt($("#mockTime").value);
+    var pool = shuffle(C.questions.slice()).slice(0,n);
+    mockState = {
+      questions: pool.map(function(q){ var opts2=q.options.map(function(o,i){return{text:o,origIdx:i};}); opts2=shuffle(opts2); return {q:q, shuffledOptions:opts2, selected:null, marked:false}; }),
+      idx:0, startTime:Date.now(), timeLimitSec: t*60, submitted:false
+    };
+    navigate("mock");
+  };
+}
+function renderMockExam(root){
+  var ms = mockState;
+  var cur = ms.questions[ms.idx];
+  var q = cur.q;
+  var keys=["ক","খ","গ","ঘ","ঙ","চ"];
+  var timeLeft = ms.timeLimitSec? Math.max(0, ms.timeLimitSec - Math.round((Date.now()-ms.startTime)/1000)) : null;
+
+  var html = "<div class='flex-between mb-14'>";
+  html += "<div class='small muted'>প্রশ্ন "+(ms.idx+1)+" / "+ms.questions.length+"</div>";
+  if(timeLeft!=null) html += "<div id='mockTimer' style='font-weight:700;color:var(--lal)'>⏱️ "+fmtTime(timeLeft)+"</div>";
+  html += "</div>";
+  html += "<div class='quiz-q'>"+escapeHtml(q.prompt)+"</div>";
+  html += "<div class='opt-list'>";
+  cur.shuffledOptions.forEach(function(o,i){
+    html += "<button class='opt "+(cur.selected===i?"selected":"")+"' data-i='"+i+"'><span class='optkey'>"+keys[i]+"</span><span>"+escapeHtml(o.text)+"</span></button>";
+  });
+  html += "</div>";
+  html += "<div class='flex gap-8 mt-20'>";
+  html += "<button class='btn' id='markBtn'>"+(cur.marked?"🚩 চিহ্নিত":"🏳️ পর্যালোচনার জন্য চিহ্নিত করুন")+"</button>";
+  html += "<button class='btn' id='prevQ' "+(ms.idx===0?"disabled":"")+">← আগের</button>";
+  html += "<button class='btn btn-primary' id='nextQ'>"+(ms.idx===ms.questions.length-1?"জমা দিন":"পরবর্তী →")+"</button>";
+  html += "</div>";
+  html += "<h3 class='mt-26'>প্রশ্ন নেভিগেশন</h3><div class='exam-nav-grid mt-8'>";
+  ms.questions.forEach(function(c,i){
+    var cls = (i===ms.idx?"current ":"")+(c.marked?"marked ":"")+(c.selected!=null?"answered ":"");
+    html += "<button class='"+cls+"' data-goq='"+i+"'>"+(i+1)+"</button>";
+  });
+  html += "</div>";
+  root.innerHTML = html;
+
+  $all(".opt",root).forEach(function(b){ b.onclick=function(){ cur.selected=parseInt(b.getAttribute("data-i")); renderMockExam(root); }; });
+  $("#markBtn").onclick=function(){ cur.marked=!cur.marked; renderMockExam(root); };
+  $("#prevQ").onclick=function(){ ms.idx--; renderMockExam(root); };
+  $("#nextQ").onclick=function(){
+    if(ms.idx===ms.questions.length-1){ submitMock(); }
+    else { ms.idx++; renderMockExam(root); }
+  };
+  $all("[data-goq]",root).forEach(function(b){ b.onclick=function(){ ms.idx=parseInt(b.getAttribute("data-goq")); renderMockExam(root); }; });
+
+  if(timeLeft!=null){
+    clearInterval(window.__mockTimerHandle);
+    window.__mockTimerHandle = setInterval(function(){
+      var tl = Math.max(0, ms.timeLimitSec - Math.round((Date.now()-ms.startTime)/1000));
+      var elm = document.getElementById("mockTimer");
+      if(elm) elm.textContent = "⏱️ "+fmtTime(tl);
+      if(tl<=0){ clearInterval(window.__mockTimerHandle); submitMock(); }
+    },1000);
+  }
+}
+function fmtTime(sec){ var m=Math.floor(sec/60), s=sec%60; return (m<10?"0":"")+m+":"+(s<10?"0":"")+s; }
+function submitMock(){
+  clearInterval(window.__mockTimerHandle);
+  var ms = mockState;
+  var score=0; var answers=[];
+  ms.questions.forEach(function(c){
+    var correct = c.selected!=null && c.shuffledOptions[c.selected].origIdx===c.q.answer;
+    if(correct) score++;
+    answers.push({qid:c.q.id, correct:correct, chapterId:c.q.chapter});
+    recordAnswer(c.q.id, correct, c.q.chapter);
+  });
+  var timeSec = Math.round((Date.now()-ms.startTime)/1000);
+  state.quizHistory.push({id:"mock_"+Date.now(), date:todayStr(), mode:"mock", chapterId:null, score:score, total:ms.questions.length, timeSec:timeSec, answers:answers});
+  tickStudyTime(timeSec);
+  ms.submitted=true; ms.score=score;
+  saveState();
+  navigate("mock");
+}
+function renderMockResult(root){
+  var ms = mockState;
+  var pct = Math.round(ms.score/ms.questions.length*100);
+  var chAcc = {};
+  ms.questions.forEach(function(c){
+    var correct = c.selected!=null && c.shuffledOptions[c.selected].origIdx===c.q.answer;
+    var cid=c.q.chapter; if(!chAcc[cid]) chAcc[cid]={t:0,c:0};
+    chAcc[cid].t++; if(correct) chAcc[cid].c++;
+  });
+  var chArr = Object.keys(chAcc).map(function(k){ return {ch:chapterById(parseInt(k)), pct: chAcc[k].c/chAcc[k].t*100}; });
+  chArr.sort(function(a,b){return a.pct-b.pct;});
+  var weakest = chArr.slice(0,2), strongest = chArr.slice(-2).reverse();
+
+  var html = "<div class='card center' style='padding:36px 20px;'>";
+  html += "<div style='font-size:44px'>"+(pct>=80?"🏆":pct>=50?"👍":"📚")+"</div>";
+  html += "<h2>স্কোর: "+ms.score+" / "+ms.questions.length+" ("+pct+"%)</h2>";
+  html += "<div class='muted small'>সময় ব্যবহৃত: "+fmtTime(Math.round((Date.now()-ms.startTime)/1000))+"</div></div>";
+  html += "<div class='grid grid-2 mt-14'>";
+  html += "<div class='card'><h3>দুর্বল ক্ষেত্র</h3>"+(weakest.length?weakest.map(function(w){return "<div class='mt-8'>"+escapeHtml(w.ch.title)+" — "+Math.round(w.pct)+"%</div>";}).join(""):"<span class='muted small'>N/A</span>")+"</div>";
+  html += "<div class='card'><h3>শক্তিশালী ক্ষেত্র</h3>"+(strongest.length?strongest.map(function(w){return "<div class='mt-8'>"+escapeHtml(w.ch.title)+" — "+Math.round(w.pct)+"%</div>";}).join(""):"<span class='muted small'>N/A</span>")+"</div>";
+  html += "</div>";
+  html += "<div class='card mt-14'><h3>প্রশ্নভিত্তিক পর্যালোচনা</h3>";
+  ms.questions.forEach(function(c,i){
+    var correct = c.selected!=null && c.shuffledOptions[c.selected].origIdx===c.q.answer;
+    html += "<div class='mt-14' style='padding-bottom:10px;border-bottom:1px solid var(--line)'>"+
+      "<div style='font-weight:600'>"+(i+1)+". "+escapeHtml(c.q.prompt)+" "+(correct?"✅":"❌")+"</div>"+
+      "<div class='small mt-8'>সঠিক উত্তর: "+escapeHtml(c.q.options[c.q.answer])+"</div></div>";
+  });
+  html += "</div>";
+  html += "<button class='btn btn-primary mt-14' id='newMock'>নতুন মক পরীক্ষা</button>";
+  root.innerHTML = html;
+  $("#newMock").onclick=function(){ mockState=null; navigate("mock"); };
+}
+
+/* ============ ANALYTICS ============ */
+VIEW_RENDERERS.analytics = function(root){
+  var qs = quizStats();
+  var comp = chapterCompletion();
+  var html = "<div class='grid grid-4'>";
+  html += statCard("মোট কুইজ সেশন", state.quizHistory.length, "");
+  html += statCard("মোট প্রশ্নের উত্তর", qs.attempted, "");
+  html += statCard("সামগ্রিক নির্ভুলতা", qs.attempted? fmtPct(qs.accuracy):"—", "");
+  html += statCard("মোট অধ্যয়ন সময়", Math.round(state.studyTime/60)+" মিনিট", "");
+  html += "</div>";
+
+  html += "<div class='card mt-14'><h3>অধ্যায়ভিত্তিক পারফরম্যান্স</h3><table><thead><tr><th>অধ্যায়</th><th>পড়া</th><th>নির্ভুলতা</th><th>দক্ষতা</th><th>সুপারিশ</th></tr></thead><tbody>";
+  C.chapters.forEach(function(ch){
+    var a = chapterAccuracy(ch.id);
+    var read = state.chapterProgress[ch.id] && state.chapterProgress[ch.id].read;
+    var m = masteryLabel(a.pct);
+    var rec = !read? "পড়ুন" : (a.pct==null? "কুইজ দিন" : (a.pct<70? "রিভিশন + পুনঃপরীক্ষা":"বজায় রাখুন"));
+    html += "<tr><td>"+ch.id+". "+escapeHtml(ch.title)+"</td><td>"+(read?"✅":"—")+"</td><td>"+(a.pct!=null?Math.round(a.pct)+"% ("+a.t+"টি)":"—")+"</td><td style='color:"+(m.color||"inherit")+"'>"+m.label+"</td><td class='small muted'>"+rec+"</td></tr>";
+  });
+  html += "</tbody></table></div>";
+
+  // heatmap
+  html += "<div class='card mt-14'><h3>অধ্যয়ন হিটম্যাপ (শেষ ৯১ দিন)</h3><div class='heatmap mt-8'>";
+  var days=[];
+  for(var i=90;i>=0;i--){ days.push(addDays(todayStr(),-i)); }
+  days.forEach(function(d){
+    var sec = state.streak.days[d]||0;
+    var level = sec===0?0: sec<300?1: sec<900?2: sec<1800?3:4;
+    var colors=["var(--paper-2)","#e9dcc9","#d8b98a","var(--gold)","var(--lal)"];
+    html += "<div class='heat-cell' title='"+d+"' style='background:"+colors[level]+"'></div>";
+  });
+  html += "</div><div class='small muted mt-8'>বর্তমান স্ট্রিক: "+state.streak.current+" দিন · সর্বোচ্চ: "+state.streak.longest+" দিন</div></div>";
+
+  root.innerHTML = html;
+};
+
+/* ============ EXAM CRAM MODE ============ */
+VIEW_RENDERERS.cram = function(root){
+  var html = "<div class='card' style='border-left:4px solid var(--lal)'><h3>🔥 এক্সাম ক্র্যাম মোড</h3><p class='muted small'>পরীক্ষার আগের শেষ কয়েকদিনের জন্য দ্রুততম রিভিশন — শুধু সবচেয়ে গুরুত্বপূর্ণ তথ্য।</p></div>";
+
+  html += "<div class='card mt-14'><h3>⭐ Must-Remember তথ্য</h3>";
+  var must = allFacts().filter(function(f){return f.level==="must";});
+  must.forEach(function(f){ html += "<div class='fact-item'><span class='pill pill-must'>MUST</span><span class='fact-text'>"+escapeHtml(f.text)+"</span></div>"; });
+  html += "</div>";
+
+  html += "<div class='card mt-14'><h3>⚠️ পরীক্ষার ফাঁদ</h3>";
+  C.traps.forEach(function(t){ html += "<div class='fact-item'><span class='pill pill-trap'>TRAP</span><span class='fact-text'><strong>"+escapeHtml(t.title)+":</strong> "+escapeHtml(t.note)+"</span></div>"; });
+  html += "</div>";
+
+  html += "<div class='card mt-14 center'><h3>⚡ মিনি মক টেস্ট</h3><div class='flex gap-8' style='justify-content:center'>";
+  html += "<button class='btn btn-primary' id='cram1'>১ মিনিট (৫ প্রশ্ন)</button>";
+  html += "<button class='btn' id='cram5'>৫ মিনিট (১৫ প্রশ্ন)</button>";
+  html += "<button class='btn' id='cram10'>১০ মিনিট (২৫ প্রশ্ন)</button>";
+  html += "</div></div>";
+  root.innerHTML = html;
+  $("#cram1").onclick=function(){ startQuiz({mode:"rapid",count:5}); navigate("quiz"); };
+  $("#cram5").onclick=function(){ startQuiz({mode:"mixed",count:15}); navigate("quiz"); };
+  $("#cram10").onclick=function(){ startQuiz({mode:"mixed",count:25}); navigate("quiz"); };
+};
+
+/* ============ TIMELINE ============ */
+VIEW_RENDERERS.timeline = function(root){
+  var html = "<div class='card'><h3>📅 সময়রেখা</h3><p class='muted small'>বাঙলা সাহিত্যের গুরুত্বপূর্ণ সাল ও ঘটনা</p></div>";
+  html += "<div class='mt-14' style='position:relative;padding-left:24px;border-left:2px solid var(--line);'>";
+  C.timeline.forEach(function(t){
+    html += "<div style='position:relative;margin-bottom:20px;'>"+
+      "<div style='position:absolute;left:-30px;top:2px;width:12px;height:12px;border-radius:50%;background:var(--lal);border:2px solid var(--paper);'></div>"+
+      "<div style='font-weight:700;color:var(--nil)'>"+escapeHtml(t.year)+"</div>"+
+      "<div class='small mt-8'>"+escapeHtml(t.event)+"</div></div>";
+  });
+  html += "</div>";
+  root.innerHTML = html;
+};
+
+/* ============ EXAM TRAPS & COMPARISONS ============ */
+VIEW_RENDERERS.traps = function(root){
+  var html = "<div class='card'><h3>⚠️ পরীক্ষার ফাঁদ (Exam Traps)</h3><p class='muted small'>প্রায়ই বিভ্রান্তিকর/গুলিয়ে ফেলার মতো তথ্যগুলো এখানে।</p></div>";
+  C.traps.forEach(function(t){
+    var ch = chapterById(t.chapter);
+    html += "<div class='card mt-14'><div style='font-weight:700;color:var(--red)'>"+escapeHtml(t.title)+"</div><div class='small mt-8'>"+escapeHtml(t.note)+"</div><div class='small muted mt-8'>সূত্র: "+escapeHtml(ch?ch.title:"")+"</div></div>";
+  });
+  html += "<div class='card mt-14'><h3>📊 তুলনামূলক সারণি</h3></div>";
+  C.comparisons.forEach(function(cmp){
+    html += "<div class='card mt-14'><h3 style='text-transform:none;color:var(--ink);font-size:16px;'>"+escapeHtml(cmp.title)+"</h3><table class='mt-8'><thead><tr><th></th><th>"+escapeHtml(cmp.colA)+"</th><th>"+escapeHtml(cmp.colB)+"</th></tr></thead><tbody>";
+    cmp.rows.forEach(function(r){ html += "<tr><td class='muted'>"+escapeHtml(r.label)+"</td><td>"+escapeHtml(r.a)+"</td><td>"+escapeHtml(r.b)+"</td></tr>"; });
+    html += "</tbody></table></div>";
+  });
+  root.innerHTML = html;
+};
+
+/* ============ BOOKMARKS ============ */
+VIEW_RENDERERS.bookmarks = function(root){
+  var keys = Object.keys(state.bookmarks);
+  if(!keys.length){ root.innerHTML="<div class='empty-state'><div class='emoji'>🔖</div><h3>কোনো বুকমার্ক নেই</h3><p class='muted'>পড়া বা কার্ড দেখার সময় বুকমার্ক আইকনে ক্লিক করুন।</p></div>"; return; }
+  var html = "<div class='grid grid-2'>";
+  keys.forEach(function(k){
+    var bm = state.bookmarks[k];
+    html += "<div class='card'><span class='tag'>"+bm.type+"</span><div class='mt-8' style='font-weight:600'>"+escapeHtml(bm.label)+"</div>"+
+      "<div class='flex gap-8 mt-14'><button class='btn btn-sm' data-open='"+k+"'>খুলুন</button><button class='btn btn-sm' data-del='"+k+"'>মুছুন</button></div></div>";
+  });
+  html += "</div>";
+  root.innerHTML = html;
+  $all("[data-del]",root).forEach(function(b){ b.onclick=function(){ delete state.bookmarks[b.getAttribute("data-del")]; saveState(); navigate("bookmarks"); }; });
+  $all("[data-open]",root).forEach(function(b){
+    b.onclick=function(){
+      var bm = state.bookmarks[b.getAttribute("data-open")];
+      if(bm.type==="chapter") navigate("read",{chapterId:bm.id});
+      else navigate("learn");
+    };
+  });
+};
+
+/* ============ SEARCH ============ */
+VIEW_RENDERERS.search = function(root){
+  var html = "<input type='text' id='searchInput' placeholder='অধ্যায়, নাম, তারিখ, তথ্য খুঁজুন...' style='width:100%;padding:12px 14px;font-size:15px;'>";
+  html += "<div id='searchResults' class='mt-20'></div>";
+  root.innerHTML = html;
+  var input = $("#searchInput");
+  input.focus();
+  input.oninput=function(){ doSearch(input.value); };
+  function doSearch(qstr){
+    var out = $("#searchResults");
+    if(!qstr || qstr.length<2){ out.innerHTML="<div class='muted small'>কমপক্ষে ২ অক্ষর টাইপ করুন...</div>"; return; }
+    var q = qstr.toLowerCase();
+    var results = [];
+    C.chapters.forEach(function(ch){
+      if(ch.title.toLowerCase().indexOf(q)>-1) results.push({type:"অধ্যায়",text:ch.title,go:function(){navigate("read",{chapterId:ch.id});}});
+      ch.facts.forEach(function(f){ if(f.text.toLowerCase().indexOf(q)>-1) results.push({type:"তথ্য ("+ch.title+")",text:f.text,go:function(){navigate("read",{chapterId:ch.id});}}); });
+    });
+    C.flashcards.forEach(function(fc){ if(fc.front.toLowerCase().indexOf(q)>-1 || fc.back.toLowerCase().indexOf(q)>-1) results.push({type:"ফ্ল্যাশকার্ড",text:fc.front,go:function(){navigate("learn");}}); });
+    C.questions.forEach(function(qq){ if(qq.prompt.toLowerCase().indexOf(q)>-1) results.push({type:"প্রশ্ন",text:qq.prompt,go:function(){navigate("quiz",{chapterId:qq.chapter});}}); });
+    if(!results.length){ out.innerHTML="<div class='muted small'>কোনো ফলাফল পাওয়া যায়নি।</div>"; return; }
+    out.innerHTML = results.slice(0,40).map(function(r,i){
+      return "<div class='card mt-8' style='cursor:pointer' data-r='"+i+"'><span class='tag'>"+r.type+"</span><div class='mt-8'>"+escapeHtml(r.text)+"</div></div>";
+    }).join("");
+    $all("[data-r]",out).forEach(function(el2,i){ el2.onclick=function(){ results[i].go(); }; });
+  }
+};
+
+/* ============ READINESS ============ */
+VIEW_RENDERERS.readiness = function(root){
+  var comp = chapterCompletion();
+  var qs = quizStats();
+  var mistakesN = mistakeList().length;
+  var totalMistakesEver = Object.keys(state.mistakes).length;
+  var mastered = C.flashcards.filter(function(f){return cardBucket(f.id)==="mastered";}).length;
+
+  var coverageScore = comp.pct;
+  var accuracyScore = qs.attempted? qs.accuracy : 0;
+  var revisionScore = C.flashcards.length? (mastered/C.flashcards.length*100):0;
+  var mistakeScore = totalMistakesEver? ((totalMistakesEver-mistakesN)/totalMistakesEver*100) : 100;
+  var readiness = Math.round(coverageScore*0.3 + accuracyScore*0.35 + revisionScore*0.2 + mistakeScore*0.15);
+
+  var weak = weakChapters(2);
+  var strong = C.chapters.map(function(ch){var a=chapterAccuracy(ch.id); return {ch:ch,pct:a.pct,t:a.t};}).filter(function(x){return x.t>0;}).sort(function(a,b){return b.pct-a.pct;}).slice(0,2);
+
+  var html = "<div class='card center' style='padding:36px 20px'>";
+  html += "<h2>পরীক্ষা প্রস্তুতি (Exam Readiness)</h2>";
+  html += progressRing(readiness);
+  html += "<div class='mt-14 muted small'>এটি কোনো নিশ্চিত পূর্বাভাস নয় — বরং আপনার অধ্যয়ন কার্যক্রমের ভিত্তিতে একটি অভ্যন্তরীণ সূচক মাত্র।</div></div>";
+
+  html += "<div class='grid grid-4 mt-14'>";
+  html += statCard("কনটেন্ট কভারেজ", fmtPct(coverageScore), "");
+  html += statCard("রিকল নির্ভুলতা", fmtPct(accuracyScore), "");
+  html += statCard("রিভিশন সম্পন্নতা", fmtPct(revisionScore), "");
+  html += statCard("ভুল সংশোধন", fmtPct(mistakeScore), "");
+  html += "</div>";
+
+  html += "<div class='grid grid-2 mt-14'>";
+  html += "<div class='card'><h3>শক্তিশালী</h3>"+(strong.length?strong.map(function(s){return "<div class='mt-8'>"+escapeHtml(s.ch.title)+" — "+Math.round(s.pct)+"%</div>";}).join(""):"<span class='small muted'>আরও কুইজ দিন</span>")+"</div>";
+  html += "<div class='card'><h3>অগ্রাধিকার</h3>"+(weak.length?weak.map(function(w){return "<div class='mt-8'>"+escapeHtml(w.chapter.title)+" — "+Math.round(w.acc)+"%</div>";}).join(""):"<span class='small muted'>আরও কুইজ দিন</span>")+"</div>";
+  html += "</div>";
+  html += "<div class='card mt-14'><h3>কীভাবে গণনা করা হয়</h3><div class='small muted'>কভারেজ ৩০% + নির্ভুলতা ৩৫% + রিভিশন ২০% + ভুল-সংশোধন ১৫% — ওজনযুক্ত গড়।</div></div>";
+  root.innerHTML = html;
+};
+
+/* ============ SETTINGS ============ */
+VIEW_RENDERERS.settings = function(root){
+  var html = "<div class='card'><h3>প্রদর্শন</h3>";
+  html += "<div class='flex-between mt-14'><span>ডার্ক মোড</span><button class='btn btn-sm' id='themeToggle'>"+(state.settings.theme==="dark"?"☀️ লাইট মোডে যান":"🌙 ডার্ক মোডে যান")+"</button></div>";
+  html += "<div class='flex-between mt-14'><span>ফন্ট সাইজ</span><div class='flex gap-8'><button class='btn btn-sm' id='fD'>A-</button><button class='btn btn-sm' id='fI'>A+</button></div></div>";
+  html += "<div class='flex-between mt-14'><span>লাইন স্পেসিং</span><div class='flex gap-8'><button class='btn btn-sm' id='lD'>−</button><button class='btn btn-sm' id='lI'>+</button></div></div>";
+  html += "</div>";
+
+  html += "<div class='card mt-14'><h3>ডেটা</h3>";
+  html += "<div class='flex gap-8 mt-8' style='flex-wrap:wrap'>";
+  html += "<button class='btn' id='exportBtn'>⬇️ অগ্রগতি এক্সপোর্ট করুন (JSON)</button>";
+  html += "<label class='btn' style='margin:0'>⬆️ ইম্পোর্ট করুন<input type='file' id='importFile' accept='.json' style='display:none'></label>";
+  html += "</div></div>";
+
+  html += "<div class='card mt-14'><h3 style='color:var(--red)'>রিসেট</h3>";
+  html += "<div class='flex gap-8 mt-8' style='flex-wrap:wrap'>";
+  html += "<button class='btn' id='resetQuiz'>কুইজ ইতিহাস রিসেট</button>";
+  html += "<button class='btn' id='resetMistakes'>ভুল খাতা মুছুন</button>";
+  html += "<button class='btn' id='resetChapters'>অধ্যায় অগ্রগতি রিসেট</button>";
+  html += "<button class='btn' style='border-color:var(--red);color:var(--red)' id='resetAll'>সব ডেটা মুছে ফেলুন</button>";
+  html += "</div></div>";
+
+  html += "<div class='card mt-14'><h3>কীবোর্ড শর্টকাট</h3><div class='small'>"+
+    "<div><span class='kbd'>1-4</span> MCQ উত্তর নির্বাচন</div>"+
+    "<div class='mt-8'><span class='kbd'>Enter</span> প্রকাশ/জমা</div>"+
+    "<div class='mt-8'><span class='kbd'>N</span> পরবর্তী</div>"+
+    "<div class='mt-8'><span class='kbd'>P</span> পূর্ববর্তী</div>"+
+    "<div class='mt-8'><span class='kbd'>B</span> বুকমার্ক</div>"+
+    "<div class='mt-8'><span class='kbd'>R</span> রিভিশন পাতায় যান</div>"+
+    "<div class='mt-8'><span class='kbd'>Esc</span> ফোকাস মোড থেকে বের হন</div></div></div>";
+
+  root.innerHTML = html;
+  $("#themeToggle").onclick=toggleTheme;
+  $("#fD").onclick=function(){ state.settings.fontScale=Math.max(0.85,state.settings.fontScale-0.1); applyTheme(); saveState(); };
+  $("#fI").onclick=function(){ state.settings.fontScale=Math.min(1.5,state.settings.fontScale+0.1); applyTheme(); saveState(); };
+  $("#lD").onclick=function(){ state.settings.lineHeight=Math.max(1.3,state.settings.lineHeight-0.1); applyTheme(); saveState(); };
+  $("#lI").onclick=function(){ state.settings.lineHeight=Math.min(2.4,state.settings.lineHeight+0.1); applyTheme(); saveState(); };
+  $("#exportBtn").onclick=function(){
+    var blob = new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+    var a = document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="lndp_progress_"+todayStr()+".json"; a.click();
+  };
+  $("#importFile").onchange=function(e){
+    var file = e.target.files[0]; if(!file) return;
+    var reader = new FileReader();
+    reader.onload=function(ev){
+      try{ var imported = JSON.parse(ev.target.result); state = imported; saveState(); toast("অগ্রগতি ইম্পোর্ট হয়েছে!"); navigate("dashboard"); }
+      catch(err){ toast("ফাইল পড়তে সমস্যা হয়েছে"); }
+    };
+    reader.readAsText(file);
+  };
+  $("#resetQuiz").onclick=function(){ if(confirm("কুইজ ইতিহাস মুছে ফেলতে চান?")){ state.quizHistory=[]; saveState(); toast("কুইজ ইতিহাস রিসেট হয়েছে"); } };
+  $("#resetMistakes").onclick=function(){ if(confirm("ভুল খাতা মুছে ফেলতে চান?")){ state.mistakes={}; saveState(); toast("ভুল খাতা মুছে ফেলা হয়েছে"); } };
+  $("#resetChapters").onclick=function(){ if(confirm("অধ্যায় অগ্রগতি রিসেট করতে চান?")){ state.chapterProgress={}; saveState(); toast("অধ্যায় অগ্রগতি রিসেট হয়েছে"); } };
+  $("#resetAll").onclick=function(){ if(confirm("সতর্কতা: এটি সমস্ত ডেটা স্থায়ীভাবে মুছে ফেলবে। নিশ্চিত?")){ localStorage.removeItem(STORE_KEY); state=defaultState(); saveState(); toast("সব ডেটা রিসেট হয়েছে"); navigate("dashboard"); } };
+};
+
+/* ============ KEYBOARD SHORTCUTS ============ */
+document.addEventListener("keydown", function(e){
+  if(e.target && (e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA")) return;
+  if(e.key>="1" && e.key<="4"){
+    var idx = parseInt(e.key)-1;
+    var opts = $all("#optList .opt");
+    if(opts[idx]) opts[idx].click();
+  } else if(e.key==="Enter"){
+    var nextBtn = document.getElementById("nextQ") || document.getElementById("revealBtn");
+    if(nextBtn) nextBtn.click();
+  } else if(e.key==="n"||e.key==="N"){
+    var nb = document.getElementById("nextQ") || document.getElementById("nextCh");
+    if(nb) nb.click();
+  } else if(e.key==="p"||e.key==="P"){
+    var pb = document.getElementById("prevCh") || document.getElementById("prevQ");
+    if(pb) pb.click();
+  } else if(e.key==="b"||e.key==="B"){
+    var bb = document.getElementById("bmChapter") || document.getElementById("bmCard");
+    if(bb) bb.click();
+  } else if(e.key==="r"||e.key==="R"){
+    if(!e.ctrlKey && !e.metaKey) navigate("revision");
+  } else if(e.key==="Escape"){
+    closeModal();
+  }
+});
+
+/* ============ INIT ============ */
+function boot(){
+  loadState();
+  applyTheme();
+  buildSideNav();
+  buildBottomNav();
+  var startView = state.lastPosition.view || "dashboard";
+  navigate(startView, {chapterId: state.lastPosition.chapterId});
+  window.__LNDP.state = state;
+
+  window.addEventListener("beforeunload", function(){
+    var sec = Math.round((Date.now()-sessionStart)/1000);
+    tickStudyTime(Math.min(sec,60));
+  });
+}
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", boot);
+else boot();
+
+})(); // end IIFE
+
+</script>
+</body>
+</html>

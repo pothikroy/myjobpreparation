@@ -1,0 +1,1719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="../../firebase-config.js?v=2"></script>
+  <script>window.AG_PAGE = {"id": "written-syllabus-intelligence", "title": "BCS Written Syllabus Intelligence", "storage": {"type": "keys", "keys": ["bcsIntel_v1"]}};</script>
+  <script src="../../auth-gate.js?v=5"></script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BCS Written — Syllabus Intelligence System</title>
+<style>
+:root{
+  --paper:#faf7ee;
+  --paper-2:#f2ede0;
+  --ink:#1c231d;
+  --ink-soft:#4c5650;
+  --line: #d9d1bd;
+  --green:#0e3d2c;
+  --green-2:#155a41;
+  --green-tint:#e4ede7;
+  --red:#a6273c;
+  --red-tint:#f7e6e6;
+  --gold:#a9762f;
+  --gold-tint:#f6ecd8;
+  --blue:#28527a;
+  --blue-tint:#e6edf3;
+  --card:#ffffff;
+  --shadow: 0 1px 2px rgba(28,35,29,.06), 0 6px 18px rgba(28,35,29,.05);
+  --radius: 10px;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --serif: "Newsreader", "Noto Serif Bengali", Georgia, serif;
+  --sans: "Inter", "Noto Sans Bengali", "Hind Siliguri", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+html.dark{
+  --paper:#14181a;
+  --paper-2:#1b2124;
+  --ink:#eef0ea;
+  --ink-soft:#a9b3ac;
+  --line:#31383a;
+  --green:#3fae82;
+  --green-2:#2f8a67;
+  --green-tint:#173029;
+  --red:#e0728a;
+  --red-tint:#2e181d;
+  --gold:#d9ac5f;
+  --gold-tint:#2c2413;
+  --blue:#8fb6de;
+  --blue-tint:#182633;
+  --card:#1c2225;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 18px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box;}
+body{margin:0;}
+body,input,textarea,select,button{font-family:var(--sans); color:var(--ink);}
+body{background:var(--paper); font-size:15px; line-height:1.5;}
+h1,h2,h3,h4{font-family:var(--serif); font-weight:600; margin:0 0 .4em 0; letter-spacing:.2px;}
+a{color:inherit;}
+button{cursor:pointer; font-family:var(--sans);}
+::selection{background:var(--gold-tint);}
+
+/* ---------- layout shell ---------- */
+#app{display:flex; min-height:100vh;}
+#sidebar{
+  width:230px; flex:0 0 230px; background:var(--green); color:#f4f0e2;
+  display:flex; flex-direction:column; position:sticky; top:0; height:100vh; overflow-y:auto;
+}
+#sidebar .brand{padding:20px 18px 14px; border-bottom:1px solid rgba(244,240,226,.15);}
+#sidebar .brand .mark{font-family:var(--mono); font-size:11px; letter-spacing:2px; opacity:.75; text-transform:uppercase;}
+#sidebar .brand h1{font-size:19px; color:#fbf8ee; margin:4px 0 0;}
+#sidebar nav{padding:10px 0; flex:1;}
+#sidebar .nav-item{
+  display:flex; align-items:center; gap:10px; padding:9px 18px; font-size:13.5px; cursor:pointer;
+  color:#e6e2cf; border-left:3px solid transparent; opacity:.85;
+}
+#sidebar .nav-item .ic{width:18px; text-align:center; font-size:14px;}
+#sidebar .nav-item:hover{background:rgba(244,240,226,.06); opacity:1;}
+#sidebar .nav-item.active{background:rgba(244,240,226,.1); border-left-color:var(--gold); opacity:1; font-weight:600;}
+#sidebar .foot{padding:14px 18px; border-top:1px solid rgba(244,240,226,.15); font-size:11px; opacity:.6;}
+#main{flex:1; min-width:0; padding:26px 34px 80px; max-width:1360px;}
+.topbar{display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:22px; flex-wrap:wrap;}
+.topbar .search-wrap{position:relative; flex:1; min-width:220px; max-width:420px;}
+.topbar input[type=search]{
+  width:100%; padding:9px 12px 9px 32px; border-radius:20px; border:1px solid var(--line);
+  background:var(--card); font-size:13.5px; color:var(--ink);
+}
+.topbar .search-wrap:before{content:"⌕"; position:absolute; left:12px; top:50%; transform:translateY(-50%); opacity:.5; font-size:14px;}
+.topbar .actions{display:flex; gap:8px; align-items:center;}
+.iconbtn{background:var(--card); border:1px solid var(--line); border-radius:8px; padding:7px 10px; font-size:13px;}
+.iconbtn:hover{border-color:var(--green-2);}
+.pagehead{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:18px; flex-wrap:wrap;}
+.pagehead h2{font-size:24px;}
+.pagehead .sub{color:var(--ink-soft); font-size:13px;}
+.view{display:none;}
+.view.active{display:block;}
+
+/* ---------- generic components ---------- */
+.grid{display:grid; gap:16px;}
+.grid.cols-4{grid-template-columns:repeat(4,1fr);}
+.grid.cols-3{grid-template-columns:repeat(3,1fr);}
+.grid.cols-2{grid-template-columns:repeat(2,1fr);}
+@media(max-width:1100px){.grid.cols-4{grid-template-columns:repeat(2,1fr);} .grid.cols-3{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:640px){.grid.cols-4,.grid.cols-3,.grid.cols-2{grid-template-columns:1fr;}}
+
+.card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px 18px;}
+.stat{padding:14px 16px;}
+.stat .num{font-family:var(--serif); font-size:28px; font-weight:600; line-height:1;}
+.stat .label{font-size:12px; color:var(--ink-soft); margin-top:6px; text-transform:uppercase; letter-spacing:.5px;}
+.stat .sparkline{height:3px; background:var(--line); border-radius:3px; margin-top:10px; overflow:hidden;}
+.stat .sparkline i{display:block; height:100%; background:var(--green-2);}
+
+.progress-bar{height:8px; background:var(--paper-2); border-radius:5px; overflow:hidden; border:1px solid var(--line);}
+.progress-bar > i{display:block; height:100%; background:linear-gradient(90deg,var(--green-2),var(--green));}
+.subject-card{cursor:pointer; transition:transform .12s ease;}
+.subject-card:hover{transform:translateY(-2px); border-color:var(--green-2);}
+.subject-card .top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px;}
+.subject-card .code{font-family:var(--mono); font-size:11px; color:var(--ink-soft); background:var(--paper-2); padding:2px 6px; border-radius:4px;}
+.subject-card h3{font-size:16px; margin:6px 0 2px;}
+.subject-card .marks{font-size:12px; color:var(--ink-soft); margin-bottom:10px;}
+.subject-card .pct{font-family:var(--mono); font-weight:600; font-size:13px;}
+.subject-card .mini-stats{display:flex; gap:12px; margin-top:10px; font-size:11.5px; color:var(--ink-soft); flex-wrap:wrap;}
+.subject-card .mini-stats b{color:var(--ink); font-weight:600;}
+
+.badge{display:inline-block; font-size:10.5px; padding:2px 7px; border-radius:20px; font-weight:600; letter-spacing:.2px; white-space:nowrap;}
+.badge.official{background:var(--blue-tint); color:var(--blue);}
+.badge.breakdown{background:var(--green-tint); color:var(--green-2);}
+.badge.angle{background:var(--gold-tint); color:var(--gold);}
+.badge.insight{background:var(--red-tint); color:var(--red);}
+.badge.tag{background:var(--paper-2); color:var(--ink-soft); border:1px solid var(--line);}
+.badge.status-not_started{background:var(--paper-2); color:var(--ink-soft);}
+.badge.status-learning{background:var(--gold-tint); color:var(--gold);}
+.badge.status-learned{background:var(--blue-tint); color:var(--blue);}
+.badge.status-practiced{background:#e3ecf7; color:var(--blue);}
+.badge.status-strong{background:var(--green-tint); color:var(--green-2);}
+.badge.status-needs_revision{background:var(--red-tint); color:var(--red);}
+.badge.status-mastered{background:var(--green); color:#fff;}
+
+.btn{border:1px solid var(--line); background:var(--card); padding:8px 14px; border-radius:8px; font-size:13px; font-weight:600;}
+.btn:hover{border-color:var(--green-2);}
+.btn.primary{background:var(--green); color:#fff; border-color:var(--green);}
+.btn.primary:hover{background:var(--green-2);}
+.btn.ghost{background:transparent; border-color:transparent; color:var(--ink-soft); font-weight:500;}
+.btn.danger{color:var(--red); border-color:var(--red);}
+.btn.sm{padding:5px 10px; font-size:12px;}
+.btn[disabled]{opacity:.4; cursor:default;}
+
+.explorer-tree{display:flex; flex-direction:column; gap:8px;}
+.subj-block{border:1px solid var(--line); border-radius:var(--radius); background:var(--card); overflow:hidden;}
+.subj-block > .head{display:flex; align-items:center; gap:10px; padding:12px 16px; cursor:pointer; user-select:none;}
+.subj-block > .head:hover{background:var(--paper-2);}
+.subj-block > .head .chev{transition:transform .15s; opacity:.6; font-size:12px;}
+.subj-block.open > .head .chev{transform:rotate(90deg);}
+.subj-block > .head h3{margin:0; font-size:15px; flex:1;}
+.subj-block > .body{display:none; padding:0 16px 14px 16px; border-top:1px solid var(--line);}
+.subj-block.open > .body{display:block;}
+.part-block{margin-top:12px;}
+.part-block h4{font-size:12.5px; text-transform:uppercase; letter-spacing:.6px; color:var(--ink-soft); margin:14px 0 8px;}
+.item-row{border:1px solid var(--line); border-radius:8px; margin-bottom:8px; background:var(--paper-2);}
+.item-row > .ihead{display:flex; align-items:center; gap:10px; padding:9px 12px; cursor:pointer;}
+.item-row > .ihead .chev{opacity:.5; font-size:11px; transition:transform .15s;}
+.item-row.open > .ihead .chev{transform:rotate(90deg);}
+.item-row .ititle{flex:1; font-size:13.5px; font-weight:600;}
+.item-row .imarks{font-family:var(--mono); font-size:11px; color:var(--ink-soft);}
+.item-row > .ibody{display:none; padding:2px 12px 12px;}
+.item-row.open > .ibody{display:block;}
+.official-box{background:var(--card); border-left:3px solid var(--blue); padding:8px 10px; font-size:12.5px; color:var(--ink-soft); border-radius:0 6px 6px 0; margin:8px 0 10px; white-space:pre-line;}
+.topic-chip-row{display:flex; flex-wrap:wrap; gap:6px;}
+.topic-chip{
+  border:1px solid var(--line); background:var(--card); border-radius:16px; padding:5px 12px 5px 10px;
+  font-size:12.5px; cursor:pointer; display:flex; align-items:center; gap:6px;
+}
+.topic-chip:hover{border-color:var(--green-2);}
+.topic-chip .dot{width:7px; height:7px; border-radius:50%;}
+
+/* status dot colors */
+.dot-not_started{background:#b7b0a0;}
+.dot-learning{background:var(--gold);}
+.dot-learned{background:var(--blue);}
+.dot-practiced{background:#4a80b8;}
+.dot-strong{background:var(--green-2);}
+.dot-needs_revision{background:var(--red);}
+.dot-mastered{background:#0e3d2c;}
+
+/* modal */
+.overlay{position:fixed; inset:0; background:rgba(15,20,16,.5); display:none; align-items:flex-start; justify-content:center; z-index:100; overflow-y:auto; padding:30px 16px;}
+.overlay.active{display:flex;}
+.modal{background:var(--card); border-radius:14px; width:100%; max-width:760px; box-shadow:0 20px 60px rgba(0,0,0,.3); margin-bottom:40px;}
+.modal .mhead{display:flex; justify-content:space-between; align-items:flex-start; padding:20px 24px 12px; border-bottom:1px solid var(--line);}
+.modal .mhead h2{font-size:20px; margin-bottom:4px;}
+.modal .mclose{background:none; border:none; font-size:20px; color:var(--ink-soft); line-height:1;}
+.modal .mbody{padding:18px 24px 24px;}
+.msection{margin-bottom:18px;}
+.msection > .stitle{font-size:11px; text-transform:uppercase; letter-spacing:.6px; color:var(--ink-soft); margin-bottom:6px; display:flex; align-items:center; gap:8px;}
+.msection ul{margin:0; padding-left:18px; font-size:13.5px;}
+.msection li{margin-bottom:3px;}
+textarea, select, input[type=text], input[type=date], input[type=number]{
+  width:100%; border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:13.5px; background:var(--paper); color:var(--ink); font-family:var(--sans);
+}
+textarea{min-height:70px; resize:vertical;}
+.field-row{display:flex; gap:10px; flex-wrap:wrap;}
+.field{flex:1; min-width:140px; margin-bottom:10px;}
+.field label{display:block; font-size:11.5px; color:var(--ink-soft); margin-bottom:4px; text-transform:uppercase; letter-spacing:.4px;}
+.rate-row{display:flex; gap:6px;}
+.rate-btn{width:30px; height:30px; border-radius:50%; border:1px solid var(--line); background:var(--card); font-size:13px; font-weight:700;}
+.rate-btn.on{background:var(--green); color:#fff; border-color:var(--green);}
+.tab-row{display:flex; gap:6px; border-bottom:1px solid var(--line); margin-bottom:14px; flex-wrap:wrap;}
+.tab-btn{padding:7px 12px; font-size:12.5px; font-weight:600; background:none; border:none; color:var(--ink-soft); border-bottom:2px solid transparent; margin-bottom:-1px;}
+.tab-btn.active{color:var(--green-2); border-color:var(--green-2);}
+.tabpane{display:none;}
+.tabpane.active{display:block;}
+
+.qangle{background:var(--gold-tint); border:1px solid transparent; padding:7px 10px; border-radius:7px; font-size:13px; margin-bottom:6px;}
+.qangle b{color:var(--gold);}
+
+.empty{text-align:center; padding:50px 20px; color:var(--ink-soft);}
+.empty .big{font-size:32px; margin-bottom:10px;}
+
+table.simple{width:100%; border-collapse:collapse; font-size:13px;}
+table.simple th, table.simple td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--line);}
+table.simple th{font-size:11px; text-transform:uppercase; color:var(--ink-soft); letter-spacing:.4px;}
+.heat-cell{width:16px; height:16px; border-radius:3px; display:inline-block;}
+
+.list-entry{border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin-bottom:8px; background:var(--card);}
+.list-entry .meta{font-size:11.5px; color:var(--ink-soft); margin-top:4px;}
+.list-entry .del{float:right; color:var(--red); font-size:11px; background:none; border:none;}
+
+.section-title-row{display:flex; align-items:center; justify-content:space-between; margin:26px 0 10px;}
+.section-title-row h3{font-size:16px; margin:0;}
+
+.filter-bar{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;}
+.filter-bar select, .filter-bar input{width:auto; font-size:12.5px; padding:6px 9px;}
+
+.notice{background:var(--gold-tint); border:1px solid transparent; color:var(--gold); padding:10px 14px; border-radius:8px; font-size:12.5px; margin-bottom:16px;}
+.notice.blue{background:var(--blue-tint); color:var(--blue);}
+.notice b{font-weight:700;}
+
+.quiz-q{font-size:15px; font-weight:600; margin-bottom:14px;}
+.quiz-opt{display:block; width:100%; text-align:left; padding:10px 12px; border:1px solid var(--line); border-radius:8px; margin-bottom:8px; background:var(--card); font-size:13.5px;}
+.quiz-opt:hover{border-color:var(--green-2);}
+.quiz-opt.correct{background:var(--green-tint); border-color:var(--green-2);}
+.quiz-opt.wrong{background:var(--red-tint); border-color:var(--red);}
+
+.recall-box{border:2px dashed var(--line); border-radius:10px; padding:16px; text-align:center; color:var(--ink-soft); font-size:13px;}
+
+::-webkit-scrollbar{width:9px; height:9px;}
+::-webkit-scrollbar-thumb{background:var(--line); border-radius:6px;}
+
+@media(max-width:900px){
+  #sidebar{position:fixed; left:-230px; z-index:90; transition:left .2s; box-shadow:0 0 30px rgba(0,0,0,.3);}
+  #sidebar.open{left:0;}
+  #main{padding:18px;}
+  .grid.cols-4, .grid.cols-3{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+<div id="ag-overlay"></div>
+
+<div id="app">
+  <aside id="sidebar">
+    <div class="brand">
+      <div class="mark">Off Studio · Study Systems</div>
+      <h1>BCS Written<br>Intelligence</h1>
+    </div>
+    <nav id="navlist"></nav>
+    <div class="foot">Local-only · your data never leaves this file</div>
+  </aside>
+  <main id="main">
+    <div class="topbar">
+      <button class="iconbtn" id="menuToggle" style="display:none;">☰</button>
+      <div class="search-wrap"><input type="search" id="globalSearch" placeholder="Search topics, notes, questions, facts…"></div>
+      <div class="actions">
+        <button class="iconbtn" id="themeToggle">◐ Theme</button>
+        <button class="iconbtn" id="exportBtn">⇩ Backup</button>
+        <button class="iconbtn" id="importBtn">⇧ Restore</button>
+        <input type="file" id="importFile" accept="application/json" style="display:none;">
+      </div>
+    </div>
+    <div id="searchResultsView" class="view"></div>
+    <div id="views"></div>
+  </main>
+</div>
+
+<div class="overlay" id="topicOverlay"><div class="modal" id="topicModal"></div></div>
+<div class="overlay" id="genericOverlay"><div class="modal" id="genericModal"></div></div>
+
+<script>
+/* ============================================================================
+   BCS WRITTEN SYLLABUS INTELLIGENCE SYSTEM
+   Data source: "SYLLABUS FOR BCS (WRITTEN) EXAMINATION" — pages 1–15 of 235
+   pages uploaded by the user. Only the Compulsory Subjects (codes 001–010)
+   are covered in the uploaded pages with full syllabus text; the 101
+   Post-Related Subjects appear only as a code/name index on pages 1–3 —
+   their detailed syllabi (pages 16–235) were not part of this upload.
+   ========================================================================== */
+
+const SOURCE_NOTE = "Extracted from pages 1–15 of the 235-page official BCS Written syllabus PDF you uploaded. Compulsory subjects (001–010) are loaded in full. The 101 post-related subjects are listed by code/name only — their detailed syllabi live on pages 16–235, which weren't in this upload.";
+
+/* ---------- raw official syllabus data (verbatim wording preserved) ---------- */
+const COMPULSORY = [
+  {
+    code:"001", name:"Bangla", nameBn:"বাংলা", note:"Technical/Professional cadre only", totalMarks:100,
+    parts:[{name:"Full Paper", marks:100, items:[
+      {text:"Grammar — a) Word formation b) Spelling / rules of spelling c) Sentence purification / usage and misusage d) Expressing the inner meaning of proverbs and idioms e) Sentence construction", textBn:"ব্যাকরণ: ক) শব্দগঠন, খ) বানান/বানানের নিয়ম, গ) বাক্যশুদ্ধি/প্রয়োগ-অপপ্রয়োগ, ঘ) প্রবাদ-প্রবচনের নিহিতার্থ প্রকাশ, ঙ) বাক্যগঠন", marks:30, tags:["Grammar","Memorization Heavy","Descriptive"]},
+      {text:"Bhava-Samprasarana (elaboration of a given idea/thought into a fuller paragraph)", textBn:"ভাব-সম্প্রসারণ", marks:20, tags:["Descriptive","Essay","Conceptual"]},
+      {text:"Saarmarma (precis / summary writing of a given passage)", textBn:"সারমর্ম", marks:20, tags:["Descriptive","Short Note"]},
+      {text:"Answers to questions on Bangla language and literature", textBn:"বাংলা ভাষা ও সাহিত্য-বিষয়ক প্রশ্নের উত্তর", marks:30, tags:["Historical","Conceptual","Memorization Heavy"]},
+    ]}]
+  },
+  {
+    code:"002", name:"Bangla", nameBn:"বাংলা", note:"General cadre, and General+Technical/Professional cadre", totalMarks:200,
+    parts:[
+      {name:"Part I", marks:100, items:[
+        {text:"Grammar — a) Word formation b) Spelling / rules of spelling c) Sentence purification / usage and misusage d) Expressing the inner meaning of proverbs and idioms e) Sentence construction", textBn:"ব্যাকরণ: ক) শব্দগঠন, খ) বানান/বানানের নিয়ম, গ) বাক্যশুদ্ধি/প্রয়োগ-অপপ্রয়োগ, ঘ) প্রবাদ-প্রবচনের নিহিতার্থ প্রকাশ, ঙ) বাক্যগঠন", marks:30, tags:["Grammar","Memorization Heavy","Descriptive"]},
+        {text:"Bhava-Samprasarana (elaboration of a given idea/thought)", textBn:"ভাব-সম্প্রসারণ", marks:20, tags:["Descriptive","Essay"]},
+        {text:"Saarmarma (precis / summary writing)", textBn:"সারমর্ম", marks:20, tags:["Descriptive","Short Note"]},
+        {text:"Answers to questions on Bangla language and literature", textBn:"বাংলা ভাষা ও সাহিত্য-বিষয়ক প্রশ্নের উত্তর", marks:30, tags:["Historical","Conceptual","Memorization Heavy"]},
+      ]},
+      {name:"Part II", marks:100, items:[
+        {text:"Translation (English into Bangla)", textBn:"অনুবাদ (ইংরেজি থেকে বাংলা)", marks:15, tags:["Translation"]},
+        {text:"Imaginary dialogue (Kalponik Sanglap)", textBn:"কাল্পনিক সংলাপ", marks:15, tags:["Descriptive","Essay"]},
+        {text:"Letter writing (Patra-lekhan)", textBn:"পত্রলিখন", marks:15, tags:["Descriptive"]},
+        {text:"Book review (Grantha-samalochana)", textBn:"গ্রন্থ-সমালোচনা", marks:15, tags:["Analytical","Descriptive"]},
+        {text:"Essay / composition (Rachana)", textBn:"রচনা", marks:40, tags:["Essay","Descriptive","Critical Analysis"]},
+      ]}
+    ]
+  },
+  {
+    code:"003", name:"English", nameBn:"", note:"Compulsory", totalMarks:200,
+    parts:[
+      {name:"Part A", marks:100, items:[
+        {text:"Reading Comprehension — an unseen passage on a topic of contemporary relevance will be set; candidates answer (a) thematic questions testing understanding of the passage (30 marks), and (b) questions on grammar and usage (30 marks).", marks:60, tags:["Descriptive","Grammar","Conceptual"]},
+        {text:"Candidates write a summary of the given passage in their own words within 100 words.", marks:20, tags:["Short Note"]},
+        {text:"Candidates write a letter relating to the thematic issue of the given passage, addressed to the editor of an English newspaper.", marks:20, tags:["Descriptive"]},
+      ]},
+      {name:"Part B", marks:100, items:[
+        {text:"Candidates compose an essay on a topic of topical relevance, conforming to a set word limit, conveying the ability to express ideas clearly and correctly in English and to reflect on and analyze a topic of contemporary interest.", marks:50, tags:["Essay","Critical Analysis","Contemporary"]},
+        {text:"Translation from English into Bangla, and from Bangla into English — a short passage each way.", marks:50, tags:["Translation"]},
+      ]}
+    ]
+  },
+  {
+    code:"005", name:"Bangladesh Affairs", nameBn:"বাংলাদেশ বিষয়াবলি", note:"Compulsory — designed to cover history, geography, environment, society, culture, economy and politics of Bangladesh", totalMarks:200,
+    parts:[{name:"Full Paper", marks:200, items:[
+      {text:"Geography of Bangladesh, including topographical features of different areas/regions and their development over time.", tags:["Descriptive","Data/Statistics"]},
+      {text:"Demographic features including ethnic and cultural diversity.", tags:["Descriptive","Data/Statistics"]},
+      {text:"History and culture of Bangladesh from ancient to recent times.", tags:["Historical","Descriptive"]},
+      {text:"Economy, society, literature and culture of Bangladesh, with particular emphasis on developments including Poverty Alleviation, Vision-2021, GNP, NNP, GDP etc. after the emergence of the country.", tags:["Data/Statistics","Contemporary","Analytical"]},
+      {text:"Bangladesh's environment and nature, and challenges and prospects, with particular emphasis on conservation, preservation and sustainability.", tags:["Analytical","Contemporary"]},
+      {text:"Natural resources of Bangladesh with focus on their sustainable harnessing and management.", tags:["Descriptive","Analytical"]},
+      {text:"The Constitution of the People's Republic of Bangladesh: Preamble, Features, Directive Principles of State Policy, Constitutional Amendments.", tags:["Constitutional","Memorization Heavy"]},
+      {text:"Organs of the Government — a) Legislature: representation, law-making, financial and oversight functions, rules of procedure, gender issues, caucuses, Parliament Secretariat. b) Executive: chief and real executive (President and Prime Minister), powers and functions, Cabinet, Council of Ministers, rules of business, bureaucracy, secretariat, law-enforcing agencies, administrative setup (national and local government structures), decentralization programmes, local level planning. c) Judiciary: structure (Supreme, High and subordinate courts), organization, powers and functions of the Supreme Court, appointment/tenure/removal of judges, organization of subordinate courts, separation of judiciary from executive, judicial review, adjudication, Gram Adalat, Alternative Dispute Resolution (ADR).", tags:["Constitutional","Descriptive","Comparative"]},
+      {text:"Foreign Policy and External Relations of Bangladesh: goals, determinants and policy formulation process; factors of national power; security strategies; geo-politics and environment issues; economic diplomacy; man-power exploitation; participation in international organizations; UNO and UN Peace Keeping Missions, NAM, SAARC, OIC, BIMSTEC, D-8 etc.; international economic institutions; foreign aid; international trade.", tags:["Analytical","International Application","Contemporary"]},
+      {text:"Political Parties: historical development; leadership; social bases; structure; ideology and programmes; factionalism; politics of alliances; inter- and intra-party relations; electoral behaviour; parties in government and opposition.", tags:["Analytical","Historical"]},
+      {text:"Elections in Bangladesh — management of electoral politics: role of the Election Commission; electoral law; campaigns; Representation of People's Order (RPO); election observation teams.", tags:["Constitutional","Descriptive"]},
+      {text:"Contemporary Communication — ICT, role of media, Right to Information (RTI), and e-governance.", tags:["Contemporary","Current Affairs Linked"]},
+      {text:"Non-formal institutions — role of civil society, interest groups, and NGOs in Bangladesh.", tags:["Descriptive","Analytical"]},
+      {text:"Globalization and Bangladesh — economic and political dimensions; roles of the WTO, World Bank, IMF, ADB, IDB and other development partners and Multi-National Corporations (MNCs).", tags:["Analytical","International Application"]},
+      {text:"Gender issues and Development in Bangladesh.", tags:["Analytical","Contemporary"]},
+      {text:"The Liberation War and its Background: Language Movement 1952, 1954 Election, Six-Point Movement 1966, Mass Upsurge 1968–69, General Elections 1970, Non-cooperation Movement 1971, Bangabandhu's Historic Speech of 7th March, formation and functions of the Mujibnagar government, role of major powers and of the UN, surrender of the Pakistani Army, Bangabandhu's return to liberated Bangladesh, withdrawal of Indian armed forces from Bangladesh.", tags:["Historical","Memorization Heavy","Essay"]},
+    ]}]
+  },
+  {
+    code:"007", name:"International Affairs", nameBn:"আন্তর্জাতিক বিষয়াবলি", note:"Compulsory — general & professional cadre. Proposed marks: Short Conceptual Notes 10×4=40; Analytical Questions 3×15=45; Problem-solving 1×15=15.", totalMarks:100,
+    parts:[
+      {name:"Section A — Conceptual Issues", marks:40, items:[
+        {text:"Introduction to International Affairs: significance of international affairs; meaning and scope of international affairs; linkage between international affairs and international politics.", tags:["Conceptual","Definition"]},
+        {text:"Actors in the World: modern state, types of state, sovereignty, non-state actors, international institutions, relations between state and non-state actors.", tags:["Conceptual","Comparative"]},
+        {text:"Power and Security: power, national power, balance of power, disarmament, arms control, geopolitics, terrorism.", tags:["Conceptual","Analytical"]},
+        {text:"Major Ideas and Ideologies: nationalism, imperialism, colonialism, neo-colonialism, post-modernism, globalization and new world order.", tags:["Conceptual","Historical"]},
+        {text:"Foreign policy and Diplomacy: concepts of foreign policy and diplomacy, decision-making process, determinants of foreign policy, diplomatic functions, immunities, and privileges.", tags:["Conceptual","Bangladesh Application"]},
+        {text:"International Economic Relations: international trade, free trade, protectionism, foreign aid, debt crisis, foreign direct investment (FDI), financial liberalization, regionalism, regionalization, North-South gap, global poverty, MDGs.", tags:["Conceptual","Data/Statistics"]},
+        {text:"Global Environment: environmental issues and challenges, climate change, global warming, climate adaptation, climate diplomacy.", tags:["Conceptual","Contemporary"]},
+      ]},
+      {name:"Section B — Empirical Issues", marks:45, items:[
+        {text:"The United Nations System: the UN and its organs, importance and limitations of the UN, reforms of the UN, role of the Security Council, UN peacekeeping and peace-building functions, human rights agenda, environmental agenda, International Court of Justice, and women's empowerment.", tags:["International Application","Analytical"]},
+        {text:"Foreign Relations of Major Powers: USA, Russia, UK, China, France, Germany, India, Japan etc.", tags:["Comparative","Contemporary"]},
+        {text:"Global Initiatives and Institutions: World Bank, IMF, ADB, G8, G-77, WTO, Kyoto Protocol, COP etc.", tags:["Data/Statistics","International Application"]},
+        {text:"Regional Institutions: SAARC, BIMSTEC, EU, ASEAN, NATO, APEC, OIC, AU, GCC.", tags:["Comparative","International Application"]},
+        {text:"Major Issues and Conflicts in the World: the Palestine problem, the Arab Spring, the Kashmir issue, the Syrian crisis, Persian Gulf conflict, the nuclear issue and Iran, the North Korean issue, territorial disputes in Southeast and East Asia, nuclear proliferation and other contemporary issues.", tags:["Current Affairs Linked","Critical Analysis"]},
+        {text:"Politics in South Asia: India-Pakistan relations, Bangladesh-India relations, regional integration, water dispute, border problems and terrorism.", tags:["Bangladesh Application","Analytical"]},
+        {text:"Bangladesh in International Affairs: major achievements, challenges, future directions.", tags:["Bangladesh Application","Critical Analysis"]},
+      ]},
+      {name:"Section C — Problem-solving", marks:15, items:[
+        {text:"Candidates may be asked to analyze a problem and its solution on any aspect of global developments and security issues, such as trade, climate change, foreign aid, arms proliferation etc.", tags:["Problem Solving","Analytical"]},
+      ]}
+    ]
+  },
+  {
+    code:"008", name:"Mathematical Reasoning", nameBn:"গাণিতিক যুক্তি", note:"Compulsory — tests ability to apply Mathematics and Mathematical Reasoning up to secondary level to concrete, application-oriented problems.", totalMarks:50,
+    parts:[{name:"Full Paper", marks:50, items:[
+      {text:"Simplification of Arithmetic and Algebraic Expressions.", tags:["Mathematical Problem","Numerical"]},
+      {text:"Unitary Method, Average, Percentage, Simple and Compound Interest, LCM, GCD, Ratio and Proportion, Profit and Loss.", tags:["Mathematical Problem","Numerical"]},
+      {text:"Algebraic Formulas, Factorization of Polynomials, Linear and Quadratic Equations, Linear and Quadratic Inequalities.", tags:["Mathematical Problem"]},
+      {text:"Systems of Linear Equations with two or three unknowns.", tags:["Mathematical Problem"]},
+      {text:"Exponents and Logarithms. Exponential and Logarithmic functions.", tags:["Mathematical Problem"]},
+      {text:"Arithmetic and Geometric Sequences and Series.", tags:["Mathematical Problem"]},
+      {text:"Line, Angle, Triangle related theorems. Theorem of Pythagoras. Circle — Theorems, Corollaries.", tags:["Diagram/Visual","Mathematical Problem"]},
+      {text:"Area related theorems and construction. Mensuration — plane figures and solid objects.", tags:["Diagram/Visual","Numerical"]},
+      {text:"Cartesian Geometry — Distance, Equation of a Straight Line.", tags:["Mathematical Problem","Diagram/Visual"]},
+      {text:"Trigonometric ratios and functions. Problems on height and distances.", tags:["Mathematical Problem","Diagram/Visual"]},
+      {text:"Set theory. Venn diagram.", tags:["Conceptual","Diagram/Visual"]},
+      {text:"Counting Principles, Permutations and Combinations. Elementary Probability.", tags:["Mathematical Problem","Numerical"]},
+    ]}]
+  },
+  {
+    code:"009", name:"Mental Ability", nameBn:"মানসিক দক্ষতা", note:"Compulsory — assesses differential aptitude of the candidate.", totalMarks:50,
+    parts:[{name:"Full Paper", marks:50, items:[
+      {text:"Verbal Reasoning: a measure of ability to understand concepts framed in pairs of words, drawn from history, geography, literature, science or any other content area — testing the ability to abstract and generalize relationships.", tags:["Conceptual","Numerical"]},
+      {text:"Abstract Reasoning: a nonverbal measure of reasoning ability. Series in each problem require perceiving an operating principle in changing diagrams; the candidate must discover the governing principle and identify the diagram that should follow.", tags:["Diagram/Visual"]},
+      {text:"Space Relations: a measure of ability to deal with concrete materials through visualization — visualizing a constructed object from a picture of a pattern, and imagining how an object would appear if rotated in various ways.", tags:["Diagram/Visual","Mathematical Problem"]},
+      {text:"Numerical Ability: a measure of the candidate's ability to reason with numbers, manipulate numerical relationships, and deal intelligently with quantitative materials.", tags:["Numerical","Mathematical Problem"]},
+      {text:"Spelling and Language: measures the candidate's ability to detect errors in grammar, punctuation and capitalization, reflecting present-day formal writing principles.", tags:["Grammar"]},
+      {text:"Mechanical Reasoning: one aspect of intelligence — the ability to learn the principles of operation and repair of complex devices.", tags:["Conceptual","Diagram/Visual"]},
+    ]}]
+  },
+  {
+    code:"010", name:"General Science and Technology", nameBn:"সাধারণ বিজ্ঞান ও প্রযুক্তি", note:"Compulsory — divided into three parts.", totalMarks:100,
+    parts:[
+      {name:"Part A — General Science", marks:60, items:[
+        {text:"Light: nature, spectrum, different colours and wavelengths, UV/IR/LASER, reflection, refraction, total internal reflection, lenses, thin converging lens, dispersion of light, particle nature of light, Einstein's photoelectric equation, photocells.", tags:["Conceptual","Numerical"]},
+        {text:"Sound: hearing mechanism, decibel, frequency, sound machines in home and around (microphone, loudspeaker, PA system), characteristics of a sound note, stationary waves in stretched strings, laws of vibrating strings, beats, Doppler effect and its applications/limitations, echoes, absorption of sound waves, reverberation, fundamentals of building acoustics, Sabine's formula.", tags:["Conceptual","Data/Statistics"]},
+        {text:"Magnetism: polarity and relationship with current, bar magnet, magnetic lines of force, torque on a bar magnet in a magnetic field, Earth's magnetic field as a bar magnet, tangent galvanometer, vibration magnetometer, para/dia/ferromagnetic substances with examples, electromagnets and permanent magnets.", tags:["Conceptual"]},
+        {text:"Acid, Base and Salt: acid-base concepts, characteristics of acids and bases, acid-base indicators, uses in daily life and handling caution, social effects of misuse of acids, reason for acidity in stomach and food selection, pH measurement and importance, salts and their characteristics, necessity of salt in daily life, uses of salts in agriculture and industry.", tags:["Conceptual","Contemporary"]},
+        {text:"Water: properties, melting/boiling points, electrical conductivity, structure, hydrogen bonding, sources (incl. Bangladesh's fresh water sources), water quality parameters, recycling of water, role in nature conservation, purification methods, reasons for pollution of Bangladesh's water sources, effects of pollution on plants/animals/humans, effects of global warming on fresh water, prevention strategies and citizen responsibility.", tags:["Bangladesh Application","Contemporary","Data/Statistics"]},
+        {text:"Our resources: soil types and pH, reasons/effects of soil pollution, natural gas composition/processing/uses/sources, petroleum and coal, forestry, limitations and conservation of resources.", tags:["Bangladesh Application","Descriptive"]},
+        {text:"Polymer: natural and synthetic polymers, polymerization process, sources/characteristics/uses, manufacturing of fibers/silk/wool/nylon/rayon, physical & chemical properties of rubber and plastic, their role in environmental imbalance and responsible use.", tags:["Conceptual","Contemporary"]},
+        {text:"Atmosphere: biosphere and hydrosphere, ionosphere, role of oxygen/carbon dioxide/nitrogen, potable and polluted water, pasteurization.", tags:["Conceptual"]},
+        {text:"Food and Nutrition: elements of food (carbohydrates, protein, fats/lipids, vitamins), types and sources, nutritional value, balanced-diet menu and pyramid, body mass index (BMI), fast/junk food, preservation of food and its processes, use of chemicals for preservation and their physiological effects.", tags:["Data/Statistics","Contemporary"]},
+        {text:"Biotechnology: chromosome shape/structure/composition, nucleic acid (DNA/RNA), protein, gene, DNA/forensic testing, genetic disorders, biotechnology and genetic engineering, cloning and its social effects, transgenic plants/animals, use in agriculture/dairy/pharmaceutics, gene therapy, genetically modified organisms, nanotechnology, pharmacology, pharmacokinetics.", tags:["Conceptual","Contemporary","Critical Analysis"]},
+        {text:"Disease and Healthcare: deficiency, infection, antiseptics, antibiotics, stroke, heart attack, blood pressure, hypertension and diabetes, dengue, diarrhoea, drug addiction, vaccination, cataract, food poisoning; diagnostic techniques — X-ray, ultrasonography, CT scan, MRI, ECG, endoscopy, radiotherapy, chemotherapy, angiography (uses, risks, side effects); basic concepts of cancer, AIDS and hepatitis.", tags:["Contemporary","Memorization Heavy"]},
+      ]},
+      {name:"Part B — Computer and Information Technology", marks:25, items:[
+        {text:"Computer Technology: organization of a modern PC and major functional units, computer generations, history of computers, CPU and microprocessor, computer memories (classification/characteristics), input/output devices, role of BIOS, bus architecture, motherboard components, ALU, control unit, language translators (compiler/interpreter), system vs application software, computer viruses, office automation, computational biology, role of computers in drug design, programming languages (types/levels), steps of software development, impacts of computers on society.", tags:["Conceptual","Contemporary"]},
+        {text:"Information Technology: data communication and information, information collection/processing/distribution, system analysis and information systems, expert systems, database software/structures, DBMS, multimedia systems (hardware/software), data compression, multimedia system development life cycle, LAN/MAN/WAN and LAN topology, networking devices (router/switch/hub), TCP/IP suite, Internet services and protocols, ISPs, intranet/extranet, WWW and web technology, access control/security/privacy, e-mail, social media and its impact, transmission media and bandwidth, telecommunication system components, mobile telephony, satellite communication and VSAT, fibre-optic communication, Wi-Fi, e-commerce technology and impact (B2B/B2C/M-Commerce), smartphones, GPS.", tags:["Conceptual","Contemporary","Data/Statistics"]},
+      ]},
+      {name:"Part C — Electrical and Electronic Technology", marks:15, items:[
+        {text:"Electrical Technology: electrical components, voltage, current, Ohm's Law, electrical power and energy, electromagnet and magnetic field, electromagnetic induction, circuit breakers/GFCIs/fuses, power distribution and series circuits, Kirchhoff's Voltage Law, voltage division/regulation, parallel circuits and Kirchhoff's Current Law, open/short circuits, generation of AC/DC voltages, thermal/hydraulic/nuclear power generators, electric motors and applications, transformers, AC transmission and distribution, electrical instruments, voltage stabilizers, IPS and UPS.", tags:["Conceptual","Numerical"]},
+        {text:"Electronics Technology: electronic components, analog and digital signals, amplifiers and oscillators, resistance/conductance, capacitance and capacitors, inductance and inductors, sinusoidal alternating waveforms and frequency spectrum, phase relations, response of R/L/C elements to sinusoidal voltage/current, average power and power factor, complex numbers (rectangular/polar forms), impedance and phasor diagrams, three-phase systems, transformer basics, radio/television/radar, digital devices and integrated circuits, counters and digital display devices, digital instruments.", tags:["Conceptual","Numerical"]},
+      ]},
+    ]
+  },
+];
+
+/* Post-related subjects — code/name index only (pages 1–3). No detailed
+   syllabus content was present in the uploaded pages (1–15 of 235). */
+const POST_RELATED = [
+["111","Bangla Language & Literature"],["121","English"],["131","Arabic"],["141","Persian"],["151","Sanskrit"],
+["161","Pali"],["171","Psychology"],["181","History"],["191","Islamic History & Culture"],["201","Islamic Studies"],
+["211","Philosophy"],["221","Education"],["231","Archaeology"],["241","Water Resources Engineering"],["251","Mining Engineering"],
+["271","Electronic Engineering"],["281","Information and Communication Technology"],["311","Geography"],["321","Mass Communication and Journalism"],["331","Economics"],
+["341","Political Science"],["351","Sociology"],["361","Social Welfare / Social Work"],["371","International Relations"],["381","Public Administration"],
+["391","Home Economics"],["401","Anthropology"],["411","Library and Information Science"],["412","Al-Quran"],["421","Hadith"],
+["431","Tafseer"],["441","Drama and Music"],["451","Urdu"],["455","Graphics / Graphic Design"],["457","Al-Fiqh"],
+["461","History of Music"],["463","Drawing and Painting"],["469","Fine Arts"],["472","Theoretical Music"],["473","Folk Song"],
+["474","Classical Music"],["475","Rabindra Sangeet"],["476","Nazrul Sangeet"],["477","Instrumental Music"],["478","Food Engineering"],
+["491","Ceramic Engineering"],["492","Glass Engineering"],["511","Physics"],["521","Applied Physics"],["531","Chemistry"],
+["541","Applied Chemistry"],["551","Mathematics"],["561","Applied Mathematics"],["571","Geology"],["581","Botany"],
+["591","Zoology"],["601","Bio-Chemistry"],["611","Pharmacy"],["621","Soil, Water and Environment Science"],["622","Resource Management and Entrepreneurship"],
+["631","Nursery"],["641","Child Development and Social Relationship"],["651","Home Management and Housing"],["661","Food and Nutrition"],["671","Related Art"],
+["681","Clothing and Textile"],["691","Institutional Food Management"],["701","Accounting"],["711","Finance"],["721","Marketing"],
+["731","Management"],["741","Business Administration"],["751","Law"],["761","International Law"],["771","Medical Science"],
+["791","Dental Science"],["801","Agriculture"],["802","Agricultural Marketing"],["803","Agribusiness"],["804","Agriculture Business Administration / Agribusiness Management"],
+["811","Agricultural Economics"],["821","Agricultural Engineering"],["831","Animal Husbandry"],["841","Veterinary Science"],["851","Fisheries"],
+["861","Marine Science"],["871","Forestry"],["881","Civil Engineering"],["891","Electrical Engineering"],["892","Electrical and Electronics Engineering"],
+["901","Mechanical Engineering"],["903","Automobile Engineering"],["911","Chemical Engineering"],["921","Metallurgical Engineering"],["931","Architecture"],
+["941","Naval Architecture and Marine Engineering"],["951","Textile Technology"],["961","Leather Technology"],["971","Computer Science"],["981","Statistics"],
+["991","Urban Development"],
+].map(([code,name])=>({code,name}));
+
+/* ============================================================================
+   STUDY BREAKDOWN + QUESTION ANGLE GENERATION
+   These are Claude-generated decompositions of the official syllabus text —
+   never presented as official wording. See badges in the UI.
+   ========================================================================== */
+
+// Split an official syllabus sentence into candidate study concepts.
+function splitConcepts(text){
+  let t = text
+    .replace(/\be\.g\.,?/gi,"like")
+    .replace(/\betc\.?/gi,"");
+  // protect sub-lettered clauses a) b) c) as hard breaks already handled by caller
+  let parts = t.split(/[;:]|(?<=[a-zA-Z\)])\s*,\s*(?=[A-Z])/g)
+    .map(s=>s.trim())
+    .filter(Boolean);
+  if(parts.length < 2){
+    parts = t.split(/,/).map(s=>s.trim()).filter(Boolean);
+  }
+  // clean, cap length, dedupe, drop trivial fragments
+  const seen = new Set(); const out=[];
+  for(let p of parts){
+    p = p.replace(/^and\s+/i,"").replace(/\.$/,"").trim();
+    p = p.replace(/^[a-z]\)\s*/i,"").trim();
+    p = p.charAt(0).toUpperCase()+p.slice(1);
+    if(p.length<3) continue;
+    if(p.length>140) p = p.slice(0,137)+"…";
+    const key = p.toLowerCase();
+    if(seen.has(key)) continue;
+    seen.add(key);
+    out.push(p);
+  }
+  return out.slice(0,10);
+}
+
+// Split official item text into a) b) c)-lettered clauses if present, else whole text.
+function splitLettered(text){
+  const m = text.match(/[a-z]\)\s/g);
+  if(m && m.length>=2){
+    const chunks = text.split(/(?=[a-z]\)\s)/).map(s=>s.trim()).filter(Boolean);
+    return chunks;
+  }
+  return [text];
+}
+
+const ANGLE_TEMPLATES = {
+  general: (x)=>[
+    `Define / explain ${x}.`,
+    `Discuss the key features of ${x}.`,
+    `What are the causes and effects associated with ${x}?`,
+    `Explain ${x} in the context of Bangladesh.`,
+    `Critically examine ${x}.`,
+    `Compare ${x} with a related concept from the same syllabus area.`,
+    `Discuss the contemporary relevance of ${x}.`,
+    `What measures/steps can be recommended regarding ${x}?`,
+  ],
+  bangladeshAffairs: (x)=>[
+    `Discuss ${x} with reference to Bangladesh's specific context.`,
+    `What are the challenges and prospects of ${x} in Bangladesh?`,
+    `Trace the historical development of ${x}.`,
+    `Analyze the constitutional/institutional dimension of ${x}, if any.`,
+    `How does ${x} connect to a recent government policy or event?`,
+    `Critically evaluate the effectiveness of measures taken regarding ${x}.`,
+    `Write a short note on ${x}.`,
+  ],
+  internationalAffairs: (x)=>[
+    `Give a short conceptual note on ${x}. (definition-style, ~4 marks)`,
+    `Analytically discuss ${x} with suitable examples. (analytical, ~15 marks)`,
+    `How does ${x} affect Bangladesh's foreign policy or regional position?`,
+    `Compare ${x} with a related theory/actor/institution.`,
+    `Propose a problem-solving approach to a contemporary issue linked to ${x}.`,
+    `Discuss recent developments connected to ${x}.`,
+  ],
+  math: (x)=>[
+    `Solve a standard numerical problem based on ${x}.`,
+    `Derive/apply the relevant formula for ${x}.`,
+    `Solve a word problem that models a real situation using ${x}.`,
+    `Identify common calculation errors students make with ${x}.`,
+    `A mixed problem combining ${x} with another syllabus topic.`,
+  ],
+  mentalAbility: (x)=>[
+    `Solve a timed practice item testing ${x}.`,
+    `Identify the underlying pattern/rule in a ${x} question.`,
+    `Practice a speed-drill set on ${x}.`,
+    `Explain the strategy for approaching ${x} items efficiently.`,
+  ],
+  science: (x)=>[
+    `Explain the underlying scientific principle of ${x}.`,
+    `What is the real-world / technological application of ${x}?`,
+    `Explain ${x} with a labeled diagram, where relevant.`,
+    `How does ${x} relate to a current scientific or technological development?`,
+    `Short note on ${x}.`,
+    `Compare ${x} with a related concept in the same syllabus section.`,
+  ],
+  language: (x)=>[
+    `Practice exercise: apply the rule/skill of ${x} to a fresh passage.`,
+    `Identify and correct common errors related to ${x}.`,
+    `Write a short passage demonstrating ${x}.`,
+    `Explain the technique/structure expected for ${x}.`,
+  ],
+};
+
+function angleSetFor(subjectCode, topicName){
+  if(subjectCode==="005") return ANGLE_TEMPLATES.bangladeshAffairs(topicName);
+  if(subjectCode==="007") return ANGLE_TEMPLATES.internationalAffairs(topicName);
+  if(subjectCode==="008") return ANGLE_TEMPLATES.math(topicName);
+  if(subjectCode==="009") return ANGLE_TEMPLATES.mentalAbility(topicName);
+  if(subjectCode==="010") return ANGLE_TEMPLATES.science(topicName);
+  if(["001","002","003"].includes(subjectCode)) return ANGLE_TEMPLATES.language(topicName);
+  return ANGLE_TEMPLATES.general(topicName);
+}
+
+/* ---------- build the full working data model ---------- */
+let SUBJECTS = []; // populated by buildModel()
+let TOPIC_INDEX = {}; // topicId -> {topic, item, part, subject}
+let ITEM_INDEX = {};
+
+function buildModel(){
+  SUBJECTS = [];
+  TOPIC_INDEX = {};
+  ITEM_INDEX = {};
+  COMPULSORY.forEach(subj=>{
+    const subjId = "s"+subj.code;
+    const partsOut = [];
+    subj.parts.forEach((part,pi)=>{
+      const itemsOut = [];
+      part.items.forEach((item,ii)=>{
+        const itemId = `${subjId}-p${pi}-i${ii}`;
+        const clauses = splitLettered(item.text);
+        let concepts = [];
+        clauses.forEach((c,ci)=>{
+          // Drop bare heading fragments before lettered sub-clauses, e.g. "Grammar —" or "Organs of the Government:"
+          const bare = c.replace(/[:\u2014\-]+\s*$/,"").trim();
+          const wordCount = bare.split(/\s+/).filter(Boolean).length;
+          if(clauses.length>1 && ci===0 && wordCount<=3 && /[:\u2014-]\s*$/.test(c.trim())) return;
+          let cc = splitConcepts(c);
+          // clean stray "Such as " lead-ins from list continuations
+          cc = cc.map(x=>x.replace(/^Such as\s+/i,"").trim()).map(x=>x.charAt(0).toUpperCase()+x.slice(1));
+          concepts = concepts.concat(cc);
+        });
+
+        // dedupe & cap
+        const seen = new Set(); concepts = concepts.filter(c=>{const k=c.toLowerCase(); if(seen.has(k))return false; seen.add(k); return true;}).slice(0,9);
+        if(concepts.length===0) concepts=[item.text.slice(0,80)];
+        const topics = concepts.map((c,ti)=>{
+          const topicId = `${itemId}-t${ti}`;
+          const topic = {
+            id: topicId, name:c, itemId, subjectCode:subj.code, subjectName:subj.name,
+            tags: item.tags||[], angles: angleSetFor(subj.code,c),
+          };
+          TOPIC_INDEX[topicId]=topic;
+          return topic;
+        });
+        const itemObj = {id:itemId, text:item.text, textBn:item.textBn||"", marks:item.marks, tags:item.tags||[], topics};
+        ITEM_INDEX[itemId]=itemObj;
+        itemsOut.push(itemObj);
+      });
+      partsOut.push({name:part.name, marks:part.marks, items:itemsOut});
+    });
+    SUBJECTS.push({id:subjId, code:subj.code, name:subj.name, nameBn:subj.nameBn, note:subj.note, totalMarks:subj.totalMarks, parts:partsOut, category:"compulsory"});
+  });
+}
+buildModel();
+
+/* ============================================================================
+   STATE (persisted to localStorage)
+   ========================================================================== */
+const LS_KEY = "bcsIntel_v1";
+const DEFAULT_TOPIC_STATE = ()=>({
+  status:"not_started", confidence:0, importance:"medium", difficulty:"medium",
+  lastStudied:null, nextRevision:null, revisions:0, notes:"", mnemonics:[],
+  practiceCorrect:0, practiceWrong:0, favorite:false, depth:1, examples:"", stats:"",
+  currentAffairs:[]
+});
+let DB = null;
+function freshDB(){
+  return {
+    topics:{}, // topicId -> state
+    mistakes:[], // {id,question,correct,why,topicId,type,date,revised}
+    facts:[], // {id,text,topic,source,date,notes}
+    globalCurrentAffairs:[], // {id,event,date,why,topicId,facts,angle,notes}
+    mnemonics:[], // {id,topic,helps,mnemonic,explanation}
+    studySessions:[], // {id,topicId,start,end,duration,confBefore,confAfter,notes}
+    quizHistory:[], // {id,date,mode,score,total,topicIds}
+    favorites:{topics:[],questions:[],notes:[],facts:[],mistakes:[]},
+    planner:{hoursPerDay:2, examDate:"", priority:"balanced"},
+    settings:{theme:"light", fontSize:"md", dailyTarget:2},
+    practiceQuestions:{}, // topicId -> [ {id,q,options,answer,explain} ]
+    userQuestions:[], // {id,topicId,question,answer,type,difficulty}
+    meta:{createdAt: Date.now()}
+  };
+}
+function loadDB(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(raw){ DB = JSON.parse(raw); }
+    else { DB = freshDB(); }
+  }catch(e){ DB = freshDB(); }
+  // backfill any missing top-level keys (future-proofing)
+  const f = freshDB();
+  Object.keys(f).forEach(k=>{ if(!(k in DB)) DB[k]=f[k]; });
+}
+function saveDB(){ localStorage.setItem(LS_KEY, JSON.stringify(DB)); }
+function getTopicState(id){
+  if(!DB.topics[id]) DB.topics[id]=DEFAULT_TOPIC_STATE();
+  return DB.topics[id];
+}
+loadDB();
+
+/* ============================================================================
+   SAMPLE AI-GENERATED PRACTICE QUESTIONS (demonstration set)
+   Clearly NOT actual BCS questions — labeled everywhere they render.
+   Keyed by official-item id (s{code}-p{partIdx}-i{itemIdx}).
+   ========================================================================== */
+const PRELOADED_QUESTIONS = {
+  "s008-p0-i0": [
+    {q:"Simplify: 3(2x − 5) − 2(x − 4)", options:["4x − 7","4x − 15","x − 7","4x + 7"], a:0, explain:"3(2x−5)=6x−15; −2(x−4)=−2x+8; sum = 4x−7."},
+  ],
+  "s008-p0-i1": [
+    {q:"A sum doubles itself in 8 years at simple interest. What is the rate of interest per annum?", options:["10%","12.5%","8%","15%"], a:1, explain:"For doubling: SI = P, so P = P×R×8/100 → R=100/8=12.5%."},
+  ],
+  "s008-p0-i11": [
+    {q:"In how many ways can 3 letters be posted in 4 letter boxes (each letter has 4 choices)?", options:["12","64","81","24"], a:1, explain:"Each of 3 letters has 4 independent choices: 4×4×4 = 64."},
+  ],
+  "s009-p0-i0": [
+    {q:"Choose the word that best completes: A student who studies regularly tends to ______ better results.", options:["achieve","loose","reduce","avoid"], a:0, explain:"'Achieve results' is the correct collocation testing verbal reasoning/word relationships."},
+  ],
+  "s009-p0-i3": [
+    {q:"Find the missing number: 2, 6, 12, 20, 30, ?", options:["40","42","36","44"], a:1, explain:"Differences are 4,6,8,10,12 → next term 30+12=42 (n×(n+1) pattern)."},
+  ],
+  "s005-p0-i6": [
+    {q:"The Directive Principles of State Policy in the Constitution of Bangladesh are, by their nature:", options:["Judicially enforceable in all courts","Fundamental to governance but not judicially enforceable","Only applicable during emergencies","Part of the Fundamental Rights chapter"], a:1, explain:"Like many constitutions influenced by the Irish/Indian model, Bangladesh's Directive Principles guide state policy but are not directly enforceable in court."},
+  ],
+  "s007-p0-i4": [
+    {q:"'Diplomatic immunity' primarily refers to:", options:["A state's right to declare war","Legal protection granted to diplomats from the jurisdiction of the host state","A trade tariff exemption","A UN Security Council veto power"], a:1, explain:"Diplomatic immunity, codified partly in the Vienna Convention, protects diplomats from legal action in the receiving state."},
+  ],
+  "s010-p0-i0": [
+    {q:"Total internal reflection of light occurs when light travels:", options:["From a rarer to a denser medium at any angle","From a denser to a rarer medium beyond the critical angle","Through a vacuum only","Only through convex lenses"], a:1, explain:"TIR occurs when light passes from a denser to a rarer medium at an angle greater than the critical angle."},
+  ],
+};
+
+/* ============================================================================
+   HELPERS
+   ========================================================================== */
+const STATUS_ORDER = ["not_started","learning","learned","practiced","strong","needs_revision","mastered"];
+const STATUS_LABEL = {not_started:"Not Started",learning:"Learning",learned:"Learned",practiced:"Practiced",strong:"Strong",needs_revision:"Needs Revision",mastered:"Mastered"};
+const IMPORTANCE_LABEL = {critical:"Critical",high:"High",medium:"Medium",low:"Low"};
+const DIFFICULTY_LABEL = {easy:"Easy",medium:"Medium",hard:"Hard",very_hard:"Very Hard"};
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function addDays(iso,n){ const d = iso? new Date(iso): new Date(); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
+function daysUntil(iso){ if(!iso) return null; const a=new Date(todayISO()); const b=new Date(iso); return Math.round((b-a)/86400000); }
+function fmtDate(iso){ if(!iso) return "—"; const d=new Date(iso); return d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}); }
+function allTopicIds(){ return Object.keys(TOPIC_INDEX); }
+function allTopicsForSubject(subj){ let t=[]; subj.parts.forEach(p=>p.items.forEach(i=>t=t.concat(i.topics))); return t; }
+function allItemsForSubject(subj){ let t=[]; subj.parts.forEach(p=>p.items.forEach(i=>t.push(i))); return t; }
+
+function masteryScore(topicId){
+  const s = getTopicState(topicId);
+  const statusPts = {not_started:0,learning:15,learned:35,practiced:50,strong:70,needs_revision:40,mastered:100};
+  let base = statusPts[s.status] ?? 0;
+  let confPts = (s.confidence/5)*100;
+  let practiceTotal = s.practiceCorrect+s.practiceWrong;
+  let accPts = practiceTotal>0 ? (s.practiceCorrect/practiceTotal)*100 : base;
+  let revPts = Math.min(s.revisions*15,100);
+  const score = Math.round(base*0.35 + confPts*0.3 + accPts*0.2 + revPts*0.15);
+  return Math.max(0,Math.min(100,score));
+}
+function isDueTopic(topicId, includeOverdue=true){
+  const s = getTopicState(topicId);
+  if(!s.nextRevision) return false;
+  const d = daysUntil(s.nextRevision);
+  return includeOverdue ? d<=0 : d===0;
+}
+function revisionBucket(topicId){
+  const s = getTopicState(topicId);
+  if(!s.nextRevision) return null;
+  const d = daysUntil(s.nextRevision);
+  if(d<0) return "overdue";
+  if(d===0) return "today";
+  if(d<=6) return "soon";
+  return "future";
+}
+function priorityScore(topicId){
+  const s = getTopicState(topicId);
+  const impPts = {critical:40,high:28,medium:16,low:6}[s.importance]||16;
+  const weakPts = (5-s.confidence)*8;
+  let timePts = 0;
+  if(s.lastStudied){ const d = -daysUntil(s.lastStudied); timePts = Math.min(d*1.2, 30); }
+  else timePts = 20;
+  const overdue = revisionBucket(topicId)==="overdue" ? 25 : (revisionBucket(topicId)==="today" ? 15:0);
+  const practiceDeficit = (s.practiceCorrect+s.practiceWrong)===0 ? 10 : 0;
+  return Math.round(impPts+weakPts+timePts+overdue+practiceDeficit);
+}
+function subjectStats(subj){
+  const topics = allTopicsForSubject(subj);
+  const total = topics.length;
+  let counts = {not_started:0,learning:0,learned:0,practiced:0,strong:0,needs_revision:0,mastered:0};
+  let confSum=0, weak=0, strong=0, overdue=0;
+  topics.forEach(t=>{
+    const s = getTopicState(t.id);
+    counts[s.status] = (counts[s.status]||0)+1;
+    confSum += s.confidence;
+    if(s.confidence<=2 && s.status!=="not_started") weak++;
+    if(s.confidence>=4) strong++;
+    if(revisionBucket(t.id)==="overdue") overdue++;
+  });
+  const doneLike = counts.learned+counts.practiced+counts.strong+counts.mastered;
+  const completion = total? Math.round((doneLike/total)*100):0;
+  const avgConf = total? (confSum/total):0;
+  return {total, counts, completion, avgConf, weak, strong, overdue,
+    remaining: total - doneLike - counts.needs_revision};
+}
+function overallStats(){
+  const topics = allTopicIds();
+  let counts = {not_started:0,learning:0,learned:0,practiced:0,strong:0,needs_revision:0,mastered:0};
+  let overdue=0, weak=0, confSum=0;
+  topics.forEach(id=>{
+    const s = getTopicState(id);
+    counts[s.status]=(counts[s.status]||0)+1;
+    confSum+=s.confidence;
+    if(revisionBucket(id)==="overdue") overdue++;
+    if(s.confidence>0 && s.confidence<=2) weak++;
+  });
+  const doneLike = counts.learned+counts.practiced+counts.strong+counts.mastered;
+  const completion = topics.length? Math.round((doneLike/topics.length)*100):0;
+  return {totalTopics:topics.length, counts, completion, overdue, weak, avgConf: topics.length? confSum/topics.length:0};
+}
+function escapeHtml(s){ return (s||"").replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])); }
+function uid(){ return Math.random().toString(36).slice(2,10); }
+
+/* ============================================================================
+   NAVIGATION + APP SHELL
+   ========================================================================== */
+const NAV = [
+  {id:"dashboard", label:"Dashboard", icon:"◆"},
+  {id:"syllabus", label:"Syllabus Explorer", icon:"☰"},
+  {id:"quiz", label:"Quiz", icon:"✎"},
+  {id:"revision", label:"Revision", icon:"↻"},
+  {id:"mistakes", label:"Mistake Book", icon:"✕"},
+  {id:"factbank", label:"Fact Bank & Notes", icon:"❦"},
+  {id:"currentaffairs", label:"Current Affairs", icon:"⌘"},
+  {id:"analytics", label:"Analytics", icon:"▤"},
+  {id:"planner", label:"Planner", icon:"◷"},
+  {id:"favorites", label:"Favorites", icon:"★"},
+  {id:"settings", label:"Settings", icon:"⚙"},
+];
+let currentView = "dashboard";
+
+function renderNav(){
+  const el = document.getElementById("navlist");
+  el.innerHTML = NAV.map(n=>`<div class="nav-item ${n.id===currentView?'active':''}" data-nav="${n.id}"><span class="ic">${n.icon}</span>${n.label}</div>`).join("");
+  el.querySelectorAll("[data-nav]").forEach(n=>n.addEventListener("click",()=>{ goto(n.dataset.nav); }));
+}
+function goto(view){
+  currentView = view;
+  document.getElementById("searchResultsView").classList.remove("active");
+  document.getElementById("globalSearch").value="";
+  renderNav();
+  renderCurrentView();
+  document.getElementById("sidebar").classList.remove("open");
+  window.scrollTo(0,0);
+}
+function renderCurrentView(){
+  const el = document.getElementById("views");
+  const fns = {
+    dashboard: renderDashboard, syllabus: renderSyllabus, quiz: renderQuiz,
+    revision: renderRevision, mistakes: renderMistakes, factbank: renderFactBank,
+    currentaffairs: renderCurrentAffairs, analytics: renderAnalytics, planner: renderPlanner,
+    favorites: renderFavorites, settings: renderSettings,
+  };
+  el.innerHTML = (fns[currentView]||renderDashboard)();
+  wireViewEvents();
+}
+
+/* ============================================================================
+   DASHBOARD
+   ========================================================================== */
+function renderDashboard(){
+  const stat = overallStats();
+  const dueTopics = allTopicIds().filter(id=>revisionBucket(id)==="overdue"||revisionBucket(id)==="today");
+  const rec = recommendNextTopic();
+  return `
+  <div class="pagehead">
+    <div><h2>Dashboard</h2><div class="sub">Your BCS Written preparation, at a glance</div></div>
+    <button class="btn primary" id="whatToStudyBtn">⚡ What should I study now?</button>
+  </div>
+  <div class="notice">${SOURCE_NOTE}</div>
+
+  <div class="grid cols-4" style="margin-bottom:26px;">
+    <div class="card stat"><div class="num">${stat.completion}%</div><div class="label">Overall Completion</div>
+      <div class="sparkline"><i style="width:${stat.completion}%"></i></div></div>
+    <div class="card stat"><div class="num">${stat.counts.mastered+stat.counts.strong}</div><div class="label">Strong / Mastered Topics</div></div>
+    <div class="card stat"><div class="num" style="color:var(--red);">${stat.overdue}</div><div class="label">Revisions Overdue</div></div>
+    <div class="card stat"><div class="num">${stat.avgConf.toFixed(1)}<span style="font-size:14px;color:var(--ink-soft);">/5</span></div><div class="label">Average Confidence</div></div>
+  </div>
+
+  ${rec ? `<div class="card" style="margin-bottom:26px; border-left:3px solid var(--gold);">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;">
+      <div>
+        <div class="badge insight" style="margin-bottom:8px;">AI INSIGHT · Recommended next</div>
+        <h3 style="margin-bottom:4px;">${escapeHtml(rec.topic.name)}</h3>
+        <div style="font-size:12.5px; color:var(--ink-soft);">${escapeHtml(rec.topic.subjectName)} · ${rec.reason}</div>
+      </div>
+      <button class="btn primary sm" data-open-topic="${rec.topic.id}">Open topic →</button>
+    </div>
+  </div>` : ""}
+
+  <div class="section-title-row"><h3>Subject Progress</h3><span class="sub" style="font-size:12px;color:var(--ink-soft);">${SUBJECTS.length} compulsory papers loaded</span></div>
+  <div class="grid cols-4">
+    ${SUBJECTS.map(subj=>{
+      const st = subjectStats(subj);
+      return `<div class="card subject-card" data-open-subject="${subj.id}">
+        <div class="top"><span class="code">${subj.code}</span><span class="pct">${st.completion}%</span></div>
+        <h3>${subj.name}</h3>
+        <div class="marks">${subj.totalMarks} marks${subj.nameBn? " · "+subj.nameBn:""}</div>
+        <div class="progress-bar"><i style="width:${st.completion}%"></i></div>
+        <div class="mini-stats">
+          <span><b>${st.counts.mastered+st.counts.strong}</b> strong</span>
+          <span><b>${st.weak}</b> weak</span>
+          <span><b>${st.remaining}</b> remaining</span>
+          <span><b>${st.overdue}</b> due</span>
+        </div>
+      </div>`;
+    }).join("")}
+  </div>
+
+  <div class="section-title-row"><h3>Post-Related Subjects <span class="badge official" style="margin-left:6px;">Index only</span></h3></div>
+  <div class="notice blue">The uploaded PDF pages (1–15 of 235) list ${POST_RELATED.length} post-related subject codes but their detailed syllabi appear later in the document. Upload those pages and I can extract them the same way.</div>
+  <div class="card" style="max-height:220px; overflow-y:auto;">
+    <div class="topic-chip-row">
+      ${POST_RELATED.map(p=>`<span class="topic-chip" style="cursor:default;"><span class="badge official" style="padding:1px 5px;">${p.code}</span> ${escapeHtml(p.name)}</span>`).join("")}
+    </div>
+  </div>
+  `;
+}
+
+function recommendNextTopic(){
+  const ids = allTopicIds();
+  let best=null, bestScore=-1;
+  ids.forEach(id=>{
+    const st = getTopicState(id);
+    if(st.status==="mastered") return;
+    const sc = priorityScore(id);
+    if(sc>bestScore){ bestScore=sc; best=id; }
+  });
+  if(!best) return null;
+  const topic = TOPIC_INDEX[best];
+  const st = getTopicState(best);
+  const reasons = [];
+  reasons.push(`${IMPORTANCE_LABEL[st.importance]} priority`);
+  if(st.confidence<=2) reasons.push("currently weak");
+  if(revisionBucket(best)==="overdue") reasons.push("revision overdue");
+  else if(!st.lastStudied) reasons.push("not yet started");
+  const related = allTopicsForSubject(SUBJECTS.find(s=>s.code===topic.subjectCode)).filter(t=>t.itemId===topic.itemId).length-1;
+  if(related>0) reasons.push(`connects to ${related} sibling concept${related>1?'s':''} in the same syllabus item`);
+  return {topic, reason: reasons.join(", ")};
+}
+
+/* ============================================================================
+   SYLLABUS EXPLORER
+   ========================================================================== */
+let explorerOpen = {}; // subjId/itemId -> bool
+function renderSyllabus(){
+  return `
+  <div class="pagehead"><div><h2>Syllabus Explorer</h2><div class="sub">Subject → Section → Official Syllabus Item → Study Topics → Question Angles</div></div></div>
+  <div class="notice">${SOURCE_NOTE}</div>
+  <div class="explorer-tree">
+    ${SUBJECTS.map(subj=>renderSubjBlock(subj)).join("")}
+  </div>`;
+}
+function renderSubjBlock(subj){
+  const st = subjectStats(subj);
+  const open = !!explorerOpen[subj.id];
+  return `<div class="subj-block ${open?'open':''}" data-subj-toggle="${subj.id}">
+    <div class="head">
+      <span class="chev">▶</span>
+      <div style="flex:1;">
+        <h3>${subj.code} — ${subj.name} ${subj.nameBn?`<span style="color:var(--ink-soft); font-weight:400; font-size:13px;">(${subj.nameBn})</span>`:""}</h3>
+        <div style="font-size:12px; color:var(--ink-soft);">${subj.totalMarks} marks${subj.note? " · "+escapeHtml(subj.note):""}</div>
+      </div>
+      <div style="width:120px;"><div class="progress-bar"><i style="width:${st.completion}%"></i></div></div>
+      <span class="pct" style="width:40px; text-align:right;">${st.completion}%</span>
+    </div>
+    <div class="body">
+      ${subj.parts.map(part=>`
+        <div class="part-block">
+          ${subj.parts.length>1?`<h4>${escapeHtml(part.name)} — ${part.marks} marks</h4>`:""}
+          ${part.items.map(item=>renderItemRow(item)).join("")}
+        </div>`).join("")}
+    </div>
+  </div>`;
+}
+function renderItemRow(item){
+  const open = !!explorerOpen[item.id];
+  const doneCount = item.topics.filter(t=>["strong","mastered","practiced"].includes(getTopicState(t.id).status)).length;
+  return `<div class="item-row ${open?'open':''}" data-item-toggle="${item.id}">
+    <div class="ihead">
+      <span class="chev">▶</span>
+      <span class="ititle">${escapeHtml(item.text.length>110? item.text.slice(0,108)+"…": item.text)}</span>
+      ${item.marks?`<span class="imarks">${item.marks} mk</span>`:""}
+      <span class="badge tag">${doneCount}/${item.topics.length}</span>
+    </div>
+    <div class="ibody">
+      <div class="msection"><div class="stitle"><span class="badge official">OFFICIAL</span></div>
+        <div class="official-box">${escapeHtml(item.text)}${item.textBn?`\n\n${item.textBn}`:""}</div>
+      </div>
+      <div class="msection"><div class="stitle"><span class="badge breakdown">STUDY BREAKDOWN</span> <span style="font-weight:400; text-transform:none; letter-spacing:0;">— tap a topic to open its full study card</span></div>
+        <div class="topic-chip-row">
+          ${item.topics.map(t=>{
+            const s=getTopicState(t.id);
+            return `<span class="topic-chip" data-open-topic="${t.id}"><span class="dot dot-${s.status}"></span>${escapeHtml(t.name.length>60?t.name.slice(0,58)+"…":t.name)}</span>`;
+          }).join("")}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ============================================================================
+   TOPIC STUDY CARD (modal)
+   ========================================================================== */
+let activeTopicId = null;
+let activeTopicTab = "overview";
+function openTopic(id){
+  activeTopicId = id; activeTopicTab = "overview";
+  renderTopicModal();
+  document.getElementById("topicOverlay").classList.add("active");
+}
+function closeTopic(){ document.getElementById("topicOverlay").classList.remove("active"); activeTopicId=null; }
+
+function renderTopicModal(){
+  const topic = TOPIC_INDEX[activeTopicId];
+  const item = ITEM_INDEX[topic.itemId];
+  const s = getTopicState(activeTopicId);
+  const subj = SUBJECTS.find(x=>x.code===topic.subjectCode);
+  const related = item.topics.filter(t=>t.id!==topic.id);
+  const mastery = masteryScore(activeTopicId);
+  const qs = PRELOADED_QUESTIONS[item.id]||[];
+
+  const tabs = [
+    ["overview","Overview"], ["angles","Question Angles"], ["notes","My Notes"],
+    ["revision","Track & Revise"], ["affairs","Current Affairs"], ["practice","Practice"]
+  ];
+
+  document.getElementById("topicModal").innerHTML = `
+    <div class="mhead">
+      <div>
+        <div style="display:flex; gap:6px; margin-bottom:6px; flex-wrap:wrap;">
+          <span class="badge tag">${subj.code} · ${escapeHtml(subj.name)}</span>
+          ${(s.favorite)?`<span class="badge angle">★ favorite</span>`:""}
+          <span class="badge status-${s.status}">${STATUS_LABEL[s.status]}</span>
+        </div>
+        <h2>${escapeHtml(topic.name)}</h2>
+      </div>
+      <button class="mclose" data-close-topic>✕</button>
+    </div>
+    <div class="mbody">
+      <div style="display:flex; gap:18px; flex-wrap:wrap; margin-bottom:16px;">
+        <div style="flex:1; min-width:160px;"><div style="font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.5px;">Mastery</div>
+          <div class="progress-bar" style="margin-top:6px;"><i style="width:${mastery}%"></i></div>
+          <div style="font-size:12px; margin-top:3px;">${mastery}%</div></div>
+        <div style="min-width:110px;"><div style="font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.5px;">Confidence</div>
+          <div class="rate-row" style="margin-top:6px;" id="confRow">${[1,2,3,4,5].map(n=>`<button class="rate-btn ${s.confidence>=n?'on':''}" data-conf="${n}">${n}</button>`).join("")}</div></div>
+        <div style="min-width:90px;"><button class="btn sm ${s.favorite?'primary':''}" data-fav-topic>★ ${s.favorite?'Favorited':'Favorite'}</button></div>
+      </div>
+
+      <div class="tab-row">${tabs.map(([id,label])=>`<button class="tab-btn ${activeTopicTab===id?'active':''}" data-tab="${id}">${label}</button>`).join("")}</div>
+
+      <div class="tabpane ${activeTopicTab==='overview'?'active':''}" data-pane="overview">
+        <div class="msection"><div class="stitle"><span class="badge official">OFFICIAL SYLLABUS TEXT</span></div>
+          <div class="official-box">${escapeHtml(item.text)}${item.textBn?`\n\n${item.textBn}`:""}</div></div>
+        <div class="msection"><div class="stitle"><span class="badge breakdown">STUDY BREAKDOWN</span></div>
+          <div style="font-size:13.5px;">This concept was extracted from the official item above. Treat it as one trackable unit of study.</div></div>
+        <div class="msection"><div class="stitle">QUESTION TYPE TAGS</div>
+          <div class="topic-chip-row">${(topic.tags||[]).map(t=>`<span class="badge tag">${t}</span>`).join("")||'<span style="color:var(--ink-soft); font-size:12px;">No tags</span>'}</div></div>
+        ${related.length? `<div class="msection"><div class="stitle">RELATED TOPICS <span style="font-weight:400; text-transform:none;">— from the same official item, easy to co-study</span></div>
+          <div class="topic-chip-row">${related.map(t=>`<span class="topic-chip" data-open-topic="${t.id}">${escapeHtml(t.name.length>50?t.name.slice(0,48)+'…':t.name)}</span>`).join("")}</div></div>`:""}
+        <div class="msection"><div class="stitle">PREPARATION STATUS & PROPERTIES</div>
+          <div class="field-row">
+            <div class="field"><label>Status</label><select data-field="status">${STATUS_ORDER.map(k=>`<option value="${k}" ${s.status===k?'selected':''}>${STATUS_LABEL[k]}</option>`).join("")}</select></div>
+            <div class="field"><label>Importance (study priority — not official BPSC weighting)</label><select data-field="importance">${Object.entries(IMPORTANCE_LABEL).map(([k,l])=>`<option value="${k}" ${s.importance===k?'selected':''}>${l}</option>`).join("")}</select></div>
+            <div class="field"><label>Difficulty</label><select data-field="difficulty">${Object.entries(DIFFICULTY_LABEL).map(([k,l])=>`<option value="${k}" ${s.difficulty===k?'selected':''}>${l}</option>`).join("")}</select></div>
+            <div class="field"><label>Depth reached (1 Recognition – 5 Exam-ready)</label><select data-field="depth">${[1,2,3,4,5].map(n=>`<option value="${n}" ${Number(s.depth)===n?'selected':''}>${n}</option>`).join("")}</select></div>
+          </div>
+        </div>
+        <div class="msection"><div class="stitle">MY EXAMPLES / STATISTICS</div>
+          <textarea data-field="examples" placeholder="Examples, statistics, dates, names you want to attach to this topic…">${escapeHtml(s.examples)}</textarea></div>
+      </div>
+
+      <div class="tabpane ${activeTopicTab==='angles'?'active':''}" data-pane="angles">
+        <div class="notice">Potential question angles — <b>AI Analysis</b>, not confirmed BCS questions. Use "Think Like the Examiner" to rehearse framing your own.</div>
+        <div class="msection"><div class="stitle"><span class="badge angle">QUESTION ANGLES</span></div>
+          ${topic.angles.map(a=>`<div class="qangle"><b>›</b> ${escapeHtml(a)}</div>`).join("")}
+        </div>
+        <div class="msection"><div class="stitle">THINK LIKE THE EXAMINER</div>
+          <div class="recall-box" style="text-align:left;">
+            <div style="margin-bottom:8px; font-weight:600; color:var(--ink);">If you were the BCS examiner, what would you ask from this topic?</div>
+            <textarea data-field="__examinerDraft" placeholder="Write 2–3 question ideas in your own words, then compare with the angles above…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="tabpane ${activeTopicTab==='notes'?'active':''}" data-pane="notes">
+        <div class="msection"><div class="stitle">MY NOTES</div>
+          <textarea data-field="notes" placeholder="Bullet points, mnemonics, personal explanations, things to memorize…">${escapeHtml(s.notes)}</textarea></div>
+        <div class="msection"><div class="stitle">MNEMONICS FOR THIS TOPIC</div>
+          <div id="topicMnemonics">${renderMnemonicList(activeTopicId)}</div>
+          <div class="field-row" style="margin-top:8px;">
+            <input type="text" id="mnemInput" placeholder="e.g. 'SAARC-BOND' → helps remember SAARC founding members…" style="flex:1;">
+            <button class="btn sm" id="addMnemBtn">+ Add</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tabpane ${activeTopicTab==='revision'?'active':''}" data-pane="revision">
+        <div class="msection"><div class="stitle">MARK STUDIED & SCHEDULE REVISION</div>
+          <div class="topic-chip-row" style="margin-bottom:10px;">
+            ${[["0","Same day"],["1","1 day"],["3","3 days"],["7","7 days"],["14","14 days"],["30","30 days"]].map(([d,l])=>`<button class="btn sm" data-revise-in="${d}">${l}</button>`).join("")}
+          </div>
+          <div class="field-row"><div class="field"><label>Custom next revision date</label><input type="date" data-field="nextRevision" value="${s.nextRevision||''}"></div></div>
+          <div style="font-size:12.5px; color:var(--ink-soft);">Last studied: <b>${fmtDate(s.lastStudied)}</b> · Revisions so far: <b>${s.revisions}</b> · Times practiced: <b>${s.practiceCorrect+s.practiceWrong}</b> (${s.practiceCorrect} correct)</div>
+        </div>
+        <div class="msection"><div class="stitle">ACTIVE RECALL</div>
+          <div class="recall-box">Without looking at your notes, write everything you remember about <b>${escapeHtml(topic.name)}</b>. Then reveal the official text above and score yourself.</div>
+          <div style="margin-top:10px;"><div style="font-size:11px; color:var(--ink-soft); margin-bottom:6px; text-transform:uppercase; letter-spacing:.5px;">Self-score (0 forgot – 5 exam ready)</div>
+          <div class="rate-row">${[0,1,2,3,4,5].map(n=>`<button class="rate-btn" data-recall-score="${n}">${n}</button>`).join("")}</div></div>
+        </div>
+      </div>
+
+      <div class="tabpane ${activeTopicTab==='affairs'?'active':''}" data-pane="affairs">
+        <div class="notice blue">Current-affairs links you attach here are clearly separate from the official syllabus content above.</div>
+        <div id="topicAffairsList">${renderTopicAffairsList(activeTopicId)}</div>
+        <div class="card" style="margin-top:10px;">
+          <div class="field-row">
+            <div class="field"><label>Event</label><input type="text" id="caEvent"></div>
+            <div class="field"><label>Date</label><input type="date" id="caDate"></div>
+          </div>
+          <div class="field"><label>Why it's relevant to this topic</label><textarea id="caWhy" style="min-height:50px;"></textarea></div>
+          <button class="btn sm primary" id="addAffairBtn">+ Link current affairs event</button>
+        </div>
+      </div>
+
+      <div class="tabpane ${activeTopicTab==='practice'?'active':''}" data-pane="practice">
+        ${qs.length? `<div class="notice">${qs.length} <b>AI Practice Question${qs.length>1?'s':''}</b> — Not official BCS questions.</div>
+          <button class="btn primary" data-start-topic-quiz="${item.id}">Start practice (${qs.length} question${qs.length>1?'s':''})</button>` :
+          `<div class="empty"><div class="big">✎</div>No preloaded practice questions for this exact topic yet.<br><span style="font-size:12px;">Use the Quiz tab for subject-wide or mixed practice, or log your own question below.</span></div>`}
+        <div class="msection" style="margin-top:16px;"><div class="stitle">ADD MY OWN PRACTICE QUESTION</div>
+          <div class="field"><label>Question</label><textarea id="ownQ" style="min-height:50px;"></textarea></div>
+          <div class="field"><label>Answer / notes</label><textarea id="ownA" style="min-height:50px;"></textarea></div>
+          <button class="btn sm" id="addOwnQBtn">+ Save question</button>
+        </div>
+      </div>
+    </div>`;
+  wireTopicModalEvents();
+}
+function renderMnemonicList(topicId){
+  const list = DB.mnemonics.filter(m=>m.topicId===topicId);
+  if(!list.length) return `<div style="font-size:12.5px; color:var(--ink-soft);">No mnemonics yet.</div>`;
+  return list.map(m=>`<div class="list-entry"><button class="del" data-del-mnem="${m.id}">remove</button><b>${escapeHtml(m.text)}</b></div>`).join("");
+}
+function renderTopicAffairsList(topicId){
+  const list = DB.globalCurrentAffairs.filter(c=>c.topicId===topicId);
+  if(!list.length) return `<div style="font-size:12.5px; color:var(--ink-soft);">No current-affairs links yet.</div>`;
+  return list.map(c=>`<div class="list-entry"><button class="del" data-del-affair="${c.id}">remove</button><b>${escapeHtml(c.event)}</b><div class="meta">${fmtDate(c.date)} — ${escapeHtml(c.why)}</div></div>`).join("");
+}
+
+function wireTopicModalEvents(){
+  const modal = document.getElementById("topicModal");
+  modal.querySelector("[data-close-topic]").addEventListener("click", closeTopic);
+  modal.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>{ activeTopicTab=b.dataset.tab; renderTopicModal(); }));
+  modal.querySelectorAll("[data-open-topic]").forEach(b=>b.addEventListener("click",()=>{ openTopic(b.dataset.openTopic); }));
+  modal.querySelectorAll("[data-conf]").forEach(b=>b.addEventListener("click",()=>{
+    const s=getTopicState(activeTopicId); s.confidence = Number(b.dataset.conf)===s.confidence? s.confidence-1 : Number(b.dataset.conf);
+    if(s.confidence<0) s.confidence=0; saveDB(); renderTopicModal(); renderNav();
+  }));
+  const favBtn = modal.querySelector("[data-fav-topic]");
+  if(favBtn) favBtn.addEventListener("click",()=>{ const s=getTopicState(activeTopicId); s.favorite=!s.favorite; saveDB(); renderTopicModal(); });
+  modal.querySelectorAll("[data-field]").forEach(f=>{
+    const evt = (f.tagName==="SELECT")?"change":"input";
+    f.addEventListener(evt,()=>{
+      const s = getTopicState(activeTopicId);
+      const key = f.dataset.field;
+      if(key==="__examinerDraft") return; // scratchpad only, not persisted
+      let val = f.value;
+      s[key]=val;
+      if(key==="status" && (val==="learned"||val==="practiced"||val==="strong"||val==="mastered")){
+        if(!s.lastStudied) s.lastStudied = todayISO();
+      }
+      saveDB();
+      if(key==="status") { renderTopicModal(); renderNav(); }
+    });
+  });
+  modal.querySelectorAll("[data-revise-in]").forEach(b=>b.addEventListener("click",()=>{
+    const s = getTopicState(activeTopicId);
+    const d = Number(b.dataset.reviseIn);
+    s.lastStudied = todayISO();
+    s.nextRevision = addDays(todayISO(), d);
+    s.revisions += 1;
+    if(s.status==="not_started") s.status="learned";
+    saveDB(); renderTopicModal();
+  }));
+  modal.querySelectorAll("[data-recall-score]").forEach(b=>b.addEventListener("click",()=>{
+    const s = getTopicState(activeTopicId);
+    const score = Number(b.dataset.recallScore);
+    s.confidence = score;
+    DB.studySessions.push({id:uid(), topicId:activeTopicId, date:todayISO(), type:"active_recall", score});
+    if(score>=4 && s.status!=="mastered") s.status = score===5?"mastered":"strong";
+    else if(score<=1) s.status="needs_revision";
+    saveDB(); renderTopicModal();
+  }));
+  const addMnem = modal.querySelector("#addMnemBtn");
+  if(addMnem) addMnem.addEventListener("click",()=>{
+    const inp = modal.querySelector("#mnemInput");
+    if(!inp.value.trim()) return;
+    DB.mnemonics.push({id:uid(), topicId:activeTopicId, text:inp.value.trim(), date:todayISO()});
+    saveDB(); renderTopicModal();
+  });
+  modal.querySelectorAll("[data-del-mnem]").forEach(b=>b.addEventListener("click",()=>{
+    DB.mnemonics = DB.mnemonics.filter(m=>m.id!==b.dataset.delMnem); saveDB(); renderTopicModal();
+  }));
+  const addAffair = modal.querySelector("#addAffairBtn");
+  if(addAffair) addAffair.addEventListener("click",()=>{
+    const ev = modal.querySelector("#caEvent").value.trim();
+    if(!ev) return;
+    DB.globalCurrentAffairs.push({id:uid(), topicId:activeTopicId, event:ev, date:modal.querySelector("#caDate").value||todayISO(), why:modal.querySelector("#caWhy").value.trim()});
+    saveDB(); renderTopicModal();
+  });
+  modal.querySelectorAll("[data-del-affair]").forEach(b=>b.addEventListener("click",()=>{
+    DB.globalCurrentAffairs = DB.globalCurrentAffairs.filter(c=>c.id!==b.dataset.delAffair); saveDB(); renderTopicModal();
+  }));
+  const startQuiz = modal.querySelector("[data-start-topic-quiz]");
+  if(startQuiz) startQuiz.addEventListener("click",()=>{ closeTopic(); goto("quiz"); startQuizSession({mode:"item", itemId:startQuiz.dataset.startTopicQuiz}); });
+  const addOwnQ = modal.querySelector("#addOwnQBtn");
+  if(addOwnQ) addOwnQ.addEventListener("click",()=>{
+    const q = modal.querySelector("#ownQ").value.trim(), a = modal.querySelector("#ownA").value.trim();
+    if(!q) return;
+    DB.userQuestions.push({id:uid(), topicId:activeTopicId, question:q, answer:a, date:todayISO()});
+    saveDB(); modal.querySelector("#ownQ").value=""; modal.querySelector("#ownA").value="";
+    renderTopicModal();
+  });
+}
+
+/* ============================================================================
+   QUIZ ENGINE
+   ========================================================================== */
+let quizState = null; // {pool, idx, correct, wrong, mode, answered}
+function allPreloadedQuestions(){
+  let out=[];
+  Object.entries(PRELOADED_QUESTIONS).forEach(([itemId,list])=>{
+    const item = ITEM_INDEX[itemId];
+    if(!item) return;
+    list.forEach((q,i)=>out.push({...q, itemId, subjectCode:item.topics[0]?.subjectCode, qid:itemId+"-q"+i}));
+  });
+  return out;
+}
+function buildQuizPool(mode, opts={}){
+  let pool = allPreloadedQuestions();
+  if(mode==="item") pool = pool.filter(q=>q.itemId===opts.itemId);
+  if(mode==="subject") pool = pool.filter(q=>q.subjectCode===opts.subjectCode);
+  if(mode==="weak"){
+    const weakItemIds = new Set(Object.values(ITEM_INDEX).filter(it=>it.topics.some(t=>{const s=getTopicState(t.id); return s.confidence>0 && s.confidence<=2;})).map(it=>it.id));
+    pool = pool.filter(q=>weakItemIds.has(q.itemId));
+  }
+  if(mode==="revision"){
+    const dueItemIds = new Set(Object.values(ITEM_INDEX).filter(it=>it.topics.some(t=>revisionBucket(t.id)==="overdue"||revisionBucket(t.id)==="today")).map(it=>it.id));
+    pool = pool.filter(q=>dueItemIds.has(q.itemId));
+  }
+  // shuffle
+  pool = pool.slice().sort(()=>Math.random()-0.5);
+  const sizeMap = {quick:5, standard:10, deep:25};
+  if(sizeMap[opts.size]) pool = pool.slice(0, sizeMap[opts.size]);
+  return pool;
+}
+function startQuizSession(opts){
+  const pool = buildQuizPool(opts.mode, opts);
+  if(!pool.length){ quizState = {empty:true}; renderCurrentView(); return; }
+  quizState = {pool, idx:0, correct:0, wrong:0, answered:false, mode:opts.mode};
+  renderCurrentView();
+}
+function renderQuiz(){
+  if(quizState && quizState.empty){
+    return `<div class="pagehead"><div><h2>Quiz</h2><div class="sub">Test yourself without leaving the app</div></div></div>
+      <div class="empty"><div class="big">✎</div>No preloaded questions match that filter yet.<br><span style="font-size:12px;">Add practice questions from a topic's Practice tab, or try a different quiz mode.</span></div>
+      <button class="btn" id="quizBack">← Back to quiz menu</button>`;
+  }
+  if(quizState && quizState.pool){
+    if(quizState.idx >= quizState.pool.length){
+      const pct = Math.round((quizState.correct/quizState.pool.length)*100);
+      DB.quizHistory.push({id:uid(), date:todayISO(), mode:quizState.mode, score:quizState.correct, total:quizState.pool.length});
+      saveDB();
+      const res = `<div class="pagehead"><div><h2>Quiz Complete</h2></div></div>
+      <div class="card" style="text-align:center; padding:34px;">
+        <div style="font-family:var(--serif); font-size:44px; font-weight:700; color:${pct>=70?'var(--green-2)':pct>=40?'var(--gold)':'var(--red)'};">${pct}%</div>
+        <div style="color:var(--ink-soft); margin-bottom:18px;">${quizState.correct} of ${quizState.pool.length} correct</div>
+        <button class="btn primary" id="quizRestart">Take another quiz</button>
+      </div>`;
+      quizState=null;
+      return res;
+    }
+    const q = quizState.pool[quizState.idx];
+    return `<div class="pagehead"><div><h2>Quiz</h2><div class="sub">Question ${quizState.idx+1} of ${quizState.pool.length} · Score so far ${quizState.correct}/${quizState.idx}</div></div>
+      <button class="btn ghost" id="quizExit">Exit quiz</button></div>
+      <div class="notice">AI-GENERATED PRACTICE QUESTION — not an official BCS question.</div>
+      <div class="card" style="max-width:640px;">
+        <div class="quiz-q">${escapeHtml(q.q)}</div>
+        ${q.options.map((o,i)=>`<button class="quiz-opt" data-ans="${i}">${escapeHtml(o)}</button>`).join("")}
+        <div id="quizExplain" style="display:none; margin-top:12px; font-size:13px; color:var(--ink-soft); background:var(--paper-2); padding:10px 12px; border-radius:8px;"></div>
+        <button class="btn primary" id="quizNext" style="display:none; margin-top:12px;">Next →</button>
+      </div>`;
+  }
+  const bySubject = SUBJECTS.map(s=>({s, n: allPreloadedQuestions().filter(q=>q.subjectCode===s.code).length})).filter(x=>x.n>0);
+  return `
+  <div class="pagehead"><div><h2>Quiz</h2><div class="sub">Test yourself without needing another application</div></div></div>
+  <div class="notice">All questions here are <b>AI-generated practice questions</b>, clearly not official BCS questions. This is a small demonstration set — add more from any topic's Practice tab.</div>
+  <div class="grid cols-4">
+    <div class="card" data-quiz-mode="quick"><h3 style="font-size:15px;">Quick Quiz</h3><div class="sub">5 random questions</div></div>
+    <div class="card" data-quiz-mode="standard"><h3 style="font-size:15px;">Standard Quiz</h3><div class="sub">10 random questions</div></div>
+    <div class="card" data-quiz-mode="deep"><h3 style="font-size:15px;">Deep Quiz</h3><div class="sub">25 random questions</div></div>
+    <div class="card" data-quiz-mode="weak"><h3 style="font-size:15px;">Weak Area Quiz</h3><div class="sub">Only low-confidence topics</div></div>
+    <div class="card" data-quiz-mode="revision"><h3 style="font-size:15px;">Revision Quiz</h3><div class="sub">Only topics due for revision</div></div>
+    <div class="card" data-quiz-mode="random"><h3 style="font-size:15px;">Random Quiz</h3><div class="sub">Mixed syllabus coverage</div></div>
+  </div>
+  <div class="section-title-row"><h3>Quiz by subject</h3></div>
+  <div class="grid cols-4">
+    ${bySubject.map(x=>`<div class="card" data-quiz-subject="${x.s.code}"><h3 style="font-size:14px;">${x.s.code} ${x.s.name}</h3><div class="sub">${x.n} question${x.n>1?'s':''} available</div></div>`).join("")}
+  </div>
+  <div class="section-title-row"><h3>Quiz history</h3></div>
+  ${DB.quizHistory.length? `<table class="simple"><tr><th>Date</th><th>Mode</th><th>Score</th></tr>${DB.quizHistory.slice(-10).reverse().map(h=>`<tr><td>${fmtDate(h.date)}</td><td>${h.mode}</td><td>${h.score}/${h.total}</td></tr>`).join("")}</table>` : `<div class="empty">No quizzes taken yet.</div>`}
+  `;
+}
+
+/* ============================================================================
+   REVISION QUEUE
+   ========================================================================== */
+function renderRevision(){
+  const buckets = {overdue:[],today:[],soon:[],future:[]};
+  allTopicIds().forEach(id=>{ const b = revisionBucket(id); if(b) buckets[b].push(id); });
+  Object.values(buckets).forEach(arr=>arr.sort((a,b)=>new Date(getTopicState(a).nextRevision)-new Date(getTopicState(b).nextRevision)));
+  const bucketMeta = [["overdue","🔴 Overdue"],["today","🟠 Due Today"],["soon","🟡 Due Soon (7 days)"],["future","🟢 Future"]];
+  const dueNow = buckets.overdue.concat(buckets.today);
+  return `
+  <div class="pagehead"><div><h2>Revision Queue</h2><div class="sub">Spaced repetition, so nothing quietly rots</div></div>
+    ${dueNow.length? `<button class="btn primary" id="startRevisionSession">Start Revision Session (${dueNow.length})</button>`:""}
+  </div>
+  ${bucketMeta.map(([key,label])=>`
+    <div class="section-title-row"><h3>${label}</h3><span class="sub" style="font-size:12px; color:var(--ink-soft);">${buckets[key].length} topic${buckets[key].length!==1?'s':''}</span></div>
+    ${buckets[key].length? `<div class="grid cols-3">${buckets[key].slice(0,30).map(id=>revisionCard(id)).join("")}</div>` : `<div class="empty" style="padding:20px;">Nothing here.</div>`}
+  `).join("")}
+  ${allTopicIds().every(id=>!revisionBucket(id)) ? `<div class="notice blue">No revisions scheduled yet — open any topic's "Track & Revise" tab to schedule your first one.</div>`:""}
+  `;
+}
+function revisionCard(id){
+  const t = TOPIC_INDEX[id]; const s = getTopicState(id);
+  return `<div class="card" data-open-topic="${id}" style="cursor:pointer;">
+    <div style="font-size:11px; color:var(--ink-soft);">${t.subjectName}</div>
+    <h3 style="font-size:14.5px; margin:4px 0 6px;">${escapeHtml(t.name.length>70?t.name.slice(0,68)+'…':t.name)}</h3>
+    <div style="font-size:12px; color:var(--ink-soft);">Due ${fmtDate(s.nextRevision)} · Confidence ${s.confidence}/5</div>
+  </div>`;
+}
+
+/* ============================================================================
+   MISTAKE BOOK
+   ========================================================================== */
+const MISTAKE_TYPES = ["Didn't know","Forgot","Misread","Conceptual confusion","Careless mistake","Calculation error","Poor analysis","Poor recall"];
+function renderMistakes(){
+  const list = DB.mistakes.slice().reverse();
+  return `
+  <div class="pagehead"><div><h2>Mistake Book</h2><div class="sub">Errors are data. Log them, then revise them out.</div></div></div>
+  <div class="card" style="margin-bottom:20px;">
+    <div class="field-row">
+      <div class="field" style="flex:2;"><label>Question / prompt</label><input type="text" id="mQ"></div>
+      <div class="field"><label>Topic (optional)</label><select id="mTopic"><option value="">— none —</option>${allTopicIds().map(id=>`<option value="${id}">${escapeHtml(TOPIC_INDEX[id].name.slice(0,50))}</option>`).join("")}</select></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Correct answer</label><input type="text" id="mCorrect"></div>
+      <div class="field"><label>Mistake type</label><select id="mType">${MISTAKE_TYPES.map(t=>`<option>${t}</option>`).join("")}</select></div>
+    </div>
+    <div class="field"><label>Why I got it wrong</label><textarea id="mWhy" style="min-height:50px;"></textarea></div>
+    <button class="btn primary sm" id="addMistakeBtn">+ Log mistake</button>
+  </div>
+  ${list.length? list.map(m=>`
+    <div class="list-entry">
+      <button class="del" data-del-mistake="${m.id}">remove</button>
+      <label style="font-size:11px; color:var(--ink-soft); display:block;"><input type="checkbox" data-mistake-revised="${m.id}" ${m.revised?'checked':''}> revised</label>
+      <b>${escapeHtml(m.question)}</b>
+      <div class="meta">${escapeHtml(m.type)} · ${fmtDate(m.date)}${m.topicId&&TOPIC_INDEX[m.topicId]?` · ${escapeHtml(TOPIC_INDEX[m.topicId].name.slice(0,40))}`:""}</div>
+      ${m.correct?`<div style="font-size:12.5px; margin-top:4px;">Correct: ${escapeHtml(m.correct)}</div>`:""}
+      ${m.why?`<div style="font-size:12.5px; color:var(--ink-soft); margin-top:2px;">${escapeHtml(m.why)}</div>`:""}
+    </div>`).join("") : `<div class="empty"><div class="big">✕</div>No mistakes logged yet — good, or just early.</div>`}
+  `;
+}
+
+/* ============================================================================
+   FACT BANK & NOTES
+   ========================================================================== */
+function renderFactBank(){
+  const facts = DB.facts.slice().reverse();
+  return `
+  <div class="pagehead"><div><h2>Fact Bank</h2><div class="sub">Statistics, dates, reports, articles, quotes — searchable, sourced</div></div></div>
+  <div class="card" style="margin-bottom:20px;">
+    <div class="field"><label>Fact / statistic / date</label><textarea id="fText" style="min-height:50px;"></textarea></div>
+    <div class="field-row">
+      <div class="field"><label>Topic (optional)</label><select id="fTopic"><option value="">— none —</option>${allTopicIds().map(id=>`<option value="${id}">${escapeHtml(TOPIC_INDEX[id].name.slice(0,50))}</option>`).join("")}</select></div>
+      <div class="field"><label>Source</label><input type="text" id="fSource" placeholder="e.g. BBS, World Bank, newspaper…"></div>
+    </div>
+    <button class="btn primary sm" id="addFactBtn">+ Save fact</button>
+  </div>
+  <div class="grid cols-3">
+    ${facts.length? facts.map(f=>`
+      <div class="card"><button class="del" data-del-fact="${f.id}">remove</button>
+        <div style="font-size:13.5px;">${escapeHtml(f.text)}</div>
+        <div class="meta" style="margin-top:8px;">${f.source?escapeHtml(f.source)+" · ":""}${fmtDate(f.date)}${f.topicId&&TOPIC_INDEX[f.topicId]?`<br>${escapeHtml(TOPIC_INDEX[f.topicId].name.slice(0,40))}`:""}</div>
+      </div>`).join("") : `<div class="empty" style="grid-column:1/-1;"><div class="big">❦</div>No facts saved yet.</div>`}
+  </div>
+  `;
+}
+
+/* ============================================================================
+   CURRENT AFFAIRS (global list)
+   ========================================================================== */
+function renderCurrentAffairs(){
+  const list = DB.globalCurrentAffairs.slice().reverse();
+  return `
+  <div class="pagehead"><div><h2>Current Affairs</h2><div class="sub">Contemporary events linked to syllabus topics — kept clearly separate from official content</div></div></div>
+  <div class="notice">Link a current-affairs event from any topic's "Current Affairs" tab. This page just gives you the full list across the syllabus.</div>
+  ${list.length? list.map(c=>`
+    <div class="list-entry">
+      <button class="del" data-del-affair-global="${c.id}">remove</button>
+      <b>${escapeHtml(c.event)}</b>
+      <div class="meta">${fmtDate(c.date)}${c.topicId&&TOPIC_INDEX[c.topicId]?` · linked to ${escapeHtml(TOPIC_INDEX[c.topicId].name.slice(0,50))} (${TOPIC_INDEX[c.topicId].subjectName})`:""}</div>
+      ${c.why?`<div style="font-size:12.5px; color:var(--ink-soft); margin-top:4px;">${escapeHtml(c.why)}</div>`:""}
+      ${c.topicId?`<button class="btn sm ghost" data-open-topic="${c.topicId}" style="margin-top:6px;">Open linked topic →</button>`:""}
+    </div>`).join("") : `<div class="empty"><div class="big">⌘</div>No current-affairs links yet.</div>`}
+  `;
+}
+
+/* ============================================================================
+   ANALYTICS
+   ========================================================================== */
+function renderAnalytics(){
+  const stat = overallStats();
+  const sessions = DB.studySessions.length;
+  const quizzes = DB.quizHistory.length;
+  const avgQuizAcc = quizzes? Math.round(DB.quizHistory.reduce((a,h)=>a+(h.score/h.total),0)/quizzes*100):0;
+  const totalPracticed = allTopicIds().reduce((a,id)=>{const s=getTopicState(id); return a+s.practiceCorrect+s.practiceWrong;},0);
+  return `
+  <div class="pagehead"><div><h2>Study Analytics</h2><div class="sub">Measuring whether you're actually becoming exam-ready</div></div></div>
+  <div class="grid cols-4" style="margin-bottom:26px;">
+    <div class="card stat"><div class="num">${sessions}</div><div class="label">Active-Recall Sessions</div></div>
+    <div class="card stat"><div class="num">${quizzes}</div><div class="label">Quizzes Taken</div></div>
+    <div class="card stat"><div class="num">${avgQuizAcc}%</div><div class="label">Avg Quiz Accuracy</div></div>
+    <div class="card stat"><div class="num">${DB.mistakes.length}</div><div class="label">Mistakes Logged</div></div>
+  </div>
+  <div class="section-title-row"><h3>Preparation Heatmap</h3></div>
+  <table class="simple">
+    <tr><th>Subject</th><th>Weak</th><th>Medium</th><th>Strong</th><th>Coverage</th></tr>
+    ${SUBJECTS.map(s=>{
+      const topics = allTopicsForSubject(s);
+      let weak=0, med=0, strong=0;
+      topics.forEach(t=>{ const st=getTopicState(t.id); const c=st.confidence;
+        if(st.status==="not_started") return;
+        if(c<=2) weak++; else if(c<=3) med++; else strong++; });
+      const stt = subjectStats(s);
+      return `<tr><td>${s.code} ${s.name}</td><td>${weak}</td><td>${med}</td><td>${strong}</td>
+        <td><div class="progress-bar" style="width:120px;"><i style="width:${stt.completion}%"></i></div></td></tr>`;
+    }).join("")}
+  </table>
+  <div class="section-title-row"><h3>Weakness Radar</h3></div>
+  <div class="grid cols-2">
+    <div class="card"><h3 style="font-size:14px;">Never Tested</h3>
+      ${allTopicIds().filter(id=>{const s=getTopicState(id); return s.practiceCorrect+s.practiceWrong===0 && s.status!=="not_started";}).slice(0,8).map(id=>`<div style="font-size:12.5px; padding:4px 0; border-bottom:1px solid var(--line);" data-open-topic="${id}">${escapeHtml(TOPIC_INDEX[id].name.slice(0,60))}</div>`).join("")||`<div class="sub">None — good.</div>`}
+    </div>
+    <div class="card"><h3 style="font-size:14px;">Low Confidence (started, weak)</h3>
+      ${allTopicIds().filter(id=>{const s=getTopicState(id); return s.confidence>0&&s.confidence<=2;}).slice(0,8).map(id=>`<div style="font-size:12.5px; padding:4px 0; border-bottom:1px solid var(--line);" data-open-topic="${id}">${escapeHtml(TOPIC_INDEX[id].name.slice(0,60))}</div>`).join("")||`<div class="sub">None — good.</div>`}
+    </div>
+  </div>
+  <div class="section-title-row"><h3>Preparation Readiness Indicator</h3></div>
+  <div class="notice blue">This is a self-tracking indicator based on your own logged progress — not a prediction of actual BCS exam success.</div>
+  <div class="grid cols-4">
+    ${SUBJECTS.map(s=>{const st=subjectStats(s); const ready = Math.round(st.completion*0.5+ (st.avgConf/5*100)*0.5);
+      return `<div class="card stat"><div class="num">${ready}%</div><div class="label">${s.code} ${s.name}</div></div>`;}).join("")}
+  </div>
+  `;
+}
+
+/* ============================================================================
+   PLANNER
+   ========================================================================== */
+function renderPlanner(){
+  const p = DB.planner;
+  const plan = buildTodayPlan(Number(p.hoursPerDay)||2);
+  return `
+  <div class="pagehead"><div><h2>Daily Study Planner</h2><div class="sub">Overdue revision → weak high-priority → untouched important → practice → new learning</div></div></div>
+  <div class="card" style="margin-bottom:20px;">
+    <div class="field-row">
+      <div class="field"><label>Available hours today</label><input type="number" min="0.5" step="0.5" id="plHours" value="${p.hoursPerDay}"></div>
+      <div class="field"><label>Exam target date</label><input type="date" id="plExam" value="${p.examDate||''}"></div>
+      <div class="field"><label>Priority</label><select id="plPriority"><option value="balanced" ${p.priority==='balanced'?'selected':''}>Balanced</option><option value="weak" ${p.priority==='weak'?'selected':''}>Focus weak areas</option><option value="revision" ${p.priority==='revision'?'selected':''}>Focus revision</option></select></div>
+    </div>
+    <button class="btn primary sm" id="savePlannerBtn">Save & regenerate plan</button>
+    ${p.examDate? `<div style="margin-top:10px; font-size:12.5px; color:var(--ink-soft);">${daysUntil(p.examDate)} day(s) until your exam target.</div>`:""}
+  </div>
+  <div class="section-title-row"><h3>Today's Plan</h3></div>
+  ${plan.length? `<div class="grid cols-2">${plan.map((it,i)=>`
+    <div class="card" data-open-topic="${it.topic.id}" style="cursor:pointer;">
+      <div style="font-size:11px; color:var(--ink-soft);">${i+1}. ${it.reason}</div>
+      <h3 style="font-size:14.5px; margin:4px 0;">${escapeHtml(it.topic.name.slice(0,60))}</h3>
+      <div style="font-size:12px; color:var(--ink-soft);">${it.topic.subjectName} · ~${it.minutes} min</div>
+    </div>`).join("")}</div>` : `<div class="empty">Nothing pending — nice place to be. Add more study hours or explore new topics.</div>`}
+  `;
+}
+function buildTodayPlan(hours){
+  const minutesBudget = hours*60;
+  const ids = allTopicIds().filter(id=>getTopicState(id).status!=="mastered");
+  const scored = ids.map(id=>({id, score:priorityScore(id), bucket:revisionBucket(id)}));
+  scored.sort((a,b)=>b.score-a.score);
+  let used=0; const plan=[];
+  for(const item of scored){
+    if(used>=minutesBudget || plan.length>=8) break;
+    const chunk = item.bucket==="overdue"?20:(getTopicState(item.id).status==="not_started"?45:30);
+    if(used+chunk>minutesBudget && plan.length>0) continue;
+    let reason = "New / untouched";
+    if(item.bucket==="overdue") reason="Overdue revision";
+    else if(item.bucket==="today") reason="Revision due today";
+    else if(getTopicState(item.id).confidence<=2 && getTopicState(item.id).status!=="not_started") reason="Weak, high priority";
+    plan.push({topic:TOPIC_INDEX[item.id], minutes:chunk, reason});
+    used+=chunk;
+  }
+  return plan;
+}
+
+/* ============================================================================
+   FAVORITES
+   ========================================================================== */
+function renderFavorites(){
+  const favTopics = allTopicIds().filter(id=>getTopicState(id).favorite);
+  return `
+  <div class="pagehead"><div><h2>Favorites</h2><div class="sub">Starred topics for quick access</div></div></div>
+  ${favTopics.length? `<div class="grid cols-3">${favTopics.map(id=>revisionCard(id)).join("")}</div>` : `<div class="empty"><div class="big">★</div>Nothing favorited yet. Star a topic from its study card.</div>`}
+  `;
+}
+
+/* ============================================================================
+   SETTINGS
+   ========================================================================== */
+function renderSettings(){
+  const stat = overallStats();
+  return `
+  <div class="pagehead"><div><h2>Settings</h2></div></div>
+  <div class="grid cols-2">
+    <div class="card">
+      <h3 style="font-size:15px;">Data</h3>
+      <p class="sub">Everything (${stat.totalTopics} topics tracked, ${DB.facts.length} facts, ${DB.mistakes.length} mistakes, ${DB.globalCurrentAffairs.length} current-affairs links) is stored locally in this browser via <code>localStorage</code>. Nothing is sent anywhere.</p>
+      <button class="btn sm" id="settingsExport">⇩ Export backup (JSON)</button>
+      <button class="btn sm" id="settingsImport">⇧ Import backup (JSON)</button>
+      <button class="btn sm danger" id="settingsReset" style="margin-top:8px;">Reset all progress…</button>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px;">Appearance</h3>
+      <div class="field"><label>Theme</label><button class="btn sm" id="settingsTheme">Toggle dark / light</button></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;">
+    <h3 style="font-size:15px;">About this system</h3>
+    <p class="sub">${SOURCE_NOTE}</p>
+    <p class="sub">Distinctions used throughout: <span class="badge official">OFFICIAL</span> exact PDF wording · <span class="badge breakdown">STUDY BREAKDOWN</span> Claude's decomposition into trackable concepts · <span class="badge angle">QUESTION ANGLE</span> possible question framing, not a real BCS question · <span class="badge insight">AI INSIGHT</span> priority/recommendation reasoning.</p>
+  </div>
+  `;
+}
+
+/* ============================================================================
+   GLOBAL SEARCH
+   ========================================================================== */
+function runSearch(q){
+  q = q.trim().toLowerCase();
+  const el = document.getElementById("searchResultsView");
+  if(!q){ el.classList.remove("active"); return; }
+  el.classList.add("active");
+  let results = [];
+  allTopicIds().forEach(id=>{
+    const t = TOPIC_INDEX[id];
+    if(t.name.toLowerCase().includes(q)) results.push({type:"Topic", label:t.name, sub:t.subjectName, action:()=>openTopic(id)});
+  });
+  DB.facts.forEach(f=>{ if(f.text.toLowerCase().includes(q)) results.push({type:"Fact", label:f.text.slice(0,80), sub:f.source||"", action:()=>goto("factbank")}); });
+  DB.mistakes.forEach(m=>{ if((m.question||"").toLowerCase().includes(q)) results.push({type:"Mistake", label:m.question, sub:m.type, action:()=>goto("mistakes")}); });
+  DB.globalCurrentAffairs.forEach(c=>{ if(c.event.toLowerCase().includes(q)) results.push({type:"Current Affairs", label:c.event, sub:fmtDate(c.date), action:()=>goto("currentaffairs")}); });
+  DB.mnemonics.forEach(m=>{ if(m.text.toLowerCase().includes(q)) results.push({type:"Mnemonic", label:m.text, sub:TOPIC_INDEX[m.topicId]?.name||"", action:()=>openTopic(m.topicId)}); });
+  Object.values(DB.topics).forEach((s,idx)=>{}); // notes are keyed within topics already covered by topic search fallback below
+  allTopicIds().forEach(id=>{
+    const s = getTopicState(id);
+    if(s.notes && s.notes.toLowerCase().includes(q)) results.push({type:"My Notes", label:s.notes.slice(0,80), sub:TOPIC_INDEX[id].name, action:()=>openTopic(id)});
+  });
+  el.innerHTML = `<div class="pagehead"><div><h2>Search results</h2><div class="sub">${results.length} match${results.length!==1?'es':''} for "${escapeHtml(q)}"</div></div></div>
+    ${results.length? results.slice(0,60).map((r,i)=>`<div class="list-entry" data-search-result="${i}"><span class="badge tag">${r.type}</span> <b>${escapeHtml(r.label)}</b><div class="meta">${escapeHtml(r.sub)}</div></div>`).join(""):`<div class="empty">No matches.</div>`}`;
+  el.querySelectorAll("[data-search-result]").forEach((n,i)=>n.addEventListener("click",()=>results[i].action()));
+}
+
+/* ============================================================================
+   EVENT WIRING (per-view) + GLOBAL EVENTS
+   ========================================================================== */
+function wireViewEvents(){
+  const root = document.getElementById("views");
+  root.querySelectorAll("[data-open-topic]").forEach(n=>n.addEventListener("click",(e)=>{ e.stopPropagation(); openTopic(n.dataset.openTopic); }));
+  root.querySelectorAll("[data-open-subject]").forEach(n=>n.addEventListener("click",()=>{ goto("syllabus"); explorerOpen[n.dataset.openSubject]=true; renderCurrentView(); }));
+  root.querySelectorAll("[data-subj-toggle]").forEach(n=>n.addEventListener("click",(e)=>{
+    if(e.target.closest("[data-open-topic]")) return;
+    const id=n.dataset.subjToggle; explorerOpen[id]=!explorerOpen[id]; renderCurrentView();
+  }));
+  root.querySelectorAll("[data-item-toggle]").forEach(n=>n.addEventListener("click",(e)=>{
+    if(e.target.closest("[data-open-topic]")) return;
+    e.stopPropagation();
+    const id=n.dataset.itemToggle; explorerOpen[id]=!explorerOpen[id]; renderCurrentView();
+  }));
+  const whatBtn = root.querySelector("#whatToStudyBtn");
+  if(whatBtn) whatBtn.addEventListener("click",()=>{ const rec=recommendNextTopic(); if(rec) openTopic(rec.topic.id); });
+
+  // quiz
+  root.querySelectorAll("[data-quiz-mode]").forEach(n=>n.addEventListener("click",()=>{
+    const mode = n.dataset.quizMode;
+    startQuizSession({mode: mode==="random"?"random":mode, size:["quick","standard","deep"].includes(mode)?mode:"standard"});
+  }));
+  root.querySelectorAll("[data-quiz-subject]").forEach(n=>n.addEventListener("click",()=>startQuizSession({mode:"subject", subjectCode:n.dataset.quizSubject})));
+  const quizBack = root.querySelector("#quizBack"); if(quizBack) quizBack.addEventListener("click",()=>{ quizState=null; renderCurrentView(); });
+  const quizRestart = root.querySelector("#quizRestart"); if(quizRestart) quizRestart.addEventListener("click",()=>{ quizState=null; renderCurrentView(); });
+  const quizExit = root.querySelector("#quizExit"); if(quizExit) quizExit.addEventListener("click",()=>{ quizState=null; renderCurrentView(); });
+  root.querySelectorAll("[data-ans]").forEach(n=>n.addEventListener("click",()=>{
+    if(quizState.answered) return;
+    quizState.answered = true;
+    const q = quizState.pool[quizState.idx];
+    const chosen = Number(n.dataset.ans);
+    const opts = root.querySelectorAll(".quiz-opt");
+    opts.forEach((o,i)=>{ if(i===q.a) o.classList.add("correct"); else if(i===chosen) o.classList.add("wrong"); });
+    if(chosen===q.a) quizState.correct++; else quizState.wrong++;
+    const item = ITEM_INDEX[q.itemId];
+    if(item && item.topics[0]){ const s=getTopicState(item.topics[0].id); if(chosen===q.a) s.practiceCorrect++; else s.practiceWrong++; saveDB(); }
+    const exp = root.querySelector("#quizExplain"); exp.style.display="block"; exp.textContent = q.explain||"";
+    root.querySelector("#quizNext").style.display="inline-block";
+  }));
+  const quizNext = root.querySelector("#quizNext");
+  if(quizNext) quizNext.addEventListener("click",()=>{ quizState.idx++; quizState.answered=false; renderCurrentView(); });
+
+  // revision
+  const startRev = root.querySelector("#startRevisionSession");
+  if(startRev) startRev.addEventListener("click",()=>{
+    const dueIds = allTopicIds().filter(id=>revisionBucket(id)==="overdue"||revisionBucket(id)==="today");
+    if(dueIds.length) openTopic(dueIds[0]);
+  });
+
+  // mistakes
+  const addMistake = root.querySelector("#addMistakeBtn");
+  if(addMistake) addMistake.addEventListener("click",()=>{
+    const q = root.querySelector("#mQ").value.trim(); if(!q) return;
+    DB.mistakes.push({id:uid(), question:q, correct:root.querySelector("#mCorrect").value.trim(),
+      type:root.querySelector("#mType").value, why:root.querySelector("#mWhy").value.trim(),
+      topicId:root.querySelector("#mTopic").value||null, date:todayISO(), revised:false});
+    saveDB(); renderCurrentView();
+  });
+  root.querySelectorAll("[data-del-mistake]").forEach(n=>n.addEventListener("click",()=>{ DB.mistakes=DB.mistakes.filter(m=>m.id!==n.dataset.delMistake); saveDB(); renderCurrentView(); }));
+  root.querySelectorAll("[data-mistake-revised]").forEach(n=>n.addEventListener("change",()=>{
+    const m = DB.mistakes.find(x=>x.id===n.dataset.mistakeRevised); if(m){ m.revised=n.checked; saveDB(); }
+  }));
+
+  // fact bank
+  const addFact = root.querySelector("#addFactBtn");
+  if(addFact) addFact.addEventListener("click",()=>{
+    const t = root.querySelector("#fText").value.trim(); if(!t) return;
+    DB.facts.push({id:uid(), text:t, topicId:root.querySelector("#fTopic").value||null, source:root.querySelector("#fSource").value.trim(), date:todayISO()});
+    saveDB(); renderCurrentView();
+  });
+  root.querySelectorAll("[data-del-fact]").forEach(n=>n.addEventListener("click",()=>{ DB.facts=DB.facts.filter(f=>f.id!==n.dataset.delFact); saveDB(); renderCurrentView(); }));
+
+  // current affairs global
+  root.querySelectorAll("[data-del-affair-global]").forEach(n=>n.addEventListener("click",()=>{ DB.globalCurrentAffairs=DB.globalCurrentAffairs.filter(c=>c.id!==n.dataset.delAffairGlobal); saveDB(); renderCurrentView(); }));
+
+  // planner
+  const savePlanner = root.querySelector("#savePlannerBtn");
+  if(savePlanner) savePlanner.addEventListener("click",()=>{
+    DB.planner.hoursPerDay = root.querySelector("#plHours").value;
+    DB.planner.examDate = root.querySelector("#plExam").value;
+    DB.planner.priority = root.querySelector("#plPriority").value;
+    saveDB(); renderCurrentView();
+  });
+
+  // settings
+  const sExport = root.querySelector("#settingsExport"); if(sExport) sExport.addEventListener("click", exportBackup);
+  const sImport = root.querySelector("#settingsImport"); if(sImport) sImport.addEventListener("click", ()=>document.getElementById("importFile").click());
+  const sReset = root.querySelector("#settingsReset"); if(sReset) sReset.addEventListener("click", resetProgress);
+  const sTheme = root.querySelector("#settingsTheme"); if(sTheme) sTheme.addEventListener("click", toggleTheme);
+}
+
+function exportBackup(){
+  const blob = new Blob([JSON.stringify(DB,null,2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `bcs-prep-backup-${todayISO()}.json`;
+  a.click();
+}
+function importBackup(file){
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const data = JSON.parse(reader.result);
+      DB = data; saveDB(); loadDB(); renderCurrentView(); renderNav();
+      alert("Backup restored.");
+    }catch(e){ alert("Could not read that file — is it a valid backup JSON?"); }
+  };
+  reader.readAsText(file);
+}
+function resetProgress(){
+  if(!confirm("This will permanently erase ALL your tracked progress, notes, mistakes, facts and quiz history in this browser. This cannot be undone. Continue?")) return;
+  if(!confirm("Really sure? Consider exporting a backup first. Proceed with full reset?")) return;
+  localStorage.removeItem(LS_KEY);
+  DB = freshDB(); saveDB();
+  renderCurrentView();
+}
+function toggleTheme(){
+  const html = document.documentElement;
+  html.classList.toggle("dark");
+  DB.settings.theme = html.classList.contains("dark")?"dark":"light";
+  saveDB();
+}
+
+/* ============================================================================
+   INIT
+   ========================================================================== */
+function initApp(){
+  if(DB.settings.theme==="dark") document.documentElement.classList.add("dark");
+  renderNav();
+  renderCurrentView();
+  document.getElementById("globalSearch").addEventListener("input", (e)=>runSearch(e.target.value));
+  document.getElementById("themeToggle").addEventListener("click", toggleTheme);
+  document.getElementById("exportBtn").addEventListener("click", exportBackup);
+  document.getElementById("importBtn").addEventListener("click", ()=>document.getElementById("importFile").click());
+  document.getElementById("importFile").addEventListener("change",(e)=>{ if(e.target.files[0]) importBackup(e.target.files[0]); e.target.value=""; });
+  document.getElementById("topicOverlay").addEventListener("click",(e)=>{ if(e.target.id==="topicOverlay") closeTopic(); });
+  document.addEventListener("keydown",(e)=>{ if(e.key==="Escape") closeTopic(); });
+
+  // mobile sidebar toggle
+  const mt = document.getElementById("menuToggle");
+  if(window.innerWidth<=900){ mt.style.display="inline-block"; }
+  mt.addEventListener("click",()=>document.getElementById("sidebar").classList.toggle("open"));
+  window.addEventListener("resize",()=>{ mt.style.display = window.innerWidth<=900 ? "inline-block":"none"; });
+}
+initApp();
+</script>
+</body>
+</html>
+
