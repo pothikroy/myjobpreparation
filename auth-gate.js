@@ -223,7 +223,6 @@
     var provider = new firebase.auth.GoogleAuthProvider();
 
     function grant(user, role){
-      document.documentElement.style.visibility = 'visible';
       overlay.style.display = 'none';
       showBadge(user, role, auth);
       if(page.storage) setupSync(db, user.uid, page);
@@ -232,7 +231,6 @@
     }
 
     auth.onAuthStateChanged(function(user){
-      document.documentElement.style.visibility = 'hidden';
       overlay.style.display = 'flex';
 
       if(!user){
