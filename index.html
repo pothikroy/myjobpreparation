@@ -10,7 +10,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js?v=2"></script>
 <script>window.AG_PAGE = {"id":"index","title":"Study Hub","admin":true};</script>
-<script src="auth-gate.js?v=4"></script>
+<script src="auth-gate.js?v=5"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,75 +19,56 @@
 
 <style>
   :root{
-    --ink:#171310; --paper:#f5efe4; --panel:#fffdf8; --rule:#ddd0b8;
-    --brass:#a9702f; --brass-deep:#7c4f1e; --maroon:#6e2a2a; --navy:#1f3a4d;
-    --ok:#3c6e52; --muted:#6b6154; --gold:#b8863b;
+    --ink:#181310; --paper:#f6efe0; --panel:#fffdf9; --rule:#e2d3ae;
+    --brass:#c2831f; --brass-deep:#8a5a13; --maroon:#8a2b3e; --navy:#1f3a4d;
+    --teal:#166d67; --teal-deep:#0d4b47; --ok:#2f7a52; --muted:#6b6154;
+    --gold:#d9a441;
   }
   *{box-sizing:border-box;}
   body{
     margin:0;background:var(--paper);color:var(--ink);
-    background-image: radial-gradient(circle at 20% 0%, rgba(110,42,42,0.05), transparent 45%),
-                       radial-gradient(circle at 100% 30%, rgba(169,112,47,0.06), transparent 40%);
+    background-image:
+      radial-gradient(circle at 15% -5%, rgba(138,43,62,0.10), transparent 42%),
+      radial-gradient(circle at 100% 10%, rgba(194,131,31,0.12), transparent 40%),
+      radial-gradient(circle at 60% 100%, rgba(22,109,103,0.08), transparent 45%);
     font-family:'Kalpurush','Hind Siliguri','Nirmala UI','Segoe UI',system-ui,-apple-system,sans-serif;
     line-height:1.55;
   }
   a{color:inherit;text-decoration:none;}
   .wrap{max-width:1100px;margin:0 auto;padding:0 24px 80px;}
   .bn-head{font-family:'Kalpurush','Baloo Da 2','Hind Siliguri',sans-serif;}
-  .accent{font-family:'Playfair Display',serif;font-style:italic;}
 
-  header.top{padding:50px 24px 30px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden;}
+  header.top{padding:50px 24px 34px;border-bottom:1px solid var(--rule);position:relative;overflow:hidden;
+    background:linear-gradient(120deg, rgba(138,43,62,0.07), rgba(194,131,31,0.06) 45%, rgba(22,109,103,0.06));}
   header.top::before{
     content:"";position:absolute;inset:0;
     background-image:repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 22px);
-    opacity:.045;pointer-events:none;
+    opacity:.04;pointer-events:none;
   }
   .top-inner{max-width:1100px;margin:0 auto;position:relative;}
   .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'Courier Prime',monospace;
     font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass-deep);
-    border:1px solid var(--brass);padding:4px 10px;border-radius:999px;background:rgba(169,112,47,0.08);}
-  h1{font-family:'Baloo Da 2',sans-serif;font-size:clamp(30px,5.5vw,48px);margin:16px 0 2px;font-weight:800;letter-spacing:-0.01em;color:var(--maroon);}
+    border:1px solid var(--brass);padding:4px 10px;border-radius:999px;background:rgba(194,131,31,0.1);}
+  h1{font-family:'Baloo Da 2',sans-serif;font-size:clamp(30px,5.5vw,48px);margin:16px 0 2px;font-weight:800;
+    letter-spacing:-0.01em;
+    background:linear-gradient(90deg, var(--maroon), var(--brass-deep) 60%, var(--teal-deep));
+    -webkit-background-clip:text;background-clip:text;color:transparent;}
   .byline{font-size:14px;color:var(--muted);margin:0 0 14px;font-family:'Courier Prime',monospace;letter-spacing:.02em;}
-  .manifesto{
-    font-family:'Playfair Display',serif;font-style:italic;font-weight:500;
-    font-size:clamp(15px,2vw,18px);color:var(--ink);max-width:680px;
-    border-left:3px solid var(--brass);padding-left:16px;margin:10px 0 18px;line-height:1.6;
-  }
-  .manifesto .en{display:block;font-size:0.72em;color:var(--muted);margin-top:6px;}
 
   .countdown{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;}
   .cd-box{background:var(--panel);border:1px solid var(--rule);border-radius:10px;
-    padding:10px 14px;min-width:72px;text-align:center;}
+    padding:10px 14px;min-width:72px;text-align:center;box-shadow:0 2px 6px rgba(138,43,62,0.06);}
   .cd-box b{display:block;font-family:'Courier Prime',monospace;font-size:24px;color:var(--maroon);}
   .cd-box span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
-  .cd-label{font-size:11.5px;color:var(--muted);margin-top:6px;font-family:'Courier Prime',monospace;}
 
-  section.dash{margin-top:38px;display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;}
-  .ring-card{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:22px;
-    display:flex;flex-direction:column;align-items:center;min-width:200px;}
-  .ring-card h2{font-family:'Baloo Da 2',sans-serif;font-size:15px;margin:0 0 12px;font-weight:700;}
-  .ring-num{font-family:'Courier Prime',monospace;font-size:13px;color:var(--muted);margin-top:8px;}
-  .ring-num b{color:var(--maroon);font-size:16px;}
-
-  .dash-list{flex:1;min-width:260px;}
-  .dash-head{display:flex;align-items:baseline;gap:10px;margin-bottom:14px;}
-  .dash-head h2{font-family:'Baloo Da 2',sans-serif;font-size:15px;margin:0;font-weight:700;}
-  .dash-head span{font-size:11.5px;color:var(--muted);font-family:'Courier Prime',monospace;}
-  .dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;}
-  .dcard{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:12px 14px;}
-  .dcard .t{font-size:13px;font-weight:700;margin-bottom:6px;}
-  .dcard .bar{height:5px;border-radius:99px;background:var(--rule);overflow:hidden;margin-bottom:6px;}
-  .dcard .bar i{display:block;height:100%;width:0%;background:var(--ok);border-radius:99px;transition:width .4s ease;}
-  .dcard .s{font-size:11px;color:var(--muted);font-family:'Courier Prime',monospace;}
-  .dcard .s.done{color:var(--ok);}
-
-  main{margin-top:36px;}
-  .category{margin-bottom:14px;border:1px solid var(--rule);border-radius:12px;background:var(--panel);overflow:hidden;}
+  main{margin-top:40px;}
+  .category{margin-bottom:16px;border:1px solid var(--rule);border-radius:14px;background:var(--panel);
+    overflow:hidden;box-shadow:0 4px 16px rgba(24,19,16,0.04);border-left:4px solid var(--cat-accent, var(--brass));}
   .cat-head{display:flex;align-items:center;gap:12px;padding:18px 20px;cursor:pointer;user-select:none;}
-  .cat-head:hover{background:rgba(169,112,47,0.05);}
-  .cat-head .icon{font-size:18px;transition:transform .15s ease;color:var(--brass-deep);}
+  .cat-head:hover{background:rgba(194,131,31,0.05);}
+  .cat-head .icon{font-size:18px;transition:transform .15s ease;color:var(--cat-accent, var(--brass-deep));}
   .category.open .cat-head .icon{transform:rotate(90deg);}
-  .cat-head .titles .bn{font-family:'Baloo Da 2',sans-serif;font-size:17px;font-weight:700;}
+  .cat-head .titles .bn{font-family:'Baloo Da 2',sans-serif;font-size:17px;font-weight:700;color:var(--cat-accent, var(--ink));}
   .cat-head .titles .en{font-size:12px;color:var(--muted);}
   .cat-head .soon{margin-left:auto;font-size:11px;font-family:'Courier Prime',monospace;color:var(--brass-deep);
     border:1px solid var(--brass);padding:3px 9px;border-radius:999px;}
@@ -96,13 +77,13 @@
   .cat-body-inner{padding:0 20px 20px;}
 
   .subcat{margin-top:6px;}
-  .subcat-title{font-size:13px;font-weight:700;color:var(--navy);margin:16px 0 10px;
+  .subcat-title{font-size:13px;font-weight:700;color:var(--cat-accent, var(--navy));margin:16px 0 10px;
     padding-bottom:6px;border-bottom:1px dashed var(--rule);}
   .grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(230px,1fr));gap:12px;}
   .card{display:block;background:var(--paper);border:1px solid var(--rule);border-radius:10px;
-    padding:14px 16px;position:relative;overflow:hidden;transition:transform .1s ease, box-shadow .1s ease;}
-  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--brass);opacity:0;transition:opacity .1s ease;}
-  .card:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(18,24,31,0.08);}
+    padding:14px 16px;position:relative;overflow:hidden;transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;}
+  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--cat-accent, var(--brass));opacity:0;transition:opacity .12s ease;}
+  .card:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(24,19,16,0.09);border-color:var(--cat-accent, var(--brass));}
   .card:hover::before{opacity:1;}
   .card .name{font-size:14px;font-weight:700;}
   .card .meta{display:flex;justify-content:space-between;align-items:center;margin-top:10px;
@@ -131,29 +112,7 @@
 </header>
 
 <div class="wrap">
-
-  <section class="dash">
-    <div class="ring-card">
-      <h2>অগ্রগতি</h2>
-      <svg width="140" height="140" viewBox="0 0 140 140">
-        <circle cx="70" cy="70" r="58" fill="none" stroke="#ddd0b8" stroke-width="14"/>
-        <circle id="ringFg" cx="70" cy="70" r="58" fill="none" stroke="#3c6e52" stroke-width="14"
-          stroke-linecap="round" stroke-dasharray="364" stroke-dashoffset="364"
-          transform="rotate(-90 70 70)" style="transition:stroke-dashoffset .6s ease;"/>
-        <text id="ringText" x="70" y="76" text-anchor="middle" font-family="Courier Prime, monospace"
-          font-size="22" fill="#171310">0/12</text>
-      </svg>
-      <div class="ring-num" id="ringSub">সাইন ইন করুন প্রথমে</div>
-    </div>
-
-    <div class="dash-list">
-      <div class="dash-head"><h2>বিষয়ভিত্তিক অগ্রগতি</h2><span>Per-subject activity</span></div>
-      <div class="dash-grid" id="dashGrid"><div class="dcard"><div class="t">সাইন ইন করুন</div><div class="s">Sign in to see your progress</div></div></div>
-    </div>
-  </section>
-
   <main id="catRoot"></main>
-
   <footer>পথিক রায় — Personal Study Hub · বিসিএস প্রস্তুতি</footer>
 </div>
 
@@ -182,12 +141,13 @@ setInterval(tickCountdown, 1000);
 
 /* ============================================================
    CATALOG — the whole site map lives here. To add a new subject
-   or a new category (e.g. Bank Preparation) later, add one more
-   entry below with its file path — nothing else needs to change.
+   or a new category later, add one more entry below with its
+   file path — nothing else needs to change. "accent" sets that
+   category's colour throughout its section.
    ============================================================ */
 const CATALOG = [
   {
-    id: 'bcs', label_bn: 'বিসিএস', label_en: 'BCS', open: true,
+    id: 'bcs', label_bn: 'বিসিএস', label_en: 'BCS', open: true, accent: '#8a2b3e',
     subcategories: [
       {
         id: 'question-bank', label_bn: 'প্রশ্নব্যাংক (আগের বছরের প্রশ্ন)', label_en: 'Question Bank — Previous Year Questions',
@@ -210,17 +170,27 @@ const CATALOG = [
     ]
   },
   {
-    id: 'bank', label_bn: 'ব্যাংক প্রস্তুতি', label_en: 'Bank Preparation', comingSoon: true, subcategories: []
+    id: 'bank', label_bn: 'ব্যাংক প্রস্তুতি', label_en: 'Bank Preparation', accent: '#166d67',
+    subcategories: [
+      {
+        id: 'vocabulary', label_bn: 'শব্দভাণ্ডার', label_en: 'Vocabulary',
+        items: [
+          {id:'word-smart-vocabulary', bn:'Word Smart', en:'Vocabulary Mastery', path:'bank/vocabulary/word-smart-vocabulary.html'}
+        ]
+      }
+      // Add more Bank subcategories here later, e.g. Math, English, Written
+    ]
   }
   // Add more top-level categories here later, e.g. Primary/NTRCA/University Admission
 ];
 
 const root = document.getElementById('catRoot');
-const allItems = [];
 
 CATALOG.forEach(cat => {
   const catEl = document.createElement('div');
   catEl.className = 'category' + (cat.open ? ' open' : '');
+  if(cat.accent) catEl.style.setProperty('--cat-accent', cat.accent);
+
   const head = document.createElement('div');
   head.className = 'cat-head';
   head.innerHTML = '<span class="icon">▸</span><div class="titles"><div class="bn">'+cat.label_bn+'</div><div class="en">'+cat.label_en+'</div></div>' +
@@ -243,7 +213,6 @@ CATALOG.forEach(cat => {
     const grid = document.createElement('div');
     grid.className = 'grid';
     sub.items.forEach(item => {
-      allItems.push(item);
       const a = document.createElement('a');
       a.className = 'card'; a.href = item.path;
       a.innerHTML = '<div class="name">'+item.bn+'</div><div class="meta"><span>'+item.en+'</span><span class="go">Open →</span></div>';
@@ -257,53 +226,6 @@ CATALOG.forEach(cat => {
   catEl.appendChild(body);
   root.appendChild(catEl);
 });
-
-// ---- dashboard: reads each item's synced progress doc once signed in ----
-function loadDashboard(db, uid){
-  const grid = document.getElementById('dashGrid');
-  grid.innerHTML = '';
-  const total = allItems.length;
-  let started = 0;
-  let done = 0;
-
-  allItems.forEach(item => {
-    const card = document.createElement('div');
-    card.className = 'dcard';
-    card.innerHTML = '<div class="t">'+item.bn+'</div><div class="bar"><i></i></div><div class="s">Checking...</div>';
-    grid.appendChild(card);
-    db.collection('users').doc(uid).collection('progress').doc(item.id).get().then(snap => {
-      const s = card.querySelector('.s');
-      const bar = card.querySelector('.bar i');
-      if(snap.exists && snap.data().updatedAt){
-        const d = snap.data().updatedAt.toDate();
-        s.textContent = 'Last studied: ' + d.toLocaleDateString();
-        s.classList.add('done');
-        bar.style.width = '100%';
-        started++;
-      } else {
-        s.textContent = 'Not started yet';
-        bar.style.width = '4%';
-      }
-      done++;
-      if(done === total) updateRing(started, total);
-    }).catch(()=>{
-      card.querySelector('.s').textContent = '—';
-      done++;
-      if(done === total) updateRing(started, total);
-    });
-  });
-}
-
-function updateRing(started, total){
-  const circumference = 364; // 2 * PI * 58, rounded
-  const frac = total ? started/total : 0;
-  const offset = circumference * (1 - frac);
-  document.getElementById('ringFg').setAttribute('stroke-dashoffset', offset);
-  document.getElementById('ringText').textContent = started + '/' + total;
-  document.getElementById('ringSub').innerHTML = '<b>' + Math.round(frac*100) + '%</b> শুরু হয়েছে';
-}
-
-window.AG_ON_GRANT = loadDashboard;
 </script>
 </body>
 </html>

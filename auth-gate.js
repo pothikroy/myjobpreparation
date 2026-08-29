@@ -5,6 +5,11 @@
    ==================================================================== */
 (function(){
 
+  var ICON_POWER = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v8"/><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/></svg>';
+  var ICON_USER = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>';
+  var ICON_SHIELD = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 3v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V5l8-3z"/></svg>';
+  var ICON_CLOSE = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+
   function buildOverlay(){
     var css = document.createElement('style');
     css.textContent = [
@@ -22,14 +27,38 @@
       '.ag-spin{width:26px;height:26px;border:3px solid #2c3b48;border-top-color:#a9702f;',
       'border-radius:50%;margin:0 auto 16px;animation:agspin 1s linear infinite;}',
       '@keyframes agspin{to{transform:rotate(360deg);}}',
-      '#ag-badge{position:fixed;top:10px;right:10px;z-index:99998;background:#182430;color:#cfe0ea;',
-      'border:1px solid #2c3b48;border-radius:999px;padding:6px 8px 6px 12px;font-size:11.5px;',
-      "font-family:'Segoe UI',system-ui,sans-serif;display:flex;gap:6px;align-items:center;}",
-      '#ag-badge .ag-email{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
-      '#ag-badge button{background:none;border:none;color:#a9702f;font-size:15px;cursor:pointer;',
-      'line-height:1;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;',
-      'justify-content:center;font-family:inherit;}',
-      '#ag-badge button:hover{background:rgba(169,112,47,0.18);}'
+
+      /* ---- edge tab + sidebar (replaces the old floating badge) ---- */
+      '#ag-tab{position:fixed;top:50%;right:0;transform:translateY(-50%);z-index:99997;',
+      'background:#182430;color:#cfe0ea;border:1px solid #2c3b48;border-right:none;',
+      'border-radius:10px 0 0 10px;width:34px;height:52px;display:flex;align-items:center;',
+      'justify-content:center;cursor:pointer;box-shadow:-4px 0 14px rgba(0,0,0,.18);}',
+      '#ag-tab svg{width:18px;height:18px;}',
+      '#ag-sidebar{position:fixed;top:0;right:0;bottom:0;width:270px;max-width:82vw;z-index:99998;',
+      'background:#182430;color:#cfe0ea;border-left:1px solid #2c3b48;box-shadow:-8px 0 30px rgba(0,0,0,.25);',
+      "font-family:'Segoe UI',system-ui,sans-serif;transform:translateX(100%);transition:transform .2s ease;",
+      'display:flex;flex-direction:column;}',
+      '#ag-sidebar.open{transform:translateX(0);}',
+      '#ag-sb-head{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 12px;',
+      'border-bottom:1px solid #2c3b48;}',
+      '#ag-sb-head b{font-size:13px;}',
+      '#ag-sb-close{background:none;border:none;color:#9fb0bd;cursor:pointer;padding:4px;}',
+      '#ag-sb-body{padding:16px;overflow-y:auto;flex:1;}',
+      '.ag-acct{display:flex;align-items:center;gap:10px;padding:10px;background:#101820;border-radius:10px;margin-bottom:14px;}',
+      '.ag-acct svg{flex-shrink:0;color:#a9702f;}',
+      '.ag-acct .em{font-size:12px;word-break:break-all;line-height:1.4;}',
+      '.ag-acct .role{font-size:10px;color:#a9702f;text-transform:uppercase;letter-spacing:.06em;}',
+      '#ag-signout-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;',
+      'background:#3a2420;color:#e8a37c;border:1px solid #5a332c;border-radius:9px;padding:10px;',
+      'font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}',
+      '#ag-admin-section{margin-top:20px;padding-top:16px;border-top:1px solid #2c3b48;}',
+      '#ag-admin-section h4{display:flex;align-items:center;gap:6px;font-size:12.5px;margin:0 0 10px;color:#cfe0ea;}',
+      '.ag-req-row{display:flex;flex-direction:column;gap:6px;padding:10px 0;border-bottom:1px solid #22303c;font-size:12px;}',
+      '.ag-req-row .em{word-break:break-all;font-weight:600;}',
+      '.ag-req-row .st{font-size:10px;text-transform:uppercase;letter-spacing:.05em;}',
+      '.ag-req-actions{display:flex;gap:6px;}',
+      '.ag-req-actions button{flex:1;border:none;border-radius:6px;padding:6px;font-size:11px;',
+      'font-weight:700;color:#fff;cursor:pointer;}'
     ].join('');
     document.head.appendChild(css);
     var ov = document.getElementById('ag-overlay');
@@ -69,23 +98,63 @@
     document.getElementById('ag-signout').onclick = function(){ auth.signOut(); };
   }
 
-  function showBadge(user, role, auth){
-    var old = document.getElementById('ag-badge'); if(old) old.remove();
-    var b = document.createElement('div'); b.id='ag-badge';
-    b.innerHTML = '<span class="ag-email" id="ag-email" title="'+(user.email||'')+'" style="display:none;">'+
-      (role==='owner'?'\u2605 ':'')+ (user.email||'') +'</span>'+
-      '<button id="ag-out-btn" title="Click to show account, click again to sign out">\u23FB</button>';
-    document.body.appendChild(b);
-    var emailShown = false;
-    document.getElementById('ag-out-btn').onclick = function(){
-      var emailEl = document.getElementById('ag-email');
-      if(!emailShown){
-        emailEl.style.display = 'inline';
-        emailShown = true;
-      } else {
-        auth.signOut(); location.reload();
-      }
-    };
+  // ---------- sidebar: account + admin, tucked behind a small edge tab ----------
+  function buildSidebar(user, role, auth, db, page){
+    var oldTab = document.getElementById('ag-tab'); if(oldTab) oldTab.remove();
+    var oldSb = document.getElementById('ag-sidebar'); if(oldSb) oldSb.remove();
+
+    var tab = document.createElement('div');
+    tab.id = 'ag-tab';
+    tab.innerHTML = ICON_USER;
+    document.body.appendChild(tab);
+
+    var sb = document.createElement('div');
+    sb.id = 'ag-sidebar';
+    sb.innerHTML =
+      '<div id="ag-sb-head"><b>অ্যাকাউন্ট</b><button id="ag-sb-close">'+ICON_CLOSE+'</button></div>'+
+      '<div id="ag-sb-body">'+
+        '<div class="ag-acct">'+ICON_USER+
+          '<div><div class="em">'+(user.email||'')+'</div>'+
+          '<div class="role">'+(role==='owner'?'Owner':'Guest')+'</div></div>'+
+        '</div>'+
+        '<button id="ag-signout-btn">'+ICON_POWER+' Sign out</button>'+
+        (page.admin && role==='owner' ? '<div id="ag-admin-section"><h4>'+ICON_SHIELD+' Access Requests</h4><div id="ag-admin-list">Loading...</div></div>' : '')+
+      '</div>';
+    document.body.appendChild(sb);
+
+    tab.onclick = function(){ sb.classList.add('open'); };
+    document.getElementById('ag-sb-close').onclick = function(){ sb.classList.remove('open'); };
+    document.getElementById('ag-signout-btn').onclick = function(){ auth.signOut(); location.reload(); };
+
+    if(page.admin && role==='owner') renderAdminList(db);
+  }
+
+  function renderAdminList(db){
+    var list = document.getElementById('ag-admin-list');
+    db.collection('accessRequests').get().then(function(qs){
+      if(!list) return;
+      if(qs.empty){ list.textContent = 'No requests yet.'; return; }
+      list.innerHTML = '';
+      qs.forEach(function(doc){
+        var d = doc.data(), row = document.createElement('div');
+        row.className = 'ag-req-row';
+        var statusColor = d.status==='approved' ? '#7fbf9e' : d.status==='denied' ? '#e08a8a' : '#e0b27a';
+        row.innerHTML = '<div class="em">'+(d.email||doc.id)+'</div>'+
+          '<div class="st" style="color:'+statusColor+';">'+d.status+'</div>'+
+          '<div class="ag-req-actions"></div>';
+        var actions = row.querySelector('.ag-req-actions');
+        var mkBtn = function(label, status, bg){
+          var b = document.createElement('button');
+          b.textContent = label;
+          b.style.background = bg;
+          b.onclick = function(){ db.collection('accessRequests').doc(doc.id).update({status:status}).then(function(){ renderAdminList(db); }); };
+          return b;
+        };
+        if(d.status !== 'approved') actions.appendChild(mkBtn('Approve','approved','#3c6e52'));
+        if(d.status !== 'denied') actions.appendChild(mkBtn('Deny','denied','#a33'));
+        list.appendChild(row);
+      });
+    });
   }
 
   // ---------- progress sync ----------
@@ -173,53 +242,6 @@
     document.addEventListener('visibilitychange', function(){ if(document.hidden) pushUp(); });
   }
 
-  // ---------- admin panel (index page only) ----------
-  function buildAdminButton(db){
-    var btn = document.createElement('button');
-    btn.textContent = 'Admin: Access Requests';
-    btn.style.cssText = 'position:fixed;bottom:16px;right:16px;z-index:99997;background:#a9702f;color:#fff;'+
-      'border:none;border-radius:999px;padding:12px 18px;font-weight:700;font-size:13px;cursor:pointer;'+
-      'box-shadow:0 8px 20px rgba(0,0,0,.25);font-family:system-ui,sans-serif;';
-    btn.onclick = function(){ openAdminModal(db); };
-    document.body.appendChild(btn);
-  }
-
-  function openAdminModal(db){
-    var wrap = document.createElement('div');
-    wrap.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.5);display:flex;'+
-      'align-items:center;justify-content:center;font-family:system-ui,sans-serif;';
-    wrap.innerHTML = '<div style="background:#fff;border-radius:14px;max-width:480px;width:92%;max-height:80vh;'+
-      'overflow:auto;padding:22px;"><h3 style="margin:0 0 14px;">Access Requests</h3>'+
-      '<div id="ag-admin-list">Loading...</div>'+
-      '<button id="ag-admin-close" style="margin-top:16px;width:100%;padding:10px;border:1px solid #ddd;'+
-      'border-radius:8px;background:#f6f4ef;cursor:pointer;">Close</button></div>';
-    document.body.appendChild(wrap);
-    document.getElementById('ag-admin-close').onclick = function(){ wrap.remove(); };
-
-    db.collection('accessRequests').get().then(function(qs){
-      var list = document.getElementById('ag-admin-list');
-      if(qs.empty){ list.textContent = 'No requests yet.'; return; }
-      list.innerHTML = '';
-      qs.forEach(function(doc){
-        var d = doc.data(), row = document.createElement('div');
-        row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #eee;';
-        var statusColor = d.status==='approved' ? '#3c6e52' : d.status==='denied' ? '#a33' : '#a9702f';
-        row.innerHTML = '<div style="flex:1;"><div style="font-weight:600;font-size:13.5px;">'+(d.email||doc.id)+'</div>'+
-          '<div style="font-size:11.5px;color:'+statusColor+';text-transform:uppercase;">'+d.status+'</div></div>';
-        var mkBtn = function(label, status, bg){
-          var b = document.createElement('button');
-          b.textContent = label;
-          b.style.cssText = 'padding:6px 10px;border:none;border-radius:6px;background:'+bg+';color:#fff;font-size:12px;cursor:pointer;';
-          b.onclick = function(){ db.collection('accessRequests').doc(doc.id).update({status:status}).then(function(){ wrap.remove(); openAdminModal(db); }); };
-          return b;
-        };
-        if(d.status !== 'approved') row.appendChild(mkBtn('Approve','approved','#3c6e52'));
-        if(d.status !== 'denied') row.appendChild(mkBtn('Deny','denied','#a33'));
-        list.appendChild(row);
-      });
-    });
-  }
-
   // ---------- main ----------
   document.addEventListener('DOMContentLoaded', function(){
     var page = window.AG_PAGE || {id:'page'};
@@ -238,9 +260,8 @@
 
     function grant(user, role){
       overlay.style.display = 'none';
-      showBadge(user, role, auth);
+      buildSidebar(user, role, auth, db, page);
       if(page.storage) setupSync(db, user.uid, page);
-      if(page.admin && role==='owner') buildAdminButton(db);
       if(typeof window.AG_ON_GRANT === 'function') window.AG_ON_GRANT(db, user.uid);
     }
 
