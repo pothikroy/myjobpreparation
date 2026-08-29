@@ -6,14 +6,14 @@
 // Paste the config object Firebase gives you when you register a Web App
 // (Project settings -> General -> Your apps -> </> icon).
 const FIREBASE_CONFIG = {
-  apiKey: "PASTE_YOUR_API_KEY",
-  authDomain: "PASTE_YOUR_PROJECT.firebaseapp.com",
-  projectId: "PASTE_YOUR_PROJECT_ID",
-  storageBucket: "PASTE_YOUR_PROJECT.appspot.com",
-  messagingSenderId: "PASTE_YOUR_SENDER_ID",
-  appId: "PASTE_YOUR_APP_ID"
+  apiKey: "AIzaSyD20NQl9tMYeMV9kmxzvci_QXoXX9TrXsM",
+  authDomain: "myjobpreparation-d563b.firebaseapp.com",
+  projectId: "myjobpreparation-d563b",
+  storageBucket: "myjobpreparation-d563b.firebasestorage.app",
+  messagingSenderId: "287628023918",
+  appId: "1:287628023918:web:447725851c3ea8e9716e7f"
 };
 
 // Only this Gmail address is let in automatically.
 // Everyone else has to request access and wait for your approval.
-const OWNER_EMAIL = "your.email@gmail.com";
+const OWNER_EMAIL = "donyroy9@gmail.com";
