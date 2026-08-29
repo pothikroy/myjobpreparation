@@ -32,7 +32,9 @@
       '#ag-tab{position:fixed;top:50%;right:0;transform:translateY(-50%);z-index:99997;',
       'background:#182430;color:#cfe0ea;border:1px solid #2c3b48;border-right:none;',
       'border-radius:10px 0 0 10px;width:34px;height:52px;display:flex;align-items:center;',
-      'justify-content:center;cursor:pointer;box-shadow:-4px 0 14px rgba(0,0,0,.18);}',
+      'justify-content:center;cursor:grab;box-shadow:-4px 0 14px rgba(0,0,0,.18);touch-action:none;',
+      'user-select:none;}',
+      '#ag-tab:active{cursor:grabbing;}',
       '#ag-tab svg{width:18px;height:18px;}',
       '#ag-sidebar{position:fixed;top:0;right:0;bottom:0;width:270px;max-width:82vw;z-index:99998;',
       'background:#182430;color:#cfe0ea;border-left:1px solid #2c3b48;box-shadow:-8px 0 30px rgba(0,0,0,.25);',
@@ -122,11 +124,58 @@
       '</div>';
     document.body.appendChild(sb);
 
-    tab.onclick = function(){ sb.classList.add('open'); };
+    tab.onclick = function(){ if(!tabWasDragged()) sb.classList.add('open'); };
     document.getElementById('ag-sb-close').onclick = function(){ sb.classList.remove('open'); };
     document.getElementById('ag-signout-btn').onclick = function(){ auth.signOut(); location.reload(); };
 
+    var tabWasDragged = makeTabDraggable(tab);
+
     if(page.admin && role==='owner') renderAdminList(db);
+  }
+
+  // ---------- drag the edge tab up/down, remember position per device ----------
+  function makeTabDraggable(tab){
+    var saved = localStorage.getItem('ag_tab_top');
+    if(saved){ tab.style.top = saved; tab.style.transform = 'translateY(-50%)'; }
+
+    var dragging = false, moved = false, startY = 0, startCenter = 0, justDragged = false;
+
+    function pointY(e){ return e.touches ? e.touches[0].clientY : e.clientY; }
+
+    function onDown(e){
+      dragging = true; moved = false;
+      startY = pointY(e);
+      var rect = tab.getBoundingClientRect();
+      startCenter = rect.top + rect.height/2;
+    }
+    function onMove(e){
+      if(!dragging) return;
+      var y = pointY(e);
+      if(Math.abs(y - startY) > 6) moved = true;
+      if(!moved) return;
+      e.preventDefault();
+      var newCenter = startCenter + (y - startY);
+      var min = 36, max = window.innerHeight - 36;
+      newCenter = Math.max(min, Math.min(max, newCenter));
+      tab.style.top = newCenter + 'px';
+    }
+    function onUp(){
+      if(dragging && moved){
+        localStorage.setItem('ag_tab_top', tab.style.top);
+        justDragged = true;
+        setTimeout(function(){ justDragged = false; }, 50);
+      }
+      dragging = false;
+    }
+
+    tab.addEventListener('mousedown', onDown);
+    tab.addEventListener('touchstart', onDown, {passive:true});
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('touchmove', onMove, {passive:false});
+    window.addEventListener('mouseup', onUp);
+    window.addEventListener('touchend', onUp);
+
+    return function(){ return justDragged; };
   }
 
   function renderAdminList(db){
