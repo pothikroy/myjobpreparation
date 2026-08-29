@@ -72,10 +72,20 @@
   function showBadge(user, role, auth){
     var old = document.getElementById('ag-badge'); if(old) old.remove();
     var b = document.createElement('div'); b.id='ag-badge';
-    b.innerHTML = '<span class="ag-email" title="'+(user.email||'')+'">'+(role==='owner'?'\u2605 ':'')+ (user.email||'') +'</span>'+
-      '<button id="ag-out-btn" title="Sign out">\u23FB</button>';
+    b.innerHTML = '<span class="ag-email" id="ag-email" title="'+(user.email||'')+'" style="display:none;">'+
+      (role==='owner'?'\u2605 ':'')+ (user.email||'') +'</span>'+
+      '<button id="ag-out-btn" title="Click to show account, click again to sign out">\u23FB</button>';
     document.body.appendChild(b);
-    document.getElementById('ag-out-btn').onclick = function(){ auth.signOut(); location.reload(); };
+    var emailShown = false;
+    document.getElementById('ag-out-btn').onclick = function(){
+      var emailEl = document.getElementById('ag-email');
+      if(!emailShown){
+        emailEl.style.display = 'inline';
+        emailShown = true;
+      } else {
+        auth.signOut(); location.reload();
+      }
+    };
   }
 
   // ---------- progress sync ----------
