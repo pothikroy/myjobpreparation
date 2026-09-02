@@ -9,6 +9,9 @@
   var ICON_USER = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>';
   var ICON_SHIELD = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 3v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V5l8-3z"/></svg>';
   var ICON_CLOSE = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+  var ICON_CLOCK = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>';
+  var ICON_BACK = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>';
+  var ICON_HOME = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7"/><path d="M9 22V12h6v10"/></svg>';
 
   function buildOverlay(){
     var css = document.createElement('style');
@@ -57,10 +60,18 @@
       '#ag-admin-section h4{display:flex;align-items:center;gap:6px;font-size:12.5px;margin:0 0 10px;color:#cfe0ea;}',
       '.ag-req-row{display:flex;flex-direction:column;gap:6px;padding:10px 0;border-bottom:1px solid #22303c;font-size:12px;}',
       '.ag-req-row .em{word-break:break-all;font-weight:600;}',
+      '.ag-req-row .tm{font-size:10.5px;color:#9fb0bd;display:flex;align-items:center;gap:4px;}',
       '.ag-req-row .st{font-size:10px;text-transform:uppercase;letter-spacing:.05em;}',
-      '.ag-req-actions{display:flex;gap:6px;}',
-      '.ag-req-actions button{flex:1;border:none;border-radius:6px;padding:6px;font-size:11px;',
-      'font-weight:700;color:#fff;cursor:pointer;}'
+      '.ag-req-actions{display:flex;gap:6px;flex-wrap:wrap;}',
+      '.ag-req-actions button{flex:1;min-width:56px;border:none;border-radius:6px;padding:6px;font-size:11px;',
+      'font-weight:700;color:#fff;cursor:pointer;}',
+
+      /* ---- floating back/home nav, present on every page ---- */
+      '#ag-nav{position:fixed;top:14px;left:14px;z-index:99997;display:flex;gap:8px;}',
+      '#ag-nav button{width:36px;height:36px;border-radius:50%;border:1px solid #2c3b48;background:#182430;',
+      'color:#cfe0ea;display:flex;align-items:center;justify-content:center;cursor:pointer;',
+      'box-shadow:0 4px 14px rgba(0,0,0,.25);padding:0;}',
+      '#ag-nav button:hover{background:#20303d;}'
     ].join('');
     document.head.appendChild(css);
     var ov = document.getElementById('ag-overlay');
@@ -178,6 +189,14 @@
     return function(){ return justDragged; };
   }
 
+  function formatDuration(totalSeconds){
+    var s = Math.max(0, Math.round(totalSeconds||0));
+    var h = Math.floor(s/3600), m = Math.floor((s%3600)/60);
+    if(h>0) return h+'h '+m+'m';
+    if(m>0) return m+'m';
+    return s+'s';
+  }
+
   function renderAdminList(db){
     var list = document.getElementById('ag-admin-list');
     db.collection('accessRequests').get().then(function(qs){
@@ -189,6 +208,7 @@
         row.className = 'ag-req-row';
         var statusColor = d.status==='approved' ? '#7fbf9e' : d.status==='denied' ? '#e08a8a' : '#e0b27a';
         row.innerHTML = '<div class="em">'+(d.email||doc.id)+'</div>'+
+          '<div class="tm">'+ICON_CLOCK+' '+formatDuration(d.totalTimeSpent)+' on site</div>'+
           '<div class="st" style="color:'+statusColor+';">'+d.status+'</div>'+
           '<div class="ag-req-actions"></div>';
         var actions = row.querySelector('.ag-req-actions');
@@ -201,9 +221,49 @@
         };
         if(d.status !== 'approved') actions.appendChild(mkBtn('Approve','approved','#3c6e52'));
         if(d.status !== 'denied') actions.appendChild(mkBtn('Deny','denied','#a33'));
+        var rm = document.createElement('button');
+        rm.textContent = 'Remove';
+        rm.style.background = '#4a4a4a';
+        rm.onclick = function(){
+          if(!confirm('Remove '+(d.email||doc.id)+' from the list? They will need to request access again to come back.')) return;
+          db.collection('accessRequests').doc(doc.id).delete().then(function(){ renderAdminList(db); });
+        };
+        actions.appendChild(rm);
         list.appendChild(row);
       });
     });
+  }
+
+  // ---------- time-on-site tracking (guests only, shown to owner in admin list) ----------
+  function setupTimeTracking(db, uid){
+    var reqRef = db.collection('accessRequests').doc(uid);
+    var pending = 0, lastTick = Date.now(), visible = !document.hidden;
+
+    function tick(){
+      var now = Date.now();
+      if(visible) pending += (now - lastTick)/1000;
+      lastTick = now;
+    }
+
+    function flush(){
+      tick();
+      if(pending < 1) return;
+      var secs = Math.round(pending);
+      pending -= secs;
+      reqRef.set({
+        totalTimeSpent: firebase.firestore.FieldValue.increment(secs),
+        lastActiveAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, {merge:true}).catch(function(){});
+    }
+
+    document.addEventListener('visibilitychange', function(){
+      tick();
+      visible = !document.hidden;
+      if(document.hidden) flush();
+    });
+    setInterval(tick, 5000);
+    setInterval(flush, 30000);
+    window.addEventListener('pagehide', flush);
   }
 
   // ---------- progress sync ----------
@@ -291,10 +351,31 @@
     document.addEventListener('visibilitychange', function(){ if(document.hidden) pushUp(); });
   }
 
+  function buildNavControls(){
+    if(document.getElementById('ag-nav')) return;
+    var homeHref = 'index.html';
+    var scripts = document.getElementsByTagName('script');
+    for(var i=0;i<scripts.length;i++){
+      var src = scripts[i].getAttribute('src')||'';
+      if(src.indexOf('auth-gate.js')!==-1){ homeHref = src.replace(/auth-gate\.js.*$/, 'index.html'); break; }
+    }
+    var nav = document.createElement('div');
+    nav.id = 'ag-nav';
+    nav.innerHTML =
+      '<button id="ag-nav-back" title="আগের পাতা">'+ICON_BACK+'</button>'+
+      '<button id="ag-nav-home" title="হোম">'+ICON_HOME+'</button>';
+    document.body.insertBefore(nav, document.body.firstChild);
+    document.getElementById('ag-nav-back').onclick = function(){
+      if(history.length>1) history.back(); else location.href = homeHref;
+    };
+    document.getElementById('ag-nav-home').onclick = function(){ location.href = homeHref; };
+  }
+
   // ---------- main ----------
   document.addEventListener('DOMContentLoaded', function(){
     var page = window.AG_PAGE || {id:'page'};
     var overlay = buildOverlay();
+    buildNavControls();
     showLoading(overlay);
 
     if(typeof firebase === 'undefined' || typeof FIREBASE_CONFIG === 'undefined'){
@@ -311,6 +392,7 @@
       overlay.style.display = 'none';
       buildSidebar(user, role, auth, db, page);
       if(page.storage) setupSync(db, user.uid, page);
+      if(role === 'guest') setupTimeTracking(db, user.uid);
       if(typeof window.AG_ON_GRANT === 'function') window.AG_ON_GRANT(db, user.uid);
     }
 
