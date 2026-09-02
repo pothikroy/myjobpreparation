@@ -8,9 +8,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js?v=7"></script>
+<script src="firebase-config.js?v=8"></script>
 <script>window.AG_PAGE = {"id":"index","title":"Study Hub","admin":true};</script>
-<script src="auth-gate.js?v=7"></script>
+<script src="auth-gate.js?v=8"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -170,20 +170,23 @@ const CATALOG = [
         id: 'books', label_bn: 'বিসিএস বই এবং পাঠ্যসামগ্রী', label_en: 'BCS Books & Study Materials',
         items: [
           {id:'lal-neel-dipaboli', bn:'লাল নীল দীপাবলি', en:'Exam Prep', path:'bcs/question-bank/Lal_Neel_Dipaboli_Exam_Prep.html'},
-          {id:'budget-2026-27', bn:'বাজেট FY2026-27', en:'Study Dashboard', path:'bcs/question-bank/BCS_Budget_2026_27_Bangla.html'}
+          {id:'budget-2026-27', bn:'বাজেট FY2026-27', en:'Study Dashboard', path:'bcs/question-bank/BCS_Budget_2026_27_Bangla.html'},
+          {id:'bangla-bhasha-sahitya', bn:'বাংলা ভাষা ও সাহিত্য জিজ্ঞাসা', en:'BCS Study System', path:'bcs/books/Bangla_Bhasha_Sahitya_Study_System.html'},
+          {id:'math-short-technique', bn:'গণিতের শর্ট টেকনিক', en:'Competitive Exam Prep', path:'bcs/books/Math_Short_Technique_Exam_Prep.html'},
+          {id:'vocab-mastery-bcs', bn:'শব্দভাণ্ডার', en:'Vocabulary Mastery', path:'bcs/books/Vocabulary_Mastery.html'}
         ]
       },
       {
-        id: 'preliminary-tools', label_bn: 'প্রিলিমিনারি সহায়ক টুলস', label_en: 'Preliminary Support Tools',
+        id: 'syllabus', label_bn: 'সিলেবাস', label_en: 'Syllabus',
         items: [
           {id:'prelim-master-tracker', bn:'BCS Preliminary — মাস্টার ট্র্যাকার', en:'Master Tracker', path:'bcs/preliminary-tools/BCS_Preliminary_Master_Tracker.html'},
-          {id:'bcs50-eligibility', bn:'৫০তম বি.সি.এস — যোগ্যতা বিশ্লেষণ', en:'Eligibility Analysis', path:'bcs/preliminary-tools/bcs50_eligibility.html'}
+          {id:'written-syllabus-intelligence', bn:'BCS Written — সিলেবাস ইন্টেলিজেন্স সিস্টেম', en:'Syllabus Intelligence System', path:'bcs/written/BCS_Written_Syllabus_Intelligence_System.html'}
         ]
       },
       {
-        id: 'written', label_bn: 'লিখিত পরীক্ষা', label_en: 'Written Exam',
+        id: 'preliminary-tools', label_bn: 'বিসিএস সহায়ক টুলস', label_en: 'BCS Support Tools',
         items: [
-          {id:'written-syllabus-intelligence', bn:'BCS Written — সিলেবাস ইন্টেলিজেন্স সিস্টেম', en:'Syllabus Intelligence System', path:'bcs/written/BCS_Written_Syllabus_Intelligence_System.html'}
+          {id:'bcs50-eligibility', bn:'৫০তম বি.সি.এস — যোগ্যতা বিশ্লেষণ', en:'Eligibility Analysis', path:'bcs/preliminary-tools/bcs50_eligibility.html'}
         ]
       }
       // Add more BCS subcategories here later, e.g. "Detailed Subject Notes"

@@ -10,8 +10,6 @@
   var ICON_SHIELD = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 3v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V5l8-3z"/></svg>';
   var ICON_CLOSE = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
   var ICON_CLOCK = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>';
-  var ICON_BACK = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>';
-  var ICON_HOME = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7"/><path d="M9 22V12h6v10"/></svg>';
 
   function buildOverlay(){
     var css = document.createElement('style');
@@ -64,14 +62,7 @@
       '.ag-req-row .st{font-size:10px;text-transform:uppercase;letter-spacing:.05em;}',
       '.ag-req-actions{display:flex;gap:6px;flex-wrap:wrap;}',
       '.ag-req-actions button{flex:1;min-width:56px;border:none;border-radius:6px;padding:6px;font-size:11px;',
-      'font-weight:700;color:#fff;cursor:pointer;}',
-
-      /* ---- floating back/home nav, present on every page ---- */
-      '#ag-nav{position:fixed;top:14px;left:14px;z-index:99997;display:flex;gap:8px;}',
-      '#ag-nav button{width:36px;height:36px;border-radius:50%;border:1px solid #2c3b48;background:#182430;',
-      'color:#cfe0ea;display:flex;align-items:center;justify-content:center;cursor:pointer;',
-      'box-shadow:0 4px 14px rgba(0,0,0,.25);padding:0;}',
-      '#ag-nav button:hover{background:#20303d;}'
+      'font-weight:700;color:#fff;cursor:pointer;}'
     ].join('');
     document.head.appendChild(css);
     var ov = document.getElementById('ag-overlay');
@@ -351,31 +342,10 @@
     document.addEventListener('visibilitychange', function(){ if(document.hidden) pushUp(); });
   }
 
-  function buildNavControls(){
-    if(document.getElementById('ag-nav')) return;
-    var homeHref = 'index.html';
-    var scripts = document.getElementsByTagName('script');
-    for(var i=0;i<scripts.length;i++){
-      var src = scripts[i].getAttribute('src')||'';
-      if(src.indexOf('auth-gate.js')!==-1){ homeHref = src.replace(/auth-gate\.js.*$/, 'index.html'); break; }
-    }
-    var nav = document.createElement('div');
-    nav.id = 'ag-nav';
-    nav.innerHTML =
-      '<button id="ag-nav-back" title="আগের পাতা">'+ICON_BACK+'</button>'+
-      '<button id="ag-nav-home" title="হোম">'+ICON_HOME+'</button>';
-    document.body.insertBefore(nav, document.body.firstChild);
-    document.getElementById('ag-nav-back').onclick = function(){
-      if(history.length>1) history.back(); else location.href = homeHref;
-    };
-    document.getElementById('ag-nav-home').onclick = function(){ location.href = homeHref; };
-  }
-
   // ---------- main ----------
   document.addEventListener('DOMContentLoaded', function(){
     var page = window.AG_PAGE || {id:'page'};
     var overlay = buildOverlay();
-    buildNavControls();
     showLoading(overlay);
 
     if(typeof firebase === 'undefined' || typeof FIREBASE_CONFIG === 'undefined'){
