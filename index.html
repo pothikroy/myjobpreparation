@@ -76,9 +76,28 @@
   .category.open .cat-body{max-height:4000px;}
   .cat-body-inner{padding:0 20px 20px;}
 
-  .subcat{margin-top:6px;}
-  .subcat-title{font-size:13px;font-weight:700;color:var(--cat-accent, var(--navy));margin:16px 0 10px;
-    padding-bottom:6px;border-bottom:1px dashed var(--rule);}
+  .subcat{margin-top:12px;border:1px solid var(--rule);border-radius:10px;overflow:hidden;background:rgba(255,253,249,0.55);}
+  .subcat-head{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;user-select:none;}
+  .subcat-head:hover{background:rgba(194,131,31,0.05);}
+  .subcat-head .icon{font-size:13px;transition:transform .15s ease;color:var(--cat-accent, var(--brass-deep));}
+  .subcat.open > .subcat-head .icon{transform:rotate(90deg);}
+  .subcat-head .titles .bn{font-family:'Baloo Da 2',sans-serif;font-size:14px;font-weight:700;color:var(--cat-accent, var(--navy));}
+  .subcat-head .titles .en{font-size:11px;color:var(--muted);}
+  .subcat-body{max-height:0;overflow:hidden;transition:max-height .2s ease;}
+  .subcat.open > .subcat-body{max-height:8000px;}
+  .subcat-body-inner{padding:0 14px 14px;}
+
+  .group{margin-top:8px;border:1px dashed var(--rule);border-radius:8px;overflow:hidden;background:var(--panel);}
+  .group-head{display:flex;align-items:center;gap:8px;padding:9px 12px;cursor:pointer;user-select:none;}
+  .group-head:hover{background:rgba(194,131,31,0.04);}
+  .group-head .icon{font-size:11px;transition:transform .15s ease;color:var(--cat-accent, var(--brass-deep));}
+  .group.open > .group-head .icon{transform:rotate(90deg);}
+  .group-head .titles .bn{font-size:12.5px;font-weight:700;color:var(--cat-accent, var(--navy));}
+  .group-head .titles .en{font-size:10px;color:var(--muted);}
+  .group-body{max-height:0;overflow:hidden;transition:max-height .2s ease;}
+  .group.open > .group-body{max-height:4000px;}
+  .group-body-inner{padding:6px 12px 12px;}
+
   .grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(230px,1fr));gap:12px;}
   .card{display:block;background:var(--paper);border:1px solid var(--rule);border-radius:10px;
     padding:14px 16px;position:relative;overflow:hidden;transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;}
@@ -153,8 +172,8 @@ const CATALOG = [
         id: 'question-bank', label_bn: 'প্রশ্নব্যাংক (আগের বছরের প্রশ্ন)', label_en: 'Question Bank — Previous Year Questions',
         items: [
           {id:'exam-simulator', bn:'BCS প্রস্তুতি প্ল্যাটফর্ম — ৪৪-৫০তম', en:'Full Exam Simulator', path:'bcs/question-bank/BCS_44_50_Exam_Simulator.html'},
-          {id:'bangla-uttaran-system', bn:'বাংলা উত্তরণ', en:'Study & Revision System', path:'bcs/question-bank/Bangla_Uttaran_Interactive_Study_System.html'},
-          {id:'bangla-uttaran-app', bn:'বাংলা উত্তরণ — সাহিত্য অনুশীলন', en:'Literature Practice App', path:'bcs/question-bank/bangla_uttaran_study_app.html'},
+          {id:'bangla-uttaran-system', bn:'বাংলা ভাষা', en:'Study & Revision System', path:'bcs/question-bank/Bangla_Uttaran_Interactive_Study_System.html'},
+          {id:'bangla-uttaran-app', bn:'বাংলা সাহিত্য', en:'Literature Practice App', path:'bcs/question-bank/bangla_uttaran_study_app.html'},
           {id:'english-language', bn:'English Language', en:'Study & Revision System', path:'bcs/question-bank/English_Language_Interactive_Study_System.html'},
           {id:'english-literature', bn:'English Literature', en:'Study & Revision System', path:'bcs/question-bank/English_Literature_Interactive_Study_System.html'},
           {id:'bangladesh-affairs', bn:'বাংলাদেশ বিষয়াবলি', en:'Study & Revision System', path:'bcs/question-bank/Bangladesh_Interactive_Study_Revision_System.html'},
@@ -168,14 +187,35 @@ const CATALOG = [
       },
       {
         id: 'books', label_bn: 'বিসিএস বই এবং পাঠ্যসামগ্রী', label_en: 'BCS Books & Study Materials',
-        items: [
-          {id:'lal-neel-dipaboli', bn:'লাল নীল দীপাবলি', en:'Exam Prep', path:'bcs/question-bank/Lal_Neel_Dipaboli_Exam_Prep.html'},
-          {id:'budget-2026-27', bn:'বাজেট FY2026-27', en:'Study Dashboard', path:'bcs/question-bank/BCS_Budget_2026_27_Bangla.html'},
-          {id:'bangla-bhasha-sahitya', bn:'বাংলা ভাষা ও সাহিত্য জিজ্ঞাসা', en:'BCS Study System', path:'bcs/books/Bangla_Bhasha_Sahitya_Study_System.html'},
-          {id:'math-short-technique', bn:'গণিতের শর্ট টেকনিক', en:'Competitive Exam Prep', path:'bcs/books/Math_Short_Technique_Exam_Prep.html'},
-          {id:'vocab-mastery-bcs', bn:'শব্দভাণ্ডার', en:'Vocabulary Mastery', path:'bcs/books/Vocabulary_Mastery.html'},
-          {id:'english-literature-master', bn:'BCS English Literature', en:'Command Center', path:'bcs/books/BCS_English_Literature_Master.html'},
-          {id:'bangladesh-constitution-master', bn:'সংবিধানের বেসিক পাঠ', en:'BCS Mastery System', path:'bcs/books/Bangladesh_Constitution_BCS_Master.html'}
+        groups: [
+          {
+            id: 'books-bangla', label_bn: 'বাংলা ভাষা ও সাহিত্য', label_en: 'Bangla Language & Literature',
+            items: [
+              {id:'lal-neel-dipaboli', bn:'লাল নীল দীপাবলি', en:'Exam Prep', path:'bcs/question-bank/Lal_Neel_Dipaboli_Exam_Prep.html'},
+              {id:'bangla-bhasha-sahitya', bn:'বাংলা ভাষা ও সাহিত্য জিজ্ঞাসা', en:'BCS Study System', path:'bcs/books/Bangla_Bhasha_Sahitya_Study_System.html'}
+            ]
+          },
+          {
+            id: 'books-english', label_bn: 'ইংরেজি ভাষা ও সাহিত্য', label_en: 'English Language & Literature',
+            items: [
+              {id:'vocab-mastery-bcs', bn:'শব্দভাণ্ডার', en:'Vocabulary Mastery', path:'bcs/books/Vocabulary_Mastery.html'},
+              {id:'english-literature-master', bn:'BCS English Literature', en:'Command Center', path:'bcs/books/BCS_English_Literature_Master.html'}
+            ]
+          },
+          {
+            id: 'books-bangladesh-affairs', label_bn: 'বাংলাদেশ বিষয়াবলি', label_en: 'Bangladesh Affairs',
+            items: [
+              {id:'budget-2026-27', bn:'বাজেট FY2026-27', en:'Study Dashboard', path:'bcs/question-bank/BCS_Budget_2026_27_Bangla.html'},
+              {id:'bangladesh-constitution-master', bn:'সংবিধানের বেসিক পাঠ', en:'BCS Mastery System', path:'bcs/books/Bangladesh_Constitution_BCS_Master.html'}
+            ]
+          },
+          {
+            id: 'books-math', label_bn: 'গাণিতিক যুক্তি', label_en: 'Mathematical Reasoning',
+            items: [
+              {id:'math-short-technique', bn:'গণিতের শর্ট টেকনিক', en:'Competitive Exam Prep', path:'bcs/books/Math_Short_Technique_Exam_Prep.html'}
+            ]
+          }
+          // Add more subject groups here later, e.g. আন্তর্জাতিক বিষয়াবলি, ভূগোল, সাধারণ বিজ্ঞান, কম্পিউটার ও তথ্য প্রযুক্তি, মানসিক দক্ষতা, নৈতিকতা মূল্যবোধ ও সুশাসন
         ]
       },
       {
@@ -233,17 +273,58 @@ CATALOG.forEach(cat => {
   }
   cat.subcategories.forEach(sub => {
     const subEl = document.createElement('div');
-    subEl.className = 'subcat';
-    subEl.innerHTML = '<div class="subcat-title">'+sub.label_bn+' — '+sub.label_en+'</div>';
-    const grid = document.createElement('div');
-    grid.className = 'grid';
-    sub.items.forEach(item => {
-      const a = document.createElement('a');
-      a.className = 'card'; a.href = item.path;
-      a.innerHTML = '<div class="name">'+item.bn+'</div><div class="meta"><span>'+item.en+'</span><span class="go">Open →</span></div>';
-      grid.appendChild(a);
-    });
-    subEl.appendChild(grid);
+    subEl.className = 'subcat' + (sub.open === false ? '' : ' open');
+
+    const subHead = document.createElement('div');
+    subHead.className = 'subcat-head';
+    subHead.innerHTML = '<span class="icon">▸</span><div class="titles"><div class="bn">'+sub.label_bn+'</div><div class="en">'+sub.label_en+'</div></div>';
+    subHead.onclick = () => subEl.classList.toggle('open');
+    subEl.appendChild(subHead);
+
+    const subBody = document.createElement('div');
+    subBody.className = 'subcat-body';
+    const subInner = document.createElement('div');
+    subInner.className = 'subcat-body-inner';
+
+    const renderGrid = (items) => {
+      const grid = document.createElement('div');
+      grid.className = 'grid';
+      items.forEach(item => {
+        const a = document.createElement('a');
+        a.className = 'card'; a.href = item.path;
+        a.innerHTML = '<div class="name">'+item.bn+'</div><div class="meta"><span>'+item.en+'</span><span class="go">Open →</span></div>';
+        grid.appendChild(a);
+      });
+      return grid;
+    };
+
+    if(sub.groups){
+      sub.groups.forEach(group => {
+        const groupEl = document.createElement('div');
+        groupEl.className = 'group' + (group.open === false ? '' : ' open');
+
+        const groupHead = document.createElement('div');
+        groupHead.className = 'group-head';
+        groupHead.innerHTML = '<span class="icon">▸</span><div class="titles"><div class="bn">'+group.label_bn+'</div><div class="en">'+group.label_en+'</div></div>';
+        groupHead.onclick = () => groupEl.classList.toggle('open');
+        groupEl.appendChild(groupHead);
+
+        const groupBody = document.createElement('div');
+        groupBody.className = 'group-body';
+        const groupInner = document.createElement('div');
+        groupInner.className = 'group-body-inner';
+        groupInner.appendChild(renderGrid(group.items));
+        groupBody.appendChild(groupInner);
+        groupEl.appendChild(groupBody);
+
+        subInner.appendChild(groupEl);
+      });
+    } else {
+      subInner.appendChild(renderGrid(sub.items));
+    }
+
+    subBody.appendChild(subInner);
+    subEl.appendChild(subBody);
     inner.appendChild(subEl);
   });
 
