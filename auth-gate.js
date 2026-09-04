@@ -190,8 +190,9 @@
 
   function renderAdminList(db){
     var list = document.getElementById('ag-admin-list');
-    db.collection('accessRequests').get().then(function(qs){
-      if(!list) return;
+    if(!list) return;
+    db.collection('accessRequests').onSnapshot(function(qs){
+      if(!document.getElementById('ag-admin-list')) return; // sidebar rebuilt/closed
       if(qs.empty){ list.textContent = 'No requests yet.'; return; }
       list.innerHTML = '';
       qs.forEach(function(doc){
@@ -207,7 +208,7 @@
           var b = document.createElement('button');
           b.textContent = label;
           b.style.background = bg;
-          b.onclick = function(){ db.collection('accessRequests').doc(doc.id).update({status:status}).then(function(){ renderAdminList(db); }); };
+          b.onclick = function(){ db.collection('accessRequests').doc(doc.id).update({status:status}); };
           return b;
         };
         if(d.status !== 'approved') actions.appendChild(mkBtn('Approve','approved','#3c6e52'));
@@ -217,13 +218,14 @@
         rm.style.background = '#4a4a4a';
         rm.onclick = function(){
           if(!confirm('Remove '+(d.email||doc.id)+' from the list? They will need to request access again to come back.')) return;
-          db.collection('accessRequests').doc(doc.id).delete().then(function(){ renderAdminList(db); });
+          db.collection('accessRequests').doc(doc.id).delete();
         };
         actions.appendChild(rm);
         list.appendChild(row);
       });
-    });
+    }, function(e){ list.textContent = 'Could not load requests: '+(e&&e.message); });
   }
+
 
   // ---------- time-on-site tracking (guests only, shown to owner in admin list) ----------
   function setupTimeTracking(db, uid){
@@ -244,7 +246,11 @@
       reqRef.set({
         totalTimeSpent: firebase.firestore.FieldValue.increment(secs),
         lastActiveAt: firebase.firestore.FieldValue.serverTimestamp()
-      }, {merge:true}).catch(function(){});
+      }, {merge:true}).catch(function(e){
+        // Don't lose the time we failed to save — put it back so the next flush retries it.
+        pending += secs;
+        console.warn('[time-tracking] write failed, will retry:', e && e.message);
+      });
     }
 
     document.addEventListener('visibilitychange', function(){
@@ -252,9 +258,10 @@
       visible = !document.hidden;
       if(document.hidden) flush();
     });
-    setInterval(tick, 5000);
-    setInterval(flush, 30000);
+    setInterval(tick, 3000);
+    setInterval(flush, 10000);
     window.addEventListener('pagehide', flush);
+    window.addEventListener('beforeunload', flush);
   }
 
   // ---------- progress sync ----------
