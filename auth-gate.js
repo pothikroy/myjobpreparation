@@ -51,6 +51,7 @@
       '.ag-acct svg{flex-shrink:0;color:#a9702f;}',
       '.ag-acct .em{font-size:12px;word-break:break-all;line-height:1.4;}',
       '.ag-acct .role{font-size:10px;color:#a9702f;text-transform:uppercase;letter-spacing:.06em;}',
+      '.sync-status{font-size:10.5px;line-height:1.5;margin:-4px 0 14px;padding:0 2px;color:#9fb0bd;}',
       '#ag-signout-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;',
       'background:#3a2420;color:#e8a37c;border:1px solid #5a332c;border-radius:9px;padding:10px;',
       'font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}',
@@ -121,6 +122,7 @@
           '<div><div class="em">'+(user.email||'')+'</div>'+
           '<div class="role">'+(role==='owner'?'Owner':'Guest')+'</div></div>'+
         '</div>'+
+        '<div id="ag-sync-status" class="sync-status">সিঙ্ক করার অপেক্ষায়…</div>'+
         '<button id="ag-signout-btn">'+ICON_POWER+' Sign out</button>'+
         (page.admin && role==='owner' ? '<div id="ag-admin-section"><h4>'+ICON_SHIELD+' Access Requests</h4><div id="ag-admin-list">Loading...</div></div>' : '')+
       '</div>';
@@ -227,6 +229,14 @@
   }
 
 
+  // ---------- visible sync status (so failures show on screen, not just in devtools) ----------
+  function setSyncStatus(ok, label, msg){
+    var el = document.getElementById('ag-sync-status');
+    if(!el) return;
+    el.style.color = ok ? '#6f9e83' : '#e08a8a';
+    el.textContent = (ok ? '✓ ' : '⚠ ') + label + (msg ? ' — ' + msg : '');
+  }
+
   // ---------- time-on-site tracking (guests only, shown to owner in admin list) ----------
   function setupTimeTracking(db, uid){
     var reqRef = db.collection('accessRequests').doc(uid);
@@ -246,10 +256,13 @@
       reqRef.set({
         totalTimeSpent: firebase.firestore.FieldValue.increment(secs),
         lastActiveAt: firebase.firestore.FieldValue.serverTimestamp()
-      }, {merge:true}).catch(function(e){
+      }, {merge:true}).then(function(){
+        setSyncStatus(true, 'সময় ট্র্যাকিং কাজ করছে');
+      }).catch(function(e){
         // Don't lose the time we failed to save — put it back so the next flush retries it.
         pending += secs;
         console.warn('[time-tracking] write failed, will retry:', e && e.message);
+        setSyncStatus(false, 'সময় ট্র্যাকিং ব্যর্থ', e && e.message);
       });
     }
 
@@ -324,10 +337,21 @@
     function pushUp(){
       if(spec.type === 'indexeddb'){
         idbExportAll(spec.dbName, spec.version, spec.stores).then(function(data){
-          docRef.set({ data: data, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, {merge:true});
-        }).catch(function(){});
+          return docRef.set({ data: data, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, {merge:true});
+        }).then(function(){
+          setSyncStatus(true, 'অগ্রগতি সংরক্ষিত হচ্ছে');
+        }).catch(function(e){
+          console.warn('[progress-sync] write failed:', e && e.message);
+          setSyncStatus(false, 'অগ্রগতি সংরক্ষণ ব্যর্থ', e && e.message);
+        });
       } else {
-        docRef.set({ data: gatherLocal(spec), updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, {merge:true});
+        docRef.set({ data: gatherLocal(spec), updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, {merge:true})
+          .then(function(){
+            setSyncStatus(true, 'অগ্রগতি সংরক্ষিত হচ্ছে');
+          }).catch(function(e){
+            console.warn('[progress-sync] write failed:', e && e.message);
+            setSyncStatus(false, 'অগ্রগতি সংরক্ষণ ব্যর্থ', e && e.message);
+          });
       }
     }
 
@@ -370,6 +394,10 @@
       buildSidebar(user, role, auth, db, page);
       if(page.storage) setupSync(db, user.uid, page);
       if(role === 'guest') setupTimeTracking(db, user.uid);
+      if(!page.storage && role !== 'guest'){
+        var el = document.getElementById('ag-sync-status');
+        if(el) el.textContent = '';
+      }
       if(typeof window.AG_ON_GRANT === 'function') window.AG_ON_GRANT(db, user.uid);
     }
 
