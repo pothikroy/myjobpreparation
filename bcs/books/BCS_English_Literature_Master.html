@@ -1,13 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script src="../../firebase-config.js?v=10"></script>
-  <script>window.AG_PAGE = {"id": "english-literature-master", "title": "BCS English Literature Master", "storage": {"type": "keys", "keys": ["bcsLitApp_v2"]}};</script>
-  <script src="../../auth-gate.js?v=10"></script>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BCS English Literature — Command Center</title>
@@ -181,6 +174,19 @@ html[data-theme="dark"] .eyebrow{color:var(--gold);}
 
 .divider{height:1px; background:var(--border); margin:16px 0; border:none;}
 
+.entry-intro{font-size:14.5px; line-height:1.75; margin:0 0 16px;}
+.entry-section{margin-bottom:16px;}
+.entry-section:last-child{margin-bottom:0;}
+.entry-label{font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--gold-deep); margin-bottom:7px;}
+html[data-theme="dark"] .entry-label{color:var(--gold);}
+.entry-section p{font-size:14px; line-height:1.7; margin:0;}
+.entry-list{margin:0; padding-left:0; list-style:none; display:flex; flex-direction:column; gap:7px;}
+.entry-list li{font-size:14px; line-height:1.6; padding-left:18px; position:relative;}
+.entry-list li:before{content:'—'; position:absolute; left:0; color:var(--gold-deep); font-weight:700;}
+html[data-theme="dark"] .entry-list li:before{color:var(--gold);}
+.entry-callout{background:rgba(201,162,75,.10); border:1px solid rgba(201,162,75,.35); border-left:3px solid var(--gold); border-radius:8px; padding:12px 16px;}
+.entry-callout .entry-label{margin-bottom:8px;}
+
 .list-row{display:flex; align-items:center; gap:12px; padding:11px 4px; border-bottom:1px solid var(--border);}
 .list-row:last-child{border-bottom:none;}
 
@@ -280,7 +286,6 @@ html[data-theme=dark] .search-hit .cat{color:var(--gold);}
 </style>
 </head>
 <body>
-<div id="ag-overlay"></div>
 <div id="appRoot"></div>
 <div id="modalRoot"></div>
 <div id="toastRoot" class="toast"></div>
@@ -805,6 +810,77 @@ VIEWS.authors = function(c, paramId){
   draw();
 };
 
+/* ============================================================
+   TEXT FORMATTER — turns dense prose into headed sections,
+   bullet lists, and a callout box for Titles, like a real
+   study-guide layout instead of one long paragraph.
+   ============================================================ */
+function splitTopLevel(str, sep){
+  // split on sep, but only when not inside parentheses
+  let depth=0, parts=[], cur='';
+  for(const ch of str){
+    if(ch==='(') depth++;
+    else if(ch===')') depth--;
+    if(ch===sep && depth<=0){ parts.push(cur); cur=''; }
+    else cur+=ch;
+  }
+  parts.push(cur);
+  return parts.map(s=>s.trim().replace(/^[;,]\s*/,'').replace(/\.$/,'')).filter(Boolean);
+}
+function firstSentenceBoundary(content){
+  // index just after the first '.' that sits outside parentheses and is
+  // followed by a space + capital letter/open-paren (i.e. a genuinely new
+  // sentence), or the end of the string if no such boundary exists.
+  let depth=0;
+  for(let i=0;i<content.length;i++){
+    const ch = content[i];
+    if(ch==='(') depth++;
+    else if(ch===')') depth--;
+    else if(ch==='.' && depth<=0){
+      const rest = content.slice(i+1);
+      if(rest==='' || /^\s+[A-Z\(]/.test(rest)) return i+1;
+    }
+  }
+  return content.length;
+}
+function formatEntryText(text){
+  if(!text) return `<p><i>No further detail captured yet — check the original PDF page.</i></p>`;
+  const labelRe = /(?:^|(?<=[.\)]\s))([A-Z][A-Za-z][A-Za-z\s\/]{1,38}?):\s/g;
+  const matches = [...text.matchAll(labelRe)];
+  if(!matches.length) return `<p>${escapeHtml(text)}</p>`;
+
+  let html = "";
+  const intro = text.slice(0, matches[0].index).trim();
+  if(intro) html += `<p class="entry-intro">${escapeHtml(intro)}</p>`;
+
+  for(let i=0;i<matches.length;i++){
+    const label = matches[i][1].trim();
+    const start = matches[i].index + matches[i][0].length;
+    const end = i+1<matches.length ? matches[i+1].index : text.length;
+    const content = text.slice(start, end).trim();
+    if(!content) continue;
+
+    const boundary = firstSentenceBoundary(content);
+    const listPart = content.slice(0, boundary).trim();
+    const restPart = content.slice(boundary).trim();
+    const isTitles = /^titles?$/i.test(label);
+
+    let items;
+    if(listPart.includes(';')) items = splitTopLevel(listPart, ';');
+    else if(isTitles) items = splitTopLevel(listPart.replace(/\.$/,''), ',');
+    else items = [listPart.replace(/\.$/,'')];
+
+    html += `<div class="entry-section ${isTitles?'entry-callout':''}">
+      <div class="entry-label">${isTitles?'🔑 ':''}${escapeHtml(label)}</div>
+      ${items.length>=2
+        ? `<ul class="entry-list">${items.map(it=>`<li>${escapeHtml(it)}</li>`).join('')}</ul>`
+        : `<p>${escapeHtml(items[0])}.</p>`}
+    </div>`;
+    if(restPart) html += `<p class="entry-intro">${escapeHtml(restPart)}</p>`;
+  }
+  return html;
+}
+
 function renderAuthorDetail(c, a){
   c.appendChild(el(`<button class="btn btn-sm" id="backBtn">← All authors</button>`));
   c.querySelector('#backBtn').onclick=()=>navigate('authors');
@@ -819,7 +895,7 @@ function renderAuthorDetail(c, a){
   c.querySelector('#bmBtn').onclick=()=>{ toggleBookmark(bmType,a.id,a.name); renderApp(a.id); };
   c.querySelector('#cardBtn').onclick=()=> startFlashcards({cardIds:["c-a-"+a.id]});
 
-  c.appendChild(el(`<div class="card"><h3>Key facts (from the book)</h3><p style="font-size:14px; line-height:1.7">${escapeHtml(a.text)||"<i>No further detail captured yet — check the original PDF page for this author.</i>"}</p></div>`));
+  c.appendChild(el(`<div class="card"><h3>Key facts (from the book)</h3>${formatEntryText(a.text)}</div>`));
 
   const markRow = el(`<div class="card" style="margin-top:14px"><h3>Mark this author</h3><div class="chip-row" id="markRow"></div></div>`);
   c.appendChild(markRow);
@@ -867,7 +943,7 @@ function renderFigureDetail(c,f){
   c.appendChild(el(`<div class="page-head" style="margin-top:14px"><div><div class="eyebrow">Figure ${f.num} of ${FIGURES.length}</div><h2>${escapeHtml(f.name)}</h2></div>
     <button class="btn btn-sm" id="bmBtn">${isBookmarked('figure',f.id)?'★ Bookmarked':'☆ Bookmark'}</button></div>`));
   c.querySelector('#bmBtn').onclick=()=>{ toggleBookmark('figure',f.id,f.name); renderApp(f.id); };
-  c.appendChild(el(`<div class="card"><p style="font-size:14.5px; line-height:1.75">${escapeHtml(f.text)}</p></div>`));
+  c.appendChild(el(`<div class="card">${formatEntryText(f.text)}</div>`));
   const btn = el(`<button class="btn btn-primary" style="margin-top:14px" id="studyBtn">Study as flashcard</button>`);
   btn.onclick=()=>startFlashcards({cardIds:["c-f-"+f.id,"c-f2-"+f.id]});
   c.appendChild(btn);
