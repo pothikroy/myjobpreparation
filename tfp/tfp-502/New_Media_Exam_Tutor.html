@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="../../firebase-config.js?v=10"></script>
+  <script>window.AG_PAGE = {"id": "tfp502-exam-tutor", "title": "New Media Emergency Exam Tutor", "storage": {"type": "keys", "keys": ["nm_study_state"]}};</script>
+  <script src="../../auth-gate.js?v=10"></script>
+
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>New Media — Emergency Exam Tutor</title>
+<style>
+:root{
+  --font-scale: 1;
+  --paper: #f3f1e9;
+  --paper-2: #ebe7da;
+  --ink: #23281f;
+  --ink-soft: #565c4d;
+  --line: #d8d3c0;
+  --accent: #1f6f6b;      /* teal - source/safe */
+  --accent-2: #b8863a;    /* amber - priority/must-know */
+  --accent-3: #a3402a;    /* rust - warnings/unsupported */
+  --accent-4: #3d5a80;    /* slate blue - inference */
+  --card-bg: #fffdf6;
+  --shadow: 0 1px 0 rgba(35,40,31,0.06);
+  --radius: 10px;
+  --serif: Georgia, 'Times New Roman', serif;
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+body.dark{
+  --paper: #1a1d16;
+  --paper-2: #22261c;
+  --ink: #e9e6d8;
+  --ink-soft: #b3af9c;
+  --line: #3a3e30;
+  --card-bg: #21251b;
+  --shadow: 0 1px 0 rgba(0,0,0,0.3);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;height:100%;}
+body{
+  font-family:var(--sans);
+  background:var(--paper);
+  color:var(--ink);
+  font-size:calc(16px * var(--font-scale));
+  line-height:1.55;
+}
+#appRoot{display:flex; height:100vh; overflow:hidden;}
+
+/* ---- SIDEBAR ---- */
+#sidebar{
+  width:260px; min-width:220px; background:var(--paper-2);
+  border-right:1px solid var(--line);
+  display:flex; flex-direction:column; overflow-y:auto;
+  padding:16px 10px;
+}
+.brand{
+  font-family:var(--serif); font-size:1.15rem; font-weight:700;
+  padding:4px 10px 14px; border-bottom:1px solid var(--line); margin-bottom:10px;
+  color:var(--ink);
+}
+.brand small{display:block; font-family:var(--sans); font-weight:400; font-size:0.72rem; color:var(--ink-soft); margin-top:2px;}
+.navbtn{
+  display:block; width:100%; text-align:left; background:none; border:none;
+  padding:9px 10px; border-radius:8px; color:var(--ink); font-size:0.92rem;
+  cursor:pointer; margin-bottom:2px; font-family:var(--sans);
+}
+.navbtn:hover{background:var(--line);}
+.navbtn.active{background:var(--accent); color:#fff;}
+.navbtn.small{font-size:0.82rem; padding:6px 10px;}
+.navsub{padding-left:12px; margin-bottom:6px;}
+
+/* ---- TOP BAR ---- */
+#topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 20px; border-bottom:1px solid var(--line); background:var(--paper);
+  gap:10px; flex-wrap:wrap;
+}
+.tb-controls{display:flex; gap:8px; align-items:center;}
+.icon-btn{
+  background:var(--card-bg); border:1px solid var(--line); border-radius:8px;
+  padding:6px 10px; cursor:pointer; font-size:0.85rem; color:var(--ink);
+}
+.icon-btn:hover{background:var(--line);}
+
+/* ---- MAIN AREA ---- */
+#mainWrap{flex:1; display:flex; flex-direction:column; overflow:hidden;}
+#mainContent{flex:1; overflow-y:auto; padding:24px 32px 80px;}
+.page{max-width:980px; margin:0 auto;}
+.page h1{font-family:var(--serif); font-size:1.9rem; margin-bottom:6px;}
+.page h2{font-family:var(--serif); font-size:1.35rem; margin-top:0;}
+.page h3{font-size:1.05rem; margin-bottom:6px;}
+.lede{color:var(--ink-soft); max-width:70ch; margin-bottom:18px;}
+.hint{color:var(--ink-soft); font-size:0.85rem;}
+
+/* ---- CARDS ---- */
+.card{
+  background:var(--card-bg); border:1px solid var(--line); border-radius:var(--radius);
+  padding:18px 20px; margin-bottom:18px; box-shadow:var(--shadow);
+}
+.grid-2{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+.grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:14px;}
+@media (max-width:800px){ .grid-2{grid-template-columns:1fr;} .grid-3{grid-template-columns:1fr;} #sidebar{position:fixed; z-index:20; height:100%;} }
+
+/* ---- BADGES ---- */
+.badge{display:inline-block; font-size:0.72rem; font-weight:700; padding:2px 8px; border-radius:20px; margin-right:4px;}
+.badge.src{background:rgba(31,111,107,0.15); color:var(--accent);}
+.badge.inf{background:rgba(61,90,128,0.15); color:var(--accent-4);}
+.badge.app{background:rgba(184,134,58,0.18); color:var(--accent-2);}
+.badge.tip{background:rgba(163,64,42,0.15); color:var(--accent-3);}
+.pri{display:inline-block; font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:20px; margin-right:6px; white-space:nowrap;}
+.pri-high{background:rgba(163,64,42,0.15); color:var(--accent-3);}
+.pri-med{background:rgba(184,134,58,0.18); color:var(--accent-2);}
+.pri-low{background:rgba(31,111,107,0.15); color:var(--accent);}
+
+/* ---- COUNTDOWN ---- */
+.countdown-card{
+  background:var(--card-bg); border:1px solid var(--line); border-radius:var(--radius);
+  padding:20px; margin-bottom:20px; text-align:center;
+}
+.cd-label{font-size:0.78rem; letter-spacing:0.02em; color:var(--ink-soft); margin-bottom:6px;}
+.cd-time{font-family:var(--serif); font-size:2.6rem; font-weight:700; color:var(--accent-3);}
+.cd-set{display:block; margin-top:10px; font-size:0.85rem; color:var(--ink-soft);}
+.cd-set input{margin-left:8px; font-family:var(--sans); padding:4px 6px; border-radius:6px; border:1px solid var(--line); background:var(--paper);color:var(--ink);}
+
+/* ---- CHECKLISTS ---- */
+.phase-box{margin-bottom:16px; padding-bottom:12px; border-bottom:1px dashed var(--line);}
+.phase-box:last-child{border-bottom:none;}
+.checklist{display:flex; flex-direction:column; gap:6px;}
+.check-row{display:flex; gap:8px; align-items:flex-start; font-size:0.92rem; cursor:pointer;}
+.check-row input{margin-top:3px;}
+
+/* ---- READINESS ---- */
+.readiness-row{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
+.readiness-label{width:180px; font-size:0.85rem;}
+.bar-track{flex:1; height:8px; background:var(--line); border-radius:6px; overflow:hidden;}
+.bar-fill{height:100%; background:var(--accent);}
+.readiness-pct{width:40px; text-align:right; font-size:0.85rem;}
+.readiness-banner{margin-top:14px; padding:10px 14px; background:var(--paper-2); border-radius:8px; font-size:1rem;}
+
+/* ---- TOPIC PAGE ---- */
+.topic-tabs, .chip-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;}
+.chip{background:var(--card-bg); border:1px solid var(--line); border-radius:20px; padding:6px 14px; font-size:0.85rem; cursor:pointer; color:var(--ink);}
+.chip.active{background:var(--accent); color:#fff; border-color:var(--accent);}
+.topic-meta{color:var(--ink-soft); font-size:0.85rem; margin-bottom:6px;}
+.subtabs{display:flex; gap:6px; flex-wrap:wrap; margin:14px 0; border-bottom:1px solid var(--line); padding-bottom:10px;}
+.subtab{background:none; border:1px solid var(--line); border-radius:8px; padding:6px 12px; font-size:0.85rem; cursor:pointer; color:var(--ink);}
+.subtab.active{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+.hero-argument{font-size:1.05rem; font-weight:600; padding:14px 16px; background:var(--paper-2); border-left:4px solid var(--accent); border-radius:6px; margin-bottom:14px;}
+.arglist li{margin-bottom:10px;}
+
+/* ---- ONE SCREEN ---- */
+.oneScreen h4{margin-bottom:4px; margin-top:14px; color:var(--accent-4);}
+.oneScreen ul{margin-top:4px;}
+
+/* ---- CONCEPTS ---- */
+.concept-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px;}
+.concept-card{background:var(--card-bg); border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px;}
+.concept-card h3{color:var(--accent-4); margin-bottom:8px;}
+.layer{margin-bottom:8px; font-size:0.87rem;}
+.layer-label{display:block; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-soft); font-weight:700;}
+.layer.bangla p{font-family:'Noto Sans Bengali','SolaimanLipi',var(--sans);}
+.layer.memory p{font-weight:700; color:var(--accent-2);}
+.layer.examline{background:var(--paper-2); padding:6px 8px; border-radius:6px;}
+
+/* ---- WORDS ---- */
+.words-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px;}
+.word-card{background:var(--paper-2); border-radius:8px; padding:12px; cursor:pointer;}
+.word-term{font-weight:700;}
+.reveal-hint{font-weight:400; font-size:0.75rem; color:var(--ink-soft);}
+.word-bangla{margin:4px 0; color:var(--accent-4); font-weight:600;}
+.word-bangla.hidden{display:none;}
+.word-simple{font-size:0.85rem;}
+.word-example{font-size:0.82rem; color:var(--ink-soft); margin-top:4px;}
+
+/* ---- QUESTIONS ---- */
+.qlist{display:flex; flex-direction:column; gap:10px;}
+.qrow{padding:8px 0; border-bottom:1px solid var(--line);}
+.qtype{font-size:0.78rem; color:var(--ink-soft); margin-right:6px;}
+
+/* ---- CONNECTIONS ---- */
+.conn-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px;}
+.conn-card{background:var(--card-bg); border:1px solid var(--line); border-radius:var(--radius); padding:16px;}
+.conn-card h3{color:var(--accent-4);}
+.conn-card p{font-size:0.88rem; margin:6px 0;}
+
+/* ---- CITATIONS ---- */
+.citation-grid{display:flex; flex-direction:column; gap:10px;}
+.citation-row{padding:10px; background:var(--paper-2); border-radius:8px; font-size:0.87rem;}
+.cit-scholar{font-weight:700; color:var(--accent-4); margin-bottom:4px;}
+.cit-examuse{font-style:italic;}
+.cit-loc{font-size:0.75rem; color:var(--ink-soft); margin-top:4px;}
+.facts-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px;}
+.fact-card{background:var(--paper-2); border-radius:8px; padding:12px; font-size:0.85rem;}
+.fact-text{font-weight:600; margin-bottom:6px;}
+
+/* ---- SENTENCES ---- */
+.sentence-cat{margin-bottom:14px;}
+.sentence-cat h3{color:var(--accent-4);}
+.safe-row{margin-bottom:10px; padding-bottom:10px; border-bottom:1px dashed var(--line);}
+.advanced{color:var(--accent-3);}
+.safe{color:var(--accent);}
+
+/* ---- BLUEPRINTS ---- */
+.blueprint-card{margin-bottom:14px; padding-bottom:10px; border-bottom:1px dashed var(--line);}
+.blueprint-card h3{color:var(--accent-4);}
+.model-answer{margin-bottom:20px;}
+.model-text p{margin:8px 0; font-size:0.92rem;}
+.skeleton{margin-top:10px; background:var(--paper-2); padding:10px; border-radius:8px; font-size:0.85rem;}
+
+/* ---- RECALL ---- */
+.recall-tabs{display:flex; gap:8px; margin-bottom:16px;}
+.flashcard-wrap{text-align:center;}
+.flashcard{background:var(--paper-2); border-radius:12px; padding:40px 24px; min-height:120px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; cursor:pointer;}
+.flash-front,.flash-back{font-size:1.05rem;}
+.flash-back{color:var(--accent-4);}
+.flash-controls{display:flex; gap:8px; justify-content:center; flex-wrap:wrap;}
+.btn{background:var(--card-bg); border:1px solid var(--line); border-radius:8px; padding:8px 16px; cursor:pointer; font-size:0.88rem; color:var(--ink);}
+.btn:hover{background:var(--line);}
+.btn.primary{background:var(--accent); color:#fff; border-color:var(--accent);}
+.quiz-q{margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--line);}
+.qprompt{font-weight:600; margin-bottom:6px;}
+.quiz-opt{display:block; padding:6px 10px; border-radius:6px; cursor:pointer; font-size:0.9rem;}
+.quiz-opt:hover{background:var(--paper-2);}
+.quiz-opt.correct{background:rgba(31,111,107,0.18);}
+.quiz-opt.incorrect{background:rgba(163,64,42,0.18);}
+.explain{font-size:0.82rem; margin-top:4px; color:var(--ink-soft);}
+.blind-area{margin-top:14px;}
+.hidden{display:none !important;}
+
+/* ---- BANGLADESH ---- */
+.bd-block{margin-bottom:14px; padding-bottom:10px; border-bottom:1px dashed var(--line); font-size:0.92rem;}
+
+/* ---- SEARCH ---- */
+.search-input{width:100%; padding:12px 14px; font-size:1rem; border-radius:10px; border:1px solid var(--line); background:var(--card-bg); color:var(--ink); margin-bottom:14px;}
+.search-row{padding:10px 12px; border-bottom:1px solid var(--line); cursor:pointer; display:flex; gap:10px; align-items:baseline;}
+.search-row:hover{background:var(--paper-2);}
+.search-type{font-size:0.72rem; color:var(--ink-soft); text-transform:uppercase; min-width:120px;}
+.search-label{font-size:0.92rem;}
+
+/* ---- NOTES ---- */
+.note-area{width:100%; min-height:80px; padding:10px; border-radius:8px; border:1px solid var(--line); background:var(--paper); color:var(--ink); font-family:var(--sans); font-size:0.92rem;}
+
+/* ---- MASTER SHEET ---- */
+.master-sheet .card{font-size:0.85rem;}
+
+/* ---- EXAM MODE ---- */
+.exam-mode .card ol{margin:0; padding-left:20px;}
+.exam-mode .card li{margin-bottom:4px; font-size:0.9rem;}
+
+@media print{
+  #sidebar, #topbar{display:none;}
+  #mainContent{overflow:visible; height:auto;}
+}
+
+</style>
+</head>
+<body>
+<div id="ag-overlay"></div>
+<div id="appRoot">
+  <nav id="sidebar">
+    <div class="brand">📖 New Media Exam Tutor<small>Built from your PDF — 4 topics</small></div>
+    <div id="sidebarNav"></div>
+  </nav>
+  <div id="mainWrap">
+    <div id="topbar">
+      <div class="tb-controls">
+        <button class="icon-btn" id="globalSearchBtn">🔍 Search</button>
+      </div>
+      <div class="tb-controls">
+        <button class="icon-btn" id="fontDown">A-</button>
+        <button class="icon-btn" id="fontUp">A+</button>
+        <button class="icon-btn" id="themeToggle">🌓 Theme</button>
+      </div>
+    </div>
+    <main id="mainContent"></main>
+  </div>
+</div>
+<script>
+window.__STUDY_DATA__ = {"topics": [{"id": "t1", "short": "Infrastructure & Platforms", "title": "Infrastructure Studies Meets Platform Studies", "author": "Plantin, Lagoze, Edwards & Sandvig (2018)", "source": "new media & society, 20(1)", "tagline": "How Google and Facebook became both infrastructure AND platform", "centralQuestion": "Are 'infrastructure' and 'platform' separate, opposed theories — or can combining them better explain digital giants like Google and Facebook?", "centralArgument": "Digital technology, arriving inside a neoliberal political climate, has produced two mirror-image trends at once: infrastructures (like the internet) have been deregulated, privatised and broken into competing pieces — a 'platformization of infrastructures' — while huge commercial platforms (Facebook, Google) have grown so embedded and essential that they now behave like infrastructure — an 'infrastructuralization of platforms'. Combining both lenses (a 'theoretical bifocal') reveals a key tension: things essential to everyday life (infrastructure logic = public interest) are increasingly owned and controlled by private, profit-seeking firms (platform logic).", "supportingArguments": [{"tag": "SOURCE", "text": "Infrastructures historically evolve from centrally-built systems, to networks, to 'webs' (Hughes' Large Technical Systems model) — but from the late 1970s, neoliberal deregulation 'splintered' state-run monopolies (post, telecoms, the internet) into competing private pieces."}, {"tag": "SOURCE", "text": "Platforms that reach billions of people (Facebook, Google) start to acquire infrastructure-like properties: they become essential, embedded in daily life, and would 'substantially disrupt daily life and work' if they vanished."}, {"tag": "SOURCE", "text": "The API works as a 'gateway' (an infrastructure-studies concept) but, unlike a genuinely open gateway (e.g. the ISO shipping container), it is unilaterally controlled by the platform owner — creating lock-in rather than open interoperability."}, {"tag": "SOURCE", "text": "'Platform builders' differ from classic infrastructure 'system builders': instead of vertically integrating everything themselves, they let outside developers build on top of their platform under rules they control — and they actively avoid building gateways that would let competitors interoperate."}], "evidence": ["US internet history: 1960s-80s public/government-funded ('computer utility' model, ARPA/NSF) → 1987 privatisation of the backbone → 1992 deregulation of commercial use.", "Estonia offers universal internet connectivity as a public utility, in contrast with the splintered, for-profit US model.", "Facebook: over 60% share of global social-media traffic at time of writing; hosted major news sites' content (e.g. New York Times, 2015 deal).", "Google: about 65% of global web search (85% in the US, 92% in Europe at time of writing); Google Maps API (2005) created a new 'programmable object' out of digital maps; Google Books project entangled in lawsuits after trying to platformize the library."], "criticisms": [{"tag": "INFERENCE", "text": "This is largely a positive framework-building paper, not a critique of an existing theory — so there is no formal 'objections' section as in the Schiller/Castells chapters. The main limitation the authors themselves flag is that the framework is demonstrated with only three case studies (Open Web, Facebook, Google), and they explicitly call for more case studies (e.g. Academia.edu/ResearchGate vs. scholarly infrastructure; 'smart city' platforms) to test how well it generalises."}], "conclusionSource": "Infrastructure studies and platform studies are 'joined at the hip' yet 'genetically different'. Cross-articulating them via Google, Facebook and the Open Web shows platforms becoming infrastructure while infrastructures are platformized. The authors call this a 'theoretical bifocal' and hope it can 'reassert the importance of widely available, universal, and relatively stable infrastructure as a foundation of social justice.'", "keyConcepts": [{"term": "Infrastructure", "academic": "An essential, widely shared sociotechnical system marked by ubiquity, reliability, durability and (often) invisibility — visible mainly when it breaks down.", "simple": "Something everyone depends on every day, like roads or electricity, that you only notice when it stops working.", "bangla": "অবকাঠামো — এমন ব্যবস্থা যার ওপর সবাই নির্ভর করে", "memory": "Infrastructure = INVISIBLE until it BREAKS.", "exam": "Infrastructure studies focuses on essential, widely-shared systems such as electric grids and the internet (Plantin et al., 2018)."}, {"term": "Platform", "academic": "A system with a stable, programmable 'core' and variable 'complementary components' built on top by outside developers — Bogost and Montfort's phrase: 'if you can program it, it's a platform.'", "simple": "A base that other people can build extra things on top of, like an app store where anyone can add apps.", "bangla": "প্ল্যাটফর্ম — একটি মূল কাঠামো যার ওপর অন্যরা নতুন কিছু তৈরি করতে পারে", "memory": "Platform = CORE + OUTSIDE BUILDERS.", "exam": "A platform is defined by its programmability — a stable core that outside developers can extend (Plantin et al., 2018)."}, {"term": "Platformization of infrastructures", "academic": "The process by which once publicly-regulated, monopoly infrastructures (telecoms, the internet) are deregulated, privatised and 'splintered' into multiple competing, market-driven providers.", "simple": "Public services that used to be run like a utility for everyone slowly turn into competing private businesses.", "bangla": "অবকাঠামোর 'প্ল্যাটফর্মীকরণ' — সরকারি সেবা বেসরকারি প্রতিযোগিতামূলক ব্যবসায় পরিণত হওয়া", "memory": "PUBLIC utility → SPLINTERED private competition.", "exam": "The deregulation of telecoms and the internet since the 1970s represents a 'platformization of infrastructures' (Plantin et al., 2018)."}, {"term": "Infrastructuralization of platforms", "academic": "The process by which huge commercial platforms (Facebook, Google) become so embedded, essential and ubiquitous in daily life that they take on the properties of infrastructure.", "simple": "A private app or website becomes so important that everyone needs it, like it was public infrastructure.", "bangla": "প্ল্যাটফর্মের 'অবকাঠামোকরণ' — একটি বেসরকারি প্ল্যাটফর্ম এত জরুরি হয়ে ওঠে যে তা অবকাঠামোর মতো আচরণ করে", "memory": "Private PLATFORM grows so big it becomes essential INFRASTRUCTURE.", "exam": "Facebook and Google increasingly resemble infrastructure because of how embedded and essential they have become (Plantin et al., 2018)."}, {"term": "Gateway", "academic": "A technical or social device that connects otherwise incompatible systems, enabling interoperability (e.g. AC/DC converters, the ISO shipping container, TCP/IP).", "simple": "A connector piece that lets two different systems talk to each other.", "bangla": "গেটওয়ে — দুটি ভিন্ন ব্যবস্থাকে সংযুক্ত করার মাধ্যম", "memory": "Gateway = the PLUG that connects two different systems.", "exam": "An API acts as a gateway, but a corporate-controlled API creates lock-in rather than open interoperability (Plantin et al., 2018)."}, {"term": "API (as gateway)", "academic": "Application Programming Interface: permits outside programs to exchange data with a platform, but — unlike an open gateway — this two-way data flow is unilaterally controlled by the platform owner.", "simple": "A rulebook that lets other apps connect to a big platform, but only on that platform's own terms.", "bangla": "এপিআই — অন্য অ্যাপকে বড় প্ল্যাটফর্মের সাথে যুক্ত হতে দেয়, তবে প্ল্যাটফর্মের শর্তে", "memory": "API = a DOOR that only the platform owner can lock or unlock.", "exam": "The Facebook API is a 'double-edged sword': it enables an ecology of apps while locking developers and users into a Facebook-controlled landscape (Langlois and Elmer, 2013, cited in Plantin et al., 2018)."}, {"term": "Modern infrastructural ideal", "academic": "Graham and Marvin's (2001) term for the mid-19th-century vision of cities/states providing universal essential services (roads, sewers, post, telephone) to all citizens.", "simple": "The old idea that government should provide basic services fairly to everyone.", "bangla": "'আধুনিক অবকাঠামোগত আদর্শ' — সবার জন্য সমান মৌলিক সেবা দেওয়ার পুরনো ধারণা", "memory": "Old ideal: ONE service, for EVERYONE, run by government.", "exam": "The 'modern infrastructural ideal' of universal public service began collapsing under neoliberal deregulation from the late 1970s (Graham and Marvin, 2001, cited in Plantin et al., 2018)."}], "questions": [{"q": "Explain the difference between infrastructure studies and platform studies, and discuss why Plantin et al. (2018) argue the two should be combined.", "priority": "high", "type": "Explain/Discuss"}, {"q": "Critically examine the concepts of 'platformization of infrastructures' and 'infrastructuralization of platforms' using the examples of Google and/or Facebook.", "priority": "high", "type": "Critical analysis"}, {"q": "To what extent can Facebook or Google be considered infrastructure rather than merely a platform?", "priority": "high", "type": "To what extent"}, {"q": "Compare the API-as-gateway with a genuinely open infrastructure gateway (e.g. the ISO shipping container). What is lost when a gateway is privately controlled?", "priority": "medium", "type": "Comparative"}, {"q": "Apply Plantin et al.'s infrastructure/platform framework to a digital service used in Bangladesh.", "priority": "high", "type": "Application"}], "mistakes": ["Don't confuse 'infrastructure' (public-interest, historically evolved, often regulated) with 'platform' (privately controlled, programmable core + outside developers) — the whole point of the paper is that these are becoming blurred, not identical.", "Don't say platforms and infrastructures are 'the same thing' — say their boundaries are becoming blurry / they are converging.", "Don't confuse 'platformization of infrastructures' (public → private/splintered) with 'infrastructuralization of platforms' (private platform → essential/public-like) — they point in opposite directions."], "bangladesh": [{"source": "Plantin et al. argue that platforms increasingly acquire infrastructure-like properties (ubiquity, essential daily-life role) while remaining privately controlled.", "application": "Facebook functions as a de-facto communication and even commercial infrastructure for millions of users in Bangladesh (small businesses running entirely on Facebook Pages/Marketplace, government offices using Facebook pages for public updates), despite being a private, profit-driven platform rather than a public utility.", "safe": "Although Plantin et al. do not discuss Bangladesh, their framework can be applied to the Bangladeshi context by considering how a private platform such as Facebook has taken on an infrastructural role in everyday communication and small business, which raises the same public-interest-versus-private-control tension the authors identify."}]}, {"id": "t2", "short": "Information & Capitalism", "title": "Information and Advanced Capitalism: Herbert Schiller", "author": "Frank Webster (discussing Herbert Schiller)", "source": "Theories of the Information Society, Ch.5", "tagline": "The 'information society' is just capitalism wearing a new coat", "centralQuestion": "Does the rise of the 'information society' represent a genuine break from capitalism — or is it better explained as a continuation of long-standing capitalist priorities?", "centralArgument": "Herbert Schiller (a political-economy / Critical Theory / Marxian thinker) argues the 'information society' is NOT a new, post-capitalist era. It is the latest stage of familiar capitalism: market pressures, class inequality and corporate capitalism decide how information and IT are produced, distributed and controlled — and information/IT have in turn become essential props that sustain capitalism.", "supportingArguments": [{"tag": "SOURCE", "text": "Market criteria: information/IT is produced and made available chiefly where there is a prospect of profit — R&D, products and services follow money, not public need (e.g. Thorn-EMI dropping medical electronics because it saw little profit there)."}, {"tag": "SOURCE", "text": "Class inequalities: ability-to-pay decides who gets rich, sophisticated information (corporations, governments, the military) and who gets 'garbage information' (mass entertainment) — the 'information rich' versus the 'information poor' (Schiller, 1983b)."}, {"tag": "SOURCE", "text": "Corporate capitalism: a small number of huge, oligopolistic, transnational corporations (IBM, AT&T, etc.) dominate the information industry, and IT is developed above all to serve corporate needs (global coordination, decentralised-yet-centrally-monitored operations, transfer pricing)."}, {"tag": "SOURCE", "text": "Transnational/cultural imperialism: global media flow overwhelmingly from the West (especially the US) outward — a 'one-way street' that spreads capitalist/consumerist values and marginalises poorer nations, prompting Schiller's advocacy for a New World Information Order (NWIO)."}, {"tag": "SOURCE", "text": "Consumer capitalism: television and advertising use surveillance and psychological persuasion to manufacture consumer demand, turning audiences themselves into a commodity sold to advertisers ('audience commodity', Dallas Smythe, 1981)."}], "evidence": ["British Telecom (BT): received about one-third of its revenue from just 300 corporate customers; over 70% of its traffic came from business customers, while at least 20% of UK households lacked even a basic telephone.", "80% of the European IT market was accounted for by corporate and government customers, with the 'general public' making up the rest (Butler Cox and Partners, cited in Schiller).", "Just four Western news agencies (2 American, 1 British, 1 French) produced about 90% of the world's international news; UPI gave over two-thirds of its coverage to the US and only 1.8% to Africa.", "AT&T (revenue $60bn+/year) shed over 140,000 jobs while expanding into global telecommunications; Bell Atlantic attempted a $33bn takeover of the US's biggest cable operator, TCI."], "criticisms": [{"tag": "SOURCE", "text": "No clear alternative policy: critics note Critical Theorists rarely propose a practical alternative, and the collapse of Communist states is said to discredit anti-capitalist critique (Webster argues this doesn't invalidate Schiller's explanatory value)."}, {"tag": "SOURCE", "text": "'Fall from grace' assumption: the claim that things are getting worse (more 'garbage information', more surveillance) lacks a solid historical/comparative baseline; Giddens notes that surveillance/control technologies can also expand people's choices, not just constrain them."}, {"tag": "SOURCE", "text": "Crude class model: the blunt 'information rich / information poor' split ignores gender, race/ethnicity, and the difference between institutional (corporate) wealth and personal wealth, and overlooks cultural capital (education, literacy) as distinct from economic capital."}, {"tag": "SOURCE", "text": "'All or nothing' view: Critical Theory can overstate how much information is mere 'garbage' — in absolute terms, high-quality information (e.g. UK's Channel 4, VCR time-shifting to educational programming, paperback classics) has also increased."}, {"tag": "SOURCE", "text": "The 'duped audience' assumption: postmodernists argue ordinary people are smart enough to see through advertising's artificiality/irony, and that home-centred life doesn't necessarily mean losing communal ties (Saunders, 1990)."}], "conclusionSource": "Despite these objections, Webster concludes Schiller's work remains valuable: it starts from the 'real, substantive world' rather than speculative futures, correctly foregrounds market criteria and corporate capitalism, and rightly insists that social inequality persists — indeed is reshaped, not erased — in the so-called 'information age'.", "keyConcepts": [{"term": "Political economy approach", "academic": "An approach that (1) looks behind media messages to underlying economic structures (ownership, advertising revenue, audience spending power), (2) analyses information/communication systemically within the whole socio-economic system, and (3) stresses historical periodisation.", "simple": "Instead of just looking at the news story itself, you ask: who owns this company, who pays for the ads, and how does that shape what gets shown?", "bangla": "রাজনৈতিক অর্থনীতি দৃষ্টিভঙ্গি — মালিকানা ও অর্থের উৎস দেখে গণমাধ্যম বিশ্লেষণ", "memory": "Political economy = follow the MONEY and OWNERSHIP behind the message.", "exam": "The political economy approach looks behind media content to the structural, economic features that shape it (Golding and Murdock, 1991, cited in Schiller's work)."}, {"term": "Commodification of information", "academic": "The process by which information becomes available only on condition that it can be sold — treated like any other market good.", "simple": "Information gets turned into something you have to buy, like toothpaste or cereal.", "bangla": "তথ্যের পণ্যীকরণ — তথ্যকে পণ্যের মতো বিক্রি করা", "memory": "Commodification = information becomes a PRODUCT FOR SALE.", "exam": "Schiller argues that information is increasingly treated as a commodity, made available only when it can be sold profitably (Schiller and Schiller, 1982)."}, {"term": "Information rich / information poor", "academic": "A stratification concept describing how the ability to pay for premium information services divides society (and nations) into those with sophisticated, valuable information access and those left with 'garbage information'.", "simple": "Rich people/companies get high-quality, useful information; poor people mostly get entertainment and gossip.", "bangla": "তথ্য-ধনী ও তথ্য-দরিদ্র — অর্থ থাকা বা না-থাকার ভিত্তিতে তথ্যপ্রাপ্তির বৈষম্য", "memory": "PAY more → GET better information. Can't pay → GET 'garbage' info.", "exam": "Schiller distinguishes between the 'information rich' and the 'information poor', both within and between nations (Schiller, 1983b)."}, {"term": "Corporate capitalism", "academic": "A stage of capitalism dominated by a relatively small number of large, oligopolistic, often transnational corporations that command national and international markets.", "simple": "A few giant companies control most of the economy, and they operate across many countries.", "bangla": "কর্পোরেট পুঁজিবাদ — কয়েকটি বৃহৎ বহুজাতিক কোম্পানির নিয়ন্ত্রণ", "memory": "A FEW giant firms, controlling a GLOBAL market.", "exam": "Contemporary capitalism, in Schiller's view, is dominated by corporate institutions with national and international reach (Schiller, cited in Webster)."}, {"term": "Cultural imperialism / NWIO", "academic": "The claim that Western (especially US) media dominance spreads capitalist/consumerist values globally in a largely one-directional flow; Schiller advocated a New World Information Order (NWIO) to redress this imbalance.", "simple": "Rich Western countries' movies, news and shows dominate the world, while poorer countries barely get their own voice heard internationally.", "bangla": "সাংস্কৃতিক সাম্রাজ্যবাদ — পশ্চিমা গণমাধ্যমের বৈশ্বিক আধিপত্য", "memory": "Information flows ONE WAY: rich West → rest of world.", "exam": "Schiller identifies a 'one-way street' of global information flow dominated by Western, especially American, media, and calls this 'cultural imperialism' (Schiller, cited in Webster)."}, {"term": "Audience commodity", "academic": "Dallas Smythe's (1981) term for the way commercial media (especially television) 'sell' assembled audiences to advertisers — the audience itself becomes the product.", "simple": "A TV channel doesn't just sell you a show — it sells YOU (as a viewer) to advertisers.", "bangla": "দর্শক-পণ্য — টেলিভিশন দর্শকদেরই বিজ্ঞাপনদাতাদের কাছে বিক্রি করে", "memory": "You watch TV for free... because YOU are the product being sold.", "exam": "Dallas Smythe (1981) coined the term 'audience commodity' to describe how television delivers audiences to advertisers."}], "questions": [{"q": "Explain Herbert Schiller's political economy critique of the 'information society'.", "priority": "high", "type": "Explain/Discuss"}, {"q": "Critically evaluate the Critical Theory / Marxian account of information and advanced capitalism.", "priority": "high", "type": "Critical analysis"}, {"q": "To what extent does the concept of an 'information society' represent a genuine break from capitalism?", "priority": "high", "type": "To what extent"}, {"q": "Compare Schiller's political economy approach with a non-Marxist (e.g. postmodernist) account of consumer culture.", "priority": "medium", "type": "Comparative"}, {"q": "Apply Schiller's concept of the 'information rich' and 'information poor' to the Bangladesh context.", "priority": "high", "type": "Application"}], "mistakes": ["Don't confuse 'information society' (the popular/mainstream idea of a new post-industrial era) with Schiller's own position — he is a CRITIC of this idea, not a supporter of it.", "Don't say Schiller believes technology itself is bad — his argument is about who controls and profits from technology, not the technology itself.", "Don't present the 'objections to Critical Theory' as Schiller's own view — they are counter-arguments Webster raises against Schiller."], "bangladesh": [{"source": "Schiller argues that market criteria decide where and to whom information/telecom services are provided, producing 'information rich' and 'information poor' groups.", "application": "Bangladesh's mobile/internet market is dominated by a small number of private operators competing mainly for profitable urban and corporate customers, while rural connectivity and affordability can lag behind — a pattern consistent with an 'information rich' urban/corporate segment versus an 'information poor' rural segment.", "safe": "Although Schiller was writing about British Telecom and the US/UK, the same market logic can be applied to the Bangladeshi telecom sector by considering how private operators prioritise profitable markets, potentially widening urban-rural information inequality."}]}, {"id": "t3", "short": "Urban Change", "title": "Information and Urban Change: Manuel Castells", "author": "Frank Webster (discussing Manuel Castells)", "source": "Theories of the Information Society, Ch.9", "tagline": "How the 'informational city' splits into a professional elite and an urban underclass", "centralQuestion": "How have capitalist restructuring and new information technology together reshaped cities, class structure and urban culture since the 1970s?", "centralArgument": "Manuel Castells argues that a combination of capitalist restructuring (following the 1970s economic crisis) and a new 'informational mode of development' has transformed society and cities. This produces 'informational cities' marked by (a) a new, sharply polarised ('dual') class structure — an elite of information professionals alongside a growing service/underclass — and (b), in Webster's more speculative extension, a distinctive 'postmodern' urban culture of consumption, fragmentation and pleasure.", "supportingArguments": [{"tag": "SOURCE", "text": "Castells separates the 'capitalist mode of production' (social/market organisation) from an 'informational mode of development' (a technical paradigm where information processing is the core productive activity), which he claims is 'relatively autonomous' from capitalism."}, {"tag": "SOURCE", "text": "Restructuring + informationalism: post-1970s capitalist crisis was addressed through restructuring that depended on new information technology (flexible/Just-in-Time production, globalised finance and management)."}, {"tag": "SOURCE", "text": "Flows of information / global cities: IT networks let organisations transcend physical place, but information flows still need 'nerve centres' — global cities (New York, London, Tokyo) where information is collated and decisions made (supported by Saskia Sassen's research on 'global cities' and 'producer services')."}, {"tag": "SOURCE", "text": "Class polarisation / the 'dual city': the informational city produces both a growing professional-managerial 'information producer' class and a huge expansion of low-paid, insecure service jobs and a 'ghetto poor' underclass (William Wilson) living close by but worlds apart."}, {"tag": "INFERENCE / STUDY TIP", "text": "Webster's own (explicitly speculative) extension: the informational city is also a 'postmodern city' — marked by cultural fragmentation, gentrification, privatised/securitised public space, and a shift toward being a 'landscape of consumption' (Zukin)."}], "evidence": ["New York held a 44% share of world capital, alongside roughly 2,000 murders a year and deep poverty in the Bronx — a city of 'dreams and nightmares' (Castells).", "Anthony King (1990): New York had headquarters of 59 transnational corporations, London 37, Tokyo 34, Paris 26 — evidence of corporate concentration in a few 'world cities'.", "Los Angeles: by 1988, 70% of downtown LA was foreign-owned; the city saw serious rioting in 1992 after the Rodney King beating, read by commentators as a symptom of the 'dual city'.", "London's Docklands/Canary Wharf redevelopment (aiming for 71 acres and 50,000 jobs) displaced the traditional working-class East End community with offices and upmarket housing for information professionals."], "criticisms": [{"tag": "SOURCE", "text": "Technological determinism: separating an 'autonomous' informational mode of development from capitalism echoes Daniel Bell's conservative post-industrial theory and Althusserian 'Scientific Marxism' — Critical Marxists (Adorno, Marcuse, Raymond Williams, E.P. Thompson) and STS scholars reject treating technique as separate from social values."}, {"tag": "SOURCE", "text": "Overgeneralisation: not all 'global cities' fit the same mould — Tokyo is more homogeneous and settled than London or New York (Sassen); it is unclear whether cities like Paris, Chicago, Frankfurt or Hong Kong merit the same label (Markusen and Gwiasda, 1994)."}, {"tag": "SOURCE", "text": "Historical novelty overstated: divided, feared urban underclasses are not new — 19th-century 'outcast London' shows similar fears about a 'dangerous' urban poor (Jones, 1984)."}, {"tag": "SOURCE", "text": "The 'postmodern city' argument is explicitly flagged by Webster himself as speculative and going further than Castells himself would allow — students should treat this section as Webster's extension, not Castells' own claim."}], "conclusionSource": "Webster concludes that Castells' empirical analysis of class polarisation in global cities (New York, Los Angeles, London) is illuminating and well-evidenced, even though the theoretical foundation (an 'autonomous' informational mode of development) is disputable and risks technological determinism; the further claim about a 'postmodern' urban culture is suggestive but more speculative.", "keyConcepts": [{"term": "Informational mode of development", "academic": "Castells' term for a new socio-technical paradigm in which information processing becomes the core activity conditioning all production, distribution, consumption and management — claimed to be 'relatively autonomous' from the capitalist mode of production.", "simple": "A new way of organising how things get made and managed, based on processing information rather than just making physical goods.", "bangla": "তথ্যভিত্তিক উন্নয়ন-পদ্ধতি — তথ্য প্রক্রিয়াকরণ যখন উৎপাদনের মূল ভিত্তি হয়ে ওঠে", "memory": "Mode of DEVELOPMENT = the TECHNICAL way things get produced (separate, Castells claims, from capitalism itself).", "exam": "Castells argues that an 'informational mode of development', where information processing is the core productive activity, is emerging alongside (and relatively autonomous from) the capitalist mode of production (Castells, 1989)."}, {"term": "Space of flows / flows of information", "academic": "Castells' idea that IT networks let economic and social activity transcend the limits of physical place, with information itself (rather than location) becoming central to organisation — though flows still require physical 'nerve centres'.", "simple": "Money, information and decisions can move instantly around the world through networks, but they still need to be physically managed somewhere.", "bangla": "তথ্যপ্রবাহ — তথ্যপ্রযুক্তি যখন স্থানের সীমাবদ্ধতা অতিক্রম করে", "memory": "Information FLOWS everywhere, but still needs a physical HOME BASE (a global city).", "exam": "Castells argues that information networks reduce the significance of place while increasing the importance of the flow of information itself (Castells, 1989)."}, {"term": "Global city", "academic": "Saskia Sassen's (1991) term for cities (New York, London, Tokyo) that function as 'highly concentrated command posts of the world economy', housing 'producer services' professionals who manage global economic activity.", "simple": "A handful of major cities where the world's big financial and business decisions get made.", "bangla": "গ্লোবাল সিটি — বিশ্ব অর্থনীতির কেন্দ্রীয় নিয়ন্ত্রণকেন্দ্র হিসেবে কাজ করা শহর", "memory": "Global city = the world economy's COMMAND CENTRE.", "exam": "Sassen (1991) identifies New York, London and Tokyo as 'global cities' functioning as command posts of the world economy."}, {"term": "Dual city / bipolarisation", "academic": "Castells' term for the class structure of the informational city, split between an affluent professional-managerial 'information producer' class and an expanding low-paid, insecure service-sector/underclass.", "simple": "A city splitting into two very different worlds — rich information professionals on one side, poor service workers on the other, living close together but far apart in lifestyle.", "bangla": "দ্বৈত নগরী — একদিকে ধনী তথ্য-পেশাজীবী, অন্যদিকে দরিদ্র সেবা-শ্রমিক শ্রেণি", "memory": "Dual city = TWO cities in ONE — rich professionals + poor underclass, side by side.", "exam": "Castells (1989) argues the informational city is marked by 'bipolarization', producing a 'dual city' of information professionals and an urban underclass."}, {"term": "Postmodern city (Webster's extension)", "academic": "Webster's speculative extension suggesting the informational city's culture is marked by fragmentation, consumption, gentrification, privatised/securitised public space and hedonistic 'aestheticisation of life'.", "simple": "A city where fashion, shopping and image matter more than tradition or authenticity, and rich and poor areas are physically separated and guarded.", "bangla": "'উত্তরাধুনিক শহর' — ভোগবাদ ও বিভক্তির সংস্কৃতিতে চিহ্নিত শহর (ওয়েবস্টারের নিজস্ব সম্প্রসারণ)", "memory": "Postmodern city = SHOPPING + STYLE + SECURITY WALLS (explicitly Webster's own speculative addition).", "exam": "Webster speculatively extends Castells' analysis to suggest the informational city is also a 'postmodern city', citing Zukin's idea of cities as a 'landscape of consumption'."}], "questions": [{"q": "Explain Manuel Castells' concept of the 'informational city' and its consequences for urban class structure.", "priority": "high", "type": "Explain/Discuss"}, {"q": "Critically examine Castells' distinction between the capitalist mode of production and the informational mode of development.", "priority": "high", "type": "Critical analysis"}, {"q": "To what extent is the 'dual city' or 'bipolarisation' thesis supported by evidence from global cities such as New York, London and Los Angeles?", "priority": "high", "type": "To what extent"}, {"q": "Compare Castells' 'informational city' thesis with Webster's speculative 'postmodern city' extension.", "priority": "medium", "type": "Comparative"}, {"q": "Apply Castells' 'dual city'/informational city framework to a city in Bangladesh, such as Dhaka.", "priority": "high", "type": "Application"}], "mistakes": ["Don't confuse the 'capitalist mode of production' with the 'informational mode of development' — Castells insists (controversially) that they are analytically SEPARATE, even though related.", "Don't attribute the 'postmodern city' argument directly to Castells — Webster is explicit that this part is his own speculative extension.", "Don't say Castells is a straightforward Marxist throughout his career — Webster notes he moved from an early Marxist position (The Urban Question, 1972) toward 'post-Marxism' by the time of The Informational City (1989)."], "bangladesh": [{"source": "Castells argues that informational cities develop a 'dual' class structure: an affluent professional-managerial class alongside a large low-paid service/underclass, often living in close physical proximity but very different worlds.", "application": "Dhaka's rapid growth as a hub for garment-export management, banking, IT/BPO and NGOs alongside a very large informal/service-sector and slum population (e.g. areas like Korail) could be examined for signs of a similar 'dual city' pattern of spatial and class polarisation.", "safe": "Although Castells writes about New York, London, Tokyo and Los Angeles, not Dhaka, the same conceptual lens — informational-economy growth alongside a growing urban underclass — could be applied to Dhaka's development, while noting the very different colonial, economic and demographic history of a South Asian megacity."}]}, {"id": "t4", "short": "AI & Creative Industries", "title": "Artificial Intelligence in the Creative Industries", "author": "Anantrasirichai & Bull (2022)", "source": "Artificial Intelligence Review, 55", "tagline": "Can AI actually create — or is it only a very capable assistant?", "centralQuestion": "What is the current state of AI/machine learning technology in the creative industries, and can AI genuinely be a 'creator' in its own right, or only a tool?", "centralArgument": "AI — especially deep learning methods like CNNs, GANs, RNNs and deep reinforcement learning — has become a powerful assistant across five categories of creative work (content creation, information analysis, content enhancement, information extraction, and data compression). But current AI works best as a human-centric tool or collaborator, not an autonomous creator: genuine creative originality, broad contextual judgement, and awards-level creativity remain out of reach for now.", "supportingArguments": [{"tag": "SOURCE", "text": "AI succeeds where problems are well-defined, data-rich, and don't require broad context or long chains of reasoning — e.g. automated journalism (BBC, Forbes' 'Bertie', the Washington Post's 'Heliograf'), recommendation engines (Spotify, Netflix), and post-production tasks like denoising or colourisation."}, {"tag": "SOURCE", "text": "AI struggles to be a genuine autonomous 'creator' because creative tasks are 'ill-posed' and 'one-to-many' — e.g. if many artists are asked to draw a cat, all the results will differ in colour, shape and pose, which does not fit the labelled, single-correct-answer structure that supervised learning needs."}, {"tag": "SOURCE", "text": "Generative Adversarial Networks (GANs) can now produce near-photorealistic content (e.g. NVIDIA's 1024×1024-pixel portraits) but still show artefacts at object boundaries and are limited to relatively small, constrained outputs, so they remain a tool rather than an independent artist."}, {"tag": "SOURCE", "text": "AI in the creative sector carries real ethical/social risks: biased training data produces biased outputs (e.g. face recognition failing on some ethnic groups), deepfakes enable disinformation and non-consensual content, and a widening 'digital divide' (flagged by UNESCO) risks deepening inequality of access to creative/cultural opportunity."}], "evidence": ["Sunspring (2016): a short film scripted entirely by an RNN-based AI named 'Benjamin', showing unnatural but creative dialogue.", "'The Next Rembrandt' (2016): a new 'Rembrandt' painting generated by deep learning trained on his portfolio.", "An AI-generated artwork was auctioned for $432,500 in 2018 — the first painting created solely by AI to be auctioned.", "Research publication growth on AI relevant to the creative industries exceeded 500% in five years (1490% in Taiwan) according to Davies et al. (2020).", "A survey by Adobe found three-quarters of artists (US, UK, Germany, Japan) were open to using AI as an assistant for 'non-creative' tasks like image search and editing."], "criticisms": [{"tag": "SOURCE", "text": "Ethical risks: biased/unrepresentative training data leads to biased, judgemental outputs; authorship and intellectual-property rights are unclear when AI 'creates' content; deepfakes enable fraud, political disruption and non-consensual content."}, {"tag": "SOURCE", "text": "Technical limitation: most GAN-based methods are still confined to relatively small or constrained outputs with visible artefacts, especially at the boundary between foreground and background."}, {"tag": "SOURCE", "text": "AI does not learn the way humans do: unlike a human infant, which can generalise from very little experience (LeCun's example of a baby learning that objects obey gravity), AI needs huge amounts of labelled data and generalises far less flexibly."}, {"tag": "SOURCE", "text": "The paper's own conclusion is explicit: the prospect of AI (or its developers) winning creative awards in genuine competition with human creatives is 'some way off'."}], "conclusionSource": "The paper concludes that, for the creative industries, maximum benefit from AI comes from designing it to be human-centric — augmenting rather than replacing human creativity — while continuing to address bias, fakes, authorship and the wider social impact of these technologies.", "keyConcepts": [{"term": "Narrow AI vs. General AI", "academic": "'Narrow'/'weak' AI operates within a limited domain on a specific task; 'general'/'strong' AI would exhibit full human-like intelligence across domains. Current AI (including in the creative sector) is narrow AI.", "simple": "Narrow AI is good at ONE job (like recognising faces); general AI (which doesn't really exist yet) would be smart at EVERYTHING like a human.", "bangla": "সংকীর্ণ এআই বনাম সাধারণ এআই — নির্দিষ্ট কাজে দক্ষ বনাম মানুষের মতো সর্বজনীন বুদ্ধিমত্তা", "memory": "Narrow AI = ONE-TRICK expert. General AI = human-level ALL-ROUNDER (still hypothetical).", "exam": "Current AI technologies are restricted to a limited domain and are described as 'narrow' or 'weak' AI (Anantrasirichai and Bull, 2022)."}, {"term": "CNN (Convolutional Neural Network)", "academic": "A deep-learning architecture designed for grid-like data (e.g. images), which learns a hierarchy of features — edges, then shapes, then semantic content — through layers of convolution.", "simple": "A type of AI that looks at pictures the way our eyes do: first spotting edges, then shapes, then whole objects.", "bangla": "সিএনএন — ছবি বিশ্লেষণের জন্য ব্যবহৃত একটি এআই কাঠামো", "memory": "CNN = sees EDGES → SHAPES → WHOLE OBJECT, layer by layer.", "exam": "CNNs learn to detect edges in early layers, then combine these into higher-level, more semantically meaningful features (Anantrasirichai and Bull, 2022)."}, {"term": "GAN (Generative Adversarial Network)", "academic": "An architecture (Goodfellow et al., 2014) with two competing networks — a generator that creates content and a discriminator that judges whether it is real or fake — whose competition drives increasingly realistic output.", "simple": "Two AIs compete: one tries to fake an image, the other tries to spot the fake — and this competition makes the fakes better and better.", "bangla": "জিএএন — দুটি প্রতিদ্বন্দ্বী এআই নেটওয়ার্ক যা বাস্তবসদৃশ ছবি তৈরি করে", "memory": "GAN = a FORGER vs. a DETECTIVE, competing until the forgery is nearly perfect.", "exam": "GANs consist of a generator and a discriminator in competition, producing increasingly realistic synthetic content (Goodfellow et al., 2014, cited in Anantrasirichai and Bull, 2022)."}, {"term": "Deepfake", "academic": "AI-generated (typically GAN- or VAE-based) synthetic media that convincingly replaces or fabricates a person's face, voice or movement.", "simple": "A fake video or photo made by AI that looks so real it's hard to tell it's fake.", "bangla": "ডিপফেক — এআই দিয়ে তৈরি করা বাস্তবসদৃশ ভুয়া ভিডিও বা ছবি", "memory": "Deepfake = AI-made FAKE that looks DEEP-ly real.", "exam": "Deepfake technologies can create realistic fake videos, raising concerns about disinformation and non-consensual content (Anantrasirichai and Bull, 2022)."}, {"term": "Human-in-the-loop", "academic": "A design principle in which AI outputs are checked, curated or corrected by humans, because AI performs poorly on open-ended, ill-posed creative judgement.", "simple": "AI does the first draft; a human always checks and fixes it before it's finished.", "bangla": "হিউম্যান-ইন-দ্য-লুপ — এআই-এর ফলাফল মানুষ যাচাই করে চূড়ান্ত করে", "memory": "AI drafts. HUMAN decides.", "exam": "The paper argues AI tools must be designed with a 'human in the loop' rather than as an isolated black-box solution (Anantrasirichai and Bull, 2022)."}, {"term": "Ethics by/in/for Design", "academic": "Dignum's (2018) three-part framework: Ethics by Design (building ethical behaviour into autonomous systems), Ethics in Design (analysing ethical implications), Ethics for Design (codes/protocols for developers and users).", "simple": "Three ways to keep AI ethical: build ethics INTO the system, THINK about its ethical effects, and set RULES for the people who build and use it.", "bangla": "এআই নৈতিকতার তিনটি স্তর — নকশায় নৈতিকতা, নকশার নৈতিক বিশ্লেষণ, এবং নকশার জন্য নীতিমালা", "memory": "BY (built in), IN (analysed), FOR (rules for people).", "exam": "Dignum (2018) distinguishes Ethics by Design, Ethics in Design, and Ethics for Design as three ways ethics relates to AI systems."}], "questions": [{"q": "Explain how AI technologies such as CNNs, GANs and RNNs are used in the creative industries.", "priority": "high", "type": "Explain/Discuss"}, {"q": "Critically examine whether AI can be considered a genuine 'creator' rather than merely a creative tool.", "priority": "high", "type": "Critical analysis"}, {"q": "To what extent do ethical concerns (bias, deepfakes, the digital divide) limit the beneficial use of AI in the creative industries?", "priority": "high", "type": "To what extent"}, {"q": "Compare the use of AI as a creative 'tool' versus AI as an autonomous 'creator', using examples from the text.", "priority": "medium", "type": "Comparative"}, {"q": "Discuss how AI in the creative industries could be applied in the Bangladeshi context (e.g. freelancing, digital marketing, journalism).", "priority": "high", "type": "Application"}], "mistakes": ["Don't say AI in this paper equals 'general/strong AI' — the entire paper is about narrow/weak AI applied to specific creative tasks.", "Don't confuse a GAN's generator with a fully independent 'creator' — the paper explicitly says a GAN generator does not learn to create new content, only to imitate the training data's style, which is why a special variant (the Creative Adversarial Network) was proposed to push toward more original output.", "Don't treat 'deepfake' as always malicious in the source — the paper also discusses legitimate creative and entertainment uses, while clearly flagging the ethical risks."], "bangladesh": [{"source": "The paper stresses that current AI works best as a human-centric assistant, and separately raises UNESCO's concern about AI widening the 'digital divide'.", "application": "Bangladesh's growing freelance/outsourcing and digital-marketing sector could be examined as an example of AI-as-assistant (freelancers using AI writing, image and video tools to increase productivity), while the urban-rural and income-based gap in access to computing devices, reliable internet and AI literacy illustrates the 'digital divide' concern UNESCO raises.", "safe": "Although the paper does not discuss Bangladesh, its 'AI as human-centric tool' conclusion and its digital-divide warning can both be applied to the Bangladeshi context by considering how differential access to AI tools may affect who benefits most from this technology."}]}], "connections": [{"pair": "Topic 1 ↔ Topic 2", "title": "Infrastructure/Platforms ↔ Information & Capitalism", "common": "Both concern how private corporate power shapes information/communication systems for profit rather than public benefit.", "differ": "Schiller writes broad political-economy/Marxist theory about capitalism in general (telecoms, media, IT industries in the 1980s-90s); Plantin et al. write STS-influenced theory focused specifically on digital objects (APIs, gateways, programmability) in the 2010s (Google, Facebook).", "addsToEachOther": "Schiller's 'corporate capitalism' and 'market criteria' supply the deeper political-economy explanation of WHY infrastructures get 'platformized' (Plantin's term) — Plantin describes the structural 'what', Schiller supplies the 'why'.", "combineTip": "Use Schiller's 'for whose benefit and under whose control?' question to critically interrogate Plantin et al.'s account of Google/Facebook's platform power.", "cite": "Schiller (1981) on 'market economy imperatives' + Plantin et al. (2018) on 'platformization of infrastructures'."}, {"pair": "Topic 1 ↔ Topic 3", "title": "Infrastructure/Platforms ↔ Urban Change", "common": "Both are concerned with networks that let information/capital 'flow' globally while control concentrates in a few hands/places.", "differ": "Plantin et al. focus on the technical/corporate mechanics (APIs, gateways) of specific digital platforms; Castells focuses on the spatial/urban and class consequences (global cities, the 'dual city') of information flows.", "addsToEachOther": "Plantin et al.'s platform/infrastructure vocabulary gives concrete technical mechanisms (APIs, walled gardens) for how Castells' abstract 'space of flows' actually operates and who controls it.", "combineTip": "Use Plantin's platform lens to update/ground Castells' 'informational mode of development' with a specific contemporary example (e.g., Google/Facebook headquartered in and shaping global cities).", "cite": "Plantin et al. (2018) on APIs/gateways + Castells (1989) on the 'space of flows' and global cities."}, {"pair": "Topic 1 ↔ Topic 4", "title": "Infrastructure/Platforms ↔ AI & Creative Industries", "common": "Both show large corporate platforms (notably Google) enclosing public-interest resources within proprietary, API-mediated systems.", "differ": "Plantin et al. analyse infrastructure/platform power structurally; Anantrasirichai and Bull analyse specific AI techniques and their creative applications, with only limited discussion of ownership/political economy.", "addsToEachOther": "Plantin et al.'s account of Google Books 'platformizing the library' parallels the AI paper's account of AI-driven recommendation/creative tools enclosing creative and cultural production within corporate platforms (e.g. Spotify, Netflix).", "combineTip": "Note that many AI creative tools (Sect 3.2.4 recommendation engines) run on exactly the platform/API model Plantin et al. describe — connect the technical/political-economy dots.", "cite": "Plantin et al. (2018) on Google Books/APIs + Anantrasirichai and Bull (2022) on recommendation engines (Sect. 3.2.4)."}, {"pair": "Topic 2 ↔ Topic 3", "title": "Information & Capitalism ↔ Urban Change", "common": "Both are explicitly linked in the source text: Webster notes that Castells' Marxian concepts (commodification, corporate capitalism) draw directly on the same Critical Theory tradition represented by Schiller.", "differ": "Schiller focuses on the media/information industries broadly (national and global media economy); Castells applies similar political-economy logic specifically to urban/spatial restructuring (which cities/classes win and lose).", "addsToEachOther": "Schiller explains the general capitalist logic driving the 'information revolution'; Castells shows its specific spatial consequence — where information capital physically concentrates and how it polarises a city's class structure.", "combineTip": "Schiller explains WHY information capital concentrates in a few transnational corporations; Castells shows WHERE that concentration lands physically (a handful of global cities, split into rich and poor).", "cite": "Schiller (1981) on corporate capitalism + Castells (1989) on the 'dual city' and global cities."}, {"pair": "Topic 2 ↔ Topic 4", "title": "Information & Capitalism ↔ AI & Creative Industries", "common": "Schiller's 'information rich / information poor' divide anticipates the AI paper's 'digital divide' concern (UNESCO); both concern unequal access driven by corporate/economic power.", "differ": "Schiller offers a macro-structural, Marxist critique of the whole information economy and its corporate ownership; Anantrasirichai and Bull's paper is narrower and more technical, and does not offer a class-based political economy critique of who owns/profits from AI.", "addsToEachOther": "Schiller's political-economy questions ('for whose benefit? under whose control?') can be used to critically interrogate the AI paper's largely techno-optimist, human-centric framing.", "combineTip": "Apply Schiller's 'commodification' and 'corporate capitalism' concepts to today's AI industry (a handful of firms — Google, Meta, Microsoft, Amazon — control the data/compute needed for AI).", "cite": "Schiller (1983b) on 'information rich/poor' + Anantrasirichai and Bull (2022) on the digital divide (Sect. 4.1, citing UNESCO)."}, {"pair": "Topic 3 ↔ Topic 4", "title": "Urban Change ↔ AI & Creative Industries", "common": "Castells' 'information producer' professional-managerial class (advertising, finance, journalism, media) is precisely the workforce whose jobs the AI paper discusses being reshaped by automation.", "differ": "Castells focuses on urban/spatial class polarisation from the 1970s-90s restructuring; the AI paper focuses on specific technologies (2010s-2020s) transforming creative/media production tasks.", "addsToEachOther": "The AI paper's account of automated journalism, ad analytics and recommendation engines can be read as an intensification of the same 'information producer' class Castells describes decades earlier — now partly automated.", "combineTip": "(APPLICATION/INFERENCE) AI-driven automation could deepen Castells' 'dual city' polarisation if AI displaces some lower-skilled creative/service jobs while enriching a small AI-literate professional elite.", "cite": "Castells (1989) on information professionals + Anantrasirichai and Bull (2022) on automated journalism (Sect. 3.1.2)."}], "crossTopicQuestions": [{"q": "Discuss how Schiller's political economy of information and Plantin et al.'s infrastructure/platform framework together explain the power of corporations such as Google.", "askingReally": "Can you combine a Marxist political-economy explanation (why corporations dominate information) with a structural/technical framework (how they dominate, through APIs and platformization)?", "theories": ["Schiller's corporate capitalism/market criteria", "Plantin et al.'s platformization of infrastructures / infrastructuralization of platforms"], "arguments": ["Corporate capitalism drives the profit motive behind platformization (T2)", "APIs act as gateways that lock users/developers into corporate control (T1)", "Google/Facebook show infrastructure-like ubiquity while remaining privately profit-driven (T1+T2)"], "scholars": ["Schiller (1981)", "Plantin et al. (2018)"], "structure": "Intro (define both concepts) → Schiller's political economy of corporate capitalism → Plantin et al.'s infrastructure/platform framework → apply both to Google/Facebook → critical evaluation → conclusion", "avoid": "Don't treat the two theories as identical — one is macro-political-economy, the other is meso-level structural/technical.", "keyPoints": ["Market criteria (T2) explain profit motive", "Corporate capitalism (T2) explains scale/concentration", "Platformization of infrastructures (T1) explains historical process", "Infrastructuralization of platforms (T1) explains outcome for Google/Facebook", "API as gateway (T1) explains lock-in mechanism", "'For whose benefit, under whose control?' (T2) as critical question to ask of T1's case studies"]}, {"q": "How can Castells' informational city thesis and Schiller's political economy of information together explain global inequality in the information age?", "askingReally": "Can you connect a spatial/urban theory (where inequality lands) with a political-economy theory (why inequality is produced)?", "theories": ["Schiller's information rich/poor and corporate capitalism", "Castells' dual city and global cities"], "arguments": ["Market criteria and corporate capitalism (T2) explain why information/capital concentrates in a few corporations", "Global cities (T3) are where that concentration is spatially expressed", "The dual city / bipolarisation (T3) is the urban class consequence of the same corporate logic (T2) Schiller describes"], "scholars": ["Schiller (1983b)", "Castells (1989)", "Sassen (1991)"], "structure": "Intro → Schiller's information rich/poor thesis → Castells' dual/global city thesis → show how they combine (why + where) → evaluate limitations of both → conclusion", "avoid": "Don't discuss the two theories in separate, disconnected halves — explicitly link 'why' (T2) to 'where' (T3).", "keyPoints": ["Information rich/poor (T2)", "Corporate capitalism (T2)", "Global city as command post (T3, Sassen)", "Dual city/bipolarisation (T3)", "Both use a political-economy/Marxian lens", "Both face similar criticism: crude/overgeneralised class model"]}, {"q": "To what extent do AI technologies in the creative industries intensify the class and information inequalities described by Schiller and Castells?", "askingReally": "Can you apply older (1990s) political-economy/urban theory to a newer (2020s) technology (AI) to evaluate whether inequality is intensifying?", "theories": ["Schiller's information rich/poor", "Castells' dual city", "Anantrasirichai and Bull's digital divide/bias concerns"], "arguments": ["AI's digital divide (T4) echoes Schiller's information rich/poor divide (T2)", "AI-driven automation of 'information producer' jobs (T4) could deepen Castells' dual city polarisation (T3, as an APPLICATION/INFERENCE, not stated in either source)", "Bias in AI training data (T4) is a new mechanism producing familiar inequalities (T2, T3)"], "scholars": ["Schiller (1983b)", "Castells (1989)", "Anantrasirichai and Bull (2022)"], "structure": "Intro → briefly explain Schiller's and Castells' inequality concepts → explain AI paper's digital divide/bias concerns → argue for intensification (with appropriate caution/label as extension) → discuss limits of the comparison → conclusion", "avoid": "Don't claim the AI paper itself makes this connection to Schiller/Castells — this is your own synthesis; be explicit that this is an extension/application.", "keyPoints": ["Digital divide (T4, UNESCO)", "Information rich/poor (T2)", "Dual city (T3)", "Bias in AI training data (T4)", "This connection is INFERENCE — flag clearly in the exam"]}, {"q": "Compare how Plantin et al. and Castells each use the concept of 'infrastructure' to describe digital-age power.", "askingReally": "Can you show you understand that both texts use similar vocabulary ('flows', 'networks', 'infrastructure') but for different purposes?", "theories": ["Plantin et al.'s infrastructure studies", "Castells' space of flows"], "arguments": ["Plantin et al. use 'infrastructure' to analyse specific technical/corporate systems (Google, Facebook, the Open Web)", "Castells uses 'flows of information' to analyse economic/spatial reorganisation of cities", "Both share the idea that essential systems increasingly transcend traditional public/state control"], "scholars": ["Plantin et al. (2018)", "Castells (1989)"], "structure": "Intro → Plantin's infrastructure concept → Castells' space of flows concept → compare purposes and levels of analysis → conclusion", "avoid": "Don't conflate 'infrastructure' in the STS/platform-studies sense (T1) with 'informational mode of development' in Castells' Marxian sense (T3) — they are related but not identical.", "keyPoints": ["Infrastructure = ubiquity/reliability/durability (T1)", "Space of flows = information transcending place (T3)", "Both concern erosion of traditional (public/state) control", "Different disciplinary roots: STS/platform studies (T1) vs. urban sociology/Marxism (T3)"]}], "citationBank": [{"scholar": "Plantin, Lagoze, Edwards & Sandvig", "year": "2018", "concept": "Platformization of infrastructures / infrastructuralization of platforms", "use": "Any question on Google, Facebook, digital platforms, or the public-vs-private control of digital infrastructure.", "exam": "Plantin et al. (2018) argue that the boundaries between infrastructure and platform have become increasingly blurred.", "loc": "Topic 1"}, {"scholar": "Herbert Schiller", "year": "1981", "concept": "Market imperatives remain determining even amid technological change", "use": "Any question on the 'information society' debate, capitalism, or market criteria.", "exam": "Schiller (1981) insists that 'long prevailing imperatives of a market economy remain as determining as ever'.", "loc": "Topic 2"}, {"scholar": "Schiller and Schiller", "year": "1982", "concept": "Commodification of information", "use": "Questions on the commercialisation of information/data.", "exam": "Schiller and Schiller (1982) argue that information today is treated as a commodity, like toothpaste or breakfast cereals.", "loc": "Topic 2"}, {"scholar": "Dallas Smythe", "year": "1981", "concept": "Audience commodity", "use": "Questions on advertising, television, or surveillance-based marketing.", "exam": "Smythe (1981) coined the term 'audience commodity' to show how television sells assembled audiences to advertisers.", "loc": "Topic 2"}, {"scholar": "Manuel Castells", "year": "1989", "concept": "Informational mode of development; the dual/informational city", "use": "Questions on urban change, global cities, or class polarisation.", "exam": "Castells (1989) argues that an 'informational mode of development' is producing a new 'dual city' of information professionals and an urban underclass.", "loc": "Topic 3"}, {"scholar": "Saskia Sassen", "year": "1991", "concept": "Global cities as command posts of the world economy", "use": "Questions on urban concentration of corporate/financial power.", "exam": "Sassen (1991) identifies New York, London and Tokyo as 'global cities' functioning as command posts of the world economy.", "loc": "Topic 3"}, {"scholar": "William Wilson", "year": "1987/1991", "concept": "'Ghetto poor' / underclass in inner cities", "use": "Questions on urban poverty and inequality.", "exam": "Wilson (1991) uses the term 'ghetto poor' to describe those left behind in inner cities after job losses.", "loc": "Topic 3"}, {"scholar": "Mike Davis", "year": "1990", "concept": "'Fortress LA' / securitised urban space", "use": "Questions on urban segregation or securitisation.", "exam": "Davis (1990) describes Los Angeles as a 'Fortress LA', marked by the militarisation of urban space.", "loc": "Topic 3"}, {"scholar": "Sharon Zukin", "year": "1991", "concept": "City as a 'landscape of consumption'", "use": "Questions on postmodern urban culture or consumption.", "exam": "Zukin (1991) argues that global cities increasingly become a 'landscape of consumption' as production is evacuated from them.", "loc": "Topic 3"}, {"scholar": "Goodfellow et al.", "year": "2014", "concept": "Generative Adversarial Networks (GANs)", "use": "Questions on AI-generated content, deepfakes, or image generation.", "exam": "Goodfellow et al. (2014) introduced the Generative Adversarial Network, where a generator and discriminator compete to produce realistic synthetic content.", "loc": "Topic 4"}, {"scholar": "Anantrasirichai and Bull", "year": "2022", "concept": "AI as a human-centric creative tool, not an autonomous creator", "use": "Questions on AI and creativity, or the future of AI in media/creative industries.", "exam": "Anantrasirichai and Bull (2022) conclude that maximum benefit from AI in the creative industries comes from designing it to augment, rather than replace, human creativity.", "loc": "Topic 4"}, {"scholar": "Dignum", "year": "2018", "concept": "Ethics by/in/for Design framework", "use": "Questions on AI ethics.", "exam": "Dignum (2018) distinguishes Ethics by Design, Ethics in Design and Ethics for Design as three ways ethics relates to AI systems.", "loc": "Topic 4"}], "factsBank": [{"fact": "Facebook accounted for over 60% of global social-media traffic at the time of writing.", "citation": "Plantin et al. (2018)", "use": "Platform dominance / infrastructuralization of platforms", "memory": "FB = 60%+ of social media traffic"}, {"fact": "Google accounted for about 65% of global web searches (85% in the US, 92% in Europe).", "citation": "Plantin et al. (2018)", "use": "Platform dominance / near-monopoly", "memory": "Google = ~65% global search"}, {"fact": "The privatisation of the US internet backbone occurred in 1987, with deregulation of commercial use following in 1992.", "citation": "Plantin et al. (2018)", "use": "Platformization of infrastructures / neoliberal deregulation", "memory": "1987 privatised, 1992 deregulated"}, {"fact": "Estonia offers universal internet connectivity as a public utility, unlike the splintered, for-profit US model.", "citation": "Plantin et al. (2018)", "use": "Contrast between public infrastructure and private platform models", "memory": "Estonia = internet as public utility"}, {"fact": "BT received about one-third of its revenue from just 300 corporate customers, while at least 20% of UK households lacked a basic telephone.", "citation": "Schiller, cited in Webster", "use": "Market criteria / information rich vs poor", "memory": "300 firms = 1/3 revenue; 20% of homes = no phone"}, {"fact": "80% of the European IT market was accounted for by corporate and government customers.", "citation": "Butler Cox and Partners, cited in Schiller", "use": "Class inequality in information access", "memory": "80% of EU IT market = corporate/government"}, {"fact": "Four Western news agencies produced about 90% of the world's international news.", "citation": "Schiller, cited in Webster", "use": "Cultural imperialism / one-way information flow", "memory": "4 agencies = 90% of world news"}, {"fact": "UPI devoted over two-thirds of its coverage to the US and only 1.8% to Africa.", "citation": "Pilger, cited in Schiller", "use": "Cultural imperialism, imbalance of global news flow", "memory": "UPI: 67% US, 1.8% Africa"}, {"fact": "AT&T (revenue over $60bn/year) shed over 140,000 jobs while expanding globally.", "citation": "Schiller, cited in Webster", "use": "Corporate capitalism, restructuring, deregulation", "memory": "AT&T: $60bn revenue, 140,000 jobs cut"}, {"fact": "New York held a 44% share of world capital alongside roughly 2,000 murders a year.", "citation": "Castells (1989), cited in Webster", "use": "Dual city / bipolarisation, 'dreams and nightmares'", "memory": "NY: 44% world capital + high murder rate"}, {"fact": "New York had headquarters of 59 transnational corporations, London 37, Tokyo 34, Paris 26.", "citation": "King (1990), cited in Webster", "use": "Global cities as corporate command posts", "memory": "NY 59, London 37, Tokyo 34, Paris 26 HQs"}, {"fact": "70% of downtown Los Angeles was foreign-owned by 1988.", "citation": "King (1990), cited in Webster", "use": "Global city / internationalisation of capital", "memory": "70% of downtown LA = foreign-owned"}, {"fact": "The 1992 Los Angeles riots followed the Rodney King beating and were read as a symptom of the 'dual city'.", "citation": "Castells (1989)/Webster", "use": "Consequences of urban class polarisation", "memory": "1992 LA riots = dual city symptom"}, {"fact": "An AI-generated painting was auctioned for $432,500 in 2018.", "citation": "Anantrasirichai and Bull (2022)", "use": "AI as creator debate", "memory": "$432,500 = first AI painting sold at auction"}, {"fact": "Research on AI relevant to creative industries grew by over 500% in five years (1490% in Taiwan).", "citation": "Davies et al. (2020), cited in Anantrasirichai and Bull (2022)", "use": "Growth/scale of AI in creative industries", "memory": "500%+ growth in 5 years (Taiwan: 1490%)"}, {"fact": "Three-quarters of surveyed artists were open to using AI as an assistant for 'non-creative' tasks.", "citation": "Adobe survey, cited in Anantrasirichai and Bull (2022)", "use": "AI as tool vs. creator debate", "memory": "75% of artists open to AI as assistant"}, {"fact": "NVIDIA achieved near-realistic 1024×1024-pixel GAN-generated portraits, trained for 14 days.", "citation": "Karras et al. (2018), cited in Anantrasirichai and Bull (2022)", "use": "Technical limits/progress of GAN image generation", "memory": "1024x1024 pixels, 14-day training"}], "sentenceTemplates": {"Introducing a theory": ["According to ________, ...", "________ argues that ...", "The concept of ________, developed by ________, refers to ..."], "Explaining an argument": ["The central argument of ________ is that ...", "________ suggests that this happens because ...", "At the heart of this theory is the idea that ..."], "Adding evidence": ["This argument is supported by ...", "For example, ________ shows that ...", "This is illustrated by the case of ________."], "Using another scholar": ["This view is further developed by ________.", "________ extends this argument by showing that ...", "Similarly, ________ argues that ..."], "Comparing": ["While ________ focuses on ________, ________ emphasises ________.", "Both ________ and ________ agree that ..., although they differ in ...", "In contrast to ________, ________ argues that ..."], "Criticising": ["However, this argument can be questioned because ...", "Critics such as ________ point out that ...", "A limitation of this view is that ..."], "Applying to Bangladesh": ["In the Bangladeshi context, this framework can be applied to ...", "Although the author does not specifically discuss Bangladesh, a similar pattern can be observed in ...", "This theory helps explain a comparable situation in Bangladesh, such as ..."], "Concluding": ["Therefore, the discussion suggests that ...", "In conclusion, ________ remains a useful (if imperfect) framework for understanding ...", "Overall, this analysis shows that ..."]}, "safeEnglish": [{"advanced": "constitutes a fundamental transformation in the political economy of information", "safe": "shows an important change in how information is produced, owned and controlled"}, {"advanced": "epistemologically problematic assumption of technological autonomy", "safe": "a questionable assumption that technology develops on its own, separate from society"}, {"advanced": "the platformization of infrastructures reflects a broader neoliberal restructuring", "safe": "infrastructures becoming more like private platforms reflects a wider shift toward free-market policy"}, {"advanced": "bipolarization of the urban class structure", "safe": "the city's population splitting into two very different, unequal groups"}, {"advanced": "algorithmic systems encode and reproduce structural bias", "safe": "AI systems can repeat and even worsen unfair patterns found in their training data"}], "blueprints": [{"type": "Explain/Discuss", "structure": ["Introduction (2 marks): define the topic, name the scholar/theory, state the main argument.", "Body 1: explain the central argument with a citation.", "Body 2: give supporting arguments with evidence/examples.", "Body 3: briefly note a criticism or limitation.", "Conclusion: summarise the value and limits of the theory."]}, {"type": "Critically analyse", "structure": ["Introduction: define the theory and state that you will evaluate it critically.", "Body 1: explain the theory's main claims (with citation).", "Body 2: present the strongest criticisms/objections (labelled clearly as such).", "Body 3: weigh the theory's strengths against its weaknesses.", "Conclusion: give a balanced final judgement."]}, {"type": "Compare two theories/topics", "structure": ["Introduction: name both theories and state what you will compare.", "Body 1: explain theory/topic A.", "Body 2: explain theory/topic B.", "Body 3: explicitly compare — what they share, where they differ, what one adds to the other.", "Conclusion: state which combination (or theory) is more useful and why."]}, {"type": "Theory + Bangladesh application", "structure": ["Introduction: explain the theory from the source.", "Body 1: cite the relevant scholar and explain what the theory predicts/emphasises.", "Body 2: introduce Bangladesh as an application, using safe language ('Although the author does not discuss Bangladesh...').", "Body 3: explain the application in detail with a plausible example.", "Conclusion: return to the theoretical argument and conclude."]}, {"type": "Combined/merged topic", "structure": ["Introduction: name both topics and state the connection you will make.", "Body 1: explain topic/theory A.", "Body 2: explain topic/theory B.", "Body 3: explicitly connect them (common ground, difference, what each adds to the other).", "Conclusion: summarise how combining them gives a fuller explanation."]}, {"type": "'To what extent?' question", "structure": ["Introduction: restate the question and give your overall position (a brief thesis).", "Body 1: evidence/arguments supporting the claim.", "Body 2: evidence/arguments limiting or questioning the claim.", "Body 3 (optional): a nuanced middle-ground point.", "Conclusion: state your final judgement on 'to what extent', justified by the balance of evidence."]}], "difficultWords": [{"word": "commodification", "simple": "turning something into a product to be bought and sold", "bangla": "পণ্যীকরণ", "synonym": "marketisation", "example": "Schiller argues information has undergone commodification under capitalism."}, {"word": "oligopolistic", "simple": "controlled by a small number of large companies", "bangla": "কয়েকটি বৃহৎ প্রতিষ্ঠানের নিয়ন্ত্রণাধীন", "synonym": "concentrated", "example": "The information industry is described as highly oligopolistic."}, {"word": "transnational", "simple": "operating across many countries", "bangla": "বহুজাতিক", "synonym": "multinational", "example": "Corporate capitalism has created a transnational empire."}, {"word": "bipolarisation", "simple": "splitting into two very different, unequal groups", "bangla": "দ্বিমেরুকরণ", "synonym": "polarisation", "example": "Castells describes the bipolarisation of the informational city's class structure."}, {"word": "gentrification", "simple": "wealthier people moving into and redeveloping a poorer area", "bangla": "অভিজাতকরণ", "synonym": "urban renewal (with displacement)", "example": "London's Docklands underwent gentrification in the 1980s."}, {"word": "ubiquity", "simple": "being present everywhere", "bangla": "সর্বব্যাপ্তি", "synonym": "omnipresence", "example": "Infrastructure is defined partly by its ubiquity."}, {"word": "interoperability", "simple": "different systems being able to work together", "bangla": "আন্তঃব্যবহারযোগ্যতা", "synonym": "compatibility", "example": "Gateways enable interoperability between heterogeneous systems."}, {"word": "deregulation", "simple": "removing government rules/control from an industry", "bangla": "নিয়ন্ত্রণমুক্তকরণ", "synonym": "liberalisation", "example": "Deregulation of telecoms allowed private competition."}, {"word": "hegemonic", "simple": "dominant, holding cultural or social power over others", "bangla": "আধিপত্যবাদী", "synonym": "dominant", "example": "Castells calls information professionals a 'hegemonic social class'."}, {"word": "technological determinism", "simple": "the idea that technology alone drives social change, on its own", "bangla": "প্রযুক্তি-নিয়ন্ত্রণবাদ", "synonym": "tech-driven change theory", "example": "Critics accuse Castells of technological determinism."}, {"word": "stratification", "simple": "society divided into layers/classes based on wealth or status", "bangla": "স্তরবিন্যাস", "synonym": "social hierarchy", "example": "Class stratification shapes access to information."}, {"word": "discriminator (GAN)", "simple": "the part of a GAN that judges if an image is real or fake", "bangla": "জিএএন-এর বিচারক অংশ", "synonym": "classifier/judge network", "example": "The discriminator competes with the generator in a GAN."}, {"word": "algorithmic bias", "simple": "AI systems producing unfair results because of skewed training data", "bangla": "অ্যালগরিদমিক পক্ষপাত", "synonym": "AI bias", "example": "Algorithmic bias can cause face recognition to fail on certain groups."}], "modelAnswers": [{"title": "Model Answer 1 — 'Critically examine Herbert Schiller's political economy of information.' (Explain/Critical type)", "text": "<p><strong>Introduction:</strong> The idea of an 'information society' is often presented as a sharp break from industrial capitalism. Herbert Schiller, a leading political-economy / Critical Theory scholar, rejects this view. According to Schiller (1981), 'long prevailing imperatives of a market economy remain as determining as ever' in the informational and technological transformations of the current era. This essay explains Schiller's central argument, evaluates the evidence for it, and considers major criticisms of his position.</p>\n<p><strong>Central argument and supporting evidence:</strong> Schiller's political economy approach looks behind media content to underlying economic structures such as ownership, advertising revenue and audience spending power (Golding and Murdock, 1991). He argues that information is increasingly commodified — Schiller and Schiller (1982) state that information 'is something which, like toothpaste, breakfast cereals and automobiles, is increasingly bought and sold'. This commodification interacts with class inequality: because access depends on ability to pay, Schiller (1983b) distinguishes between the 'information rich' and the 'information poor'. Evidence supports this: 80% of the European IT market was accounted for by corporate and government customers (Butler Cox and Partners, cited in Schiller), while at least 20% of UK households lacked even a basic telephone. Finally, Schiller stresses corporate capitalism: a small number of oligopolistic transnational corporations (such as AT&T, with revenue exceeding $60 billion a year) dominate the information industry and shape it to serve their own interests, for instance through global expansion and mergers (e.g. Bell Atlantic's attempted $33bn takeover of TCI).</p>\n<p><strong>Critical evaluation:</strong> Schiller's account faces several objections. First, critics note that Critical Theorists rarely propose a workable political alternative, and the collapse of Communist regimes is sometimes said to discredit anti-capitalist critique altogether. However, this does not undermine the explanatory value of Schiller's diagnosis of the present. Second, Schiller's 'information rich/poor' model has been criticised as too crude, since it does not account for gender, ethnicity, or the difference between institutional (corporate) wealth and personal wealth. Third, some argue Schiller presents an 'all or nothing' view of information quality, ignoring the fact that high-quality information (for example, via the UK's Channel 4) has also increased in absolute terms. Fourth, postmodern critics contest Schiller's assumption that audiences are simply 'duped' by advertising, arguing that people are often capable of recognising and even enjoying the artificiality of consumer imagery (Saunders, 1990).</p>\n<p><strong>Conclusion:</strong> Despite these legitimate criticisms, Schiller's political economy of information remains valuable because it grounds analysis of new technology in real economic structures rather than speculative claims about a wholly 'new' society, and it correctly foregrounds the persistence — indeed the reshaping — of inequality in the so-called information age.</p>"}, {"title": "Model Answer 2 — 'Discuss how infrastructure/platform theory and urban change theory together explain digital-age inequality, with reference to Bangladesh.' (Combined + Bangladesh type)", "text": "<p><strong>Introduction:</strong> Understanding digital-age inequality requires combining insights from different levels of analysis. Plantin et al. (2018) analyse how corporate platforms such as Google and Facebook increasingly function as infrastructure while remaining privately controlled, while Castells (1989) analyses how information technology and capitalist restructuring reshape cities into 'dual' structures of rich information professionals and a poor urban underclass. This essay argues that combining these frameworks — and cautiously applying them to Bangladesh — gives a fuller account of digital-age inequality than either alone.</p>\n<p><strong>Plantin et al.'s framework:</strong> Plantin et al. (2018) argue that a 'platformization of infrastructures' (public services becoming private and competitive) has occurred alongside an 'infrastructuralization of platforms' (private platforms like Facebook and Google becoming so embedded in daily life that they resemble infrastructure). Facebook, for example, held over 60% of global social-media traffic at the time of writing, and its API acts as a 'gateway' that locks developers and users into a Facebook-controlled ecosystem rather than the open web.</p>\n<p><strong>Castells' framework:</strong> Castells (1989) argues that information technology, combined with capitalist restructuring since the 1970s, has created 'informational cities' marked by a 'dual' class structure: an affluent, cosmopolitan professional-managerial class of 'information producers' alongside a growing low-paid service sector and 'ghetto poor' underclass (Wilson, 1991). Sassen (1991) supports this by showing how a handful of 'global cities' (New York, London, Tokyo) concentrate corporate headquarters and 'producer services' professionals.</p>\n<p><strong>Combining the two, with a Bangladesh application:</strong> Plantin et al.'s framework explains the technical/corporate mechanism by which a few platforms concentrate power over communication; Castells' framework explains the resulting spatial and class consequences. Applied together, they suggest that as platforms like Facebook become de facto communication infrastructure, the professionals who can leverage them (for business, marketing, or global information access) may benefit disproportionately, while those without reliable access remain excluded — echoing Castells' 'dual city' pattern. Although neither author writes about Bangladesh, this combined framework can plausibly be applied to Dhaka: Facebook already functions as an infrastructure-like platform for many small businesses and individuals in Bangladesh, and Dhaka's growth as a hub for garment-export management, banking and IT/BPO alongside a very large informal/slum population shows a pattern broadly consistent with Castells' 'dual city' concept. This is offered as a reasonable application of the theory, not a claim that either author studied Bangladesh directly.</p>\n<p><strong>Conclusion:</strong> Combining Plantin et al.'s infrastructure/platform framework with Castells' informational/dual-city thesis provides both the 'how' (corporate platform mechanisms) and the 'where/who' (spatial and class consequences) of digital-age inequality, and this combined lens can be cautiously extended to make sense of comparable developments in a Bangladeshi context.</p>"}], "quiz": [{"prompt": "According to Plantin et al. (2018), what is the 'platformization of infrastructures'?", "options": [{"id": "a", "text": "Public/regulated infrastructures becoming deregulated, privatised and split into competing providers"}, {"id": "b", "text": "Private platforms becoming government-owned"}, {"id": "c", "text": "Infrastructure completely disappearing"}, {"id": "d", "text": "Platforms merging into a single company"}], "correct": "a", "explain": "Platformization of infrastructures refers to the deregulation/privatisation/splintering of once publicly-regulated infrastructure (e.g. telecoms, the internet)."}, {"prompt": "What does Herbert Schiller mean by the 'commodification of information'?", "options": [{"id": "a", "text": "Information becoming free for everyone"}, {"id": "b", "text": "Information being made available only when it can be sold for profit"}, {"id": "c", "text": "Information being banned by governments"}, {"id": "d", "text": "Information becoming purely digital"}], "correct": "b", "explain": "Schiller and Schiller (1982) argue information is treated like any other market commodity, sold for profit."}, {"prompt": "In Castells' theory, what is the 'dual city'?", "options": [{"id": "a", "text": "A city with two mayors"}, {"id": "b", "text": "A city split between an affluent information-professional class and a low-paid/underclass service sector"}, {"id": "c", "text": "A city located in two countries"}, {"id": "d", "text": "A fully planned, equal city"}], "correct": "b", "explain": "Castells (1989) argues informational cities polarise into a professional elite and an underclass."}, {"prompt": "What is a Generative Adversarial Network (GAN)?", "options": [{"id": "a", "text": "A single neural network with no competition"}, {"id": "b", "text": "Two competing networks — a generator and a discriminator"}, {"id": "c", "text": "A type of database"}, {"id": "d", "text": "A rule-based (symbolic) AI system"}], "correct": "b", "explain": "Goodfellow et al. (2014) proposed GANs, where a generator and discriminator compete."}, {"prompt": "According to Anantrasirichai and Bull (2022), why does AI struggle to be an autonomous 'creator'?", "options": [{"id": "a", "text": "AI cannot process images at all"}, {"id": "b", "text": "Creative tasks are 'ill-posed' and 'one-to-many', which doesn't fit supervised learning's need for clear ground truth"}, {"id": "c", "text": "AI is too expensive to run"}, {"id": "d", "text": "There is no interest from artists in using AI"}], "correct": "b", "explain": "The paper explains that creative tasks lack a single correct answer, unlike most supervised-learning tasks."}, {"prompt": "What is an API described as, in Plantin et al.'s infrastructure-studies vocabulary?", "options": [{"id": "a", "text": "A gateway"}, {"id": "b", "text": "A type of hardware"}, {"id": "c", "text": "A government regulation"}, {"id": "d", "text": "A social movement"}], "correct": "a", "explain": "Plantin et al. describe an API as a 'gateway' — but one unilaterally controlled by the platform owner."}, {"prompt": "Schiller (1981) is best known for which theoretical approach?", "options": [{"id": "a", "text": "Postmodernism"}, {"id": "b", "text": "Political economy / Critical Theory (Marxian)"}, {"id": "c", "text": "Technological determinism only"}, {"id": "d", "text": "Structuralist linguistics"}], "correct": "b", "explain": "Schiller is a leading political-economy/Critical Theory (Marxian) scholar."}, {"prompt": "Which city did Saskia Sassen NOT identify as one of the main 'global cities' in her 1991 study?", "options": [{"id": "a", "text": "New York"}, {"id": "b", "text": "London"}, {"id": "c", "text": "Tokyo"}, {"id": "d", "text": "Dhaka"}], "correct": "d", "explain": "Sassen's (1991) study focused on New York, London and Tokyo — not Dhaka."}, {"prompt": "Complete the citation: Dallas Smythe (____) coined the term 'audience commodity'.", "options": [{"id": "a", "text": "1981"}, {"id": "b", "text": "1999"}, {"id": "c", "text": "2018"}, {"id": "d", "text": "1965"}], "correct": "a", "explain": "Smythe (1981) coined 'audience commodity' to describe how TV sells audiences to advertisers."}, {"prompt": "What does Webster explicitly flag about the 'postmodern city' section of the Castells chapter?", "options": [{"id": "a", "text": "It is Castells' own core argument"}, {"id": "b", "text": "It is Webster's own speculative extension, going further than Castells would allow"}, {"id": "c", "text": "It has no relevance to the chapter"}, {"id": "d", "text": "It was written by Sassen"}], "correct": "b", "explain": "Webster is explicit that the postmodern-city discussion is his own speculative extension."}], "extraFlashcards": [{"front": "What is the 'modern infrastructural ideal'?", "back": "Graham and Marvin's (2001) term for the mid-19th-century vision of cities/states providing universal essential services to all citizens — an ideal that began collapsing under neoliberal deregulation from the late 1970s."}, {"front": "What is 'cultural imperialism' (Schiller)?", "back": "The claim that Western (especially US) media dominance spreads capitalist/consumerist values globally in a largely one-directional flow, marginalising poorer nations' own media voice."}, {"front": "What is the 'space of flows' (Castells)?", "back": "The idea that IT networks let economic/social activity transcend physical place, though flows still require physical 'nerve centres' (global cities)."}, {"front": "What is a Creative Adversarial Network (CAN)?", "back": "A GAN variant (Elgammal et al., 2017) with an added signal that prevents the generator from imitating existing styles too closely, aimed at more original creative output."}, {"front": "Name the three 'ethics' categories from Dignum (2018).", "back": "Ethics by Design, Ethics in Design, Ethics for Design."}], "emergencyPlan": {"phase1": {"title": "Phase 1 — Understand (2 hrs)", "items": ["Read each topic's 'Core Argument' card once, slowly, for real understanding (not memorising yet).", "For each topic, be able to answer in your own words: What problem is this theory trying to explain? What is the main claim?", "Look at the 'Topic in One Screen' dashboard for each topic to see the big picture before drilling into detail."]}, "phase2": {"title": "Phase 2 — Memorise (2.5 hrs)", "items": ["Memorise the 5 key concepts per topic using the Academic → Simple → Bangla → Memory → Exam Sentence layers.", "Memorise 15-20 of the highest-priority facts from the Facts Bank (the ones marked with concrete numbers/stats).", "Memorise at least 2 citations per topic from the Citation Bank so you can write in-text citations confidently."]}, "phase3": {"title": "Phase 3 — Connect (1.5 hrs)", "items": ["Study the 6 cross-topic Connections cards — for each, be able to state one sentence of what's common and one of what differs.", "Read the 4 Cross-Topic Questions and their key points — these show you HOW an examiner might merge topics.", "Read the Bangladesh Application Lab for all 4 topics, focusing on the 'Safe Exam Language' sentences."]}, "phase4": {"title": "Phase 4 — Practise (2.5 hrs)", "items": ["Pick 2-3 🔥 VERY HIGH PRIORITY questions per topic and outline (don't fully write) an answer using the Blueprints.", "Fully write out ONE model-answer-length response using the Answer Blueprint for your weakest topic.", "Use the Active Recall flashcards and quiz to test yourself — redo any topic you score below 70% on."]}, "phase5": {"title": "Phase 5 — Final 60-Minute Revision", "items": ["Open Exam Mode and review only the TOP 10 arguments, TOP 10 citations, TOP 10 facts and TOP 5 answer structures.", "Re-read the Common Mistakes / Source-vs-Opinion guardrail for each topic one last time.", "Do NOT read new material in the last 30 minutes — only review what you've already studied."]}}, "twoHourPlan": {"studyFirst": ["The 4 Core Argument cards (10 min each = 40 min total) — this is non-negotiable, it's the foundation of every answer.", "The Citation Bank (10 min) — memorise at least 1-2 citations per topic.", "The Cross-Topic Connections cards (15 min) — skim all 6, remember at least 2."], "memoriseCitations": ["Schiller (1981) — market imperatives remain determining", "Castells (1989) — the dual/informational city", "Plantin et al. (2018) — platformization of infrastructures"], "memoriseArguments": ["Schiller: information society = capitalism continuing, not a break from it", "Castells: informational cities polarise into professional elite + underclass", "Plantin et al.: platforms and infrastructures are converging, blurring public/private control"], "ignoreForNow": ["Detailed GAN/CNN technical architecture (VGG, ResNet, LSTM internals) — know only the basic definitions.", "Long lists of every scholar mentioned in passing — focus on the ones in the Citation Bank.", "Memorising exact page numbers — focus on concepts and citations instead."]}};
+</script>
+<script>
+/* ============ APP LOGIC ============ */
+let DATA = null;
+let state = {
+  currentView: 'home',
+  currentTopic: 't1',
+  fontScale: 1,
+  theme: 'light',
+  mastered: {},
+  notes: {},
+  quizScore: null,
+  flashIndex: 0,
+  flashDeck: [],
+  examDate: null
+};
+
+const PRIORITY_LABEL = {high:'🔥 VERY HIGH PRIORITY', medium:'🟠 HIGH PRIORITY', low:'🟡 MEDIUM PRIORITY'};
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem('nm_study_state');
+    if(raw){ const parsed = JSON.parse(raw); state = Object.assign(state, parsed); }
+  }catch(e){}
+  if(!state.examDate){
+    const d = new Date(); d.setHours(d.getHours()+10);
+    state.examDate = d.toISOString();
+  }
+}
+function saveState(){
+  try{ localStorage.setItem('nm_study_state', JSON.stringify(state)); }catch(e){}
+}
+
+function el(tag, cls, html){
+  const e = document.createElement(tag);
+  if(cls) e.className = cls;
+  if(html !== undefined) e.innerHTML = html;
+  return e;
+}
+
+function badge(tag){
+  const map = {SOURCE:'badge src', INFERENCE:'badge inf', APPLICATION:'badge app', 'POSSIBLE / EXAMPLE':'badge app', 'STUDY TIP':'badge tip', 'INFERENCE / STUDY TIP':'badge inf'};
+  const cls = map[tag] || 'badge inf';
+  return `<span class="${cls}">${tag}</span>`;
+}
+
+function priorityBadge(p){
+  const map = {high:'pri-high', medium:'pri-med', low:'pri-low'};
+  return `<span class="pri ${map[p]||'pri-med'}">${PRIORITY_LABEL[p]||PRIORITY_LABEL.medium}</span>`;
+}
+
+/* ---------- NAV ---------- */
+const NAV = [
+  {id:'home', label:'🚨 Emergency Plan'},
+  {id:'topic', label:'📚 Topics', sub:true},
+  {id:'connections', label:'🔗 Connections Map'},
+  {id:'cross', label:'🔥 Cross-Topic Questions'},
+  {id:'bangladesh', label:'🇧🇩 Bangladesh Lab'},
+  {id:'citations', label:'📌 Citation Bank & Facts'},
+  {id:'sentences', label:'✍️ Sentence Builders'},
+  {id:'answers', label:'🏗️ Blueprints & Model Answers'},
+  {id:'recall', label:'🧠 Active Recall'},
+  {id:'mistakes', label:'❌ Common Mistakes'},
+  {id:'search', label:'🔍 Search'},
+  {id:'notes', label:'📝 My Notes'},
+  {id:'master', label:'🧠 Master Revision Sheet'},
+  {id:'exammode', label:'⏱️ EXAM MODE (last 30 min)'}
+];
+
+function renderNav(){
+  const nav = document.getElementById('sidebarNav');
+  nav.innerHTML = '';
+  NAV.forEach(item=>{
+    const btn = el('button','navbtn'+(state.currentView===item.id?' active':''), item.label);
+    btn.onclick = ()=>{ state.currentView = item.id; saveState(); render(); };
+    nav.appendChild(btn);
+    if(item.id==='topic'){
+      const sub = el('div','navsub');
+      DATA.topics.forEach(t=>{
+        const b = el('button','navbtn small'+((state.currentView==='topic'&&state.currentTopic===t.id)?' active':''), t.short);
+        b.onclick = ()=>{ state.currentView='topic'; state.currentTopic=t.id; saveState(); render(); };
+        sub.appendChild(b);
+      });
+      nav.appendChild(sub);
+    }
+  });
+}
+
+/* ---------- COUNTDOWN ---------- */
+function updateCountdown(){
+  const target = new Date(state.examDate);
+  const now = new Date();
+  let diff = Math.max(0, target - now);
+  const h = Math.floor(diff/3600000);
+  const m = Math.floor((diff%3600000)/60000);
+  const s = Math.floor((diff%60000)/1000);
+  const cd = document.getElementById('countdownDisplay');
+  if(cd) cd.textContent = `${h}h ${m}m ${s}s`;
+}
+
+/* ---------- RENDER MAIN ---------- */
+function render(){
+  renderNav();
+  const main = document.getElementById('mainContent');
+  main.innerHTML = '';
+  main.scrollTop = 0;
+  switch(state.currentView){
+    case 'home': renderHome(main); break;
+    case 'topic': renderTopic(main); break;
+    case 'connections': renderConnections(main); break;
+    case 'cross': renderCross(main); break;
+    case 'bangladesh': renderBangladesh(main); break;
+    case 'citations': renderCitations(main); break;
+    case 'sentences': renderSentences(main); break;
+    case 'answers': renderAnswers(main); break;
+    case 'recall': renderRecall(main); break;
+    case 'mistakes': renderMistakes(main); break;
+    case 'search': renderSearch(main); break;
+    case 'notes': renderNotes(main); break;
+    case 'master': renderMaster(main); break;
+    case 'exammode': renderExamMode(main); break;
+    default: renderHome(main);
+  }
+}
+
+/* ---------- HOME / EMERGENCY PLAN ---------- */
+function renderHome(main){
+  main.innerHTML='';
+  const wrap = el('div','page');
+  wrap.innerHTML = `
+    <h1>🚨 10-Hour Emergency Preparation</h1>
+    <p class="lede">Exam-focused study system built from your <strong>New Media.pdf</strong> — four sources: Plantin et al. (2018) on infrastructure/platforms, Schiller (via Webster) on information & capitalism, Castells (via Webster) on urban change, and Anantrasirichai & Bull (2022) on AI in the creative industries.</p>
+    <div class="countdown-card">
+      <div class="cd-label">TIME REMAINING (edit below if your exam is at a different time)</div>
+      <div id="countdownDisplay" class="cd-time">--</div>
+      <label class="cd-set">Exam date/time: <input type="datetime-local" id="examDateInput"/></label>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h2>Phase-by-phase plan</h2>
+        <div id="phasesWrap"></div>
+      </div>
+      <div class="card">
+        <h2>Overall readiness</h2>
+        <div id="readinessWrap"></div>
+        <h3 style="margin-top:20px">If you only have 2 hours left</h3>
+        <div id="twoHourWrap"></div>
+      </div>
+    </div>
+  `;
+  main.appendChild(wrap);
+
+  const dtInput = document.getElementById('examDateInput');
+  const dt = new Date(state.examDate);
+  dtInput.value = dt.toISOString().slice(0,16);
+  dtInput.onchange = ()=>{ state.examDate = new Date(dtInput.value).toISOString(); saveState(); updateCountdown(); };
+  updateCountdown();
+
+  const phasesWrap = document.getElementById('phasesWrap');
+  const plan = DATA.emergencyPlan;
+  ['phase1','phase2','phase3','phase4','phase5'].forEach(pk=>{
+    const p = plan[pk];
+    const box = el('div','phase-box');
+    box.innerHTML = `<h3>${p.title}</h3>`;
+    const ul = el('div','checklist');
+    p.items.forEach((item,i)=>{
+      const key = pk+'_'+i;
+      const checked = !!state.mastered[key];
+      const row = el('label','check-row');
+      row.innerHTML = `<input type="checkbox" ${checked?'checked':''}/> <span>${item}</span>`;
+      row.querySelector('input').onchange = (e)=>{ state.mastered[key]=e.target.checked; saveState(); renderHome(main); };
+      ul.appendChild(row);
+    });
+    box.appendChild(ul);
+    phasesWrap.appendChild(box);
+  });
+
+  // readiness
+  const readinessWrap = document.getElementById('readinessWrap');
+  DATA.topics.forEach(t=>{
+    const items = t.questions ? 10 : 10;
+    let total=0, done=0;
+    ['def','arg','scholar','sup1','sup2','ev1','ev2','crit1','crit2','conn','app'].forEach(k=>{
+      total++; if(state.mastered['selftest_'+t.id+'_'+k]) done++;
+    });
+    const pct = Math.round((done/total)*100);
+    const bar = el('div','readiness-row');
+    bar.innerHTML = `<div class="readiness-label">${t.short}</div><div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div><div class="readiness-pct">${pct}%</div>`;
+    readinessWrap.appendChild(bar);
+  });
+
+  const twoHourWrap = document.getElementById('twoHourWrap');
+  const tp = DATA.twoHourPlan;
+  twoHourWrap.innerHTML = `
+    <p><strong>Study this first:</strong></p><ul>${tp.studyFirst.map(x=>`<li>${x}</li>`).join('')}</ul>
+    <p><strong>Memorise these citations:</strong></p><ul>${tp.memoriseCitations.map(x=>`<li>${x}</li>`).join('')}</ul>
+    <p><strong>Memorise these arguments:</strong></p><ul>${tp.memoriseArguments.map(x=>`<li>${x}</li>`).join('')}</ul>
+    <p><strong>Ignore for now:</strong></p><ul>${tp.ignoreForNow.map(x=>`<li>${x}</li>`).join('')}</ul>
+  `;
+}
+
+/* ---------- TOPIC PAGE ---------- */
+function renderTopic(main){
+  main.innerHTML='';
+  const t = DATA.topics.find(x=>x.id===state.currentTopic);
+  const wrap = el('div','page');
+  wrap.innerHTML = `
+    <div class="topic-tabs" id="topicPicker"></div>
+    <h1>${t.title}</h1>
+    <div class="topic-meta">${t.author} — <em>${t.source}</em></div>
+    <p class="lede">${t.tagline}</p>
+    <div class="subtabs" id="subtabs"></div>
+    <div id="topicBody"></div>
+  `;
+  main.appendChild(wrap);
+
+  const picker = document.getElementById('topicPicker');
+  DATA.topics.forEach(x=>{
+    const b = el('button','chip'+(x.id===t.id?' active':''), x.short);
+    b.onclick = ()=>{ state.currentTopic = x.id; saveState(); render(); };
+    picker.appendChild(b);
+  });
+
+  const subtabs = ['Core Argument (10-min)','Topic in One Screen','Key Concepts','Difficult Words','Possible Exam Qs','Self-Test'];
+  const subtabWrap = document.getElementById('subtabs');
+  let activeSub = state['sub_'+t.id] || subtabs[0];
+  subtabs.forEach(s=>{
+    const b = el('button','subtab'+(s===activeSub?' active':''), s);
+    b.onclick = ()=>{ state['sub_'+t.id]=s; saveState(); renderTopic(main); };
+    subtabWrap.appendChild(b);
+  });
+
+  const body = document.getElementById('topicBody');
+  if(activeSub==='Core Argument (10-min)') body.appendChild(renderCoreArgument(t));
+  else if(activeSub==='Topic in One Screen') body.appendChild(renderOneScreen(t));
+  else if(activeSub==='Key Concepts') body.appendChild(renderKeyConcepts(t));
+  else if(activeSub==='Difficult Words') body.appendChild(renderTopicWords(t));
+  else if(activeSub==='Possible Exam Qs') body.appendChild(renderTopicQuestions(t));
+  else if(activeSub==='Self-Test') body.appendChild(renderSelfTest(t));
+}
+
+function renderCoreArgument(t){
+  const box = el('div','card');
+  box.innerHTML = `
+    <h2>🎯 THE ONE THING YOU MUST UNDERSTAND</h2>
+    <div class="hero-argument">${t.centralArgument}</div>
+    <h3>Central question</h3><p>${t.centralQuestion}</p>
+    <h3>Supporting arguments</h3>
+    <ol class="arglist">${t.supportingArguments.map(a=>`<li>${badge(a.tag)} ${a.text}</li>`).join('')}</ol>
+    <h3>Evidence / examples</h3>
+    <ul>${t.evidence.map(e=>`<li>${badge('SOURCE')} ${e}</li>`).join('')}</ul>
+    <h3>Criticism</h3>
+    <ul>${t.criticisms.map(c=>`<li>${badge(c.tag)} ${c.text}</li>`).join('')}</ul>
+    <h3>Conclusion</h3>
+    <p>${badge('SOURCE')} ${t.conclusionSource}</p>
+  `;
+  return box;
+}
+
+function renderOneScreen(t){
+  const box = el('div','card oneScreen');
+  box.innerHTML = `
+    <h2>📊 ${t.short} — Topic in One Screen</h2>
+    <div class="grid-3">
+      <div><h4>Author(s)</h4><p>${t.author}</p></div>
+      <div><h4>Central thesis</h4><p>${t.centralArgument.slice(0,160)}...</p></div>
+      <div><h4>Source</h4><p>${t.source}</p></div>
+    </div>
+    <h4>5 key concepts</h4>
+    <ul>${t.keyConcepts.slice(0,5).map(k=>`<li><strong>${k.term}</strong> — ${k.simple}</li>`).join('')}</ul>
+    <h4>Supporting arguments</h4>
+    <ul>${t.supportingArguments.map(a=>`<li>${a.text}</li>`).join('')}</ul>
+    <h4>Evidence</h4>
+    <ul>${t.evidence.slice(0,3).map(e=>`<li>${e}</li>`).join('')}</ul>
+    <h4>Criticisms</h4>
+    <ul>${t.criticisms.slice(0,3).map(c=>`<li>${c.text}</li>`).join('')}</ul>
+    <h4>Possible 20-mark questions (top 3)</h4>
+    <ul>${t.questions.slice(0,3).map(q=>`<li>${priorityBadge(q.priority)} ${q.q}</li>`).join('')}</ul>
+  `;
+  return box;
+}
+
+function renderKeyConcepts(t){
+  const box = el('div','');
+  box.innerHTML = `<h2>Key Concepts — layered explanations</h2><p class="hint">Click a card to flip through Academic → Simple → বাংলা → Memory → Exam sentence.</p>`;
+  const grid = el('div','concept-grid');
+  t.keyConcepts.forEach((k,i)=>{
+    const card = el('div','concept-card');
+    card.innerHTML = `
+      <h3>${k.term}</h3>
+      <div class="layer"><span class="layer-label">Academic</span><p>${k.academic}</p></div>
+      <div class="layer simple"><span class="layer-label">Simple English</span><p>${k.simple}</p></div>
+      <div class="layer bangla"><span class="layer-label">বাংলায়</span><p>${k.bangla}</p></div>
+      <div class="layer memory"><span class="layer-label">Remember</span><p>${k.memory}</p></div>
+      <div class="layer examline"><span class="layer-label">Write in exam</span><p>"${k.exam}"</p></div>
+    `;
+    grid.appendChild(card);
+  });
+  box.appendChild(grid);
+  return box;
+}
+
+function renderTopicWords(t){
+  const box = el('div','card');
+  box.innerHTML = `<h2>Difficult Words for ${t.short}</h2><p class="hint">Hover/tap the word to reveal the Bangla meaning.</p>`;
+  const relevant = DATA.difficultWords;
+  const list = el('div','words-grid');
+  relevant.forEach(w=>{
+    const c = el('div','word-card');
+    c.innerHTML = `<div class="word-term">${w.word} <span class="reveal-hint">(tap)</span></div>
+      <div class="word-bangla hidden">${w.bangla}</div>
+      <div class="word-simple">${w.simple}</div>
+      <div class="word-example"><em>${w.example}</em></div>`;
+    c.onclick = ()=>{ c.querySelector('.word-bangla').classList.toggle('hidden'); };
+    list.appendChild(c);
+  });
+  box.appendChild(list);
+  return box;
+}
+
+function renderTopicQuestions(t){
+  const box = el('div','card');
+  box.innerHTML = `<h2>Possible Exam Questions — ${t.short}</h2><p class="hint">${badge('SOURCE')} labels don't apply here — these are all <strong>POSSIBLE EXAM QUESTIONS</strong> generated for practice, not actual exam questions.</p>`;
+  const list = el('div','qlist');
+  t.questions.forEach(q=>{
+    const row = el('div','qrow');
+    row.innerHTML = `${priorityBadge(q.priority)} <span class="qtype">[${q.type}]</span> <span class="qtext">${q.q}</span>`;
+    list.appendChild(row);
+  });
+  box.appendChild(list);
+  const mist = el('div','card');
+  mist.innerHTML = `<h3>❌ Do Not Confuse</h3><ul>${t.mistakes.map(m=>`<li>${m}</li>`).join('')}</ul>`;
+  box.appendChild(mist);
+  return box;
+}
+
+function renderSelfTest(t){
+  const box = el('div','card');
+  const items = [
+    ['def','I can define the theory'],
+    ['arg','I can explain its central argument'],
+    ['scholar','I can name the key scholar(s)'],
+    ['sup1','I know at least 3 supporting arguments'],
+    ['sup2','I can explain how those arguments connect to each other'],
+    ['ev1','I know at least 2 pieces of evidence/examples'],
+    ['ev2','I can use these examples inside a written answer'],
+    ['crit1','I know at least 2 criticisms of the theory'],
+    ['crit2','I can give an in-text citation for this topic'],
+    ['conn','I can connect this topic to at least one other topic'],
+    ['app','I can apply this topic to the Bangladesh context']
+  ];
+  box.innerHTML = `<h2>Can I Answer This? — ${t.short}</h2>`;
+  const ul = el('div','checklist');
+  items.forEach(([k,label])=>{
+    const key = 'selftest_'+t.id+'_'+k;
+    const checked = !!state.mastered[key];
+    const row = el('label','check-row');
+    row.innerHTML = `<input type="checkbox" ${checked?'checked':''}/> <span>${label}</span>`;
+    row.querySelector('input').onchange = (e)=>{ state.mastered[key]=e.target.checked; saveState(); renderTopic(document.getElementById('mainContent')); };
+    ul.appendChild(row);
+  });
+  box.appendChild(ul);
+  let done=0; items.forEach(([k])=>{ if(state.mastered['selftest_'+t.id+'_'+k]) done++; });
+  const pct = Math.round((done/items.length)*100);
+  const readiness = el('div','readiness-banner', `Topic readiness: <strong>${pct}%</strong>`);
+  box.appendChild(readiness);
+  return box;
+}
+
+/* ---------- CONNECTIONS ---------- */
+function renderConnections(main){
+  const wrap = el('div','page');
+  wrap.innerHTML = `<h1>🔗 How the Four Topics Connect</h1><p class="lede">These connections are the student's own reasonable synthesis (${badge('INFERENCE')}) built from what each source actually says — always flag them as your own connection in the exam, not a quote from any single author.</p>`;
+  const grid = el('div','conn-grid');
+  DATA.connections.forEach(c=>{
+    const card = el('div','conn-card');
+    card.innerHTML = `
+      <h3>${c.title}</h3>
+      <p><strong>What they have in common:</strong> ${c.common}</p>
+      <p><strong>Where they differ:</strong> ${c.differ}</p>
+      <p><strong>What one adds to the other:</strong> ${c.addsToEachOther}</p>
+      <p><strong>How to combine in a 20-mark answer:</strong> ${c.combineTip}</p>
+      <p><strong>Citation combo:</strong> <em>${c.cite}</em></p>
+    `;
+    grid.appendChild(card);
+  });
+  wrap.appendChild(grid);
+  main.appendChild(wrap);
+}
+
+/* ---------- CROSS-TOPIC QUESTIONS ---------- */
+function renderCross(main){
+  const wrap = el('div','page');
+  wrap.innerHTML = `<h1>🔥 Cross-Topic (Merged) Questions</h1><p class="lede">${badge('INFERENCE')} These are practice questions built by combining topics — labelled POSSIBLE EXAM QUESTIONS, not real ones.</p>`;
+  DATA.crossTopicQuestions.forEach(q=>{
+    const card = el('div','card');
+    card.innerHTML = `
+      <h3>${q.q}</h3>
+      <p><strong>What the examiner is really asking:</strong> ${q.askingReally}</p>
+      <p><strong>Theories to use:</strong> ${q.theories.join('; ')}</p>
+      <p><strong>Arguments to use:</strong></p><ul>${q.arguments.map(a=>`<li>${a}</li>`).join('')}</ul>
+      <p><strong>Scholars to cite:</strong> ${q.scholars.join('; ')}</p>
+      <p><strong>Suggested structure:</strong> ${q.structure}</p>
+      <p><strong>What NOT to write:</strong> ${q.avoid}</p>
+      <p><strong>Key points to remember:</strong></p><ul>${q.keyPoints.map(k=>`<li>${k}</li>`).join('')}</ul>
+    `;
+    wrap.appendChild(card);
+  });
+  main.appendChild(wrap);
+}
+
+/* ---------- BANGLADESH LAB ---------- */
+function renderBangladesh(main){
+  const wrap = el('div','page');
+  wrap.innerHTML = `<h1>🇧🇩 Bangladesh Application Lab</h1><p class="lede">Rule: none of the four sources discuss Bangladesh. Every application below is clearly separated into what the source actually says, the possible Bangladesh application (${badge('APPLICATION')}), and safe exam language you can use to connect the two without misattributing the example to the author.</p>`;
+  DATA.topics.forEach(t=>{
+    const card = el('div','card');
+    let inner = `<h2>${t.short}</h2>`;
+    t.bangladesh.forEach(b=>{
+      inner += `
+        <div class="bd-block">
+          <p><strong>A. Directly from the source:</strong> ${b.source}</p>
+          <p><strong>B. Bangladesh application ${badge('APPLICATION')}:</strong> ${b.application}</p>
+          <p><strong>C. Safe exam language:</strong> <em>"${b.safe}"</em></p>
+        </div>`;
+    });
+    card.innerHTML = inner;
+    wrap.appendChild(card);
+  });
+  main.appendChild(wrap);
+}
+
+/* ---------- CITATIONS & FACTS ---------- */
+function renderCitations(main){
+  const wrap = el('div','page');
+  wrap.innerHTML = `<h1>📌 Citation Bank & Facts Worth Memorising</h1>`;
+  const cbox = el('div','card');
+  cbox.innerHTML = `<h2>Citation Bank</h2>`;
+  const table = el('div','citation-grid');
+  DATA.citationBank.forEach(c=>{
+    const row = el('div','citation-row');
+    row.innerHTML = `
+      <div class="cit-scholar">${c.scholar} (${c.year})</div>
+      <div><strong>Concept:</strong> ${c.concept}</div>
+      <div><strong>Use for:</strong> ${c.use}</div>
+      <div class="cit-examuse"><strong>Exam use:</strong> "${c.exam}"</div>
+      <div class="cit-loc">${c.loc}</div>
+    `;
+    table.appendChild(row);
+  });
+  cbox.appendChild(table);
+  wrap.appendChild(cbox);
+
+  const fbox = el('div','card');
+  fbox.innerHTML = `<h2>🧠 Facts / Arguments Worth Memorising</h2>`;
+  const flist = el('div','facts-grid');
+  DATA.factsBank.forEach(f=>{
+    const c = el('div','fact-card');
+    c.innerHTML = `<p class="fact-text">${f.fact}</p><p><strong>Citation:</strong> ${f.citation}</p><p><strong>Use in:</strong> ${f.use}</p><p><strong>Memory hook:</strong> ${f.memory}</p>`;
+    flist.appendChild(c);
+  });
+  fbox.appendChild(flist);
+  wrap.appendChild(fbox);
+  main.appendChild(wrap);
+}
+
+/* ---------- SENTENCE BUILDERS ---------- */
+function renderSentences(main){
+  const wrap = el('div','page');
+  wrap.innerHTML = `<h1>✍️ Exam Sentence Builders & Safe English</h1>`;
+  const sbox = el('div','card');
+  sbox.innerHTML = `<h2>Sentence templates by category</h2>`;
+  Object.entries(DATA.sentenceTemplates).forEach(([cat,list])=>{
+    const c = el('div','sentence-cat');
+    c.innerHTML = `<h3>${cat}</h3><ul>${list.map(s=>`<li>${s}</li>`).join('')}</ul>`;
+    sbox.appendChild(c);
+  });
+  wrap.appendChild(sbox);
+
+  const ebox = el('div','card');
+  ebox.innerHTML = `<h2>Safe English (simple but academic)</h2><p class="hint">Simple English + correct theory beats complicated English + mistakes.</p>`;
+  DATA.safeEnglish.forEach(s=>{
+    const row = el('div','safe-row');
+    row.innerHTML = `<p class="advanced">❌ Advanced: "${s.advanced}"</p><p class="safe">✅ Safe: "${s.safe}"</p>`;
+    ebox.appendChild(row);
+  });
+  wrap.appendChild(ebox);
+  main.appendChild(wrap);
+}
+
+/* ---------- BLUEPRINTS & MODEL ANSWERS ---------- */
+function renderAnswers(main){
+  const wrap = el('div','page');
+  wrap.innerHTML = `<h1>🏗️ 20-Mark Answer Blueprints & Model Answers</h1>`;
+  const bbox = el('div','card');
+  bbox.innerHTML = `<h2>Answer Blueprints</h2>`;
+  DATA.blueprints.forEach(b=>{
+    const c = el('div','blueprint-card');
+    c.innerHTML = `<h3>${b.type}</h3><ol>${b.structure.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+    bbox.appendChild(c);
+  });
+  wrap.appendChild(bbox);
+
+  const mbox = el('div','card');
+  mbox.innerHTML = `<h2>Model 20-Mark Answers</h2><p class="hint">Read for logic and structure — don't memorise word for word. Use the skeleton below each answer instead.</p>`;
+  DATA.modelAnswers.forEach(m=>{
+    const c = el('div','model-answer');
+    c.innerHTML = `<h3>${m.title}</h3><div class="model-text">${m.text}</div>
+      <div class="skeleton"><strong>Memorise this skeleton:</strong> INTRO → THEORY/CONCEPT → ARGUMENT 1 + CITATION → EVIDENCE → ARGUMENT 2 + CITATION → CRITICAL EVALUATION → (APPLICATION, if asked) → CONCLUSION</div>`;
+    mbox.appendChild(c);
+  });
+  wrap.appendChild(mbox);
+  main.appendChild(wrap);
+}
+
+/* ---------- ACTIVE RECALL: FLASHCARDS + QUIZ ---------- */
+function buildFlashDeck(){
+  let deck = [];
+  DATA.topics.forEach(t=>{
+    t.keyConcepts.forEach(k=>{
+      deck.push({front:`[${t.short}] What is "${k.term}"?`, back:`${k.academic}<br><br><em>Simple:</em> ${k.simple}<br><em>Exam line:</em> "${k.exam}"`});
+    });
+  });
+  DATA.extraFlashcards.forEach(f=> deck.push(f));
+  return deck;
+}
+
+function renderRecall(main){
+  const wrap = el('div','page');
+  wrap.innerHTML = `
+    <h1>🧠 Active Recall</h1>
+    <div class="recall-tabs" id="recallTabs"></div>
+    <div id="recallBody"></div>
+  `;
+  main.appendChild(wrap);
+  const tabs = ['Flashcards','Quiz','Blind Recall'];
+  let active = state.recallTab || 'Flashcards';
+  const tabWrap = document.getElementById('recallTabs');
+  tabs.forEach(tb=>{
+    const b = el('button','chip'+(tb===active?' active':''), tb);
+    b.onclick = ()=>{ state.recallTab = tb; saveState(); renderRecall(main); };
+    tabWrap.appendChild(b);
+  });
+  const body = document.getElementById('recallBody');
+  if(active==='Flashcards') body.appendChild(renderFlashcards());
+  else if(active==='Quiz') body.appendChild(renderQuiz());
+  else body.appendChild(renderBlindRecall());
+}
+
+function renderFlashcards(){
+  if(!state.flashDeck || state.flashDeck.length===0) state.flashDeck = buildFlashDeck();
+  const box = el('div','card flashcard-wrap');
+  const idx = state.flashIndex % state.flashDeck.length;
+  const card = state.flashDeck[idx];
+  box.innerHTML = `
+    <p class="hint">Card ${idx+1} of ${state.flashDeck.length}</p>
+    <div class="flashcard" id="flashcardEl">
+      <div class="flash-inner" id="flashInner">
+        <div class="flash-front">${card.front}</div>
+        <div class="flash-back hidden">${card.back}</div>
+      </div>
+    </div>
+    <div class="flash-controls">
+      <button class="btn" id="flashFlip">Flip</button>
+      <button class="btn" id="flashPrev">◀ Prev</button>
+      <button class="btn" id="flashNext">Next ▶</button>
+      <button class="btn" id="flashShuffle">🔀 Shuffle</button>
+    </div>
+  `;
+  setTimeout(()=>{
+    document.getElementById('flashFlip').onclick = ()=>{
+      document.querySelectorAll('.flash-front,.flash-back').forEach(e=>e.classList.toggle('hidden'));
+    };
+    document.getElementById('flashPrev').onclick = ()=>{ state.flashIndex = (state.flashIndex-1+state.flashDeck.length)%state.flashDeck.length; saveState(); render(); };
+    document.getElementById('flashNext').onclick = ()=>{ state.flashIndex = (state.flashIndex+1)%state.flashDeck.length; saveState(); render(); };
+    document.getElementById('flashShuffle').onclick = ()=>{
+      for(let i=state.flashDeck.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [state.flashDeck[i],state.flashDeck[j]]=[state.flashDeck[j],state.flashDeck[i]]; }
+      state.flashIndex=0; saveState(); render();
+    };
+  },0);
+  return box;
+}
+
+function renderQuiz(){
+  const box = el('div','card');
+  box.innerHTML = `<h2>Quiz — instant feedback</h2><div id="quizList"></div><button class="btn primary" id="quizSubmit">Check Answers</button><div id="quizResult"></div>`;
+  const list = document.createElement('div');
+  DATA.quiz.forEach((q,i)=>{
+    const qc = el('div','quiz-q');
+    qc.innerHTML = `<p class="qprompt">${i+1}. ${q.prompt}</p>` + q.options.map(o=>`
+      <label class="quiz-opt"><input type="radio" name="q${i}" value="${o.id}"/> ${o.text}</label>
+    `).join('');
+    list.appendChild(qc);
+  });
+  box.querySelector('#quizList').appendChild(list);
+  setTimeout(()=>{
+    document.getElementById('quizSubmit').onclick = ()=>{
+      let score=0;
+      DATA.quiz.forEach((q,i)=>{
+        const chosen = document.querySelector(`input[name="q${i}"]:checked`);
+        const qc = list.children[i];
+        qc.querySelectorAll('.quiz-opt').forEach(o=>o.classList.remove('correct','incorrect'));
+        const correctLabel = [...qc.querySelectorAll('.quiz-opt')].find(l=>l.querySelector('input').value===q.correct);
+        if(correctLabel) correctLabel.classList.add('correct');
+        if(chosen){
+          if(chosen.value===q.correct) score++;
+          else { const wrongLabel = chosen.closest('.quiz-opt'); wrongLabel.classList.add('incorrect'); }
+        }
+        let explain = qc.querySelector('.explain');
+        if(!explain){ explain = el('p','explain', `<em>${q.explain}</em>`); qc.appendChild(explain); }
+      });
+      document.getElementById('quizResult').innerHTML = `<h3>Score: ${score} / ${DATA.quiz.length}</h3>`;
+    };
+  },0);
+  return box;
+}
+
+function renderBlindRecall(){
+  const box = el('div','card');
+  box.innerHTML = `<h2>Blind Recall Mode</h2><p class="hint">Pick a topic. You'll see only the scholar + a few keywords — reconstruct the argument out loud or on paper, then reveal to check what you missed.</p>`;
+  const picker = el('div','chip-row');
+  DATA.topics.forEach(t=>{
+    const b = el('button','chip', t.short);
+    b.onclick = ()=>{ box.querySelector('.blind-area')?.remove();
+      const area = el('div','blind-area card');
+      const kws = t.keyConcepts.slice(0,5).map(k=>k.term);
+      area.innerHTML = `
+        <h3>${t.author}</h3>
+        <p><strong>5 keywords:</strong> ${kws.join(', ')}</p>
+        <p><strong>3 concepts:</strong> ${kws.slice(0,3).join(', ')}</p>
+        <button class="btn" id="revealBtn">Reveal full argument</button>
+        <div class="hidden" id="revealArea"><p>${t.centralArgument}</p></div>
+      `;
+      box.appendChild(area);
+      area.querySelector('#revealBtn').onclick = ()=> area.querySelector('#revealArea').classList.toggle('hidden');
+    };
+    picker.appendChild(b);
+  });
+  box.appendChild(picker);
+  return box;
+}
+
+/* ---------- COMMON MISTAKES ---------- */
+function renderMistakes(main){
+  const wrap = el('div','page');
+  wrap.innerHTML = `<h1>❌ Common Mistakes & Source vs Opinion Guardrail</h1>
+  <div class="card">
+    <h2>🟢🟡🔴 Source-Safe Guardrail</h2>
+    <p><span class="badge src">🟢 SOURCE-SAFE</span> Directly supported by the text — safe to state as fact with a citation.</p>
+    <p><span class="badge inf">🟡 REASONABLE APPLICATION</span> Can be argued using the theory, but is not directly stated by the author — say so explicitly ("this framework suggests...").</p>
+    <p><span class="badge app">🔴 UNSUPPORTED</span> Do not write this as if it comes from the source — it is your own opinion or an unrelated claim.</p>
+  </div>`;
+  DATA.topics.forEach(t=>{
+    const card = el('div','card');
+    card.innerHTML = `<h2>${t.short}</h2><ul>${t.mistakes.map(m=>`<li>${m}</li>`).join('')}</ul>`;
+    wrap.appendChild(card);
+  });
+  main.appendChild(wrap);
+}
+
+/* ---------- SEARCH ---------- */
+function buildSearchIndex(){
+  const idx = [];
+  DATA.topics.forEach(t=>{
+    idx.push({type:'Topic', label:t.short, text:t.centralArgument, go:()=>{state.currentView='topic'; state.currentTopic=t.id;}});
+    t.keyConcepts.forEach(k=> idx.push({type:'Concept ('+t.short+')', label:k.term, text:k.academic+' '+k.simple, go:()=>{state.currentView='topic'; state.currentTopic=t.id; state['sub_'+t.id]='Key Concepts';}}));
+    t.questions.forEach(q=> idx.push({type:'Question ('+t.short+')', label:q.q, text:q.type, go:()=>{state.currentView='topic'; state.currentTopic=t.id; state['sub_'+t.id]='Possible Exam Qs';}}));
+  });
+  DATA.citationBank.forEach(c=> idx.push({type:'Scholar', label:`${c.scholar} (${c.year})`, text:c.concept+' '+c.exam, go:()=>{state.currentView='citations';}}));
+  DATA.factsBank.forEach(f=> idx.push({type:'Fact', label:f.fact.slice(0,60)+'...', text:f.fact+' '+f.citation, go:()=>{state.currentView='citations';}}));
+  DATA.connections.forEach(c=> idx.push({type:'Connection', label:c.title, text:c.common+' '+c.differ, go:()=>{state.currentView='connections';}}));
+  DATA.crossTopicQuestions.forEach(c=> idx.push({type:'Cross-topic Q', label:c.q, text:c.askingReally, go:()=>{state.currentView='cross';}}));
+  DATA.topics.forEach(t=> t.bangladesh.forEach(b=> idx.push({type:'Bangladesh ('+t.short+')', label:b.application.slice(0,60)+'...', text:b.application+' '+b.safe, go:()=>{state.currentView='bangladesh';}})));
+  return idx;
+}
+let SEARCH_INDEX = null;
+
+function renderSearch(main){
+  const wrap = el('div','page');
+  wrap.innerHTML = `<h1>🔍 Search everything</h1>
+    <input type="text" id="searchInput" class="search-input" placeholder="Search scholar, concept, keyword, citation, question, Bangladesh application..."/>
+    <div id="searchResults"></div>`;
+  main.appendChild(wrap);
+  if(!SEARCH_INDEX) SEARCH_INDEX = buildSearchIndex();
+  const input = document.getElementById('searchInput');
+  const results = document.getElementById('searchResults');
+  input.oninput = ()=>{
+    const q = input.value.trim().toLowerCase();
+    results.innerHTML = '';
+    if(q.length<2) return;
+    const hits = SEARCH_INDEX.filter(item => (item.label+' '+item.text).toLowerCase().includes(q)).slice(0,30);
+    if(hits.length===0){ results.innerHTML = '<p class="hint">No matches.</p>'; return; }
+    hits.forEach(h=>{
+      const row = el('div','search-row');
+      row.innerHTML = `<span class="search-type">${h.type}</span><span class="search-label">${h.label}</span>`;
+      row.onclick = ()=>{ h.go(); saveState(); render(); };
+      results.appendChild(row);
+    });
+  };
+  input.focus();
+}
+
+/* ---------- NOTES ---------- */
+function renderNotes(main){
+  const wrap = el('div','page');
+  wrap.innerHTML = `<h1>📝 My Notes</h1><p class="lede">Saved automatically in your browser (localStorage) — survives refresh, but only on this device/browser.</p>`;
+  const generalBox = el('div','card');
+  generalBox.innerHTML = `<h2>General exam reminders</h2><textarea id="noteGeneral" class="note-area" placeholder="Write any reminders here...">${state.notes.general||''}</textarea>`;
+  wrap.appendChild(generalBox);
+  DATA.topics.forEach(t=>{
+    const box = el('div','card');
+    box.innerHTML = `<h2>${t.short} — notes</h2><textarea class="note-area" data-key="${t.id}" placeholder="Write notes about ${t.short}...">${state.notes[t.id]||''}</textarea>`;
+    wrap.appendChild(box);
+  });
+  main.appendChild(wrap);
+  document.getElementById('noteGeneral').oninput = (e)=>{ state.notes.general = e.target.value; saveState(); };
+  wrap.querySelectorAll('textarea[data-key]').forEach(ta=>{
+    ta.oninput = (e)=>{ state.notes[ta.dataset.key] = e.target.value; saveState(); };
+  });
+}
+
+/* ---------- MASTER REVISION SHEET ---------- */
+function renderMaster(main){
+  const wrap = el('div','page master-sheet');
+  wrap.innerHTML = `<h1>🧠 Master Revision Sheet</h1><p class="lede">Print or screenshot this page for final revision.</p>`;
+  DATA.topics.forEach(t=>{
+    const box = el('div','card master-topic');
+    box.innerHTML = `
+      <h2>${t.short} — ${t.author}</h2>
+      <p><strong>Central argument:</strong> ${t.centralArgument}</p>
+      <p><strong>Key concepts:</strong> ${t.keyConcepts.map(k=>k.term).join(', ')}</p>
+      <p><strong>Evidence:</strong> ${t.evidence.slice(0,2).join(' | ')}</p>
+      <p><strong>Criticism:</strong> ${t.criticisms[0].text}</p>
+    `;
+    wrap.appendChild(box);
+  });
+  const connBox = el('div','card master-topic');
+  connBox.innerHTML = `<h2>Cross-topic links</h2><ul>${DATA.connections.map(c=>`<li><strong>${c.title}:</strong> ${c.combineTip}</li>`).join('')}</ul>`;
+  wrap.appendChild(connBox);
+  const citBox = el('div','card master-topic');
+  citBox.innerHTML = `<h2>Citation bank (compressed)</h2><ul>${DATA.citationBank.map(c=>`<li>${c.scholar} (${c.year}) — ${c.concept}</li>`).join('')}</ul>`;
+  wrap.appendChild(citBox);
+  const bdBox = el('div','card master-topic');
+  bdBox.innerHTML = `<h2>Bangladesh application framework</h2><p>1. Explain the theory + cite the scholar. 2. Explain what it predicts. 3. Introduce Bangladesh using safe language ("Although the author does not discuss Bangladesh..."). 4. Explain the application. 5. Return to the theory. 6. Conclude.</p>`;
+  wrap.appendChild(bdBox);
+  const skelBox = el('div','card master-topic');
+  skelBox.innerHTML = `<h2>Answer skeleton</h2><p>INTRO → THEORY/CONCEPT → ARGUMENT 1 + CITATION → EVIDENCE → ARGUMENT 2 + CITATION → CRITICAL EVALUATION → (APPLICATION if asked) → CONCLUSION</p>`;
+  wrap.appendChild(skelBox);
+  main.appendChild(wrap);
+}
+
+/* ---------- EXAM MODE ---------- */
+function renderExamMode(main){
+  const wrap = el('div','page exam-mode');
+  wrap.innerHTML = `<h1>⏱️ EXAM MODE — Last 30 Minutes</h1><p class="lede">No long explanations. Just the essentials.</p>`;
+  const top10Args = [];
+  DATA.topics.forEach(t=> top10Args.push(`[${t.short}] ${t.supportingArguments[0].text}`));
+  DATA.connections.slice(0,6).forEach(c=> top10Args.push(`[Connection] ${c.combineTip}`));
+  const top10Cites = DATA.citationBank.slice(0,10).map(c=>`${c.scholar} (${c.year}) — ${c.concept}`);
+  const top10Facts = DATA.factsBank.slice(0,10).map(f=>`${f.fact} (${f.citation})`);
+  const top10Concepts = [];
+  DATA.topics.forEach(t=> top10Concepts.push(`${t.keyConcepts[0].term}: ${t.keyConcepts[0].memory}`));
+  const top5Sentences = ["According to ________, ...","The central argument of ________ is that ...","While ________ focuses on ________, ________ emphasises ________.","However, this argument can be questioned because ...","In the Bangladeshi context, this framework can be applied to ..."];
+  const top5Structures = DATA.blueprints.slice(0,5).map(b=>b.type+': '+b.structure[0]);
+  const top5Merged = DATA.crossTopicQuestions.slice(0,4).map(q=>q.q);
+  const top5BD = [];
+  DATA.topics.forEach(t=> t.bangladesh.forEach(b=> top5BD.push(b.application.slice(0,90)+'...')));
+  const top5Mistakes = [];
+  DATA.topics.forEach(t=> top5Mistakes.push(t.mistakes[0]));
+
+  function sec(title, items){
+    return `<div class="card"><h3>${title}</h3><ol>${items.map(i=>`<li>${i}</li>`).join('')}</ol></div>`;
+  }
+  wrap.innerHTML += sec('TOP arguments', top10Args.slice(0,10));
+  wrap.innerHTML += sec('TOP citations', top10Cites);
+  wrap.innerHTML += sec('TOP facts/evidence', top10Facts);
+  wrap.innerHTML += sec('TOP concepts', top10Concepts);
+  wrap.innerHTML += sec('TOP exam sentences', top5Sentences);
+  wrap.innerHTML += sec('Answer structures', top5Structures);
+  wrap.innerHTML += sec('Likely merged questions', top5Merged);
+  wrap.innerHTML += sec('Bangladesh applications', top5BD.slice(0,5));
+  wrap.innerHTML += sec('Common mistakes to avoid', top5Mistakes);
+  main.appendChild(wrap);
+}
+
+/* ---------- SETTINGS ---------- */
+function applyTheme(){
+  document.body.classList.toggle('dark', state.theme==='dark');
+  document.documentElement.style.setProperty('--font-scale', state.fontScale);
+}
+
+function initSettings(){
+  document.getElementById('themeToggle').onclick = ()=>{
+    state.theme = state.theme==='dark' ? 'light' : 'dark'; saveState(); applyTheme();
+  };
+  document.getElementById('fontDown').onclick = ()=>{ state.fontScale = Math.max(0.8, state.fontScale-0.1); saveState(); applyTheme(); };
+  document.getElementById('fontUp').onclick = ()=>{ state.fontScale = Math.min(1.4, state.fontScale+0.1); saveState(); applyTheme(); };
+  document.getElementById('globalSearchBtn').onclick = ()=>{ state.currentView='search'; saveState(); render(); };
+}
+
+/* ---------- INIT ---------- */
+window.addEventListener('DOMContentLoaded', ()=>{
+  DATA = window.__STUDY_DATA__;
+  loadState();
+  applyTheme();
+  initSettings();
+  render();
+  setInterval(updateCountdown, 1000);
+});
+
+</script>
+</body>
+</html>
