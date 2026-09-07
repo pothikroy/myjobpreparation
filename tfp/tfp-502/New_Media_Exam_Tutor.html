@@ -250,6 +250,31 @@ body{
 .exam-mode .card ol{margin:0; padding-left:20px;}
 .exam-mode .card li{margin-bottom:4px; font-size:0.9rem;}
 
+
+
+/* ---- MOBILE SIDEBAR TOGGLE ---- */
+.hamburger-btn{display:none;}
+#sidebarOverlay{display:none;}
+@media (max-width:800px){
+  .hamburger-btn{
+    display:inline-flex; align-items:center; justify-content:center;
+    background:var(--card-bg); border:1px solid var(--line); border-radius:8px;
+    padding:6px 10px; cursor:pointer; font-size:1rem; color:var(--ink);
+  }
+  #sidebar{
+    position:fixed; top:0; left:0; height:100%; z-index:30;
+    transform:translateX(-100%); transition:transform 0.25s ease;
+    box-shadow:2px 0 12px rgba(0,0,0,0.15);
+  }
+  #sidebar.open{transform:translateX(0);}
+  #sidebarOverlay{
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:25;
+  }
+  #sidebarOverlay.open{display:block;}
+  #mainContent{padding:18px 14px 80px;}
+  #topbar{padding:10px 14px;}
+}
+
 @media print{
   #sidebar, #topbar{display:none;}
   #mainContent{overflow:visible; height:auto;}
@@ -260,6 +285,7 @@ body{
 <body>
 <div id="ag-overlay"></div>
 <div id="appRoot">
+  <div id="sidebarOverlay"></div>
   <nav id="sidebar">
     <div class="brand">📖 New Media Exam Tutor<small>Built from your PDF — 4 topics</small></div>
     <div id="sidebarNav"></div>
@@ -267,6 +293,7 @@ body{
   <div id="mainWrap">
     <div id="topbar">
       <div class="tb-controls">
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">☰</button>
         <button class="icon-btn" id="globalSearchBtn">🔍 Search</button>
       </div>
       <div class="tb-controls">
@@ -354,18 +381,31 @@ function renderNav(){
   nav.innerHTML = '';
   NAV.forEach(item=>{
     const btn = el('button','navbtn'+(state.currentView===item.id?' active':''), item.label);
-    btn.onclick = ()=>{ state.currentView = item.id; saveState(); render(); };
+    btn.onclick = ()=>{ state.currentView = item.id; saveState(); render(); closeSidebar(); };
     nav.appendChild(btn);
     if(item.id==='topic'){
       const sub = el('div','navsub');
       DATA.topics.forEach(t=>{
         const b = el('button','navbtn small'+((state.currentView==='topic'&&state.currentTopic===t.id)?' active':''), t.short);
-        b.onclick = ()=>{ state.currentView='topic'; state.currentTopic=t.id; saveState(); render(); };
+        b.onclick = ()=>{ state.currentView='topic'; state.currentTopic=t.id; saveState(); render(); closeSidebar(); };
         sub.appendChild(b);
       });
       nav.appendChild(sub);
     }
   });
+}
+
+function openSidebar(){
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebarOverlay').classList.add('open');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+function toggleSidebar(){
+  const sb = document.getElementById('sidebar');
+  if(sb.classList.contains('open')) closeSidebar(); else openSidebar();
 }
 
 /* ---------- COUNTDOWN ---------- */
@@ -1077,7 +1117,9 @@ function initSettings(){
   };
   document.getElementById('fontDown').onclick = ()=>{ state.fontScale = Math.max(0.8, state.fontScale-0.1); saveState(); applyTheme(); };
   document.getElementById('fontUp').onclick = ()=>{ state.fontScale = Math.min(1.4, state.fontScale+0.1); saveState(); applyTheme(); };
-  document.getElementById('globalSearchBtn').onclick = ()=>{ state.currentView='search'; saveState(); render(); };
+  document.getElementById('globalSearchBtn').onclick = ()=>{ state.currentView='search'; saveState(); render(); closeSidebar(); };
+  document.getElementById('hamburgerBtn').onclick = toggleSidebar;
+  document.getElementById('sidebarOverlay').onclick = closeSidebar;
 }
 
 /* ---------- INIT ---------- */
