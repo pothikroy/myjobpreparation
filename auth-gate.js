@@ -420,13 +420,22 @@
           reqRef.set({
             email: user.email, name: user.displayName || '',
             status: 'pending', requestedAt: firebase.firestore.FieldValue.serverTimestamp()
-          }).then(function(){ showPending(overlay, auth); });
+          }).then(function(){ showPending(overlay, auth); })
+            .catch(function(e){
+              render(overlay, '<h2>সমস্যা হয়েছে</h2><p>রিকোয়েস্ট পাঠানো যায়নি: '+(e&&e.message)+'</p>'+
+                '<button class="ag-ghost" id="ag-signout">Sign out</button>');
+              document.getElementById('ag-signout').onclick = function(){ auth.signOut(); };
+            });
           return;
         }
         var status = snap.data().status;
         if(status === 'approved') grant(user, 'guest');
         else if(status === 'denied') showDenied(overlay, auth);
         else showPending(overlay, auth);
+      }).catch(function(e){
+        render(overlay, '<h2>সমস্যা হয়েছে</h2><p>অ্যাক্সেস চেক করা যায়নি: '+(e&&e.message)+'</p>'+
+          '<button class="ag-ghost" id="ag-signout">Sign out</button>');
+        document.getElementById('ag-signout').onclick = function(){ auth.signOut(); };
       });
     });
   });
