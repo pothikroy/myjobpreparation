@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="../../firebase-config.js?v=11"></script>
+  <script>window.AG_PAGE = {"id": "tfp503-exam-dashboard", "title": "Television Criticism Exam Dashboard", "storage": {"type": "keys", "keys": ["tvDark"]}};</script>
+  <script src="../../auth-gate.js?v=11"></script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TV Criticism Exam Dashboard — Wasko & Bourdieu</title>
+<style>
+:root{
+  --bg:#f6f5f2; --panel:#ffffff; --text:#1c1c1c; --muted:#5b5b5b;
+  --border:#e0ddd6; --accent:#8a3b2e; --accent2:#2e5a8a; --must:#c0392b;
+  --high:#d9822b; --useful:#c9a227; --optional:#4a8a4a; --code:#f0efe9;
+  --wasko:#2e5a8a; --bourdieu:#8a3b2e; --combo:#5a3b8a; --outside:#4a7a4a;
+}
+body.dark{
+  --bg:#171614; --panel:#221f1c; --text:#eee8e0; --muted:#b0a99e;
+  --border:#3a352f; --accent:#e08a72; --accent2:#7fb0e0; --must:#ff6b5e;
+  --high:#f0a860; --useful:#f0d060; --optional:#7fd07f; --code:#2a2620;
+  --wasko:#7fb0e0; --bourdieu:#e08a72; --combo:#c0a0e0; --outside:#8fd08f;
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.55;transition:background .2s,color .2s;}
+h1,h2,h3,h4{font-family:Georgia,'Times New Roman',serif;line-height:1.25;}
+h2{border-bottom:2px solid var(--border);padding-bottom:6px;margin-top:0;}
+a{color:var(--accent2);}
+.wrap{max-width:980px;margin:0 auto;padding:0 16px 80px;}
+header.top{position:sticky;top:0;z-index:50;background:var(--panel);border-bottom:1px solid var(--border);}
+.topbar{display:flex;align-items:center;gap:10px;padding:10px 16px;max-width:980px;margin:0 auto;flex-wrap:wrap;}
+.topbar h1{font-size:1.05rem;margin:0;flex:1;min-width:180px;}
+#searchBox{flex:1;min-width:140px;padding:7px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);}
+button{cursor:pointer;border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:8px;padding:7px 12px;font-size:.85rem;}
+button:hover{border-color:var(--accent2);}
+button.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+#progressWrap{width:100%;background:var(--border);border-radius:6px;height:8px;overflow:hidden;margin-top:6px;}
+#progressBar{height:100%;background:var(--accent);width:0%;transition:width .3s;}
+nav.tabs{display:flex;gap:6px;overflow-x:auto;padding:8px 16px;max-width:980px;margin:0 auto;border-top:1px solid var(--border);}
+nav.tabs a{white-space:nowrap;font-size:.78rem;padding:5px 9px;border-radius:14px;background:var(--code);text-decoration:none;color:var(--text);}
+nav.tabs a:hover{background:var(--accent);color:#fff;}
+section{padding:26px 0;border-bottom:1px dashed var(--border);}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin:12px 0;}
+.tag{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.03em;padding:2px 8px;border-radius:10px;color:#fff;margin-right:6px;}
+.tag.wasko{background:var(--wasko);} .tag.bourdieu{background:var(--bourdieu);}
+.tag.combo{background:var(--combo);} .tag.outside{background:var(--outside);}
+.flag{font-size:.9rem;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:700px){.grid2{grid-template-columns:1fr;}}
+table{border-collapse:collapse;width:100%;font-size:.88rem;}
+th,td{border:1px solid var(--border);padding:8px;text-align:left;vertical-align:top;}
+th{background:var(--code);}
+.bn{color:var(--muted);font-size:.85rem;}
+details{background:var(--panel);border:1px solid var(--border);border-radius:10px;margin:8px 0;padding:8px 12px;}
+summary{cursor:pointer;font-weight:600;}
+.checklist label{display:flex;gap:8px;align-items:flex-start;margin:6px 0;font-size:.92rem;}
+.checklist input{margin-top:4px;}
+.pill{background:var(--code);border-radius:8px;padding:10px;margin:6px 0;font-size:.85rem;}
+blockquote{border-left:4px solid var(--accent);margin:10px 0;padding:6px 14px;background:var(--code);border-radius:0 8px 8px 0;font-style:italic;}
+.small{font-size:.8rem;color:var(--muted);}
+.hidden{display:none !important;}
+.flash-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:24px;min-height:180px;display:flex;flex-direction:column;justify-content:center;text-align:center;cursor:pointer;}
+.flash-controls{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap;}
+.quiz-q{margin-bottom:18px;}
+.quiz-opt{display:block;width:100%;text-align:left;margin:4px 0;padding:8px 10px;}
+.quiz-opt.correct{background:var(--optional);color:#fff;border-color:var(--optional);}
+.quiz-opt.wrong{background:var(--must);color:#fff;border-color:var(--must);}
+.toc-jump{position:fixed;bottom:18px;right:18px;z-index:40;}
+.searchHit{outline:2px solid var(--accent);}
+mark{background:#f0d060;color:#111;padding:0 2px;border-radius:3px;}
+#focusToggleBar.on ~ .wrap section:not(.focused){display:none;}
+@media print{
+  header.top,nav.tabs,button,.toc-jump,#focusBtn,.no-print{display:none !important;}
+  section{page-break-inside:avoid;border:none;}
+  body{background:#fff;color:#000;}
+}
+</style>
+</head>
+<body>
+<div id="ag-overlay"></div>
+
+<header class="top">
+  <div class="topbar">
+    <h1>📺 TV Criticism — Exam Dashboard</h1>
+    <input id="searchBox" type="text" placeholder="Search concepts, quotes, questions…">
+    <button id="darkToggle">🌓</button>
+    <button id="focusBtn">🎯 Focus</button>
+  </div>
+  <div class="topbar" style="padding-top:0;">
+    <div style="flex:1;">
+      <div id="progressWrap"><div id="progressBar"></div></div>
+      <div class="small" id="progressLabel">0% of tracked items checked</div>
+    </div>
+  </div>
+  <nav class="tabs">
+    <a href="#crisis">🚨 Crisis Mode</a>
+    <a href="#mustknow">⭐ Must-Know</a>
+    <a href="#core">🧩 Core Arguments</a>
+    <a href="#citations">📚 Citation Bank</a>
+    <a href="#quotes">❝ Quote Bank</a>
+    <a href="#memorize">🧠 Memorise</a>
+    <a href="#questions">❓ Question Bank</a>
+    <a href="#blueprints">🏗️ Blueprints</a>
+    <a href="#answers">✍️ Model Answers</a>
+    <a href="#formula">📐 Formulas</a>
+    <a href="#maps">🗺️ Concept Maps</a>
+    <a href="#bd">🇧🇩 Bangladesh</a>
+    <a href="#opinion">🗣️ Safe Opinion</a>
+    <a href="#avoid">🚫 Do Not Write</a>
+    <a href="#vocab">🔤 Vocabulary</a>
+    <a href="#quiz">🎮 Quiz</a>
+    <a href="#flash">🃏 Flashcards</a>
+    <a href="#rubric">📋 Rubric</a>
+    <a href="#emergency">🆘 5-Min Emergency</a>
+  </nav>
+</header>
+
+<div class="wrap">
+
+<!-- ============ SOURCE NOTE ============ -->
+<section>
+<div class="card pill">
+<strong>How to read the tags in this dashboard:</strong><br>
+<span class="tag wasko">WASKO</span> = directly from Janet Wasko's Introduction &nbsp;
+<span class="tag bourdieu">BOURDIEU</span> = directly from Bourdieu's <em>On Television</em> &nbsp;
+<span class="tag combo">COMBINED</span> = synthesis connecting both texts &nbsp;
+<span class="tag outside">OUTSIDE/BD CONTEXT</span> = not in the PDF — extra context to use carefully, never presented as the source text.
+<br><br>🔴 MUST MEMORIZE &nbsp; 🟠 HIGH VALUE &nbsp; 🟡 USEFUL &nbsp; 🟢 OPTIONAL
+</div>
+</section>
+
+<!-- ============ 1. CRISIS MODE ============ -->
+<section id="crisis">
+<h2>🚨 Crisis Mode — Last-Minute Revision Plan</h2>
+
+<details open><summary>⏱️ 30-Minute Survival Plan (absolute minimum)</summary>
+<ul>
+<li>Read <strong>only</strong> the 🔴 items in "Must-Know" below.</li>
+<li>Memorise these two one-line definitions: <strong>television as multi-force (Wasko)</strong> and <strong>symbolic violence (Bourdieu)</strong>.</li>
+<li>Memorise 3 citations from the Citation Bank (mark them 🔴).</li>
+<li>Memorise the Universal 10-mark Answer Formula (see "Formulas").</li>
+<li>Skim the 5-Minute Emergency Notes section once.</li>
+</ul>
+</details>
+
+<details><summary>⏱️ 1-Hour Plan</summary>
+<ul>
+<li>Everything in the 30-minute plan, plus:</li>
+<li>Read all of "Core Arguments" for both authors (not just 🔴).</li>
+<li>Memorise 6 citations total.</li>
+<li>Read one full Model Answer (pick a 10-mark combined question) to see the shape of a good answer.</li>
+</ul>
+</details>
+
+<details><summary>⏱️ 2-Hour Plan</summary>
+<ul>
+<li>Everything above, plus:</li>
+<li>Read the full "Memorise These" list and tick off items as you learn them.</li>
+<li>Do the Quiz once (Quick Recall + Concept Matching questions).</li>
+<li>Read the Combined Concept Map to see how Wasko and Bourdieu connect.</li>
+<li>Read "Do Not Write" once so you avoid easy mistakes.</li>
+</ul>
+</details>
+
+<details><summary>⏱️ 5-Hour Plan</summary>
+<ul>
+<li>Everything above, plus:</li>
+<li>Read the Quote Bank fully and pick 4–5 quotes you can reliably reproduce.</li>
+<li>Read 3–4 Answer Blueprints (not full model answers) and practise building your own body points from them.</li>
+<li>Do the full Flashcard deck once, marking "Need Revision" cards.</li>
+<li>Read the Bangladesh Application Bank — pick 2 examples you're comfortable using.</li>
+<li>Write one 10-mark answer from memory (no notes), then compare with a Model Answer.</li>
+</ul>
+</details>
+
+<details><summary>⏱️ Full Remaining-Time Plan (use whatever hours are left)</summary>
+<ol>
+<li><strong>Understand (1.5–2 hrs):</strong> Read Core Arguments + Concept Maps slowly, in your own words.</li>
+<li><strong>Memorise (1.5–2 hrs):</strong> Work through "Memorise These" and the Citation Bank with the checkboxes; revisit the Flashcards until "Need Revision" pile is small.</li>
+<li><strong>Practice recall (1 hr):</strong> Do the Quiz twice; redo it focusing on questions you got wrong.</li>
+<li><strong>Practice writing (1–1.5 hrs):</strong> Write at least one 10-mark and one 20-mark answer using a Blueprint, then check against a Model Answer.</li>
+<li><strong>Final pass (30–45 min):</strong> Re-read the 5-Minute Emergency Notes, the Universal Formulas, and your checked-off Must-Know list.</li>
+<li><strong>Rest:</strong> Stop studying at least 20–30 minutes before the exam if possible — read only the Emergency Notes right before entering.</li>
+</ol>
+</details>
+</section>
+
+<!-- ============ 2. MUST KNOW / SHOULD / GOOD TO KNOW ============ -->
+<section id="mustknow">
+<h2>⭐ High-Yield Topic Ranking</h2>
+
+<h3>🔴 MUST KNOW</h3>
+<div class="grid2">
+<div class="card">
+<span class="tag wasko">WASKO</span><strong>Television is not only a technical device, but also a social, political, economic, and cultural force.</strong>
+<p>The central claim of the whole Introduction. Almost every Wasko-based answer can open with this.</p>
+<p class="small"><strong>Exam Q:</strong> "What is television according to Wasko?" / "Why is television important to study?"<br><strong>Connects to:</strong> Farnsworth's vision, TV as ideological source, TV research approaches.</p>
+</div>
+<div class="card">
+<span class="tag bourdieu">BOURDIEU</span><strong>Symbolic violence</strong>
+<p>Simple English: power that works because both sides — those who impose it and those who accept it — don't fully realise it is happening.<br>
+<span class="bn">বাংলা: এমন এক ধরনের ক্ষমতা যা মানুষ প্রায়ই না বুঝেই মেনে নেয়, কারণ এটি প্রত্যক্ষ শক্তি নয়, বরং ধারণা ও উপলব্ধির মধ্য দিয়ে কাজ করে।</span></p>
+<p class="small"><strong>Exam Q:</strong> "Explain symbolic violence and how television exercises it." <strong>Connects to:</strong> invisible censorship, sensationalism, show-and-hide.</p>
+</div>
+<div class="card">
+<span class="tag bourdieu">BOURDIEU</span><strong>Invisible censorship</strong>
+<p>Censorship on TV isn't mainly direct political control — it works through time limits, competition, and structural pressures that people internalise (self-censorship).</p>
+</div>
+<div class="card">
+<span class="tag bourdieu">BOURDIEU</span><strong>Television "enjoys a de facto monopoly on what goes into the heads of a significant part of the population and what they think."</strong>
+<p>One of the most quotable lines in the whole text — safe to memorise close to word-for-word (it is short).</p>
+</div>
+<div class="card">
+<span class="tag bourdieu">BOURDIEU</span><strong>Journalists' "glasses" (perceptual categories)</strong>
+<p>Journalists see events through invisible categories shaped by training/education, which decide what gets shown and what doesn't.</p>
+</div>
+<div class="card">
+<span class="tag bourdieu">BOURDIEU</span><strong>Circular circulation of information</strong>
+<p>Journalists get their sense of "what's important" mostly from other journalists (reading each other, watching each other), which homogenizes news content even though outlets appear to compete.</p>
+</div>
+<div class="card">
+<span class="tag bourdieu">BOURDIEU</span><strong>Fast-thinkers and "received ideas"</strong>
+<p>TV rewards people who can speak instantly using clichés ("received ideas") because real thought needs time, and time is exactly what television does not give.</p>
+</div>
+<div class="card">
+<span class="tag bourdieu">BOURDIEU</span><strong>The moderator's hidden power in debates</strong>
+<p>The moderator decides the question, the rules, who speaks, and controls pacing — producing an illusion of equal debate while structurally favouring "professional talkers."</p>
+</div>
+<div class="card">
+<span class="tag combo">COMBINED</span><strong>Wasko says TV is a social/cultural/political force with real (mixed) value → Bourdieu shows the hidden mechanisms that make TV's actual practice dangerous to democracy.</strong>
+<p>This single sentence is your best "connect the two authors" sentence for a combined question.</p>
+</div>
+</div>
+
+<h3>🟠 SHOULD KNOW</h3>
+<div class="grid2">
+<div class="card"><span class="tag wasko">WASKO</span> TV's pervasiveness (99% household ownership US/Canada; 4+ hrs/day average viewing) and TV as "storyteller" of society (Signorielli & Bacue).</div>
+<div class="card"><span class="tag wasko">WASKO</span> The positive vs negative debate on TV (Minow's "vast wasteland" vs. TV as catalyst for reading/education).</div>
+<div class="card"><span class="tag bourdieu">BOURDIEU</span> Sensationalism and "dramatization" as the selection principle of TV news.</div>
+<div class="card"><span class="tag bourdieu">BOURDIEU</span> Show and hide — TV can hide by showing something else, or showing insignificantly.</div>
+<div class="card"><span class="tag bourdieu">BOURDIEU</span> The "reality effect" — TV images make people believe in what is shown, and this can mobilise groups (including negative feelings like xenophobia).</div>
+<div class="card"><span class="tag bourdieu">BOURDIEU</span> Audience ratings as the journalist's "Last Judgment" — market logic entering supposedly independent fields.</div>
+<div class="card"><span class="tag bourdieu">BOURDIEU</span> The journalistic field — a semi-autonomous microcosm not reducible only to ownership/economics.</div>
+</div>
+
+<h3>🟡 USEFUL (if time remains)</h3>
+<div class="grid2">
+<div class="card"><span class="tag wasko">WASKO</span> History of TV technology (1920s development, late 1940s/50s mass adoption); Farnsworth's utopian vision.</div>
+<div class="card"><span class="tag bourdieu">BOURDIEU</span> Bogus vs. falsely-genuine debates (Minc/Attali example; the Cavada debate during the November strikes).</div>
+<div class="card"><span class="tag bourdieu">BOURDIEU</span> Backstage selection of guests (Cercle de minuit example).</div>
+</div>
+
+<h3>🟢 GOOD TO KNOW</h3>
+<div class="grid2">
+<div class="card"><span class="tag wasko">WASKO</span> Academic disciplines studying TV (political science, sociology, economics, psychology, literary studies) and research traditions (effects research → cultural/textual studies → institutional/historical studies).</div>
+<div class="card"><span class="tag bourdieu">BOURDIEU</span> Wittgenstein's "language game" analogy for TV debates; the wrestling-match model of "conflict."</div>
+</div>
+</section>
+
+<!-- ============ 3. CORE ARGUMENTS ============ -->
+<section id="core">
+<h2>🧩 Core Arguments (10–15 per author)</h2>
+
+<h3><span class="tag wasko">WASKO</span> — Core Arguments</h3>
+<ol>
+<li><strong>Television is not only a technical device, but also a social, political, economic, and cultural force.</strong><br>Explanation: TV must be understood beyond its hardware — as a system embedded in society. <strong>Use when:</strong> defining television / opening any Wasko answer. <em>(Wasko, Introduction)</em></li>
+<li><strong>Television developed technologically in the 1920s but only became a mass medium in the late 1940s–1950s.</strong> <strong>Use when:</strong> giving historical context.</li>
+<li><strong>Farnsworth's early vision was utopian</strong> — he believed TV would end illiteracy, deliver unmediated news, and even bring world peace. <strong>Use when:</strong> discussing early optimism about media technology, or contrasting hope vs. reality.</li>
+<li><strong>Television is also an industrial/economic system</strong> that produces, distributes, and promotes commodities (US broadcast TV revenue was $54.4 billion in 2001). <strong>Use when:</strong> discussing the economic role of television.</li>
+<li><strong>Television is a "moving target"</strong> — its meaning changes with new technologies (cable, satellite, digital, internet) and across cultures. <strong>Use when:</strong> discussing why TV is hard to define or study.</li>
+<li><strong>Television's pervasiveness makes it central to daily life</strong> — near-universal ownership in the US/Canada, average viewing of 4+ hours/day, presence in schools, hospitals, prisons, and public spaces. <strong>Use when:</strong> arguing TV matters enough to be studied.</li>
+<li><strong>Television is central to how citizens learn news and participate in democracy</strong> (elections, campaigns, live coverage of events). <strong>Use when:</strong> discussing TV's political/democratic role.</li>
+<li><strong>Television functions as society's storyteller</strong>, shaping ideas about identity, gender, morality, winners/losers (Signorielli & Bacue). <strong>Use when:</strong> discussing TV's cultural/socializing role.</li>
+<li><strong>Television is a source of values, ideals, and ethics — an ideological force.</strong> <strong>Use when:</strong> discussing TV and ideology.</li>
+<li><strong>Television has genuine positive potential</strong> — education, cultural exposure, shared family experience, catalyst for reading, companionship. <strong>Use when:</strong> giving the "positive" side of a balanced answer.</li>
+<li><strong>Television has been widely criticised as harmful</strong> — Minow's "vast wasteland" (1961), claims linking TV to passivity, obesity, aggression, and decline of literate culture (Postman). <strong>Use when:</strong> giving the "negative" side.</li>
+<li><strong>Some critics (Jerry Mander) argue television is inherently destructive</strong>, not just badly used — a stronger anti-TV position than Minow's. <strong>Use when:</strong> showing a range of critical positions.</li>
+<li><strong>Television research spans multiple academic disciplines and approaches</strong> — early "media effects" research (e.g., ~4,000 studies on TV and children with no conclusive results), later cultural/textual studies, and institutional/historical studies. <strong>Use when:</strong> discussing how television is studied academically.</li>
+</ol>
+
+<h3><span class="tag bourdieu">BOURDIEU</span> — Core Arguments</h3>
+<ol>
+<li><strong>Bourdieu speaks from an exceptional position</strong> (a Collège de France lecture, no time limit, chosen topic) precisely to show how unusual these conditions are compared to normal television appearances. <strong>Use when:</strong> introducing Bourdieu's method/standpoint.</li>
+<li><strong>People accept television's constraining conditions largely out of a desire to be seen</strong> ("to be is to be perceived") — television becomes a space for narcissistic exhibitionism. <strong>Use when:</strong> discussing why people appear on TV despite its limits.</li>
+<li><strong>Open access to television is offset by invisible censorship</strong>, chiefly through time limits, which make sustained thought almost impossible. <strong>Use when:</strong> explaining "invisible censorship."</li>
+<li><strong>Ownership facts (economic censorship) are real but insufficient explanations</strong> — knowing who owns a channel doesn't reveal the deeper, anonymous mechanisms of censorship. <strong>Use when:</strong> critiquing simplistic "owner controls content" arguments.</li>
+<li><strong>Symbolic violence is violence exercised through complicity</strong> — both the people who impose it and the people who accept it are largely unconscious of it; sociology's job is to reveal it. <strong>Use when:</strong> defining symbolic violence and its function.</li>
+<li><strong>Sensationalism is the "easy example"</strong> of symbolic violence: competition for audience share pushes TV news toward sensational content, sidelining important information. <strong>Use when:</strong> giving a concrete example of symbolic violence.</li>
+<li><strong>Television has a de facto monopoly on what a large part of the population thinks</strong>, since many people rely on it as their only source of news. <strong>Use when:</strong> discussing TV's power over public opinion / democratic consequences.</li>
+<li><strong>Television can "hide by showing"</strong> — by showing something else, showing insignificantly, or constructing a meaning divorced from reality (show and hide). <strong>Use when:</strong> explaining subtler forms of media distortion.</li>
+<li><strong>Journalists see through invisible perceptual "glasses"</strong> shaped by training and background, which determine what gets covered and how (drawing on Champagne's work on inner-city coverage). <strong>Use when:</strong> discussing selection bias in journalism.</li>
+<li><strong>Television produces a "reality effect"</strong> — images make people believe in what is shown, and this showing has the power to mobilise (or demobilise) groups, sometimes provoking racism or xenophobia. <strong>Use when:</strong> discussing television's power over collective belief/action.</li>
+<li><strong>"Television, which claims to record reality, creates it instead."</strong> Media coverage doesn't just reflect events like protests — it can substitute for them or reshape their effect. <strong>Use when:</strong> discussing media and the "social construction of reality."</li>
+<li><strong>The circular circulation of information homogenizes news</strong> — journalists get their sense of importance mainly from each other (competitors), not from the audience, producing near-identical headlines across outlets despite the appearance of competition. <strong>Use when:</strong> discussing why news across channels looks so similar.</li>
+<li><strong>Audience ratings function as the journalist's "Last Judgment,"</strong> imposing a market/sales logic even on supposedly independent journalism, and even on wider cultural production. <strong>Use when:</strong> discussing commercial pressure on content.</li>
+<li><strong>Time pressure produces "fast-thinkers" who trade in "received ideas"</strong> (clichés), because genuine thought — which builds a reasoned argument step by step — needs time that television does not allow. <strong>Use when:</strong> discussing quality of discourse on television.</li>
+<li><strong>Televised debates can be entirely bogus or "falsely genuine,"</strong> and moderators exercise hidden power over who speaks, for how long, and with what legitimacy — producing an illusion of equal, democratic debate. <strong>Use when:</strong> discussing televised political debate and democracy.</li>
+<li><strong>Television has little real autonomy</strong> — it is shaped by relations of competition and collusion among journalists sharing similar backgrounds, and, more broadly, by the journalistic field's own internal logic (not just by ownership/economics). <strong>Use when:</strong> giving a structural/critical conclusion.</li>
+</ol>
+</section>
+
+<!-- ============ 4. CITATION BANK ============ -->
+<section id="citations">
+<h2>📚 Exam Citation Bank</h2>
+<p class="small">Only citation details actually supported by the PDF are given. Where the PDF does not clearly state a year, that is marked. Use the simple format <strong>(Wasko, Introduction)</strong> / <strong>(Bourdieu, "On Television")</strong> unless your course requires a different style — check with your instructor if unsure of exact page numbering, since the PDF's scan pagination may not match the printed book pagination exactly.</p>
+
+<table>
+<tr><th>What I can write (paraphrase)</th><th>Author / Source</th><th>Use for</th><th>🔴 Memorise?</th></tr>
+<tr><td>Television is not only a technical device but also a social, political, economic, and cultural force.</td><td>Wasko, Introduction</td><td>Defining television / its importance</td><td>🔴 yes</td></tr>
+<tr><td>Nearly all US and Canadian households own at least one television, and the average American reportedly watches more than 4 hours of TV per day.</td><td>Wasko, Introduction (citing general viewing-time estimates)</td><td>Showing TV's pervasiveness</td><td>🟠</td></tr>
+<tr><td>Television functions as society's common storyteller, shaping ideas about people, power, gender, and fate.</td><td>Wasko, Introduction, quoting Signorielli & Bacue (1999)</td><td>TV's cultural/socialization role</td><td>🟠</td></tr>
+<tr><td>"When television is good, nothing is better. But when television is bad, nothing is worse... a vast wasteland."</td><td>Newton Minow (1961), quoted in Wasko's Introduction</td><td>The critical/negative view of television</td><td>🔴 short phrase safe to quote</td></tr>
+<tr><td>Television is not a neutral technology; some critics argue it is inherently destructive to human nature.</td><td>Jerry Mander (1977), summarised in Wasko's Introduction</td><td>Radical critique of television</td><td>🟡</td></tr>
+<tr><td>Symbolic violence is violence exercised with the tacit complicity of both those who submit to it and those who wield it, with both remaining largely unconscious of this.</td><td>Bourdieu, On Television</td><td>Defining symbolic violence</td><td>🔴 yes</td></tr>
+<tr><td>Television enjoys a de facto monopoly on what goes into the heads of a significant part of the population and what they think.</td><td>Bourdieu, On Television</td><td>TV's power over public opinion</td><td>🔴 yes (near word-for-word, short)</td></tr>
+<tr><td>Television, which claims to record reality, in fact creates it.</td><td>Bourdieu, On Television</td><td>Media and the construction of reality</td><td>🔴 yes</td></tr>
+<tr><td>Images have a "reality effect": they make people believe in what is shown, and this power to show is also a power to mobilise groups.</td><td>Bourdieu, On Television</td><td>Media power / mobilisation, risk of xenophobia</td><td>🟠</td></tr>
+<tr><td>Journalists see the world through invisible perceptual categories, described metaphorically as "glasses."</td><td>Bourdieu, On Television (drawing on Patrick Champagne's research)</td><td>Selection bias in journalism</td><td>🟠</td></tr>
+<tr><td>Competition among journalists does not produce diversity but rather homogenizes news content, because journalists are subject to the same pressures and read each other's work.</td><td>Bourdieu, On Television</td><td>Explaining why news across channels looks similar</td><td>🟠</td></tr>
+<tr><td>Audience ratings function as a kind of "Last Judgment" governing journalists' conduct.</td><td>Bourdieu, On Television</td><td>Commercial pressure on journalism</td><td>🟡</td></tr>
+<tr><td>Television rewards "fast-thinkers" who communicate in "received ideas," because genuine thought requires time that television does not provide.</td><td>Bourdieu, On Television (referencing Flaubert's notion of "received ideas")</td><td>Quality of discourse / intellectual life on TV</td><td>🟠</td></tr>
+<tr><td>A moderator in a televised debate exercises hidden power — deciding the topic, the rules, and who gets to speak — creating an illusion of equal debate.</td><td>Bourdieu, On Television</td><td>Critique of televised political debate</td><td>🟠</td></tr>
+<tr><td>Journalism should be understood as a semi-autonomous "field" with its own internal logic, not simply explained by ownership or economics alone.</td><td>Bourdieu, On Television</td><td>Structural/critical conclusion; avoiding crude economic determinism</td><td>🟡</td></tr>
+</table>
+<p class="small"><strong>Year note:</strong> exact original publication years for "On Television" and Wasko's volume are not clearly stated within the extracted PDF pages themselves — say "year not clearly provided in the excerpt" if asked, rather than guessing.</p>
+</section>
+
+<!-- ============ 5. FACT VS ANALYSIS VS OUTSIDE ============ -->
+<section id="factcheck">
+<h2>🔍 Source Fact vs Source-Based Analysis vs Outside Context</h2>
+<div class="grid2">
+<div class="card"><span class="tag wasko">SOURCE FACT</span><br>"Television is not only a technical device, but also a social, political, economic, and cultural force." — directly stated by Wasko.</div>
+<div class="card"><span class="tag combo">SOURCE-BASED ANALYSIS</span><br>Because Wasko frames TV as multi-dimensional and Bourdieu shows how TV's actual operation can undermine democratic communication, together they suggest TV's <em>potential</em> (Wasko) is not automatically realised in <em>practice</em> (Bourdieu). — this is a reasonable inference built from both texts, not a direct quotation from either.</div>
+<div class="card"><span class="tag outside">OUTSIDE/BANGLADESH CONTEXT</span><br>Any claim about a specific Bangladeshi channel, ratings system, or media law is NOT in the PDF and must always be labelled as outside context if used.</div>
+</div>
+</section>
+
+<!-- ============ 6. QUOTE BANK ============ -->
+<section id="quotes">
+<h2>❝ Quote Bank</h2>
+<p class="small">Kept short and exam-safe. Practice reproducing these exactly, or paraphrase if you are unsure of the precise wording.</p>
+
+<h3><span class="tag wasko">WASKO</span> Quotes</h3>
+<blockquote>"Television? The word is half Greek, half Latin. No good can come of it." — C. P. Scott (quoted by Wasko)<br>
+<span class="small">Meaning: an old, witty complaint about TV's very name/hybrid origins, used to open discussion of long-standing suspicion of television.<br>Use for: an engaging opening line about how TV has always attracted scepticism.</span></blockquote>
+<blockquote>"...television is not only a technical device, but also a social, political, economic, and cultural force."<br>
+<span class="small">Use for: defining television in almost any answer.</span></blockquote>
+<blockquote>"When television is good, nothing is better. But when television is bad, nothing is worse." — Newton Minow, 1961<br>
+<span class="small">Use for: the critical/"vast wasteland" view of television.</span></blockquote>
+<blockquote>Television's role in society is "one of common storyteller." — Signorielli & Bacue (1999), quoted by Wasko<br>
+<span class="small">Use for: TV's role in shaping social norms/identity.</span></blockquote>
+<blockquote>"...television is an enigmatic 'moving target,' its future uncertain and contested."<br>
+<span class="small">Use for: acknowledging that TV's meaning keeps changing.</span></blockquote>
+
+<h3><span class="tag bourdieu">BOURDIEU</span> Quotes</h3>
+<blockquote>"...to be is to be perceived on television..." (echoing Berkeley)<br>
+<span class="small">Use for: explaining why people accept TV's constraints — the desire for visibility.</span></blockquote>
+<blockquote>"Symbolic violence is violence wielded with tacit complicity between its victims and its agents, insofar as both remain unconscious of submitting to or wielding it."<br>
+<span class="small">Use for: defining symbolic violence precisely.</span></blockquote>
+<blockquote>"Television enjoys a de facto monopoly on what goes into the heads of a significant part of the population and what they think."<br>
+<span class="small">Use for: TV's power over public opinion — arguably the single most useful sentence to memorise.</span></blockquote>
+<blockquote>"...television, which claims to record reality, creates it instead."<br>
+<span class="small">Use for: media and the construction of reality.</span></blockquote>
+<blockquote>"The political dangers inherent in the ordinary use of television have to do with the fact that images have the peculiar capacity to produce ... a reality effect."<br>
+<span class="small">Use for: discussing the power and danger of televised images.</span></blockquote>
+<blockquote>"...journalistic products are much more alike than is generally thought."<br>
+<span class="small">Use for: explaining media homogenization / circular circulation of information.</span></blockquote>
+<blockquote>"...ratings have become the journalist's Last Judgment."<br>
+<span class="small">Use for: commercial pressure and audience ratings.</span></blockquote>
+<blockquote>"...if television rewards a certain number of fast-thinkers who offer cultural 'fast food'..."<br>
+<span class="small">Use for: critiquing the intellectual quality of TV discourse.</span></blockquote>
+<blockquote>"...one must take into account the specificities of television..." — on the impossibility of refusing to appear categorically<br>
+<span class="small">Use for: nuance — Bourdieu is not simply anti-television.</span></blockquote>
+</section>
+
+<!-- ============ 7. MEMORISE THESE ============ -->
+<section id="memorize">
+<h2>🧠 Memorise These (≈35 items) <span class="small" id="memProgress"></span></h2>
+<div class="checklist" id="memChecklist">
+
+<h3>10 things from Wasko</h3>
+<label><input type="checkbox" data-mem> Television is a technical, social, political, economic, and cultural force — not just hardware.</label>
+<label><input type="checkbox" data-mem> TV technology developed in the 1920s but mass adoption came in the late 1940s–1950s.</label>
+<label><input type="checkbox" data-mem> Farnsworth believed TV would end illiteracy and even bring world peace.</label>
+<label><input type="checkbox" data-mem> US broadcast TV revenue was $54.4 billion in 2001 — TV is a real economic industry.</label>
+<label><input type="checkbox" data-mem> TV is a "moving target" whose meaning changes with new technology and across cultures.</label>
+<label><input type="checkbox" data-mem> Nearly all US/Canadian households own a TV; average viewing is over 4 hours/day.</label>
+<label><input type="checkbox" data-mem> TV is central to how people get news and participate in democracy/elections.</label>
+<label><input type="checkbox" data-mem> TV functions as society's storyteller (Signorielli & Bacue).</label>
+<label><input type="checkbox" data-mem> Minow called bad television a "vast wasteland" (1961); Postman linked TV to decline of literate culture.</label>
+<label><input type="checkbox" data-mem> TV research spans effects research, textual/cultural studies, and institutional/historical studies.</label>
+
+<h3>15 things from Bourdieu</h3>
+<label><input type="checkbox" data-mem> Bourdieu spoke under exceptional conditions (no time limit, own topic) to expose how unusual that is for TV.</label>
+<label><input type="checkbox" data-mem> People accept TV's constraints partly from a desire "to be perceived."</label>
+<label><input type="checkbox" data-mem> Invisible censorship works mainly through time limits, not direct political control.</label>
+<label><input type="checkbox" data-mem> Ownership (economic censorship) is real but an insufficient explanation on its own.</label>
+<label><input type="checkbox" data-mem> Symbolic violence works through unconscious complicity between agents and victims.</label>
+<label><input type="checkbox" data-mem> Sensational news is the "easy example" of symbolic violence.</label>
+<label><input type="checkbox" data-mem> TV has a de facto monopoly on what a large part of the population thinks.</label>
+<label><input type="checkbox" data-mem> TV can "hide by showing" — showing something else, or showing insignificantly.</label>
+<label><input type="checkbox" data-mem> Journalists see through invisible perceptual "glasses" shaped by training.</label>
+<label><input type="checkbox" data-mem> TV images produce a "reality effect" that can mobilise groups, even provoking racism/xenophobia.</label>
+<label><input type="checkbox" data-mem> "Television, which claims to record reality, creates it instead."</label>
+<label><input type="checkbox" data-mem> The circular circulation of information: journalists copy each other, which homogenizes news despite apparent competition.</label>
+<label><input type="checkbox" data-mem> Audience ratings act as journalism's "Last Judgment," imposing a market logic.</label>
+<label><input type="checkbox" data-mem> Time pressure produces "fast-thinkers" who use "received ideas" (clichés) instead of real thought.</label>
+<label><input type="checkbox" data-mem> Moderators in televised debates hold hidden power (topic, rules, turn-taking) that undermines real equality of debate.</label>
+
+<h3>5 connecting ideas</h3>
+<label><input type="checkbox" data-mem> Wasko frames TV's potential (social/cultural force, can inform and educate); Bourdieu exposes how that potential is often subverted in practice.</label>
+<label><input type="checkbox" data-mem> Both authors treat TV as more than a neutral technology — it has real social and political consequences.</label>
+<label><input type="checkbox" data-mem> Wasko's "ideological force" idea and Bourdieu's "symbolic violence" both describe TV shaping belief/values, at different levels of detail.</label>
+<label><input type="checkbox" data-mem> Wasko's account of TV research approaches (institutional/structural studies) matches Bourdieu's structural, field-based method.</label>
+<label><input type="checkbox" data-mem> A strong combined answer argues that TV's democratic promise (informing citizens, Wasko) is undercut by structural pressures Bourdieu identifies (ratings, competition, fast-thinking).</label>
+
+<h3>5 Bangladesh/application ideas (see Bangladesh section for detail — outside the PDF)</h3>
+<label><input type="checkbox" data-mem> [Outside] Bangladeshi TV news competing for viewers can illustrate Bourdieu's sensationalism/ratings arguments.</label>
+<label><input type="checkbox" data-mem> [Outside] Bangladeshi talk shows with strict moderator control can illustrate Bourdieu's critique of televised debate.</label>
+<label><input type="checkbox" data-mem> [Outside] TV's role in Bangladeshi elections/political communication can illustrate Wasko's democratic-role argument.</label>
+<label><input type="checkbox" data-mem> [Outside] Advertising pressure on private Bangladeshi channels can illustrate Wasko's economic-force argument and Bourdieu's market-pressure argument together.</label>
+<label><input type="checkbox" data-mem> [Outside] Social media increasingly competing with TV in Bangladesh can be used to discuss whether Bourdieu's arguments about TV apply equally to newer media.</label>
+</div>
+</section>
+
+<!-- ============ 8. QUESTION BANK ============ -->
+<section id="questions">
+<h2>❓ Exam Question Bank</h2>
+
+<h3>A. Wasko-Only Questions</h3>
+<ul>
+<li>What is television, according to Wasko? Discuss with examples.</li>
+<li>Why does Wasko argue that television is important to study?</li>
+<li>Critically discuss the positive and negative roles of television in society, according to Wasko.</li>
+<li>Explain the different academic approaches used to study television.</li>
+<li>"Television is not only a technical device, but a social, political, economic and cultural force." Explain this statement.</li>
+</ul>
+
+<h3>B. Bourdieu-Only Questions</h3>
+<ul>
+<li>Explain Bourdieu's concept of symbolic violence with reference to television.</li>
+<li>What does Bourdieu mean by "invisible censorship"? Discuss.</li>
+<li>How does Bourdieu explain the phenomenon of sensational news on television?</li>
+<li>Discuss Bourdieu's concept of "show and hide" in relation to television.</li>
+<li>What are journalistic "glasses"? How do they shape news content?</li>
+<li>Explain the "circular circulation of information" and its effect on journalism.</li>
+<li>How do audience ratings shape television content, according to Bourdieu?</li>
+<li>What does Bourdieu mean by "fast-thinkers"? Why does television favour them?</li>
+<li>Critically evaluate Bourdieu's analysis of televised debates and the role of the moderator.</li>
+<li>Explain the concept of the "journalistic field" and why Bourdieu rejects purely economic explanations of television content.</li>
+</ul>
+
+<h3>C. Combined Questions (Wasko + Bourdieu)</h3>
+<ul>
+<li>How can television be understood as both a social force (Wasko) and an instrument of symbolic power (Bourdieu)?</li>
+<li>Discuss the role of television in society using the perspectives of Wasko and Bourdieu.</li>
+<li>How do the social functions of television identified by Wasko relate to Bourdieu's critique of television?</li>
+<li>Is television a source of information or a mechanism for shaping reality? Discuss with reference to both readings.</li>
+<li>Discuss television's democratic potential and its limitations, drawing on Wasko and Bourdieu.</li>
+<li>How do economic and institutional pressures influence television content? Answer using both readings.</li>
+<li>Critically assess whether television, as described by Wasko, can live up to its positive potential given the mechanisms Bourdieu describes.</li>
+</ul>
+
+<h3>D. Bangladesh / Application Questions</h3>
+<p class="small">These ask you to apply theory to Bangladesh. Keep the theory (from the PDF) clearly separate from the applied example (outside context).</p>
+<ul>
+<li>Using Bourdieu's concept of symbolic violence, discuss an example from Bangladeshi television news. <span class="tag outside">app. is outside context</span></li>
+<li>To what extent does competition between Bangladeshi television channels illustrate Bourdieu's account of the "circular circulation of information"?</li>
+<li>Discuss the role of television in Bangladeshi elections using Wasko's idea of television as a democratic force.</li>
+<li>How might Bourdieu's critique of televised debates apply to talk shows on Bangladeshi television?</li>
+</ul>
+</section>
+
+<!-- ============ 9. BLUEPRINTS ============ -->
+<section id="blueprints">
+<h2>🏗️ Answer Blueprints</h2>
+
+<details open><summary>Blueprint 1 — "Explain symbolic violence and how television exercises it." (10 or 20 marks)</summary>
+<p><strong>What the examiner wants:</strong> a clear definition, evidence you understand how it works in practice, and (for 20 marks) critical/analytical depth.</p>
+<p><strong>Thesis:</strong> Television exercises symbolic violence by shaping public perception through subtle, largely unconscious mechanisms rather than direct force.</p>
+<p><strong>Introduction (3–5 sentences):</strong> Define television briefly (Wasko's multi-force idea can open it), then narrow to Bourdieu's specific concept of symbolic violence.</p>
+<p><strong>Body:</strong></p>
+<ol>
+<li>Define symbolic violence precisely, citing Bourdieu.</li>
+<li>Explain sensationalism as the "easy example" — competition for audience share pushes sensational content to the front.</li>
+<li>Explain journalists' "glasses" — invisible perceptual categories that decide what gets shown.</li>
+<li>Explain the de facto monopoly TV holds over what a large part of the population thinks.</li>
+<li>(For 20 marks) Add "show and hide" and the reality effect as further mechanisms.</li>
+</ol>
+<p><strong>Critical/analytical part:</strong> Note that Bourdieu insists this is not the fault of individual journalists but a structural effect — most journalists are themselves manipulated as much as they manipulate.</p>
+<p><strong>Conclusion:</strong> Restate that symbolic violence works precisely because it is invisible, and link back to sociology's stated role: to reveal what is hidden.</p>
+<p><strong>Citation opportunities:</strong> after the definition sentence; after the sensationalism example; after the "de facto monopoly" line.</p>
+</details>
+
+<details><summary>Blueprint 2 — "Discuss television's democratic potential and its limitations." (Combined, 20 marks)</summary>
+<p><strong>What the examiner wants:</strong> balance both readings — potential (Wasko) and structural limits (Bourdieu) — plus your own analytical synthesis.</p>
+<p><strong>Thesis:</strong> Television has real democratic potential as identified by Wasko, but Bourdieu's analysis shows structural mechanisms that limit this potential in practice.</p>
+<p><strong>Body:</strong></p>
+<ol>
+<li>Wasko: TV is central to how citizens learn news and participate in elections/democracy.</li>
+<li>Wasko: TV's positive potential — education, informed citizenship, cultural exposure.</li>
+<li>Bourdieu: invisible censorship and time limits restrict what can actually be said on TV.</li>
+<li>Bourdieu: TV's de facto monopoly on public thinking, plus sensationalism, distorts the informational function Wasko describes.</li>
+<li>Bourdieu: televised debates look democratic but the moderator's hidden power undermines genuine equal participation.</li>
+</ol>
+<p><strong>Critical part:</strong> Argue that the two views are not contradictory but complementary — Wasko describes what TV could and sometimes does achieve; Bourdieu explains the structural reasons it frequently falls short.</p>
+<p><strong>Conclusion:</strong> Television's democratic value depends on addressing the structural pressures (ratings, time, competition) Bourdieu identifies.</p>
+</details>
+
+<details><summary>Blueprint 3 — "How do economic and institutional pressures influence television content?" (Combined)</summary>
+<ol>
+<li>Wasko: TV is an industrial/economic system (broadcast revenue figures, advertising dependence).</li>
+<li>Bourdieu: economic censorship via ownership (NBC/GE, CBS/Westinghouse, ABC/Disney, TF1/Bouygues) — but this alone is insufficient.</li>
+<li>Bourdieu: the deeper mechanism is audience ratings acting as a market "Last Judgment," pressuring content toward what attracts attention.</li>
+<li>Bourdieu: competition homogenizes rather than diversifies content (circular circulation of information).</li>
+<li>Bourdieu: the "journalistic field" has its own semi-autonomous logic, so content cannot be explained by ownership/economics alone.</li>
+</ol>
+<p><strong>Critical part:</strong> Bourdieu explicitly criticises "half-baked" economic determinism (crude Marxism) — a good critical/analytical point to include for higher marks.</p>
+</details>
+</section>
+
+<!-- ============ 10. MODEL ANSWERS ============ -->
+<section id="answers">
+<h2>✍️ Full Model Answers</h2>
+
+<h3>10-Mark Model Answer — "Explain Bourdieu's concept of symbolic violence."</h3>
+<div class="card">
+<p>Symbolic violence is a key concept in Bourdieu's analysis of television. According to Bourdieu, symbolic violence is <em>"violence wielded with tacit complicity between its victims and its agents, insofar as both remain unconscious of submitting to or wielding it"</em> (Bourdieu, On Television). This means that symbolic violence does not work through physical force. Instead, it works through hidden mechanisms that both the people who use it and the people who experience it fail to notice.</p>
+<p>Bourdieu explains this idea using the example of sensational news. He says that sensational news — stories about "blood, sex, melodrama and crime" — has always attracted audiences. Because television networks compete for audience share, they are pushed toward sensational stories, even though this means less time is given to serious information that citizens need. This shows how competition, not any single person's decision, produces symbolic violence.</p>
+<p>Bourdieu also argues that television has a "de facto monopoly on what goes into the heads of a significant part of the population and what they think" (Bourdieu, On Television). Many people rely only on television for news, so the choices television makes about what to show have a very strong effect on public understanding.</p>
+<p>Another mechanism is what Bourdieu calls journalists' "glasses." Journalists see events through invisible perceptual categories shaped by their training and background. According to Bourdieu, this means journalists select certain aspects of a story and ignore others, without necessarily realising they are doing so.</p>
+<p>In conclusion, Bourdieu's concept of symbolic violence shows that television's power over public opinion works quietly, through competition, ratings, and unconscious selection, rather than through open political control. This is why Bourdieu argues that revealing these hidden mechanisms — the job of sociology — is important for protecting democratic communication.</p>
+</div>
+
+<h3>20-Mark Model Answer — "How can television be understood as both a social force (Wasko) and an instrument of symbolic power (Bourdieu)? Discuss."</h3>
+<div class="card">
+<p><strong>Introduction:</strong> Television is one of the most influential media in modern society. Janet Wasko, in her Introduction, argues that television should be understood as more than a technical device — it is also a social, political, economic, and cultural force. Pierre Bourdieu, in <em>On Television</em>, examines how television actually functions in practice, arguing that it exercises a form of "symbolic violence" over its audiences and over journalism itself. This answer will first explain Wasko's view of television as a broad social force, then explain Bourdieu's critique, and finally show how the two perspectives connect.</p>
+<p><strong>Wasko's view:</strong> According to Wasko, television is "not only a technical device, but also a social, political, economic, and cultural force." She points out that television is extremely pervasive — nearly all households in the US and Canada own at least one television, and the average American watches more than four hours of television per day. Television is also central to how people learn about news and public events, and it plays an important role in elections and democratic participation. In addition, television functions as society's storyteller (Signorielli & Bacue), shaping ideas about identity, morality, and social roles. Wasko also notes television's economic significance, citing broadcast revenue figures, and acknowledges both positive views of television (education, cultural exposure, family bonding) and negative views (Minow's "vast wasteland," concerns about passivity and violence).</p>
+<p><strong>Bourdieu's view:</strong> Bourdieu focuses more narrowly on the actual mechanisms through which television operates, especially in journalism. He argues that television exercises symbolic violence — a form of power that works through the unconscious complicity of both those who impose it and those who accept it. He identifies several mechanisms: invisible censorship through time limits; economic censorship through ownership, which is real but insufficient as a full explanation; sensationalism, driven by competition for audience share; journalists' "glasses," or invisible perceptual categories that shape what is selected as news; and the "reality effect," whereby television images make audiences believe in what is shown, sometimes mobilising negative feelings such as xenophobia. Bourdieu also explains the "circular circulation of information," in which journalists take their cues mainly from other journalists, producing homogenized news despite the appearance of competition. Furthermore, audience ratings function as journalism's "Last Judgment," pushing content toward what attracts attention rather than what is socially important. Bourdieu also criticises televised debates, arguing that moderators hold hidden power over the topic, the rules, and who gets to speak, which undermines the appearance of equal democratic debate.</p>
+<p><strong>Critical/analytical discussion:</strong> Wasko and Bourdieu are not contradictory; rather, they operate at different levels of analysis. Wasko describes what television is and what it could achieve as a social institution, while Bourdieu explains, in more structural and sociological detail, why television's actual practice frequently falls short of this potential. For example, Wasko notes television's role in informing citizens and supporting democracy, while Bourdieu shows how time pressure, ratings, and invisible censorship can undermine exactly this informational function. Similarly, Wasko's idea of television as an "ideological force" that transmits values connects closely with Bourdieu's more detailed account of symbolic violence, since both describe television shaping belief without direct force.</p>
+<p><strong>Conclusion:</strong> In conclusion, Wasko's Introduction establishes television as a multi-dimensional social force with genuine potential for education, information, and democratic participation. Bourdieu's <em>On Television</em> complicates this picture by revealing the structural and often invisible mechanisms — symbolic violence, invisible censorship, ratings pressure, and manipulated debate — that can prevent television from realising this potential. Together, the two readings suggest that understanding television requires recognising both its broad social significance and the hidden structural forces that shape its actual content.</p>
+</div>
+</section>
+
+<!-- ============ 11. 10 vs 20 MARK MODE ============ -->
+<section id="marks-mode">
+<h2>📏 10-Mark vs 20-Mark Answer Mode</h2>
+<div class="grid2">
+<div class="card">
+<h3>10 Marks</h3>
+<ul>
+<li>1 short introduction (2–3 sentences)</li>
+<li>2–3 main points, each with a citation</li>
+<li>Minimal critical commentary (1 sentence is enough)</li>
+<li>1 short conclusion (1–2 sentences)</li>
+<li>No need to cover both authors unless the question demands it</li>
+</ul>
+</div>
+<div class="card">
+<h3>20 Marks</h3>
+<ul>
+<li>Fuller introduction (3–5 sentences) that states your thesis</li>
+<li>4–6 main points across both readings if relevant</li>
+<li>A dedicated critical/analytical paragraph</li>
+<li>Explicit connection between Wasko and Bourdieu if the question allows it</li>
+<li>Optional short Bangladesh application (clearly labelled) if relevant</li>
+<li>Fuller conclusion (3–5 sentences) restating the thesis and synthesis</li>
+</ul>
+</div>
+</div>
+<p class="small"><strong>Answer skeleton to memorise:</strong> Intro (thesis) → Point 1 + evidence + citation → Point 2 + evidence + citation → Point 3 + evidence + citation → (20 marks: Point 4–5, critical paragraph, Bangladesh if relevant) → Conclusion.</p>
+</section>
+
+<!-- ============ 12. FORMULAS ============ -->
+<section id="formula">
+<h2>📐 Universal Answer Formulas</h2>
+<div class="grid2">
+<div class="card"><strong>10-Mark Formula</strong><br>Define → Author's Argument → One Example/Evidence → Citation → Short Conclusion</div>
+<div class="card"><strong>20-Mark Formula</strong><br>Define → Explain (Author 1) → Explain (Author 2, if relevant) → Evidence/Examples for each → Analysis (how they connect or where they differ) → Critical Point → Conclusion</div>
+<div class="card"><strong>Combined-Question Formula</strong><br>Intro naming both authors → Wasko's relevant argument(s) → Bourdieu's relevant argument(s) → Explicit sentence connecting them ("While Wasko shows X, Bourdieu reveals Y") → Critical evaluation → Conclusion</div>
+<div class="card"><strong>Bangladesh-Context Formula</strong><br>State the theory/concept from the PDF first → clearly flag "[BANGLADESH CONTEXT — OUTSIDE THE PDF]" → give the applied example → explain what concept it illustrates and how → return to the theory in your conclusion</div>
+</div>
+</section>
+
+<!-- ============ 13. CONCEPT MAPS ============ -->
+<section id="maps">
+<h2>🗺️ Concept Maps</h2>
+
+<div class="card">
+<h3><span class="tag wasko">WASKO</span> Concept Map</h3>
+<p>Television → <strong>Technology</strong> (1920s development, mass adoption 1940s–50s) → <strong>Mass communication</strong> → <strong>Social force</strong> (storyteller, socialization) → <strong>Political role</strong> (elections, democracy) → <strong>Economic role</strong> (industry, revenue, advertising) → <strong>Cultural role</strong> (shared experience, arts/education) → <strong>Ideological force</strong> (values, ethics) → <strong>Positive/negative effects debate</strong> → <strong>Research approaches</strong> (effects, textual/cultural, institutional/historical).</p>
+</div>
+
+<div class="card">
+<h3><span class="tag bourdieu">BOURDIEU</span> Concept Map</h3>
+<p>Television → <strong>Journalistic field</strong> (semi-autonomous microcosm) → <strong>Competition</strong> (for ratings/scoops) → <strong>Ratings</strong> ("Last Judgment") → <strong>Time pressure</strong> → <strong>Fast-thinkers / received ideas</strong> → <strong>Selection ("glasses")</strong> → <strong>Sensationalism</strong> → <strong>Invisible/economic censorship</strong> → <strong>Symbolic violence</strong> → <strong>Show and hide / reality effect</strong> → <strong>Circular circulation of information</strong> → <strong>Debates & moderators</strong> → <strong>Structural effects on democracy</strong>.</p>
+</div>
+
+<div class="card">
+<h3><span class="tag combo">COMBINED</span> Map — How to Connect the Two Authors</h3>
+<p>If the question combines both readings, use this bridge: <strong>Wasko establishes WHAT television is and its broad social potential → Bourdieu explains HOW television actually operates in practice, and WHY its potential is often undermined by structural pressures</strong> (ratings, competition, time, invisible censorship). A good combined answer moves from Wasko's "big picture" definition to Bourdieu's structural mechanisms, and back to a critical judgment about television's real democratic value.</p>
+</div>
+</section>
+
+<!-- ============ 14. BANGLADESH ============ -->
+<section id="bd">
+<h2>🇧🇩 Bangladesh Application Bank <span class="tag outside">OUTSIDE THE PDF</span></h2>
+<p class="small">Use sparingly. Each example below is an <strong>illustrative application</strong>, not a verified statistic — present it as your own reasoning applying the theory, not as a fact from the readings.</p>
+
+<div class="card"><strong>Television news competition and sensationalism</strong> — Bourdieu's argument that competition for audience share pushes sensational stories to the front can be applied to competitive private television news channels anywhere, including Bangladesh, where breaking-news coverage and dramatic visuals often dominate bulletins. <br><strong>What I can write:</strong> "This dynamic, which Bourdieu describes in the French context, is also visible in television markets such as Bangladesh's, where competitive news channels often prioritise dramatic or breaking content."</div>
+
+<div class="card"><strong>Talk shows and moderator control</strong> — Bourdieu's critique of moderators controlling debate topics, turn-taking, and legitimacy can be applied to televised political talk shows generally, including in Bangladesh, where moderators similarly shape which views get airtime and for how long.</div>
+
+<div class="card"><strong>Television and elections</strong> — Wasko's point that television is central to democratic participation and election coverage applies to Bangladesh, where television remains an important channel for political communication and campaign coverage, alongside newer digital platforms.</div>
+
+<div class="card"><strong>Advertising and market pressure</strong> — Wasko's economic-force argument and Bourdieu's ratings-driven market pressure can both be illustrated by the reliance of commercial television channels on advertising revenue, which shapes programming choices toward content that attracts larger audiences.</div>
+
+<div class="card"><strong>Social media vs. television competition</strong> — a useful analytical question to raise (not a fact to assert) is whether Bourdieu's arguments about competition and fast-thinking apply even more strongly to social media, which places television under additional competitive pressure in markets like Bangladesh.</div>
+</section>
+
+<!-- ============ 15. SAFE OPINION ============ -->
+<section id="opinion">
+<h2>🗣️ How to Give Your Own Opinion Without Leaving the Text</h2>
+<div class="pill">
+<ul>
+<li>"From Bourdieu's perspective, this suggests that..."</li>
+<li>"This argument can be understood as..."</li>
+<li>"However, Wasko also recognizes that television can..."</li>
+<li>"Therefore, television should not be understood only as..."</li>
+<li>"The evidence presented in the text suggests that..."</li>
+<li>"Building on Bourdieu's analysis, it could be argued that..."</li>
+<li>"While Wasko emphasizes X, a more critical reading (following Bourdieu) would highlight Y."</li>
+</ul>
+</div>
+</section>
+
+<!-- ============ 16. DO NOT WRITE ============ -->
+<section id="avoid">
+<h2>🚫 Do Not Write</h2>
+<div class="card">
+<ul>
+<li>Unsupported opinions with no link back to the readings.</li>
+<li>Invented facts, fake citations, or made-up page numbers/years.</li>
+<li>Overgeneralizations ("television is always bad/good").</li>
+<li>Confusing Bourdieu's arguments with Wasko's, or vice versa — always name the author.</li>
+<li>Presenting Bangladesh examples as if they came from the PDF itself.</li>
+<li>Excessive quotations — paraphrase most of the time, quote only the most memorable short lines.</li>
+<li>Unnecessarily difficult English that risks grammar mistakes.</li>
+<li>Repeating the same argument in different words to fill space.</li>
+</ul>
+</div>
+</section>
+
+<!-- ============ 17. VOCABULARY ============ -->
+<section id="vocab">
+<h2>🔤 Vocabulary Survival List</h2>
+<table>
+<tr><th>Word</th><th>Simple English</th><th>বাংলা</th><th>Exam sentence</th></tr>
+<tr><td>Symbolic violence</td><td>Power that works through meaning/perception, not physical force</td><td class="bn">প্রতীকী সহিংসতা — উপলব্ধির মাধ্যমে চর্চিত ক্ষমতা</td><td>"Television exercises symbolic violence over its audience."</td></tr>
+<tr><td>Invisible censorship</td><td>Censorship that isn't obvious, often self-imposed</td><td class="bn">অদৃশ্য সেন্সরশিপ</td><td>"Time limits act as a form of invisible censorship."</td></tr>
+<tr><td>Sensationalism</td><td>Making news dramatic/shocking to attract attention</td><td class="bn">চাঞ্চল্যকরতা</td><td>"Sensationalism drives news selection on competitive channels."</td></tr>
+<tr><td>Dramatization</td><td>Presenting an event as more dramatic/important than it is</td><td class="bn">নাটকীয়করণ</td><td>"Television calls for dramatization of ordinary events."</td></tr>
+<tr><td>Reality effect</td><td>The power of images to make people believe what is shown is true/important</td><td class="bn">বাস্তবতার প্রভাব</td><td>"Images on television produce a strong reality effect."</td></tr>
+<tr><td>Circular circulation (of information)</td><td>Journalists copying/reacting to each other rather than to audiences</td><td class="bn">তথ্যের বৃত্তাকার প্রবাহ</td><td>"The circular circulation of information homogenizes the news."</td></tr>
+<tr><td>Homogenize</td><td>Make things become more similar</td><td class="bn">একরূপ করা</td><td>"Competition can homogenize rather than diversify content."</td></tr>
+<tr><td>Fast-thinker</td><td>A guest who can speak instantly using clichés</td><td class="bn">দ্রুত-চিন্তক</td><td>"Television favours fast-thinkers over careful thinkers."</td></tr>
+<tr><td>Received idea</td><td>A cliché — a common idea already accepted by everyone</td><td class="bn">প্রচলিত/গৃহীত ধারণা</td><td>"Fast-thinkers rely on received ideas rather than original thought."</td></tr>
+<tr><td>Journalistic field</td><td>Journalism as its own semi-independent system with its own rules</td><td class="bn">সাংবাদিকতার ক্ষেত্র</td><td>"Bourdieu explains television using the concept of the journalistic field."</td></tr>
+<tr><td>De facto monopoly</td><td>A monopoly in practice, even without being official</td><td class="bn">বাস্তবিক একচেটিয়া অধিকার</td><td>"Television holds a de facto monopoly on public opinion for some viewers."</td></tr>
+<tr><td>Structural (cause/effect)</td><td>Caused by the system itself, not by one person's choice</td><td class="bn">কাঠামোগত</td><td>"This is a structural problem, not the fault of one journalist."</td></tr>
+<tr><td>Autonomy</td><td>Independence, freedom from outside control</td><td class="bn">স্বায়ত্তশাসন</td><td>"Bourdieu argues television has very little autonomy."</td></tr>
+<tr><td>Ideology / ideological</td><td>A system of ideas/values that shapes how people see the world</td><td class="bn">মতাদর্শ</td><td>"Wasko describes television as an ideological force."</td></tr>
+<tr><td>Pervasiveness</td><td>Being present almost everywhere</td><td class="bn">সর্বব্যাপিতা</td><td>"The pervasiveness of television makes it worth studying."</td></tr>
+<tr><td>Commodify / commodity</td><td>To turn something into a product to be sold</td><td class="bn">পণ্যে পরিণত করা</td><td>"Television promotes commodities through advertising."</td></tr>
+<tr><td>Mediation</td><td>The process of something being shown/passed through media</td><td class="bn">মধ্যস্থতা</td><td>"News reaches viewers only through the mediation of journalists."</td></tr>
+<tr><td>Democratic practice</td><td>How democracy actually works day to day</td><td class="bn">গণতান্ত্রিক চর্চা</td><td>"Unequal debate on television poses a problem for democratic practice."</td></tr>
+<tr><td>Legitimation</td><td>Making something seem acceptable/legitimate</td><td class="bn">বৈধতা প্রদান</td><td>"Market success is now treated as a form of legitimation."</td></tr>
+<tr><td>Instrumentalization</td><td>Using something/someone merely as a tool</td><td class="bn">যন্ত্রে পরিণতকরণ</td><td>"Bourdieu warns against the instrumentalization of guests on television."</td></tr>
+<tr><td>Exhibitionism</td><td>Excessive desire to be seen/shown off</td><td class="bn">প্রদর্শনবাদ</td><td>"Television can become a space for narcissistic exhibitionism."</td></tr>
+<tr><td>Complicity</td><td>Being involved in something, often without full awareness</td><td class="bn">সহযোগিতা/জড়িত থাকা</td><td>"Symbolic violence depends on the complicity of both sides."</td></tr>
+<tr><td>Mobilise / mobilization</td><td>To bring people together to act</td><td class="bn">সংঘবদ্ধ করা</td><td>"Television images can mobilise groups around an issue."</td></tr>
+<tr><td>Xenophobia</td><td>Fear or hatred of foreigners</td><td class="bn">বিদেশি-ভীতি</td><td>"Reality effects on television can sometimes provoke xenophobia."</td></tr>
+<tr><td>Cliché</td><td>An overused, unoriginal idea or phrase</td><td class="bn">গতানুগতিক ধারণা</td><td>"Received ideas are essentially clichés repeated on air."</td></tr>
+<tr><td>Microcosm</td><td>A small system that reflects the patterns of a larger one</td><td class="bn">ক্ষুদ্র জগৎ</td><td>"Bourdieu describes journalism as a microcosm with its own laws."</td></tr>
+<tr><td>Vast wasteland</td><td>Minow's phrase describing television at its worst — empty/valueless</td><td class="bn">বিশাল শূন্য প্রান্তর (রূপক)</td><td>"Minow's 'vast wasteland' remark represents the strongest criticism of television."</td></tr>
+<tr><td>Catalyst</td><td>Something that triggers or speeds up a process</td><td class="bn">উদ্দীপক</td><td>"Some argue television can act as a catalyst for reading."</td></tr>
+<tr><td>Puppets (of a structure)</td><td>People controlled by forces/structures they don't fully see</td><td class="bn">পুতুল (কাঠামোর দ্বারা নিয়ন্ত্রিত)</td><td>"Bourdieu suggests social actors on television are, in a sense, puppets of a structure."</td></tr>
+<tr><td>Inegalitarian</td><td>Not equal / treating people differently on purpose</td><td class="bn">অসমতাপূর্ণ</td><td>"Bourdieu argues a moderator would need to be inegalitarian to create real equality of speech."</td></tr>
+</table>
+</section>
+
+<!-- ============ 18. TOOLKIT ============ -->
+<section id="toolkit">
+<h2>🧰 English Exam Toolkit</h2>
+<div class="grid2">
+<div class="pill"><strong>Introducing an argument:</strong> First, / According to Wasko, / Bourdieu argues that...</div>
+<div class="pill"><strong>Adding an argument:</strong> Moreover, / In addition, / Furthermore,</div>
+<div class="pill"><strong>Giving evidence:</strong> For example, / This is shown by the fact that... / As evidence of this,</div>
+<div class="pill"><strong>Contrasting:</strong> However, / On the other hand, / While Wasko argues X, Bourdieu shows Y.</div>
+<div class="pill"><strong>Cause/effect:</strong> As a result, / This leads to... / Because of this,</div>
+<div class="pill"><strong>Analysis:</strong> This shows that... / This suggests that... / In this sense,</div>
+<div class="pill"><strong>Applying to Bangladesh:</strong> A similar pattern can be seen in... [BANGLADESH CONTEXT — OUTSIDE THE PDF]</div>
+<div class="pill"><strong>Critical view:</strong> However, it is important to note that... / A limitation of this argument is...</div>
+<div class="pill"><strong>Concluding:</strong> In conclusion, / Therefore, / Overall, these arguments show that...</div>
+</div>
+</section>
+
+<!-- ============ 19. QUIZ ============ -->
+<section id="quiz">
+<h2>🎮 Active Recall Quiz</h2>
+<div id="quizArea"></div>
+<button class="primary" id="restartQuiz">Restart Quiz</button>
+<p id="quizScore" class="small"></p>
+</section>
+
+<!-- ============ 20. FLASHCARDS ============ -->
+<section id="flash">
+<h2>🃏 Flashcards</h2>
+<div class="flash-card" id="flashCard">Click to start</div>
+<div class="flash-controls">
+<button id="fcPrev">◀ Prev</button>
+<button id="fcFlip">🔄 Flip</button>
+<button id="fcNext">Next ▶</button>
+<button id="fcShuffle">🔀 Shuffle</button>
+<button id="fcKnow">✅ I know this</button>
+<button id="fcRevise">🔁 Need revision</button>
+</div>
+<p class="small" id="fcCounter"></p>
+</section>
+
+<!-- ============ 21. RUBRIC ============ -->
+<section id="rubric">
+<h2>📋 Self-Assessment Rubric <span class="small">(study-oriented — not an official marking scheme)</span></h2>
+<table>
+<tr><th>Criterion</th><th>What to check</th></tr>
+<tr><td>Understanding of the question</td><td>Did I actually answer what was asked, not a related question I prepared?</td></tr>
+<tr><td>Accurate use of Wasko/Bourdieu</td><td>Did I attribute each argument to the correct author?</td></tr>
+<tr><td>Correct concepts</td><td>Did I define key concepts (symbolic violence, invisible censorship, etc.) correctly?</td></tr>
+<tr><td>Evidence from text</td><td>Did I use specific examples from the readings (sensationalism, ownership facts, moderator behaviour, etc.)?</td></tr>
+<tr><td>In-text citations</td><td>Did I cite (Wasko, ...) / (Bourdieu, ...) appropriately, without inventing details?</td></tr>
+<tr><td>Analysis</td><td>Did I go beyond describing — did I explain why it matters or how the ideas connect?</td></tr>
+<tr><td>Bangladesh/application (if relevant)</td><td>Is it clearly labelled as outside the PDF, and not overused?</td></tr>
+<tr><td>Structure</td><td>Clear intro, organized body points, conclusion?</td></tr>
+<tr><td>Language</td><td>Simple, grammatically safe English?</td></tr>
+<tr><td>Conclusion</td><td>Does it restate the thesis and tie the answer together?</td></tr>
+</table>
+</section>
+
+<!-- ============ 22. PROGRESS TRACKER ============ -->
+<section id="progress-tracker">
+<h2>📈 Progress Tracker</h2>
+<div class="checklist">
+<label><input type="checkbox" data-track="wasko"> Wasko completed</label>
+<label><input type="checkbox" data-track="bourdieu"> Bourdieu completed</label>
+<label><input type="checkbox" data-track="core"> Core concepts memorised</label>
+<label><input type="checkbox" data-track="citations"> Citation bank memorised</label>
+<label><input type="checkbox" data-track="models"> Model answers practiced</label>
+<label><input type="checkbox" data-track="bd"> Bangladesh applications reviewed</label>
+<label><input type="checkbox" data-track="mock"> At least one mock answer written</label>
+</div>
+</section>
+
+<!-- ============ 23. EMERGENCY NOTES ============ -->
+<section id="emergency">
+<h2>🆘 5-Minute Revision Before Entering the Exam Hall</h2>
+<div class="card">
+<strong>10 concepts:</strong> multi-force TV (Wasko), symbolic violence, invisible censorship, sensationalism, journalists' "glasses", reality effect, circular circulation of information, audience ratings/"Last Judgment", fast-thinkers/received ideas, moderator's hidden power.
+<br><br><strong>10 arguments:</strong> TV = social+political+economic+cultural force · TV is pervasive & central to daily life · TV can inform democracy but also distort it · TV's economic system drives content choices · symbolic violence works through unconscious complicity · TV has de facto monopoly on some viewers' thinking · TV "creates" reality rather than just recording it · competition homogenizes news · ratings push market logic onto content · debates on TV often only look equal.
+<br><br><strong>5 citations:</strong> "not only a technical device... social, political, economic, and cultural force" (Wasko) · Minow's "vast wasteland" (1961) · "de facto monopoly on what goes into the heads..." (Bourdieu) · "television...creates it instead" (Bourdieu) · "ratings have become the journalist's Last Judgment" (Bourdieu).
+<br><br><strong>5 useful phrases:</strong> "According to Wasko..." · "Bourdieu argues that..." · "This shows that..." · "However, it is important to note that..." · "In conclusion, these arguments show that..."
+<br><br><strong>2 universal structures:</strong> 10-mark: Define → Argument → Evidence+Citation → Conclusion. 20-mark: Define → Wasko → Bourdieu → Connect → Critical point → Conclusion.
+</div>
+</section>
+
+<!-- ============ 24. FINAL STRATEGY ============ -->
+<section id="strategy">
+<h2>🗓️ Final 10-Hour Study Strategy</h2>
+<table>
+<tr><th>Time block</th><th>Activity</th></tr>
+<tr><td>Hour 1–2</td><td>Read Core Arguments + Concept Maps for both authors; understand before memorising.</td></tr>
+<tr><td>Hour 3</td><td>Work through "Memorise These" checklist + Citation Bank; check off items as they stick.</td></tr>
+<tr><td>Hour 4</td><td>Quote Bank + Vocabulary list; do the Quiz once.</td></tr>
+<tr><td>Hour 5 (break)</td><td>Short rest / snack — do not skip breaks entirely.</td></tr>
+<tr><td>Hour 6</td><td>Flashcards until the "Need Revision" pile shrinks; redo Quiz focusing on missed items.</td></tr>
+<tr><td>Hour 7</td><td>Read 2–3 Answer Blueprints; write one 10-mark answer from memory.</td></tr>
+<tr><td>Hour 8</td><td>Write one 20-mark answer from memory; compare both to the Model Answers.</td></tr>
+<tr><td>Hour 9</td><td>Bangladesh Application Bank + Safe Opinion phrases; review Do-Not-Write list.</td></tr>
+<tr><td>Hour 10</td><td>Final pass: Emergency Notes, Formulas, and re-check the Must-Know list. Rest before the exam if time allows.</td></tr>
+</table>
+</section>
+
+</div><!-- /wrap -->
+
+<script>
+// ---------- Dark mode ----------
+const darkToggle=document.getElementById('darkToggle');
+darkToggle.addEventListener('click',()=>{document.body.classList.toggle('dark');localStorage.setItem('tvDark',document.body.classList.contains('dark'));});
+if(localStorage.getItem('tvDark')==='true')document.body.classList.add('dark');
+
+// ---------- Focus mode ----------
+const focusBtn=document.getElementById('focusBtn');
+let focusOn=false;
+focusBtn.addEventListener('click',()=>{
+  focusOn=!focusOn;
+  document.querySelectorAll('.wrap > section').forEach(s=>{
+    if(focusOn){ if(!isInViewport(s)) s.classList.add('hidden'); }
+    else s.classList.remove('hidden');
+  });
+  focusBtn.textContent=focusOn?'🎯 Exit Focus':'🎯 Focus';
+});
+function isInViewport(el){const r=el.getBoundingClientRect();return r.top<window.innerHeight && r.bottom>0;}
+
+// ---------- Search ----------
+const searchBox=document.getElementById('searchBox');
+searchBox.addEventListener('input',()=>{
+  const term=searchBox.value.trim().toLowerCase();
+  document.querySelectorAll('mark').forEach(m=>{m.outerHTML=m.innerHTML;});
+  if(term.length<3)return;
+  const walker=document.createTreeWalker(document.querySelector('.wrap'),NodeFilter.SHOW_TEXT,null);
+  let node; const matches=[];
+  while(node=walker.nextNode()){
+    if(node.parentNode.tagName==='SCRIPT'||node.parentNode.tagName==='STYLE')continue;
+    const idx=node.textContent.toLowerCase().indexOf(term);
+    if(idx>-1)matches.push(node);
+  }
+  matches.forEach(node=>{
+    const span=document.createElement('span');
+    const regex=new RegExp('('+term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig');
+    span.innerHTML=node.textContent.replace(regex,'<mark>$1</mark>');
+    node.parentNode.replaceChild(span,node);
+  });
+  if(matches.length){
+    const parentDetails=matches[0].parentElement.closest('details');
+    if(parentDetails)parentDetails.open=true;
+    matches[0].parentElement.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+});
+
+// ---------- Progress: checkboxes (memorise + tracker) persisted ----------
+const allCheckboxes=document.querySelectorAll('input[type=checkbox][data-mem], input[type=checkbox][data-track]');
+allCheckboxes.forEach((cb,i)=>{
+  const key='tvchk_'+i+'_'+(cb.dataset.mem!==undefined?'mem':cb.dataset.track);
+  cb.dataset.key=key;
+  if(localStorage.getItem(key)==='1')cb.checked=true;
+  cb.addEventListener('change',()=>{
+    localStorage.setItem(key,cb.checked?'1':'0');
+    updateProgress();
+  });
+});
+function updateProgress(){
+  const total=allCheckboxes.length;
+  const checked=[...allCheckboxes].filter(c=>c.checked).length;
+  const pct=total?Math.round(checked/total*100):0;
+  document.getElementById('progressBar').style.width=pct+'%';
+  document.getElementById('progressLabel').textContent=pct+'% of tracked items checked ('+checked+'/'+total+')';
+  const memBoxes=[...document.querySelectorAll('input[data-mem]')];
+  const memChecked=memBoxes.filter(c=>c.checked).length;
+  const mp=document.getElementById('memProgress');
+  if(mp)mp.textContent='— '+memChecked+'/'+memBoxes.length+' memorised';
+}
+updateProgress();
+
+// ---------- Quiz ----------
+const quizData=[
+  {q:"What is symbolic violence, according to Bourdieu?",opts:["Physical force used by television stations","Violence exercised through unconscious complicity between agents and victims","A law restricting TV content","Advertising revenue pressure"],a:1,exp:"Bourdieu defines symbolic violence as violence wielded with tacit complicity, where both sides remain largely unconscious of it."},
+  {q:"Who argues that television is 'not only a technical device, but also a social, political, economic, and cultural force'?",opts:["Bourdieu","Wasko","Minow","Mander"],a:1,exp:"This is Wasko's central claim in her Introduction."},
+  {q:"What did Newton Minow famously call bad television?",opts:["A cultural fast food","A vast wasteland","A journalistic field","A reality effect"],a:1,exp:"Minow's 1961 remark, quoted by Wasko, calls bad television a 'vast wasteland.'"},
+  {q:"According to Bourdieu, what mainly drives 'invisible censorship' on television?",opts:["Government laws","Time limits and structural pressures","Viewer complaints","Actor unions"],a:1,exp:"Bourdieu argues time limits, above all, make sustained thought on TV very difficult, producing invisible censorship."},
+  {q:"What are journalists' 'glasses', in Bourdieu's terms?",opts:["Literal eyewear worn on camera","Invisible perceptual categories shaping what journalists notice and report","A type of camera lens","A rating system"],a:1,exp:"The 'glasses' metaphor describes invisible structures of perception shaped by journalists' training and background."},
+  {q:"What does Bourdieu mean by the 'circular circulation of information'?",opts:["Information travelling in a physical circle via satellite","Journalists getting their sense of what matters mainly from other journalists, homogenizing news","A method of encrypting news","A cycle of censorship laws"],a:1,exp:"Journalists read/watch each other, producing similar 'products' despite apparent competition."},
+  {q:"What effect does Bourdieu say audience ratings have on journalism?",opts:["They have no effect","They act as a market 'Last Judgment' shaping content choices","They only affect advertising, not content","They strengthen editorial independence"],a:1,exp:"Ratings impose a market/sales logic, becoming what Bourdieu calls journalism's 'Last Judgment.'"},
+  {q:"What are 'fast-thinkers', according to Bourdieu?",opts:["Journalists who type quickly","Guests who speak instantly using clichés/'received ideas' because TV gives no time for real thought","Scientists studying media speed","People who watch TV quickly"],a:1,exp:"Fast-thinkers rely on 'received ideas' — TV rewards them because genuine thought needs time TV doesn't provide."},
+  {q:"In Bourdieu's account of televised debates, what hidden power does the moderator hold?",opts:["None — moderators are neutral referees","Deciding the topic, rules, and who speaks, creating only an illusion of equal debate","Only technical/audio control","Choosing the studio's furniture"],a:1,exp:"The moderator's control over the question, turn-taking, and legitimacy undermines the appearance of equal debate."},
+  {q:"Which concept does Bourdieu use to argue television content cannot be explained by ownership/economics alone?",opts:["The 'journalistic field'","The 'vast wasteland'","'Symbolic violence'","'Reality effect'"],a:0,exp:"Bourdieu introduces the 'journalistic field' as a semi-autonomous system with its own internal logic."},
+  {q:"According to Wasko, roughly how many hours per day does the average American reportedly watch television?",opts:["1 hour","2 hours","More than 4 hours","10 hours"],a:2,exp:"Wasko cites estimates of more than 4 hours per day (about 28 hours per week)."},
+  {q:"Which author uses the phrase 'de facto monopoly on what goes into the heads of a significant part of the population'?",opts:["Wasko","Bourdieu","Minow","Farnsworth"],a:1,exp:"This is one of Bourdieu's key quotable lines about television's power over public opinion."},
+  {q:"What does Bourdieu mean by television 'hiding by showing'?",opts:["Turning off the broadcast signal","Showing something else, or showing something insignificantly, instead of what should be shown","Using subtitles to hide meaning","Broadcasting at odd hours"],a:1,exp:"This is Bourdieu's 'show and hide' idea — a subtler form of distortion than outright censorship."},
+  {q:"According to Wasko, television technology was mostly developed in which decade, even though mass adoption came later?",opts:["1900s","1920s","1960s","1980s"],a:1,exp:"Wasko notes much of television's core technology was developed in the 1920s, well before mass adoption."},
+  {q:"Which critic argued television is inherently destructive to human nature, not just badly used?",opts:["Newton Minow","Jerry Mander","John Silver","Patrick Champagne"],a:1,exp:"Jerry Mander (1977), discussed in Wasko's Introduction, took this stronger anti-television position."}
+];
+let qIndex=0, qScore=0, qAnswered=false;
+const quizArea=document.getElementById('quizArea');
+const quizScoreEl=document.getElementById('quizScore');
+function renderQuiz(){
+  if(qIndex>=quizData.length){
+    quizArea.innerHTML='<div class="card"><strong>Quiz complete!</strong></div>';
+    quizScoreEl.textContent='Final score: '+qScore+' / '+quizData.length;
+    return;
+  }
+  qAnswered=false;
+  const item=quizData[qIndex];
+  let html='<div class="quiz-q card"><p><strong>Q'+(qIndex+1)+' of '+quizData.length+':</strong> '+item.q+'</p>';
+  item.opts.forEach((opt,i)=>{
+    html+='<button class="quiz-opt" data-i="'+i+'">'+opt+'</button>';
+  });
+  html+='<p class="small" id="quizExp" style="display:none;"></p></div>';
+  quizArea.innerHTML=html;
+  quizArea.querySelectorAll('.quiz-opt').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      if(qAnswered)return;
+      qAnswered=true;
+      const chosen=parseInt(btn.dataset.i);
+      const opts=quizArea.querySelectorAll('.quiz-opt');
+      opts.forEach((b,i)=>{
+        if(i===item.a)b.classList.add('correct');
+        else if(i===chosen)b.classList.add('wrong');
+      });
+      if(chosen===item.a)qScore++;
+      const exp=document.getElementById('quizExp');
+      exp.style.display='block';
+      exp.textContent='Explanation: '+item.exp;
+      setTimeout(()=>{qIndex++;renderQuiz();},1600);
+    });
+  });
+  quizScoreEl.textContent='Score so far: '+qScore+' / '+qIndex;
+}
+document.getElementById('restartQuiz').addEventListener('click',()=>{qIndex=0;qScore=0;renderQuiz();});
+renderQuiz();
+
+// ---------- Flashcards ----------
+const flashData=[
+  {front:"Symbolic violence",back:"Simple: power that works through unconscious complicity of both sides.\nবাংলা: প্রতীকী সহিংসতা — সচেতন না হয়েও মেনে নেওয়া ক্ষমতা।\nBourdieu's argument: TV exercises this through sensationalism, selection, and ratings pressure.\nExample: sensational news displacing serious information.\nRelated: invisible censorship, journalists' glasses."},
+  {front:"Invisible censorship",back:"Simple: censorship that works through time limits and structural pressure, not open political control.\nবাংলা: অদৃশ্য সেন্সরশিপ।\nBourdieu's argument: time limits make sustained thought on TV almost impossible.\nExample: guests self-censoring due to time/job pressure.\nRelated: symbolic violence, economic censorship."},
+  {front:"Journalists' 'glasses'",back:"Simple: invisible perceptual categories that shape what journalists notice and report.\nবাংলা: সাংবাদিকদের 'অদৃশ্য চশমা' — উপলব্ধির কাঠামো।\nBourdieu's argument, via Champagne's research: selection of news is shaped by training/background.\nExample: coverage of the 'inner city.'\nRelated: sensationalism, circular circulation of information."},
+  {front:"Reality effect",back:"Simple: TV images make people believe in what's shown; this power to show is a power to mobilise.\nবাংলা: বাস্তবতার প্রভাব।\nBourdieu's argument: this can incite strong feelings, even racism/xenophobia.\nExample: coverage that mobilises or demobilises groups.\nRelated: 'television creates reality instead of recording it.'"},
+  {front:"Circular circulation of information",back:"Simple: journalists get their sense of importance mainly from other journalists.\nবাংলা: তথ্যের বৃত্তাকার প্রবাহ।\nBourdieu's argument: this homogenizes news despite apparent competition.\nExample: near-identical newsmagazine headlines.\nRelated: competition, homogenization."},
+  {front:"Audience ratings",back:"Simple: measured viewership that pressures content toward market success.\nবাংলা: দর্শক রেটিং।\nBourdieu's argument: ratings act as journalism's 'Last Judgment.'\nExample: a one-point ratings drop treated as 'instant death.'\nRelated: fast-thinkers, market pressure."},
+  {front:"Fast-thinkers / received ideas",back:"Simple: guests who speak instantly using clichés because real thought needs time TV doesn't give.\nবাংলা: দ্রুত-চিন্তক / প্রচলিত ধারণা।\nBourdieu's argument: TV offers cultural 'fast food.'\nExample: 'good guests' invited repeatedly because they're smooth and safe.\nRelated: time pressure, journalistic field."},
+  {front:"Moderator's hidden power",back:"Simple: moderators decide topic, rules, and turn-taking, creating an illusion of equal debate.\nবাংলা: সঞ্চালকের গোপন ক্ষমতা।\nBourdieu's argument: this undermines real democratic equality in debate.\nExample: the Cavada debate — union delegate got only 5 minutes in a 2-hour programme.\nRelated: 'debates truly false or falsely true.'"},
+  {front:"Journalistic field",back:"Simple: journalism as a semi-independent system with its own internal rules.\nবাংলা: সাংবাদিকতার ক্ষেত্র।\nBourdieu's argument: content can't be explained by ownership/economics alone.\nExample: critique of 'half-baked' economic determinism regarding TF1/Bouygues.\nRelated: autonomy, structural pressures."},
+  {front:"Television as multi-force (Wasko)",back:"Simple: TV is not just a device — it's social, political, economic, and cultural.\nবাংলা: টেলিভিশন কেবল যন্ত্র নয়, এটি একাধিক শক্তি।\nWasko's argument: this is the central claim of the Introduction.\nExample: TV's role in news, elections, entertainment, and the economy.\nRelated: ideological force, storyteller role."},
+  {front:"TV as society's storyteller",back:"Simple: TV shapes ideas about identity, morality, and social roles.\nবাংলা: সমাজের 'গল্প-বলিয়ে' হিসেবে টেলিভিশন।\nWasko's argument, citing Signorielli & Bacue: TV is the mainstream of popular culture.\nExample: TV shows tell us 'who wins and who loses.'\nRelated: TV as ideological force."},
+  {front:"Minow's 'vast wasteland'",back:"Simple: a 1961 remark calling bad television empty/valueless.\nবাংলা: 'বিশাল শূন্য প্রান্তর' রূপক।\nWasko's argument: represents the strongest classic criticism of television.\nExample: contrasted with TV's potential to be excellent.\nRelated: Postman's critique of literate culture decline."},
+  {front:"Jerry Mander's critique",back:"Simple: TV is not neutral — it is inherently destructive.\nবাংলা: জেরি ম্যান্ডারের সমালোচনা।\nWasko's summary: a stronger anti-TV stance than Minow's.\nExample: argued in 1977, TV harms human nature by its very existence.\nRelated: negative views of television."},
+  {front:"TV research approaches",back:"Simple: TV is studied via effects research, textual/cultural studies, and institutional/historical studies.\nবাংলা: টেলিভিশন গবেষণার পদ্ধতি।\nWasko's argument: no single approach is sufficient; the field has evolved over decades.\nExample: ~4,000 studies on TV and children with no conclusive results.\nRelated: multi-disciplinary nature of media studies."},
+  {front:"Show and hide",back:"Simple: TV can hide something by showing something else, or by showing it insignificantly.\nবাংলা: দেখানো ও লুকানো।\nBourdieu's argument: a subtler distortion mechanism than outright censorship.\nExample: banal news filling airtime that could inform citizens.\nRelated: symbolic violence, sensationalism."}
+];
+let fcIndex=0, fcFlipped=false, fcStatus={};
+const flashCardEl=document.getElementById('flashCard');
+const fcCounter=document.getElementById('fcCounter');
+function renderFlash(){
+  const item=flashData[fcIndex];
+  flashCardEl.innerHTML=fcFlipped? item.back.replace(/\n/g,'<br>') : '<strong style="font-size:1.2rem;">'+item.front+'</strong><br><span class="small">(click to flip)</span>';
+  const status=fcStatus[fcIndex]?(' — '+fcStatus[fcIndex]):'';
+  fcCounter.textContent='Card '+(fcIndex+1)+' / '+flashData.length+status;
+}
+flashCardEl.addEventListener('click',()=>{fcFlipped=!fcFlipped;renderFlash();});
+document.getElementById('fcNext').addEventListener('click',()=>{fcIndex=(fcIndex+1)%flashData.length;fcFlipped=false;renderFlash();});
+document.getElementById('fcPrev').addEventListener('click',()=>{fcIndex=(fcIndex-1+flashData.length)%flashData.length;fcFlipped=false;renderFlash();});
+document.getElementById('fcFlip').addEventListener('click',()=>{fcFlipped=!fcFlipped;renderFlash();});
+document.getElementById('fcShuffle').addEventListener('click',()=>{
+  for(let i=flashData.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[flashData[i],flashData[j]]=[flashData[j],flashData[i]];}
+  fcIndex=0;fcFlipped=false;renderFlash();
+});
+document.getElementById('fcKnow').addEventListener('click',()=>{fcStatus[fcIndex]='✅ known';renderFlash();});
+document.getElementById('fcRevise').addEventListener('click',()=>{fcStatus[fcIndex]='🔁 needs revision';renderFlash();});
+renderFlash();
+</script>
+</body>
+</html>

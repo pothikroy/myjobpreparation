@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="../../firebase-config.js?v=11"></script>
+  <script>window.AG_PAGE = {"id": "tfp503-study-console", "title": "Television Criticism Study Console", "storage": {"type": "keys", "keys": ["tvchecks", "tvknow", "tvtheme"]}};</script>
+  <script src="../../auth-gate.js?v=11"></script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Television Criticism — Exam Study Console</title>
+<style>
+:root{
+  --paper:#EDE9DE;
+  --paper-2:#E2DCC9;
+  --ink:#20241F;
+  --ink-soft:#4A4F45;
+  --line:#C9C0A5;
+  --signal:#B5432B;      /* CRT-red accent, urgency */
+  --signal-2:#2E5C4E;    /* broadcast-green accent, structure */
+  --amber:#C98A2C;
+  --card:#F6F3E9;
+  --card-b:#FFFFFF;
+  --shadow: 2px 2px 0 rgba(32,36,31,0.08);
+  --radius:3px;
+  --mono: "Courier New", ui-monospace, Consolas, monospace;
+  --serif: Georgia, "Times New Roman", serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+[data-theme="dark"]{
+  --paper:#171916;
+  --paper-2:#1F221D;
+  --ink:#E7E3D3;
+  --ink-soft:#B4AF9D;
+  --line:#3A3D33;
+  --card:#1D201B;
+  --card-b:#22251F;
+  --shadow: 2px 2px 0 rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  line-height:1.5;
+  font-size:16px;
+  transition:background .2s, color .2s;
+}
+::selection{background:var(--amber); color:#1a1a1a;}
+h1,h2,h3,h4{font-family:var(--serif); font-weight:700; margin:0 0 .4em; color:var(--ink);}
+h1{font-size:1.5rem;}
+h2{font-size:1.35rem; border-bottom:2px solid var(--line); padding-bottom:.35em; margin-bottom:.6em;}
+h3{font-size:1.08rem; color:var(--signal-2);}
+p{margin:.5em 0;}
+a{color:var(--signal-2);}
+.mono{font-family:var(--mono);}
+button{
+  font-family:var(--sans);
+  cursor:pointer;
+  border:1px solid var(--ink);
+  background:var(--card-b);
+  color:var(--ink);
+  padding:.45em .8em;
+  border-radius:var(--radius);
+  font-size:.85rem;
+  box-shadow:var(--shadow);
+}
+button:hover{background:var(--signal-2); color:#fff; border-color:var(--signal-2);}
+button.primary{background:var(--signal); color:#fff; border-color:var(--signal);}
+button.ghost{box-shadow:none;}
+input[type=text], input[type=search]{
+  font-family:var(--sans);
+  padding:.5em .7em;
+  border:1px solid var(--ink);
+  border-radius:var(--radius);
+  background:var(--card-b);
+  color:var(--ink);
+  font-size:.9rem;
+}
+/* ===== HEADER ===== */
+header{
+  position:sticky; top:0; z-index:50;
+  background:var(--paper); border-bottom:2px solid var(--ink);
+}
+.hbar{
+  display:flex; align-items:center; gap:.7em; padding:.55em .9em;
+  flex-wrap:wrap;
+}
+.brand{font-family:var(--serif); font-weight:700; font-size:1.05rem; white-space:nowrap;}
+.brand small{display:block; font-family:var(--sans); font-weight:400; font-size:.62rem; letter-spacing:.03em; color:var(--ink-soft);}
+#searchBox{flex:1; min-width:120px;}
+#searchResults{
+  position:absolute; left:0; right:0; top:100%; background:var(--card-b);
+  border:1px solid var(--ink); max-height:60vh; overflow:auto; display:none; z-index:60;
+}
+#searchResults div{padding:.5em .8em; border-bottom:1px solid var(--line); font-size:.85rem; cursor:pointer;}
+#searchResults div:hover{background:var(--paper-2);}
+#searchWrap{position:relative; flex:1; min-width:140px;}
+.progressWrap{display:flex; align-items:center; gap:.4em; font-size:.75rem; color:var(--ink-soft);}
+.progressBar{width:80px; height:8px; background:var(--paper-2); border:1px solid var(--ink); border-radius:6px; overflow:hidden;}
+.progressBar > div{height:100%; background:var(--signal-2);}
+nav#tabs{
+  display:flex; gap:.2em; overflow-x:auto; padding:0 .9em .5em; scrollbar-width:thin;
+}
+nav#tabs button{
+  white-space:nowrap; font-size:.78rem; border:1px solid var(--line); background:transparent;
+  box-shadow:none; padding:.4em .7em;
+}
+nav#tabs button.active{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+
+/* ===== LAYOUT ===== */
+main{max-width:920px; margin:0 auto; padding:1em .9em 4em;}
+.section{display:none;}
+.section.active{display:block; animation:fade .25s ease;}
+@keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+.card{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+  padding:.9em 1em; margin:.7em 0; box-shadow:var(--shadow);
+}
+.tag{
+  display:inline-block; font-size:.68rem; font-weight:700; padding:.15em .5em;
+  border-radius:999px; margin-right:.3em; letter-spacing:.02em;
+}
+.tag.must{background:#F0D8CE; color:#7A2A14;}
+[data-theme=dark] .tag.must{background:#4A2418; color:#F0C4B4;}
+.tag.should{background:#F3E2C0; color:#7A5410;}
+[data-theme=dark] .tag.should{background:#4A3818; color:#F0D9A6;}
+.tag.good{background:#D9E6DA; color:#2A5A30;}
+[data-theme=dark] .tag.good{background:#20351F; color:#B6D9B8;}
+.tag.wasko{background:#D6E3EE; color:#1E4566;}
+[data-theme=dark] .tag.wasko{background:#182B3A; color:#AECBE0;}
+.tag.bourdieu{background:#E7DAEF; color:#4A2166;}
+[data-theme=dark] .tag.bourdieu{background:#2C1B3A; color:#D3B6E8;}
+.tag.combo{background:#EFE6C8; color:#5A4813;}
+[data-theme=dark] .tag.combo{background:#3A3018; color:#E0CF9C;}
+.tag.outside{background:#E5E5E5; color:#333;}
+[data-theme=dark] .tag.outside{background:#2A2A2A; color:#ccc;}
+.bn{color:var(--ink-soft); font-size:.85em; display:block; margin-top:.2em;}
+.qbox{border-left:4px solid var(--signal-2); padding:.4em .8em; margin:.5em 0; background:var(--card-b); font-style:italic;}
+.qbox cite{font-style:normal; display:block; font-size:.78rem; color:var(--ink-soft); margin-top:.25em;}
+table{width:100%; border-collapse:collapse; font-size:.88rem;}
+th,td{border:1px solid var(--line); padding:.45em .55em; text-align:left; vertical-align:top;}
+th{background:var(--paper-2);}
+.checklist label{display:flex; align-items:flex-start; gap:.5em; padding:.35em 0; border-bottom:1px dashed var(--line); font-size:.92rem;}
+.checklist input{margin-top:.25em;}
+.checklist label.checked span{text-decoration:line-through; color:var(--ink-soft);}
+details{border:1px solid var(--line); border-radius:var(--radius); margin:.5em 0; background:var(--card);}
+details summary{padding:.6em .8em; cursor:pointer; font-weight:700; font-family:var(--serif);}
+details .inner{padding:0 1em 1em;}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:.8em;}
+@media(max-width:700px){.grid2{grid-template-columns:1fr;}}
+.pill-row{display:flex; gap:.4em; flex-wrap:wrap; margin:.6em 0;}
+.pill-row button.filt{font-size:.75rem; padding:.3em .6em; box-shadow:none;}
+.pill-row button.filt.on{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+.crisis-block{border:2px solid var(--signal); border-radius:var(--radius); padding:.8em 1em; margin:.8em 0; background:var(--card);}
+.crisis-block h3{color:var(--signal); margin-top:0;}
+.timer{font-family:var(--mono); font-size:1.6rem; text-align:center; padding:.4em; background:var(--ink); color:var(--paper); border-radius:var(--radius);}
+.flash-stage{
+  min-height:200px; border:1px solid var(--ink); border-radius:var(--radius);
+  background:var(--card-b); padding:1.2em; display:flex; flex-direction:column; justify-content:center;
+  cursor:pointer; position:relative;
+}
+.flash-stage .side-label{position:absolute; top:.5em; right:.7em; font-size:.65rem; color:var(--ink-soft);}
+.answer-mode-toggle{display:inline-flex; border:1px solid var(--ink); border-radius:var(--radius); overflow:hidden; margin-bottom:.6em;}
+.answer-mode-toggle button{border:none; box-shadow:none; border-radius:0;}
+.answer-mode-toggle button.on{background:var(--ink); color:var(--paper);}
+.mode10, .mode20{display:none;}
+.mode10.show, .mode20.show{display:block;}
+footer.printfoot{display:none;}
+#focusOverlay .hideable{display:none !important;}
+.small{font-size:.8rem; color:var(--ink-soft);}
+.badge-count{font-size:.7rem; background:var(--paper-2); border-radius:8px; padding:0 .4em; margin-left:.3em;}
+mark{background:var(--amber); color:#1a1a1a;}
+@media print{
+  header, nav#tabs, .no-print, button{display:none !important;}
+  .section{display:block !important; margin-bottom:2em;}
+  body{background:#fff; color:#000; font-size:12px;}
+  .card{box-shadow:none; border:1px solid #999;}
+}
+</style>
+</head>
+<body>
+<div id="ag-overlay"></div>
+
+<header>
+  <div class="hbar">
+    <div class="brand">TV Criticism<small>Wasko + Bourdieu · Exam Console</small></div>
+    <div id="searchWrap" class="no-print">
+      <input type="search" id="searchBox" placeholder="Search concepts, quotes, questions, vocab…">
+      <div id="searchResults"></div>
+    </div>
+    <div class="progressWrap no-print">
+      <span id="progressPct">0%</span>
+      <div class="progressBar"><div id="progressFill" style="width:0%"></div></div>
+    </div>
+    <button id="focusBtn" class="ghost no-print" title="Focus mode">Focus</button>
+    <button id="themeBtn" class="ghost no-print" title="Toggle dark mode">🌓</button>
+    <button id="printBtn" class="ghost no-print" title="Print" onclick="window.print()">Print</button>
+  </div>
+  <nav id="tabs" class="no-print"></nav>
+</header>
+
+<main id="main"></main>
+
+<script>
+/* =====================================================================
+   DATA LAYER
+===================================================================== */
+
+const SECTIONS = [
+  {id:"crisis", label:"⏱ Crisis Mode"},
+  {id:"concepts", label:"Concept Bank"},
+  {id:"arguments", label:"Core Arguments"},
+  {id:"citations", label:"Citation Bank"},
+  {id:"quotes", label:"Quote Bank"},
+  {id:"memorize", label:"Memorise These"},
+  {id:"questions", label:"Question Bank"},
+  {id:"answers", label:"Model Answers"},
+  {id:"formula", label:"Answer Formula"},
+  {id:"bangladesh", label:"Bangladesh Bank"},
+  {id:"writing", label:"Writing Toolkit"},
+  {id:"vocab", label:"Vocabulary"},
+  {id:"recall", label:"Quiz & Flashcards"},
+  {id:"random", label:"Random Q + Mock"},
+  {id:"rubric", label:"Rubric"},
+  {id:"schedule", label:"10-Hour Plan"},
+];
+
+// ---- CONCEPTS (ranked) --------------------------------------------------
+const CONCEPTS = [
+{id:"c1", tier:"must", author:"wasko", name:"Television as a multifaceted force",
+ simple:"Television is not just a machine. It is at the same time a technology, an industry, and a social, political, economic and cultural force.",
+ bangla:"টেলিভিশন শুধু একটি যন্ত্র নয়; এটি একই সাথে সামাজিক, রাজনৈতিক, অর্থনৈতিক ও সাংস্কৃতিক শক্তি।",
+ argue:"Wasko says television began as a technical device (electronic apparatus, distribution system) but grew into something much bigger — a source of news, education, entertainment, religion, art, sport and commerce, all at once.",
+ why:"This is the best opening definition for almost any question about 'what is television' or 'why does television matter'.",
+ example:"Wasko traces the shift from Philo Farnsworth's 1920s invention to television becoming a household appliance central to daily life.",
+ exam:"Define television and explain why it is significant in modern society.",
+ connects:["c11","c2"], page:"Wasko, p. 1–2"},
+{id:"c2", tier:"must", author:"bourdieu", name:"Symbolic violence",
+ simple:"A kind of power that works through images, meanings and acceptance — not physical force. The people affected often accept it without realising it.",
+ bangla:"প্রতীকী সহিংসতা — শারীরিক শক্তি নয়, বরং ধারণা ও অর্থের মাধ্যমে প্রয়োগ করা ক্ষমতা, যা মানুষ অনেক সময় না বুঝেই মেনে নেয়।",
+ argue:"Bourdieu defines symbolic violence as 'violence wielded with tacit complicity between its victims and its agents, insofar as both remain unconscious' of it. He argues television is a formidable instrument for this kind of power.",
+ why:"This is the single most quotable Bourdieu concept — almost every critical question can use it.",
+ example:"Television's selection of 'safe', non-divisive news stories (Bourdieu calls this filling time with banalities) quietly shapes what audiences think matters, without anyone appearing to force them.",
+ exam:"Explain and critically discuss Bourdieu's concept of symbolic violence in relation to television.",
+ connects:["c3","c4"], page:"Bourdieu, p. 17"},
+{id:"c3", tier:"must", author:"bourdieu", name:"Invisible censorship",
+ simple:"Television limits what can be said, but this control is hidden. It works through time limits, ownership, and self-censorship, not open bans.",
+ bangla:"অদৃশ্য সেন্সরশিপ — সরাসরি নিষেধাজ্ঞা নয়, বরং সময়সীমা, মালিকানা ও আত্ম-সেন্সরশিপের মাধ্যমে নিয়ন্ত্রণ।",
+ argue:"Bourdieu names three layers: political censorship (state control of hiring), economic censorship (ownership — NBC/GE, CBS/Westinghouse, ABC/Disney, TF1/Bouygues), and the deeper 'anonymous and invisible mechanisms' that keep the symbolic order in place.",
+ why:"Great for 'critically discuss the limits of television as a free medium' style questions.",
+ example:"Journalists censor themselves because of job insecurity and competitive pressure, without ever being 'called into line' by anyone.",
+ exam:"How does Bourdieu explain the forms of censorship at work in television?",
+ connects:["c2","c5"], page:"Bourdieu, p. 15–17"},
+{id:"c4", tier:"must", author:"bourdieu", name:"Journalistic 'glasses' and selection",
+ simple:"Journalists see the world through invisible mental categories (like special glasses). These categories decide what gets shown and what is left out.",
+ bangla:"সাংবাদিকদের 'চশমা' — তাদের নির্দিষ্ট দৃষ্টিভঙ্গি যা ঠিক করে দেয় কী দেখানো হবে আর কী বাদ যাবে।",
+ argue:"Using Patrick Champagne's research, Bourdieu argues journalists select events according to a shared perceptual category built from their training and profession, and that the guiding principle of selection is the search for the sensational and the spectacular.",
+ why:"Explains WHY certain news is chosen over other news — core mechanism behind 'show and hide'.",
+ example:"Coverage of the 'inner city' focuses on riots and drama rather than the ordinary, monotonous daily life that is harder to convey.",
+ exam:"Explain Bourdieu's idea of journalistic 'glasses' with an example.",
+ connects:["c5","c6"], page:"Bourdieu, p. 19"},
+{id:"c5", tier:"must", author:"bourdieu", name:"Show and hide (dramatization)",
+ simple:"Television can hide the truth by showing something else, or by showing something in a way that makes it meaningless.",
+ bangla:"'দেখিয়ে লুকানো' — টেলিভিশন কখনও কখনও একটি বিষয় দেখিয়ে আসলে অন্য একটি গুরুত্বপূর্ণ বিষয় আড়াল করে।",
+ argue:"Bourdieu argues television dramatizes events (puts them on stage, exaggerates seriousness) and this dramatization is itself a form of hiding, because it distorts what actually happened.",
+ why:"Useful for questions on television and truth/reality, or television's negative social effects.",
+ example:"Ordinary, monotonous life in a community 'doesn't say anything to anybody', so journalists dramatize it into something extraordinary instead.",
+ exam:"How can television 'hide by showing'? Discuss with reference to Bourdieu.",
+ connects:["c4","c6"], page:"Bourdieu, p. 18–19"},
+{id:"c6", tier:"must", author:"bourdieu", name:"The reality effect",
+ simple:"Because television images look real, they make people believe what is shown. This belief can then be used to mobilise groups of people.",
+ bangla:"'বাস্তবতার প্রভাব' — ছবি দেখলে মানুষ তা সত্য বলে বিশ্বাস করে, আর এই বিশ্বাস মানুষকে সংগঠিত বা উত্তেজিত করতে পারে।",
+ argue:"Bourdieu says images have 'the peculiar capacity to produce what literary critics call a reality effect. They show things and make people believe in what they show. This power to show is also a power to mobilize.'",
+ why:"Directly connects media representation to real political consequences — strong for analytical questions.",
+ example:"News reports on crime or foreigners can unleash strong feelings such as racism or xenophobia through this reality effect.",
+ exam:"Discuss how television's 'reality effect' can shape public opinion and social divisions.",
+ connects:["c5","c7"], page:"Bourdieu, p. 21"},
+{id:"c7", tier:"must", author:"bourdieu", name:"Circular circulation of information",
+ simple:"Journalists mostly get their information from other journalists, not from independent research. This makes all television news look very similar.",
+ bangla:"তথ্যের 'বৃত্তাকার প্রবাহ' — সাংবাদিকরা একে অপরের কাছ থেকেই তথ্য নেন, তাই সব সংবাদ একরকম হয়ে যায়।",
+ argue:"Bourdieu argues that despite apparent competition, journalistic products are 'much more alike than is generally thought' because journalists read each other's papers, watch each other's broadcasts, and copy each other out of competitive pressure.",
+ why:"Key mechanism connecting competition to homogenization — important for 'is competition good for television?' questions.",
+ example:"If Libération headlines an event, Le Monde cannot stay silent — even rival outlets end up covering nearly the same stories.",
+ exam:"Explain Bourdieu's concept of the 'circular circulation of information'.",
+ connects:["c8","c9"], page:"Bourdieu, p. 23–24"},
+{id:"c8", tier:"must", author:"bourdieu", name:"Audience ratings as the 'hidden god'",
+ simple:"Ratings (audience numbers) secretly control almost everything on television — even when journalists think they are being independent.",
+ bangla:"দর্শক জরিপ (রেটিং) হলো টেলিভিশনের 'গোপন ঈশ্বর' — যা প্রায় সবকিছু নিয়ন্ত্রণ করে।",
+ argue:"Bourdieu calls audience ratings 'the journalist's Last Judgment' and says a one-point drop in ratings can mean 'instant death with no appeal' for a program or career.",
+ why:"Strong evidence for the argument that television is market-driven rather than free.",
+ example:"Even avant-garde publishers and intellectual institutions have begun adopting a 'ratings mindset', which worries Bourdieu deeply.",
+ exam:"Critically evaluate the role of audience ratings in shaping television content.",
+ connects:["c7","c9"], page:"Bourdieu, p. 26–27"},
+{id:"c9", tier:"must", author:"bourdieu", name:"Fast-thinkers and received ideas",
+ simple:"Television favours people who can talk quickly using common, ready-made ideas ('received ideas'), because real thought needs time that television does not give.",
+ bangla:"'দ্রুত-চিন্তক' — যারা প্রচলিত, সহজবোধ্য ধারণা দিয়ে দ্রুত কথা বলতে পারেন, টেলিভিশন তাদের পছন্দ করে।",
+ argue:"Bourdieu links thought to time (citing Plato's philosopher vs. the hurried agora) and argues television rewards 'fast-thinkers' who serve pre-digested, 'cultural fast food' because they think in clichés that need no decoding.",
+ why:"Good for discussing television's effect on intellectual/public discourse.",
+ example:"The same small list of media-friendly commentators ('for Germany, call Mr. Y') are invited again and again because they are reliably quick and safe.",
+ exam:"Why does Bourdieu argue that television favours 'fast-thinkers'?",
+ connects:["c8","c10"], page:"Bourdieu, p. 28–29"},
+{id:"c10", tier:"must", author:"bourdieu", name:"Debates truly false or falsely true",
+ simple:"Many televised debates only look fair. In reality the guests, the moderator, and the set-up are all controlled in advance.",
+ bangla:"যেসব বিতর্ক সত্যিকারের মনে হয়, তা আসলে নকল হতে পারে — অতিথি, উপস্থাপক ও মঞ্চ সবকিছুই আগে থেকে ঠিক করা।",
+ argue:"Bourdieu distinguishes bogus debates (friends pretending to disagree) from debates that only 'seem genuine' — using the Cavada strike debate, where the moderator controlled turns and time, and the studio seating arrangement was quietly changed between episodes to shift the apparent balance of opinion.",
+ why:"Excellent for 'is television good for democracy' or 'critically assess televised political debate'.",
+ example:"During a Cavada debate, a union delegate got only five minutes to speak in a two-hour program, despite the debate's formal appearance of equality.",
+ exam:"Discuss Bourdieu's critique of televised debates and their claim to be democratic.",
+ connects:["c3","c11"], page:"Bourdieu, p. 30–35"},
+{id:"c11", tier:"must", author:"wasko", name:"Television as storyteller / socialization agent",
+ simple:"Television tells society's stories. It shows people what is good or bad, who wins or loses, and what it means to be a man or a woman.",
+ bangla:"টেলিভিশন সমাজের 'গল্পবলিয়ে' — এটি ভালো-মন্দ, জয়-পরাজয়ের ধারণা তৈরি করে।",
+ argue:"Wasko cites Signorielli and Bacue: television's role in society is that of 'common storyteller' — it has joined the ranks of socialization agents alongside family and school.",
+ why:"Directly supports the claim that television is an 'ideological source', which connects Wasko to Bourdieu's symbolic power.",
+ example:"Wasko notes television is a fund of 'values, ideals, morals, and ethical standards' that cannot be overlooked in modern societies.",
+ exam:"Discuss television's role as an agent of socialization and its ideological function.",
+ connects:["c1","c2"], page:"Wasko, p. 3"},
+{id:"c12", tier:"must", author:"wasko", name:"Positive vs negative views of television",
+ simple:"Some praise television for education and connection; others call it valueless and harmful. Wasko presents both sides without picking one.",
+ bangla:"টেলিভিশন নিয়ে দুই ধরনের মত — একদল প্রশংসা করে, আরেক দল সমালোচনা করে।",
+ argue:"Wasko surveys optimistic claims (television can teach, inform, provide companionship, catalyse reading) alongside strong criticism, quoting Newton Minow's famous 'vast wasteland' remark and John Silver's attack on television's 'degenerative effects'.",
+ why:"Gives you both sides for a balanced/critical answer and two strong, memorable quotations.",
+ example:"Minow (1961), FCC chairman: television is often 'a vast wasteland' despite its potential.",
+ exam:"'When television is good, nothing is better. But when television is bad, nothing is worse' — discuss.",
+ connects:["c1","c11"], page:"Wasko, p. 4"},
+{id:"c13", tier:"must", author:"combined", name:"Journalistic field (anti-reductionism)",
+ simple:"Journalism works like a small world with its own rules. You cannot explain everything on TV just by looking at who owns it (pure economics) or ignoring ownership completely.",
+ bangla:"'সাংবাদিকতার ক্ষেত্র' — শুধু মালিকানা দিয়ে (অর্থনীতি) সবকিছু ব্যাখ্যা করা যায় না, আবার মালিকানা উপেক্ষাও করা যায় না।",
+ argue:"Bourdieu introduces the 'journalistic field' as a microcosm with its own laws. He explicitly rejects 'half-baked' economic determinism (explaining TF1 purely through owner Bouygues) as inadequate, while still insisting ownership matters.",
+ why:"This is the sophisticated, examiner-pleasing move: shows you understand Bourdieu is not a simple 'media = capitalist tool' theorist.",
+ example:"Bourdieu says an explanation of TF1 based solely on Bouygues ownership 'would be just as inadequate' as ignoring it altogether.",
+ exam:"Is television's content determined by its owners? Discuss using Bourdieu's concept of the journalistic field.",
+ connects:["c3","c7"], page:"Bourdieu, p. 39"},
+{id:"c14", tier:"must", author:"combined", name:"Competition and collusion among journalists",
+ simple:"Journalists compete fiercely with each other, but this competition actually makes their output more similar (collusion), not more diverse.",
+ bangla:"সাংবাদিকদের মধ্যে প্রতিযোগিতা আসলে বৈচিত্র্য নয়, বরং মিলই তৈরি করে।",
+ argue:"Bourdieu argues television is shaped by both 'relations of competition' and 'relations of collusion', because journalists share the same cognitive and perceptual structures from similar training and background.",
+ why:"Directly challenges the free-market assumption that 'competition creates diversity'.",
+ example:"'We left TF1 in the dust' — a real quote from a journalist boasting about a difference (having live sound) that ordinary viewers never even notice.",
+ exam:"'Competition among television channels increases diversity of content.' Do you agree? Discuss with reference to Bourdieu.",
+ connects:["c7","c8"], page:"Bourdieu, p. 24, 36"},
+{id:"c15", tier:"should", author:"wasko", name:"Farnsworth's utopian vision",
+ simple:"Early inventors believed television would end illiteracy, bring world peace, and replace cinema. Very little of this dream came true.",
+ bangla:"টেলিভিশনের প্রথম দিকের স্বপ্ন ছিল এটি অশিক্ষা দূর করবে ও বিশ্বশান্তি আনবে — যা বাস্তবে হয়নি।",
+ argue:"Wasko quotes a Farnsworth biographer: television would 'wipe out illiteracy', bring live news without distortion, and 'bring about world peace'.",
+ why:"Good opening hook for an introduction — shows the gap between early hopes and later criticism.",
+ example:"Farnsworth believed seeing people in other countries would end misunderstandings and war.",
+ exam:"How have early hopes for television compared with its actual social role?",
+ connects:["c1","c12"], page:"Wasko, p. 1–2"},
+{id:"c16", tier:"should", author:"wasko", name:"Television research traditions",
+ simple:"Scholars have studied television in different ways: measuring its effects on behaviour, analysing it as text/drama, and studying its history and ownership structures.",
+ bangla:"টেলিভিশন গবেষণার বিভিন্ন ধারা — প্রভাব গবেষণা, সাহিত্য/নাটকীয় সমালোচনা, ঐতিহাসিক-প্রাতিষ্ঠানিক গবেষণা।",
+ argue:"Wasko outlines: (1) media-effects research (about 4,000 studies on TV and children, no conclusive results), (2) literary/dramatic criticism feeding into cultural and feminist television studies from the 1970s–80s, (3) historical and institutional/ownership studies.",
+ why:"Useful for 'how has television been studied academically' questions and for linking to Bourdieu's sociological approach.",
+ example:"Wasko notes no conclusive results after roughly 4,000 studies on television's effects on children.",
+ exam:"Outline the major approaches to television research identified by Wasko.",
+ connects:["c1","c13"], page:"Wasko, p. 5"},
+{id:"c17", tier:"should", author:"wasko", name:"Economic impact and pervasiveness of television",
+ simple:"Television is everywhere and generates huge revenue. In the US, 99% of households own a TV and broadcast revenue reached $54.4 billion in 2001.",
+ bangla:"টেলিভিশন সর্বব্যাপী এবং বিশাল অর্থনৈতিক শিল্প — যুক্তরাষ্ট্রে ৯৯% পরিবারে টিভি আছে।",
+ argue:"Wasko presents television's pervasiveness (99% US/Canada household ownership, average 4+ hours/day viewing) and its economic role (advertising, production, employment).",
+ why:"Gives concrete evidence/statistics for an introduction or for arguing television is an 'inescapable' cultural force.",
+ example:"The average American reportedly watches over 4 hours of television a day — about 28 hours a week.",
+ exam:"How pervasive is television in modern society? Support your answer with evidence.",
+ connects:["c1","c11"], page:"Wasko, p. 2–3"},
+{id:"c18", tier:"should", author:"bourdieu", name:"Economic censorship / ownership",
+ simple:"Who owns a channel affects what it can say — but Bourdieu says just knowing the owner's name is not enough to explain everything.",
+ bangla:"অর্থনৈতিক সেন্সরশিপ — মালিকানা প্রভাব ফেলে, কিন্তু শুধু মালিকের নাম জানলেই সবকিছু বোঝা যায় না।",
+ argue:"Bourdieu lists concrete ownership facts (NBC/General Electric, CBS/Westinghouse, ABC/Disney, TF1/Bouygues) but insists these 'crude' facts hide the more important 'anonymous and invisible mechanisms' of censorship.",
+ why:"Pairs well with c13 (journalistic field) to show a nuanced view of media ownership.",
+ example:"Bourdieu notes the government won't act against Bouygues's other interests, knowing Bouygues owns TF1 — but this alone doesn't explain everything.",
+ exam:"To what extent does ownership explain what appears on television?",
+ connects:["c3","c13"], page:"Bourdieu, p. 16"},
+{id:"c19", tier:"should", author:"bourdieu", name:"Time as a rare commodity",
+ simple:"Television has very little time for each item, so it fills time with 'banal' safe content rather than important but complex information.",
+ bangla:"টেলিভিশনে সময় খুবই সীমিত, তাই গুরুত্বপূর্ণ তথ্যের বদলে সহজ, নিরাপদ বিষয় দেখানো হয়।",
+ argue:"Bourdieu says 'time, on television, is an extremely rare commodity', and this time pressure pushes out complex, democratically important information in favour of banal, consensual items.",
+ why:"Connects the format of television (short segments) to its political effect (shallow public discourse).",
+ example:"He argues this creates a 'de facto monopoly' — television is often the sole source of political information for people who read no newspapers.",
+ exam:"How does the time pressure of television affect the quality of public information?",
+ connects:["c4","c9"], page:"Bourdieu, p. 18"},
+{id:"c20", tier:"should", author:"bourdieu", name:"Working under pressure / competition for scoops",
+ simple:"Journalists rush to be first because rivals are also rushing — a constant pressure ('scoop culture') that pushes out slow, careful reporting.",
+ bangla:"স্কুপের প্রতিযোগিতা — সবার আগে খবর দেওয়ার চাপ যত্নশীল সাংবাদিকতাকে সীমিত করে।",
+ argue:"Bourdieu describes cross-pressure: stories 'are pushed on viewers because they are pushed on the producers; and they are pushed on producers by competition with other producers.'",
+ why:"Practical mechanism behind the circular circulation and homogenization arguments.",
+ example:"If one network covers a flood, competitors must also cover it and try to add something the first network missed.",
+ exam:"Explain how competitive pressure among journalists shapes news content.",
+ connects:["c7","c14"], page:"Bourdieu, p. 28"},
+{id:"c21", tier:"should", author:"bourdieu", name:"Set arrangement and studio manipulation",
+ simple:"Even where people sit in a TV studio can change the meaning of a program — producers can quietly shift the apparent balance of an argument.",
+ bangla:"স্টুডিওতে বসার বিন্যাস পরিবর্তন করেও অনুষ্ঠানের বার্তা বদলে দেওয়া যায়।",
+ argue:"Bourdieu gives the example of the Cercle de minuit talk show: the same individuals appeared on the 'right' side during one program and the 'left' side in the follow-up, changing the visual message of the debate.",
+ why:"Concrete, memorable example of 'invisible' manipulation at the level of production, not content.",
+ example:"Right and left seating positions were swapped between two episodes on the same topic (the strikes), changing which side looked stronger.",
+ exam:"Give an example of how television's production choices (not just content) can shape meaning.",
+ connects:["c10","c3"], page:"Bourdieu, p. 34"},
+{id:"c22", tier:"should", author:"combined", name:"Market share and competition (TF1/Bouygues)",
+ simple:"To understand a channel like TF1, you must look at both its competition with other channels and its ownership — neither alone is enough.",
+ bangla:"একটি চ্যানেল বোঝার জন্য প্রতিযোগিতা ও মালিকানা দুটোই বিবেচনা করতে হয়।",
+ argue:"Opening Part Two, Bourdieu says understanding TF1 requires looking at its position in the 'universe of objective relations' among competing networks, not economic factors alone.",
+ why:"Bridges Part One (visible mechanisms) and Part Two (structural/field-level analysis) — good closing point for a combined essay.",
+ example:"Bourdieu explicitly rejects a purely Marxist, ownership-only explanation of TF1's content as inadequate.",
+ exam:"How does Bourdieu move from individual examples to a structural analysis of television?",
+ connects:["c13","c18"], page:"Bourdieu, p. 38–39"},
+{id:"c23", tier:"good", author:"wasko", name:"Etymology and definition of 'television'",
+ simple:"The word 'television' is half Greek, half Latin ('far' + 'vision'). C. P. Scott joked that 'no good can come of' such a mixed word.",
+ bangla:"'টেলিভিশন' শব্দটি অর্ধেক গ্রিক, অর্ধেক লাতিন — দূরবর্তী দৃশ্য।",
+ argue:"Wasko opens with the dictionary definition and Scott's witty, skeptical epigraph, framing television from the very start as a contested, debated object.",
+ why:"Nice hook for an introduction paragraph, but low marks value on its own.",
+ example:"American Heritage Dictionary defines television technically: transmission of images via electromagnetic waves.",
+ exam:"(Rarely asked directly — use only as an introduction hook.)",
+ connects:["c1"], page:"Wasko, p. 1"},
+{id:"c24", tier:"good", author:"bourdieu", name:"Champagne's inner-city and 1986 strike studies",
+ simple:"Bourdieu uses Patrick Champagne's research on media coverage of poor neighbourhoods and a 1986 student strike as evidence for his arguments.",
+ bangla:"শহরের দরিদ্র এলাকা ও ১৯৮৬ সালের শিক্ষার্থী ধর্মঘটের কভারেজ নিয়ে শ্যাম্পেনের গবেষণা।",
+ argue:"These case studies show journalists 'acting in all good faith' still produce distorted reality effects because of their professional categories and unconscious expectations.",
+ why:"Good supporting evidence if you need a second example for c4/c6.",
+ example:"Reporters covering the 1986 strike sought out the most 'politicized' student representatives to interview, shaping how the strike appeared nationally.",
+ exam:"(Use as supporting evidence, not a standalone question.)",
+ connects:["c4","c6"], page:"Bourdieu, p. 19–22"},
+{id:"c25", tier:"good", author:"bourdieu", name:"Wittgenstein's 'language game'",
+ simple:"Talk shows follow unspoken rules, like a game — certain things can be said, others cannot, even though no one states the rules out loud.",
+ bangla:"'ভাষার খেলা' — টক শোতে অলিখিত নিয়ম মেনে চলতে হয়।",
+ argue:"Bourdieu borrows Wittgenstein's idea to explain that TV debates model themselves on wrestling: conflict is required, but only within acceptable, 'formal, intellectual' limits.",
+ why:"Adds theoretical depth if you want to show wider reading, but not essential.",
+ example:"Debates need 'good guys and bad guys' but the blows must stay within acceptable intellectual language.",
+ exam:"(Optional depth point for c10.)",
+ connects:["c10"], page:"Bourdieu, p. 35"},
+{id:"c26", tier:"good", author:"bourdieu", name:"Plato, time and thought",
+ simple:"Bourdieu revives an old philosophical idea: the philosopher who has time can think deeply, while people in a hurry (like on TV) cannot.",
+ bangla:"প্লেটোর ধারণা — সময় থাকলে গভীর চিন্তা সম্ভব, তাড়াহুড়োয় নয়।",
+ argue:"Bourdieu cites Plato's opposition between the unhurried philosopher and people rushing in the agora to explain why television structurally resists deep thought.",
+ why:"A philosophical flourish for a 'critical/analytical' section of an answer.",
+ example:"Bourdieu admits this view is 'clearly aristocratic' even as he uses it.",
+ exam:"(Use as a supporting philosophical reference for c9.)",
+ connects:["c9"], page:"Bourdieu, p. 28"},
+];
+
+// ---- CORE ARGUMENTS ------------------------------------------------------
+const ARGUMENTS = {
+wasko:[
+ {a:"Television is not only a technical device, but also a social, political, economic and cultural force.",
+  e:"It began as an electronic apparatus but became central to how people get news, education, and entertainment.",
+  ev:"Wasko traces television from Farnsworth's 1920s invention to its role as a household appliance touching politics, economy and culture.",
+  use:"Answering 'what is television' or 'why does television matter'.", page:"p. 2"},
+ {a:"Early inventors were extremely optimistic about television's potential.",
+  e:"Farnsworth believed television could end illiteracy and bring world peace by letting people see each other across countries.",
+  ev:"A Farnsworth biographer describes his hope that TV would replace movies and stop war through mutual understanding.",
+  use:"Contrasting early hopes with later disappointment/criticism.", page:"p. 1–2"},
+ {a:"Television is a pervasive, almost inescapable part of modern life.",
+  e:"Nearly every household owns a television, and it is found in schools, hospitals, prisons and public spaces.",
+  ev:"99 percent of US/Canadian households own at least one TV; average viewing is over 4 hours a day.",
+  use:"Establishing television's scale and importance in an introduction.", page:"p. 2–3"},
+ {a:"Television functions as a common storyteller and socialization agent.",
+  e:"It teaches audiences who is 'good' and 'bad', and what gender roles or success look like.",
+  ev:"Signorielli and Bacue: television's world 'shows and tells us about life... what it means to be a man or a woman.'",
+  use:"Discussing television's ideological/cultural role.", page:"p. 3"},
+ {a:"Television is central to how citizens learn about news and politics.",
+  e:"For many people, TV — not newspapers — is the main source of news and part of the democratic process (elections).",
+  ev:"Wasko notes television transmits events 'at the moment they are happening' and plays a key role in campaigns.",
+  use:"Linking television to democracy — connects well to Bourdieu's critique.", page:"p. 3"},
+ {a:"Television is also an economic institution.",
+  e:"It generates advertising revenue, production jobs, and hardware sales.",
+  ev:"US broadcast TV revenues reached $54.4 billion in 2001.",
+  use:"Discussing television as an industry, not just a message system.", page:"p. 3"},
+ {a:"Television has been praised for its educational and social value.",
+  e:"Good television can teach values, present arts and science, and provide companionship.",
+  ev:"Wasko notes television can be a 'catalyst for reading' when viewers follow up on TV subjects with books.",
+  use:"Balanced/positive side of a 'positive vs negative' answer.", page:"p. 3–4"},
+ {a:"Television has also been strongly criticized as harmful and 'vacuous'.",
+  e:"Critics blame it for passivity, violence, obesity, and damaging literate culture.",
+  ev:"Newton Minow (1961) called television 'a vast wasteland'; John Silver attacked its 'degenerative effects'.",
+  use:"Critical/negative side of a balanced answer.", page:"p. 4"},
+ {a:"Some critics argue television is inherently destructive, not just badly used.",
+  e:"Jerry Mander claimed television's very existence, not just its content, is destructive to human nature.",
+  ev:"Mander (1977) argued television is 'not a neutral technology'.",
+  use:"Strongest available 'anti-television' position for a critical answer.", page:"p. 5"},
+ {a:"Television research has followed several distinct traditions.",
+  e:"Media-effects research, literary/dramatic and cultural studies, and historical/institutional research.",
+  ev:"Around 4,000 studies on TV's effects on children found no conclusive results.",
+  use:"Explaining how scholars have studied television.", page:"p. 5"},
+ {a:"Television's meaning and role can vary across cultures and change over time.",
+  e:"New technologies (cable, satellite, digital, the internet) keep reshaping what television is and how it is used.",
+  ev:"Wasko calls television a 'moving target' whose future is 'uncertain and contested'.",
+  use:"Nuancing any definition-based answer; useful for a Bangladesh-application question.", page:"p. 2"},
+],
+bourdieu:[
+ {a:"Appearing on television happens under conditions that limit what can really be said.",
+  e:"Time limits and imposed formats mean 'it is highly unlikely that anything can be said.'",
+  ev:"Bourdieu notes his own lecture was unusual because he faced no time limit and chose his own topic.",
+  use:"Introducing the idea of invisible censorship.", page:"p. 13–14"},
+ {a:"Many people appear on television out of a desire to be seen, not to say something important.",
+  e:"Television becomes 'a mirror for Narcissus, a space for narcissistic exhibitionism.'",
+  ev:"Bourdieu cites Berkeley's 'to be is to be perceived' to describe this desire for visibility.",
+  use:"Critiquing intellectuals/celebrities who appear on TV.", page:"p. 14"},
+ {a:"Television censorship is invisible, working through self-censorship rather than direct bans.",
+  e:"Journalists censor themselves because of job insecurity and competitive conformity.",
+  ev:"'Consciously or unconsciously, people censor themselves — they don't need to be called into line.'",
+  use:"Explaining invisible censorship (core concept).", page:"p. 15"},
+ {a:"Ownership facts alone do not explain television's content.",
+  e:"Knowing who owns a channel is important but 'crude', and hides deeper structural mechanisms.",
+  ev:"NBC is owned by General Electric, CBS by Westinghouse, ABC by Disney, TF1 by Bouygues.",
+  use:"Discussing economic censorship without falling into simple economic determinism.", page:"p. 16"},
+ {a:"Television wields symbolic violence — power exercised through consent, not force.",
+  e:"Both the audience and the journalists are often unconscious of this power.",
+  ev:"'Symbolic violence is violence wielded with tacit complicity between its victims and its agents.'",
+  use:"The central Bourdieu concept for almost any critical question.", page:"p. 17"},
+ {a:"Sensationalism dominates television news because it attracts and holds audience attention.",
+  e:"'Blood, sex, melodrama and crime have always been big sellers.'",
+  ev:"Competition for audience share pushes sensational stories to the headlines.",
+  use:"Explaining why TV news looks the way it does.", page:"p. 17"},
+ {a:"Television enjoys a near-monopoly over what a large part of the population thinks.",
+  e:"Many people read no newspaper and rely entirely on television for political information.",
+  ev:"'Television enjoys a de facto monopoly on what goes into the heads of a significant part of the population.'",
+  use:"Arguing television threatens informed democratic citizenship.", page:"p. 18"},
+ {a:"Journalists select news through invisible perceptual categories ('glasses').",
+  e:"These categories are shaped by training, education and professional history.",
+  ev:"Patrick Champagne's research shows journalists covering the 'inner city' focus on riots, not ordinary life.",
+  use:"Explaining selection and bias without accusing individual journalists of dishonesty.", page:"p. 19"},
+ {a:"Television can hide reality precisely by showing something.",
+  e:"It can show something insignificant, or construct meaning that has nothing to do with reality.",
+  ev:"'It can hide things by showing something other than what would be shown if television did what it's supposed to do.'",
+  use:"The 'show and hide' concept.", page:"p. 19"},
+ {a:"Television images produce a powerful 'reality effect' that can mobilize people.",
+  e:"Because images seem real, they can trigger strong feelings such as racism or xenophobia.",
+  ev:"'This power to show is also a power to mobilize. It can give a life to ideas or images, but also to groups.'",
+  use:"Connecting media representation to real political/social consequences.", page:"p. 21"},
+ {a:"Journalistic products are far more similar than they appear, due to a 'circular circulation of information'.",
+  e:"Journalists get information mainly from other journalists, not independent sources.",
+  ev:"Comparing weekly newsmagazine covers shows 'nearly identical headlines.'",
+  use:"Challenging the idea that competition creates diversity.", page:"p. 23–24"},
+ {a:"Audience ratings function as an unseen but decisive authority over television content.",
+  e:"Producers and executives fear ratings drops more than almost anything else.",
+  ev:"Bourdieu calls ratings the journalist's 'Last Judgment'; even avant-garde institutions adopt a 'ratings mindset'.",
+  use:"Arguing television is market-driven, not content-driven.", page:"p. 26–27"},
+ {a:"Television structurally favours 'fast-thinkers' who rely on received, clichéd ideas.",
+  e:"Real thought needs time to build an argument; television's format does not allow this.",
+  ev:"'If television rewards a certain number of fast-thinkers... it is not only because those who speak regularly on television are virtually on call.'",
+  use:"Discussing television's effect on the quality of public debate.", page:"p. 28–29"},
+ {a:"Many televised debates are staged to look fair while being tightly controlled.",
+  e:"Moderators control turns, tone and time; studio seating can be quietly rearranged to shift meaning.",
+  ev:"In the Cavada debate, a union delegate had only five minutes in a two-hour program despite formal 'signs of equality'.",
+  use:"Critiquing television's claim to support democratic debate.", page:"p. 30–35"},
+ {a:"Television must be understood as a structured 'field' with its own internal logic.",
+  e:"Explaining TV purely through ownership (economic determinism) is inadequate, but ignoring ownership is equally inadequate.",
+  ev:"Bourdieu rejects a 'half-baked' Marxist explanation of TF1 based solely on the Bouygues ownership.",
+  use:"A sophisticated closing argument for combined or critical questions.", page:"p. 38–39"},
+],
+};
+
+// ---- CITATION BANK --------------------------------------------------------
+const CITATIONS = [
+ {claim:"Television is not only a technical device, but also a social, political, economic, and cultural force.",
+  cite:"(Wasko, p. 2)", use:"Definition / importance of television", mem:"'TV = tech + social + political + economic + cultural.'"},
+ {claim:"Television functions as society's 'common storyteller' and a socialization agent.",
+  cite:"(Wasko, quoting Signorielli & Bacue, p. 3)", use:"Ideology / cultural role of television", mem:"'TV is our storyteller.'"},
+ {claim:"'When television is good, nothing is better. But when television is bad, nothing is worse' — it can be 'a vast wasteland'.",
+  cite:"(Minow, cited in Wasko, p. 4)", use:"Critical/negative evaluation of television", mem:"Minow's 'vast wasteland'."},
+ {claim:"US broadcast television revenues reached $54.4 billion in 2001.",
+  cite:"(Wasko, p. 3)", use:"Television as an economic institution", mem:"'$54.4bn — TV is big business.'"},
+ {claim:"Symbolic violence is violence exercised through the tacit, unconscious complicity of both its victims and its agents.",
+  cite:"(Bourdieu, p. 17)", use:"Core theoretical concept — symbolic power of television", mem:"'Violence no one notices.'"},
+ {claim:"Television enjoys a de facto monopoly on what goes into the heads of a significant part of the population.",
+  cite:"(Bourdieu, p. 18)", use:"Television and democratic information / news monopoly", mem:"'TV = monopoly on minds.'"},
+ {claim:"Journalists see the world through professional perceptual categories, described metaphorically as special 'glasses'.",
+  cite:"(Bourdieu, p. 19)", use:"Explaining selection and bias in news", mem:"'Journalists wear invisible glasses.'"},
+ {claim:"Television's power to show is also a power to mobilize; it can produce a 'reality effect' that people believe.",
+  cite:"(Bourdieu, p. 21)", use:"Media representation and social/political consequences", mem:"'Showing = believing = mobilizing.'"},
+ {claim:"Audience ratings function as the journalist's 'Last Judgment'.",
+  cite:"(Bourdieu, p. 26)", use:"Ratings-driven, market logic of television", mem:"'Ratings are the hidden god.'"},
+ {claim:"Television rewards 'fast-thinkers' who offer pre-digested cultural 'fast food'.",
+  cite:"(Bourdieu, p. 28–29)", use:"Television's effect on the quality of thought/debate", mem:"'Fast food for the mind.'"},
+ {claim:"A purely economic (ownership-based) explanation of a channel's content is 'just as inadequate' as ignoring ownership altogether.",
+  cite:"(Bourdieu, p. 38–39)", use:"Nuanced view of the journalistic field vs. economic determinism", mem:"'Ownership matters, but isn't everything.'"},
+];
+
+// ---- QUOTE BANK -------------------------------------------------------
+const QUOTES = [
+ {q:"television is not only a technical device, but also a social, political, economic, and cultural force",
+  author:"Wasko", page:"p. 2",
+  meaning:"Television must be understood as more than a machine — it shapes and is shaped by society.",
+  bangla:"টেলিভিশন শুধু প্রযুক্তি নয়, সামাজিক-রাজনৈতিক-অর্থনৈতিক-সাংস্কৃতিক শক্তিও বটে।",
+  use:"Definition questions; opening lines of almost any answer."},
+ {q:"television has joined the ranks of socialization agents",
+  author:"Wasko (quoting Signorielli & Bacue)", page:"p. 3",
+  meaning:"TV teaches social norms the way family or school does.",
+  bangla:"টেলিভিশন এখন সামাজিকীকরণের একটি মাধ্যম।",
+  use:"Ideology / cultural role questions."},
+ {q:"a vast wasteland",
+  author:"Newton Minow (cited by Wasko)", page:"p. 4",
+  meaning:"A famous phrase criticizing the poor quality of most television content.",
+  bangla:"একটি 'বিশাল মরুভূমি' — টেলিভিশনের মানহীনতার সমালোচনা।",
+  use:"Critical/negative evaluation questions."},
+ {q:"television is not a neutral technology",
+  author:"Jerry Mander (cited by Wasko)", page:"p. 5",
+  meaning:"Television itself, not just its content, is claimed to be harmful.",
+  bangla:"টেলিভিশন কোনো নিরপেক্ষ প্রযুক্তি নয়।",
+  use:"Strongest anti-television argument."},
+ {q:"good television can teach important values and life lessons",
+  author:"Wasko", page:"p. 4",
+  meaning:"Balances the criticism — television also has real educational potential.",
+  bangla:"ভালো টেলিভিশন মূল্যবোধ ও জীবনের শিক্ষা দিতে পারে।",
+  use:"Balanced answers; positive side."},
+ {q:"symbolic violence is violence wielded with tacit complicity between its victims and its agents",
+  author:"Bourdieu", page:"p. 17",
+  meaning:"Power exercised through unconscious consent rather than force.",
+  bangla:"প্রতীকী সহিংসতা — শিকার ও প্রয়োগকারী উভয়েরই অজান্তে ঘটা ক্ষমতা।",
+  use:"Core theory question on symbolic violence."},
+ {q:"television enjoys a de facto monopoly on what goes into the heads of a significant part of the population",
+  author:"Bourdieu", page:"p. 18",
+  meaning:"For many people television is the only source of political information.",
+  bangla:"টেলিভিশনের একচেটিয়া প্রভাব মানুষের চিন্তার উপর।",
+  use:"Television and democracy/information questions."},
+ {q:"journalists have special glasses through which they see certain things and not others",
+  author:"Bourdieu", page:"p. 19",
+  meaning:"Professional training shapes what journalists notice and report.",
+  bangla:"সাংবাদিকদের বিশেষ 'চশমা' যা নির্দিষ্ট বিষয়ই দেখায়।",
+  use:"Explaining bias/selection in journalism."},
+ {q:"this power to show is also a power to mobilize",
+  author:"Bourdieu", page:"p. 21",
+  meaning:"Media images can turn belief into real collective action.",
+  bangla:"দেখানোর ক্ষমতাই সংগঠিত করার ক্ষমতা।",
+  use:"Reality effect / political consequences of media."},
+ {q:"television, which claims to record reality, creates it instead",
+  author:"Bourdieu", page:"p. 22",
+  meaning:"Television doesn't just report events, it actively shapes how they unfold.",
+  bangla:"টেলিভিশন বাস্তবতা রেকর্ড করে না, বরং তৈরি করে।",
+  use:"Reality effect and media construction of events."},
+ {q:"ratings have become the journalist's Last Judgment",
+  author:"Bourdieu", page:"p. 26",
+  meaning:"Audience numbers now hold ultimate authority over television output.",
+  bangla:"রেটিং হয়ে উঠেছে সাংবাদিকের 'শেষ বিচার'।",
+  use:"Market logic / ratings pressure questions."},
+ {q:"thinkers who think faster than a speeding bullet",
+  author:"Bourdieu", page:"p. 29",
+  meaning:"A sarcastic description of television's preferred, quick-talking guests.",
+  bangla:"যারা বুলেটের চেয়েও দ্রুত চিন্তা করেন — টিভির প্রিয় অতিথি।",
+  use:"Fast-thinkers / quality of debate questions."},
+ {q:"we are god's puppets",
+  author:"Bourdieu (citing Plato)", page:"p. 38",
+  meaning:"Even powerful TV figures are controlled by structural forces bigger than themselves.",
+  bangla:"'আমরা ঈশ্বরের পুতুল' — কাঠামোগত শক্তি ব্যক্তির চেয়ে বড়।",
+  use:"Structural (Part Two) analysis; closing an essay."},
+];
+
+// ---- MEMORISE THESE --------------------------------------------------
+const MEMORIZE = {
+wasko:[
+ "Television is not only a technical device but a social, political, economic and cultural force.",
+ "Television emerged as mass media in the late 1940s–1950s, though the technology was developed in the 1920s.",
+ "Philo Farnsworth believed TV would end illiteracy and bring world peace.",
+ "99% of US/Canadian households own at least one television.",
+ "The average American reportedly watches over 4 hours of TV a day.",
+ "US broadcast TV revenue was $54.4 billion in 2001.",
+ "Television is often called the primary source of news for many citizens.",
+ "Signorielli & Bacue call television 'the common storyteller' of popular culture.",
+ "Newton Minow (1961) called television 'a vast wasteland'.",
+ "Jerry Mander argued television itself, not just its content, is destructive.",
+],
+bourdieu:[
+ "Bourdieu's talk was unusual because he faced no time limit and chose his own topic.",
+ "'To be is to be perceived' — Berkeley, quoted on television's narcissistic exhibitionism.",
+ "Invisible censorship works through self-censorship, job insecurity, and time limits.",
+ "NBC is owned by General Electric, CBS by Westinghouse, ABC by Disney, TF1 by Bouygues.",
+ "Symbolic violence = violence exercised with the unconscious complicity of victim and agent.",
+ "Sensational news (blood, sex, crime) wins because it attracts audience share.",
+ "Journalists select news through invisible perceptual 'glasses' shaped by their training.",
+ "Television can 'hide by showing' — dramatizing or trivializing instead of informing.",
+ "Images have a 'reality effect': they make people believe, and this power can mobilize groups.",
+ "Champagne's research on the inner city and the 1986 strike shows unintentional distortion by journalists acting in good faith.",
+ "Journalistic products look similar because of a 'circular circulation of information'.",
+ "Competition among journalists tends to homogenize output, not diversify it.",
+ "Audience ratings are the journalist's 'Last Judgment' — a one-point drop can mean 'instant death'.",
+ "Television rewards 'fast-thinkers' who use 'received ideas' because real thought needs time.",
+ "Debates can be 'truly false' (staged) or 'falsely true' (looking fair but actually controlled).",
+],
+connecting:[
+ "Both Wasko and Bourdieu see television as more than a neutral technology — it is a social force with real consequences.",
+ "Wasko's 'ideological source' idea and Bourdieu's 'symbolic violence' both describe television shaping values without visible force.",
+ "Wasko surveys the debate about TV's value; Bourdieu supplies the detailed sociological mechanism behind the negative side.",
+ "Both writers connect television to democracy — Wasko positively (elections, information), Bourdieu critically (monopoly on minds, fake debates).",
+ "Bourdieu's 'journalistic field' explains the institutional/economic structures Wasko only briefly mentions.",
+],
+bangladesh:[
+ "Bangladeshi television news often relies on the same wire-service and cross-channel sources, which can be discussed using the 'circular circulation of information' idea.",
+ "Private Bangladeshi channels compete for TRP-style ratings, which can be linked to Bourdieu's 'audience ratings as Last Judgment'.",
+ "Talk-show formats on Bangladeshi television can be examined using Bourdieu's critique of moderators and staged debates.",
+ "Ownership of Bangladeshi channels by business groups can be discussed carefully using Bourdieu's caution against pure economic determinism.",
+ "Television remains a major source of news and entertainment for many households in Bangladesh, echoing Wasko's point about television's pervasiveness.",
+],
+};
+
+// ---- QUESTION BANK -----------------------------------------------------
+const QUESTIONS = {
+wasko:[
+ "What is television? Discuss with reference to Wasko's introduction.",
+ "Why does Wasko argue that television is important enough to study seriously?",
+ "Discuss the positive and negative views of television presented by Wasko.",
+ "'Television is not only a technical device, but a social, political, economic and cultural force.' Explain.",
+ "Outline the main approaches to television research described by Wasko.",
+ "How has television's pervasiveness shaped everyday life, according to Wasko?",
+ "Discuss the economic significance of television as an industry.",
+],
+bourdieu:[
+ "Explain and critically discuss Bourdieu's concept of symbolic violence.",
+ "How does Bourdieu explain the mechanisms of invisible censorship on television?",
+ "What does Bourdieu mean by television's ability to 'hide by showing'?",
+ "Explain Bourdieu's concept of journalistic 'glasses' with examples.",
+ "Critically discuss Bourdieu's concept of the 'circular circulation of information'.",
+ "Discuss the role of audience ratings in shaping television content, according to Bourdieu.",
+ "Why does Bourdieu argue that television favours 'fast-thinkers'?",
+ "Discuss Bourdieu's critique of televised debates as 'truly false or falsely true'.",
+ "What is the 'journalistic field' and why does Bourdieu use this concept?",
+ "Explain Bourdieu's argument about competition and collusion among journalists.",
+ "How does Bourdieu use Patrick Champagne's research to support his arguments?",
+ "Discuss Bourdieu's view of the relationship between television, time, and thought.",
+],
+combined:[
+ "How can television be understood as both a social force (Wasko) and an instrument of symbolic power (Bourdieu)?",
+ "Discuss the role of television in society using both Wasko and Bourdieu.",
+ "How do the social functions of television identified by Wasko relate to Bourdieu's critique of television?",
+ "Is television a source of information or a mechanism for shaping reality? Discuss with reference to both readings.",
+ "Discuss television's democratic potential and its limitations.",
+ "How do economic and institutional pressures influence television content?",
+ "Compare Wasko's and Bourdieu's views on television as an ideological/socializing force.",
+ "'Television both connects and controls society.' Critically discuss with reference to both authors.",
+],
+bangladesh:[
+ "[BANGLADESH APPLICATION] How does the concept of the 'circular circulation of information' apply to television news in Bangladesh?",
+ "[BANGLADESH APPLICATION] Discuss how audience ratings/TRP culture shapes commercial television programming in Bangladesh.",
+ "[BANGLADESH APPLICATION] Apply Bourdieu's critique of televised debates to talk shows on Bangladeshi television.",
+ "[BANGLADESH APPLICATION] To what extent does channel ownership shape television content in Bangladesh? Discuss using Bourdieu's caution against economic determinism.",
+ "[BANGLADESH APPLICATION] Discuss television's role as a socializing agent (Wasko) in the context of Bangladeshi households.",
+],
+};
+
+// ---- MODEL ANSWERS (full, with 10/20 mark toggle) ------------------------
+const MODEL_ANSWERS = [
+{
+ q:"Explain and critically discuss Bourdieu's concept of symbolic violence in relation to television.",
+ examiner:"The examiner wants you to (1) define symbolic violence accurately, (2) show how it applies specifically to television, and (3) offer some critical/analytical comment — not just a definition.",
+ thesis:"Bourdieu's concept of symbolic violence explains how television exercises power quietly, through consent and unconsciousness rather than open force, making it a subtle but formidable instrument of social control.",
+ intro10:"Television is often seen as a neutral window on the world. Pierre Bourdieu, however, argues that television exercises a powerful but hidden form of control. This is what he calls symbolic violence. This essay explains the concept and shows how it works through television.",
+ intro20:"Television is often seen as a neutral window on the world, simply showing us events as they happen. Pierre Bourdieu challenges this view. He argues that television exercises a powerful but hidden form of control over what people think and believe. This is what he calls symbolic violence — a concept that connects his analysis of television to wider debates about media power and democracy. This essay first explains the concept, then shows how it operates through several concrete mechanisms on television, and finally offers a critical assessment of the idea.",
+ points10:[
+  {c:"Definition of symbolic violence", exp:"Bourdieu defines symbolic violence as violence exercised with the unconscious, tacit complicity of both its victims and its agents.", cit:"(Bourdieu, p. 17)"},
+  {c:"Television as a formidable instrument for this power", exp:"Because television reaches huge audiences and appears neutral, it is an especially effective vehicle for symbolic violence.", cit:"(Bourdieu, p. 16–17)"},
+  {c:"Example: sensational news and monopoly on thought", exp:"By emphasizing sensational, 'safe' stories, television quietly shapes what audiences believe matters, without anyone noticing they are being controlled.", cit:"(Bourdieu, p. 17–18)"},
+ ],
+ points20:[
+  {c:"Definition of symbolic violence", exp:"Bourdieu defines symbolic violence as violence exercised with the unconscious, tacit complicity of both its victims and its agents — power that works because people accept it, not because they are forced.", cit:"(Bourdieu, p. 17)"},
+  {c:"Television as a formidable instrument for this power", exp:"Because television reaches huge audiences and presents itself as simply 'showing reality', it is an especially effective vehicle for symbolic violence — more effective than direct political control.", cit:"(Bourdieu, p. 16–17)"},
+  {c:"Mechanism 1: invisible censorship", exp:"Journalists censor themselves out of job insecurity and competitive pressure, without ever being ordered to do so — a hidden layer beneath political and economic censorship.", cit:"(Bourdieu, p. 15)"},
+  {c:"Mechanism 2: journalistic 'glasses' and sensationalism", exp:"By emphasizing sensational, dramatic, 'safe' stories, journalists' professional categories quietly decide what audiences see, without appearing to impose anything.", cit:"(Bourdieu, p. 17–19)"},
+  {c:"Mechanism 3: the reality effect and monopoly on thought", exp:"Because a large part of the population depends entirely on television for information, television's version of reality becomes, for them, reality itself.", cit:"(Bourdieu, p. 18, 21)"},
+ ],
+ critical:"Bourdieu's concept can be criticized for being difficult to falsify: because symbolic violence is by definition unconscious, any denial of its existence can be read as further proof of it. It may also understate audiences' capacity for resistance or critical viewing — a point Bourdieu himself briefly acknowledges when he notes that early sociologists 'seriously underestimated viewers' capacity for resistance' (Bourdieu, p. 36).",
+ conclusion10:"In conclusion, symbolic violence captures how television's power lies not in force but in the quiet, unconscious acceptance of what it shows. This makes it a subtle but serious threat to independent, critical thought.",
+ conclusion20:"In conclusion, Bourdieu's concept of symbolic violence offers a powerful lens for understanding television's influence: not open coercion, but a quiet, structural power exercised through unconscious consent. Mechanisms such as invisible censorship, selective 'glasses', and the reality effect show how this power operates in practice. While the concept can be criticized for underestimating audience agency, it remains one of the most useful tools for critically evaluating the relationship between television and society, in Bangladesh as much as in France.",
+ citeOpps:"Insert (Bourdieu, p. 17) right after the definition; insert (Bourdieu, p. 18) when discussing the 'monopoly on minds' point; insert (Bourdieu, p. 36) in the critical/analytical paragraph.",
+},
+{
+ q:"How can television be understood as both a social force (Wasko) and an instrument of symbolic power (Bourdieu)?",
+ examiner:"The examiner wants a genuinely combined answer: not two separate mini-essays, but a structure that shows the conceptual link between Wasko's broad description of television's social role and Bourdieu's sharper, critical mechanism for how that role becomes a form of power.",
+ thesis:"While Wasko presents television as a multifaceted social, political, economic and cultural force, Bourdieu sharpens this picture by showing exactly how that force operates as a form of symbolic power that shapes belief and behaviour without visible coercion.",
+ intro10:"Wasko describes television as a social, political, economic and cultural force. Bourdieu goes further, showing how this force works through symbolic violence. Together, the two readings show television as both socially central and quietly powerful.",
+ intro20:"Janet Wasko and Pierre Bourdieu approach television from different angles but arrive at a similar conclusion: television is never a neutral technology. Wasko's introduction maps out the many social roles television plays — as storyteller, socializer, economic institution and site of political importance. Bourdieu's analysis narrows in on the mechanisms behind this social power, showing how television exercises symbolic violence through invisible censorship, selective 'glasses', and the manufacture of a reality effect. This essay argues that Wasko's broad social description and Bourdieu's sharper critical mechanism are two halves of the same picture.",
+ points10:[
+  {c:"Wasko: television as a social/cultural force", exp:"Television functions as a 'common storyteller' and socialization agent, shaping values and norms.", cit:"(Wasko, p. 3)"},
+  {c:"Bourdieu: this social force works as symbolic violence", exp:"Bourdieu explains that this shaping happens through unconscious consent, not open persuasion.", cit:"(Bourdieu, p. 17)"},
+  {c:"Synthesis", exp:"Wasko tells us television is powerful; Bourdieu tells us precisely how that power operates — invisibly.", cit:"(Wasko p. 3; Bourdieu p. 17)"},
+ ],
+ points20:[
+  {c:"Wasko: television as multifaceted social force", exp:"Television is described as simultaneously technological, economic, political, and cultural — an 'ideological source' of values.", cit:"(Wasko, p. 2–3)"},
+  {c:"Wasko: television as storyteller/socializer", exp:"Citing Signorielli & Bacue, Wasko frames television as a socialization agent alongside family and school.", cit:"(Wasko, p. 3)"},
+  {c:"Bourdieu: symbolic violence as the mechanism behind this force", exp:"Bourdieu explains that television's social influence operates through unconscious consent — symbolic violence.", cit:"(Bourdieu, p. 17)"},
+  {c:"Bourdieu: concrete mechanisms (glasses, ratings, circular circulation)", exp:"Selective 'glasses', ratings pressure, and the circular circulation of information all show precisely how television's broad social role narrows into a specific structure of power.", cit:"(Bourdieu, p. 18–27)"},
+  {c:"Synthesis and critical point", exp:"Wasko's account risks appearing too neutral/descriptive on its own; Bourdieu supplies the critical edge, while Wasko's broader view reminds us television also has genuine positive social value that Bourdieu's critique underplays.", cit:"(Wasko p. 3–4; Bourdieu p. 36)"},
+ ],
+ critical:"A critical reader might note that Wasko's descriptive approach risks treating television's social roles as neutral facts, while Bourdieu's more polemical approach risks overstating television's negative power at the expense of audience agency and television's genuine educational uses (which Wasko also documents).",
+ conclusion10:"In conclusion, Wasko and Bourdieu together show television as a powerful social force whose influence operates largely through invisible, unconscious mechanisms rather than open control.",
+ conclusion20:"In conclusion, reading Wasko and Bourdieu together reveals two complementary layers of the same phenomenon: Wasko maps the wide social terrain television occupies, while Bourdieu explains the precise, often invisible mechanisms — symbolic violence, selective glasses, ratings pressure — through which that social power actually operates. A complete understanding of television's role in society, including in a context like Bangladesh, requires both the descriptive breadth of Wasko and the critical depth of Bourdieu.",
+ citeOpps:"Open with (Wasko, p. 2) for the definition; use (Wasko, p. 3) for the storyteller idea; pivot with (Bourdieu, p. 17) for symbolic violence; use (Bourdieu, p. 18–19) for mechanisms; close with (Bourdieu, p. 36) in the critical paragraph.",
+},
+{
+ q:"Discuss Bourdieu's critique of televised debates as 'truly false or falsely true'.",
+ examiner:"The examiner wants you to explain both categories Bourdieu identifies (bogus debates vs. debates that only look genuine) with specific evidence, then connect this to television's claim to support democracy.",
+ thesis:"Bourdieu argues that televised debates are rarely the free, democratic exchanges they appear to be — some are openly staged among friendly insiders, while others look fair but are secretly shaped by moderators and production choices.",
+ intro10:"Bourdieu questions whether televised debates are truly democratic. He identifies two kinds of false debate: those that are obviously staged, and those that only appear genuine. This essay explains both with examples.",
+ intro20:"Television debates are often presented as a democratic space where different views can be openly exchanged. Bourdieu challenges this image directly. He distinguishes between debates that are entirely bogus and immediately recognizable as such, and debates that seem genuine but are, on closer analysis, falsely so. This essay explains both categories with Bourdieu's examples, before assessing what this critique means for television's claimed role in democracy.",
+ points10:[
+  {c:"Bogus debates", exp:"Some televised debates feature guests who are friends behind the scenes, pretending to represent opposite views.", cit:"(Bourdieu, p. 30)"},
+  {c:"Debates that only seem genuine", exp:"The Cavada debate looked like a fair democratic exchange but was tightly controlled by the moderator and studio setup.", cit:"(Bourdieu, p. 30–35)"},
+  {c:"Consequence for democracy", exp:"A union delegate got only five minutes to speak in a two-hour program, despite the formal appearance of equality.", cit:"(Bourdieu, p. 33)"},
+ ],
+ points20:[
+  {c:"Bogus debates", exp:"Some televised debates, such as talk shows pairing well-known 'opposing' commentators who are actually close colleagues, are entirely staged and recognizable as such.", cit:"(Bourdieu, p. 30)"},
+  {c:"Debates that seem genuine: the moderator's power", exp:"In the Cavada debate, the moderator determined the topic, decided who spoke, and used subtle cues (tone, interruptions) to control the discussion invisibly.", cit:"(Bourdieu, p. 31)"},
+  {c:"Production-level manipulation", exp:"Studio seating arrangements were quietly changed between broadcasts, shifting the apparent balance of opinion without any visible announcement.", cit:"(Bourdieu, p. 34)"},
+  {c:"Structural inequality between guests", exp:"Professional 'good guests'/fast-thinkers are comfortable on camera, while ordinary participants (such as striking workers) are structurally disadvantaged despite formal equal treatment.", cit:"(Bourdieu, p. 33, 35)"},
+  {c:"Consequence for democracy", exp:"Because the union delegate received only five minutes in a two-hour program, Bourdieu argues the 'formal signs of equality' mask a serious democratic problem.", cit:"(Bourdieu, p. 33)"},
+ ],
+ critical:"One could argue Bourdieu's examples are drawn from 1990s French television and may not fully describe today's more varied formats (multiple panelists, live audience voting, social media interaction), though the underlying mechanisms — moderator control, uneven guest preparedness, and production choices — arguably still apply, including to Bangladeshi talk shows.",
+ conclusion10:"In conclusion, Bourdieu shows that televised debates, whether obviously staged or only apparently fair, rarely deliver the open democratic exchange they claim to offer.",
+ conclusion20:"In conclusion, Bourdieu's distinction between debates that are 'truly false' and those that are 'falsely true' reveals how television can undermine the very democratic exchange it claims to provide. Through moderator control, staged studio arrangements, and structural inequality between guests, even a debate with all the 'formal signs of equality' can silence the voices it claims to represent. This critique remains relevant well beyond 1990s France, including for evaluating talk-show culture in Bangladesh today.",
+ citeOpps:"Use (Bourdieu, p. 30) for bogus debates; (Bourdieu, p. 31) for the moderator; (Bourdieu, p. 34) for the seating example; (Bourdieu, p. 33) for the five-minutes statistic.",
+},
+];
+
+// ---- FORMULAS -----------------------------------------------------------
+const FORMULAS = {
+ f10:["Define the key term(s) in the question.", "Explain the author's core argument (1–2 sentences).", "Give ONE concrete example/evidence from the text.", "Add a short critical or analytical remark.", "Conclude in 1–2 sentences."],
+ f20:["Introduce the topic and thesis (3–5 sentences).", "Point 1: definition/main claim + citation.", "Point 2: supporting mechanism/example + citation.", "Point 3: a second mechanism or contrasting view + citation.", "Point 4: connect to the other author (Wasko↔Bourdieu) if relevant.", "Critical/analytical paragraph: strengths and limits of the argument.", "Conclusion (3–5 sentences) restating the thesis."],
+ combo:["Introduce BOTH authors and state how they relate.", "Explain Wasko's relevant point + citation.", "Explain Bourdieu's relevant point + citation.", "Explicitly connect them: does Bourdieu sharpen, challenge, or extend Wasko?", "Critical paragraph weighing both views.", "Conclusion that answers the question using both authors."],
+ bd:["State the theoretical concept (from Wasko or Bourdieu) you are applying.", "Briefly describe the Bangladesh example, clearly labelled [BANGLADESH CONTEXT].", "Explain how the concept illuminates the example.", "Note any limits of the comparison (contexts differ).", "Conclude by returning to the theoretical point."],
+};
+
+// ---- BANGLADESH BANK -----------------------------------------------------
+const BANGLADESH = [
+ {concept:"Circular circulation of information (Bourdieu)",
+  example:"Many Bangladeshi television channels run very similar headlines on the same day, often based on shared wire content or on what other channels have already reported.",
+  write:"Bourdieu's concept of the circular circulation of information can be applied to Bangladeshi television, where competing channels often produce strikingly similar coverage because journalists monitor each other's output. [BANGLADESH CONTEXT — illustrative, not a verified statistic]"},
+ {concept:"Audience ratings / commercial pressure (Bourdieu)",
+  example:"Private Bangladeshi channels compete for advertising revenue and viewership, which can influence programming choices toward more sensational or entertainment-driven content.",
+  write:"As Bourdieu argues for French television, ratings pressure can push Bangladeshi commercial channels toward content that maximizes audience share rather than public value. [BANGLADESH CONTEXT — general/illustrative application]"},
+ {concept:"Staged/controlled debates (Bourdieu)",
+  example:"Bangladeshi television talk shows often feature a moderator who directs the flow of discussion and time given to each guest.",
+  write:"Bourdieu's critique of the moderator's hidden power over turn-taking and tone can be used to analyse talk-show formats on Bangladeshi television. [BANGLADESH CONTEXT — illustrative application]"},
+ {concept:"Ownership and economic censorship (Bourdieu)",
+  example:"Some Bangladeshi television channels are owned by larger business or industrial groups.",
+  write:"Following Bourdieu's caution, one should note ownership can shape content, but — as with TF1/Bouygues — a purely ownership-based explanation would be inadequate on its own. [BANGLADESH CONTEXT — requires care; avoid naming specific ownership facts unless independently verified]"},
+ {concept:"Television as socialization agent (Wasko)",
+  example:"Television remains a central source of entertainment, news and shared cultural experience in many Bangladeshi households.",
+  write:"Wasko's description of television as a 'common storyteller' and socialization agent applies readily to the role television plays in Bangladeshi family and social life. [BANGLADESH CONTEXT — general, widely observable]"},
+];
+
+// ---- SAFE OPINION / DO NOT WRITE -----------------------------------------
+const SAFE_OPINION = [
+ "From Bourdieu's perspective, this suggests that...",
+ "This argument can be understood as...",
+ "However, Wasko also recognizes that television can...",
+ "Therefore, television should not be understood only as...",
+ "The evidence presented in the text suggests that...",
+ "Building on this idea, it could be argued that...",
+ "While this view is persuasive, it may understate...",
+];
+const DO_NOT_WRITE = [
+ "Unsupported personal opinions with no link to the text.",
+ "Invented facts, page numbers, or years not found in the PDF.",
+ "Fake or approximate citations — always say 'page not clear' if unsure.",
+ "Overgeneralizations ('television is always bad/good').",
+ "Confusing Bourdieu's argument with Wasko's (or vice versa).",
+ "Presenting a Bangladesh example as if it came directly from the PDF.",
+ "Excessive or long quotations instead of your own explanation.",
+ "Unnecessarily difficult English that risks grammar mistakes.",
+ "Repeating the same argument in different words to fill space.",
+];
+
+// ---- VOCAB ----------------------------------------------------------------
+const VOCAB = [
+ {w:"symbolic", s:"about meaning, images, or ideas — not physical", bn:"প্রতীকী", ex:"Television exercises symbolic power over its audience."},
+ {w:"censorship", s:"stopping or controlling what can be said or shown", bn:"সেন্সরশিপ", ex:"Invisible censorship works through self-restraint, not open bans."},
+ {w:"perception", s:"the way someone notices and understands things", bn:"উপলব্ধি", ex:"Journalists' perception is shaped by their professional training."},
+ {w:"sensationalism", s:"making news exciting or shocking to attract attention", bn:"চাঞ্চল্যকরতা", ex:"Sensationalism drives the selection of crime stories."},
+ {w:"dramatization", s:"making an event seem more serious or exciting than it is", bn:"নাটকীয়করণ", ex:"Television's dramatization of riots exaggerates their scale."},
+ {w:"mobilize", s:"to organize people to act together", bn:"সংগঠিত করা", ex:"Images can mobilize public feeling around an issue."},
+ {w:"homogenize / homogenization", s:"to make things become the same or similar", bn:"একরূপ করা", ex:"Competition can homogenize news content instead of diversifying it."},
+ {w:"structural", s:"related to the underlying system, not individual people", bn:"কাঠামোগত", ex:"Bourdieu focuses on structural pressures, not individual blame."},
+ {w:"autonomy", s:"independence; freedom to act by one's own rules", bn:"স্বায়ত্তশাসন", ex:"Television has 'very little autonomy' from social pressures."},
+ {w:"legitimation", s:"making something seem acceptable or valid", bn:"বৈধতাদান", ex:"The market is now accepted as a means of legitimation for cultural products."},
+ {w:"microcosm", s:"a small world that reflects a larger one", bn:"ক্ষুদ্র জগৎ", ex:"Bourdieu describes journalism as a microcosm with its own laws."},
+ {w:"complicity", s:"being involved in something, often without full awareness", bn:"যোগসাজশ", ex:"Symbolic violence depends on the complicity of victim and agent."},
+ {w:"tacit", s:"understood without being openly stated", bn:"অব্যক্ত/নীরব", ex:"There is tacit complicity in symbolic violence."},
+ {w:"pervasive", s:"present or spreading everywhere", bn:"সর্বব্যাপী", ex:"Television is a pervasive part of daily life."},
+ {w:"ideological", s:"related to a system of ideas, beliefs, or values", bn:"মতাদর্শগত", ex:"Wasko calls television an ideological source."},
+ {w:"socialization", s:"the process of learning social norms and values", bn:"সামাজিকীকরণ", ex:"Television is described as an agent of socialization."},
+ {w:"exhibitionism", s:"a strong desire to be seen or noticed", bn:"প্রদর্শনপ্রিয়তা", ex:"Bourdieu calls television a space for narcissistic exhibitionism."},
+ {w:"invisible mechanisms", s:"hidden processes that are not directly seen", bn:"অদৃশ্য প্রক্রিয়া", ex:"Invisible mechanisms of censorship are harder to challenge than open control."},
+ {w:"reductionism", s:"explaining something complex using only one simple cause", bn:"হ্রাসবাদ", ex:"Bourdieu rejects a purely economic reductionism of television."},
+ {w:"legitimacy", s:"the quality of being accepted as valid or proper", bn:"বৈধতা", ex:"Market success gained legitimacy in cultural production over time."},
+ {w:"commodify / commodity", s:"to turn something into a product to be bought/sold", bn:"পণ্যে পরিণত করা", ex:"Time on television is treated as a rare commodity."},
+ {w:"discourse", s:"a way of talking or writing about a subject", bn:"বক্তব্য/আলোচনা", ex:"Television reshapes public discourse."},
+ {w:"institutional", s:"related to organizations and their established systems", bn:"প্রাতিষ্ঠানিক", ex:"Institutional pressures shape journalistic output."},
+ {w:"conform / conformity", s:"behaving according to accepted standards", bn:"অনুসরণ/সামঞ্জস্যতা", ex:"Job insecurity increases political conformity among journalists."},
+ {w:"consensual", s:"agreed upon by most people; non-controversial", bn:"ঐকমত্যপূর্ণ", ex:"Banal, consensual items fill television's limited time."},
+ {w:"polemic", s:"a strong verbal or written attack on an idea", bn:"তীক্ষ্ণ বিতর্ক/আক্রমণ", ex:"Bourdieu says his analysis is not meant as an ad hominem polemic."},
+ {w:"exhaustive/inexhaustible", s:"never running out; without limit", bn:"অফুরন্ত", ex:"Television's capacity to transmit content is seemingly inexhaustible."},
+ {w:"catalyst", s:"something that causes or speeds up a change", bn:"অনুঘটক", ex:"Television can act as a catalyst for reading."},
+];
+
+// ---- CONNECTING WORDS TOOLKIT --------------------------------------------
+const TOOLKIT = {
+ intro:["First,", "To begin with,", "According to Wasko,", "Bourdieu argues that..."],
+ add:["Moreover,", "In addition,", "Furthermore,", "Also,"],
+ evidence:["For example,", "This is shown when...", "As evidence,", "Bourdieu illustrates this by..."],
+ contrast:["However,", "On the other hand,", "In contrast,", "Although this is true, ..."],
+ cause:["As a result,", "Because of this,", "This leads to...", "Consequently,"],
+ analysis:["This shows that...", "In this sense,", "This suggests that...", "From this perspective,"],
+ bangladesh:["In the context of Bangladesh,", "Applying this to Bangladeshi television,", "A similar pattern can be observed in..."],
+ critical:["However, it is important to note...", "A limitation of this view is...", "Critics might argue that..."],
+ conclude:["Therefore,", "In conclusion,", "Overall,", "To sum up,"],
+};
+
+// ---- 10-hour schedule -----------------------------------------------------
+const SCHEDULE = [
+ {t:"Hour 1", act:"Read Crisis Mode + skim all MUST KNOW concepts. Do not take notes yet — just understand."},
+ {t:"Hour 2", act:"Read Core Arguments (Wasko then Bourdieu) slowly. Say each argument aloud once."},
+ {t:"Hour 3", act:"Memorize the Citation Bank (10 items) and Quote Bank (short quotes). Use flashcards."},
+ {t:"Hour 4", act:"Work through the MEMORISE THESE checklist — check off items as you can recall them without looking."},
+ {t:"Hour 5 (break)", act:"Take a 15–20 minute rest. Short walk, water, no phone doom-scrolling."},
+ {t:"Hour 5–6", act:"Read the 3 full Model Answers. Notice the formula: intro → points → citation → critical → conclusion."},
+ {t:"Hour 7", act:"Practice writing ONE 10-mark answer from memory (15–20 minutes), then compare to the model."},
+ {t:"Hour 8", act:"Practice ONE combined 20-mark answer from memory (25–30 minutes). Use the Answer Formula section."},
+ {t:"Hour 9", act:"Review Bangladesh Application Bank + Safe Opinion sentences + Do Not Write list. Run the Quiz."},
+ {t:"Hour 10 / final", act:"Final pass: read the 5-Minute Emergency Notes (Crisis Mode tab) right before the exam. Sleep if any time remains — a tired brain forgets faster than a rested one."},
+];
+
+/* =====================================================================
+   RENDER ENGINE
+===================================================================== */
+const $ = sel => document.querySelector(sel);
+const $all = sel => Array.from(document.querySelectorAll(sel));
+const state = { checks: JSON.parse(localStorage.getItem('tvchecks')||'{}'), knowMap: JSON.parse(localStorage.getItem('tvknow')||'{}') };
+
+function saveChecks(){ localStorage.setItem('tvchecks', JSON.stringify(state.checks)); updateProgress(); }
+function saveKnow(){ localStorage.setItem('tvknow', JSON.stringify(state.knowMap)); }
+
+function allCheckableIds(){
+  let ids = [];
+  MEMORIZE.wasko.forEach((_,i)=>ids.push('mw'+i));
+  MEMORIZE.bourdieu.forEach((_,i)=>ids.push('mb'+i));
+  MEMORIZE.connecting.forEach((_,i)=>ids.push('mc'+i));
+  MEMORIZE.bangladesh.forEach((_,i)=>ids.push('md'+i));
+  ['wasko-done','bourdieu-done','core-done','citation-done','answers-done','bangladesh-done','mock-done'].forEach(x=>ids.push(x));
+  return ids;
+}
+function updateProgress(){
+  const ids = allCheckableIds();
+  const done = ids.filter(id=>state.checks[id]).length;
+  const pct = Math.round(100*done/ids.length);
+  $('#progressPct').textContent = pct+'%';
+  $('#progressFill').style.width = pct+'%';
+}
+
+function tierTag(t){ return `<span class="tag ${t}">${t.toUpperCase()}</span>`; }
+function authorTag(a){
+  const map={wasko:'WASKO',bourdieu:'BOURDIEU',combined:'COMBINED'};
+  const cls={wasko:'wasko',bourdieu:'bourdieu',combined:'combo'};
+  return `<span class="tag ${cls[a]}">${map[a]}</span>`;
+}
+
+function checklistItem(id, text, extraClass){
+  const checked = !!state.checks[id];
+  return `<label class="${checked?'checked':''} ${extraClass||''}" data-id="${id}">
+    <input type="checkbox" ${checked?'checked':''} onchange="toggleCheck('${id}', this)">
+    <span>${text}</span>
+  </label>`;
+}
+function toggleCheck(id, el){
+  state.checks[id] = el.checked;
+  el.closest('label').classList.toggle('checked', el.checked);
+  saveChecks();
+}
+
+/* ---------- Section builders ---------- */
+function buildCrisis(){
+  return `
+  <h2>⏱ Crisis Mode — Last-Minute Revision</h2>
+  <p class="small">Exact plan for what to study first. Follow top to bottom until your time runs out.</p>
+  <div class="crisis-block"><h3>30-Minute Survival Plan</h3>
+   <ul>
+    <li>Read all <b>MUST KNOW</b> concepts in the Concept Bank tab (just the "Simple English" line).</li>
+    <li>Memorize 3 citations: symbolic violence (p.17), monopoly on minds (p.18), ratings as "Last Judgment" (p.26).</li>
+    <li>Memorize the Universal Answer Formula (10-mark version) in the Answer Formula tab.</li>
+   </ul>
+  </div>
+  <div class="crisis-block"><h3>1-Hour Plan</h3>
+   <ul><li>Everything above, plus: read all 10 Core Arguments for Bourdieu and the top 5 for Wasko.</li>
+   <li>Skim the Quote Bank — pick 4 quotes you find easiest to remember.</li></ul>
+  </div>
+  <div class="crisis-block"><h3>2-Hour Plan</h3>
+   <ul><li>Everything above, plus: read all 3 full Model Answers once, focusing on structure, not memorizing word-for-word.</li>
+   <li>Check off 15 items in "Memorise These".</li></ul>
+  </div>
+  <div class="crisis-block"><h3>5-Hour Plan</h3>
+   <ul><li>Everything above, plus: read SHOULD KNOW concepts, the full Citation Bank, and the Bangladesh Application Bank.</li>
+   <li>Attempt one 10-mark answer from memory (write it out).</li>
+   <li>Run the Quiz once (5 questions).</li></ul>
+  </div>
+  <div class="crisis-block"><h3>Full Remaining-Time Plan</h3>
+   <p>Go to the <b>10-Hour Plan</b> tab for an hour-by-hour schedule covering everything, including breaks, active recall, and mock writing.</p>
+  </div>
+  <h3>🔴 5-Minute Revision Right Before The Exam</h3>
+  <div class="card">
+   <b>10 concepts:</b> symbolic violence · invisible censorship · journalistic glasses · show and hide · reality effect · circular circulation of information · audience ratings/fast-thinkers · debates truly false/falsely true · journalistic field · television as storyteller (Wasko).<br><br>
+   <b>10 arguments:</b> TV = tech+social+political+economic+cultural (Wasko) · TV = ideological source/socializer (Wasko) · positive vs negative views (Minow "vast wasteland") (Wasko) · symbolic violence via unconscious complicity (Bourdieu) · censorship is invisible, not just political (Bourdieu) · sensationalism sells because of competition (Bourdieu) · TV has monopoly on many people's political knowledge (Bourdieu) · ratings are the "Last Judgment" (Bourdieu) · fast-thinkers use received ideas because thought needs time (Bourdieu) · pure economic determinism about ownership is inadequate (Bourdieu).<br><br>
+   <b>5 citations:</b> (Wasko, p. 2) · (Wasko, p. 3) · (Bourdieu, p. 17) · (Bourdieu, p. 18) · (Bourdieu, p. 26).<br><br>
+   <b>5 phrases:</b> "According to Wasko," · "Bourdieu argues that..." · "This shows that..." · "However, it is important to note..." · "Therefore,".<br><br>
+   <b>2 structures:</b> 10-mark = Define → Explain → Example → Critical remark → Conclude. 20-mark = Intro → 4 points (each with citation) → Critical paragraph → Conclusion.
+  </div>`;
+}
+
+function buildConcepts(){
+  let html = `<h2>Concept Bank — Ranked by Exam Value</h2>
+  <p class="small">🔴 MUST KNOW = very likely useful for a 10–20 mark answer. 🟠 SHOULD KNOW = strengthens an answer. 🟢 GOOD TO KNOW = only if time remains.</p>
+  <div class="pill-row no-print">
+   <button class="filt on" data-tier="all">All</button>
+   <button class="filt" data-tier="must">🔴 Must</button>
+   <button class="filt" data-tier="should">🟠 Should</button>
+   <button class="filt" data-tier="good">🟢 Good</button>
+  </div>
+  <div id="conceptList">`;
+  CONCEPTS.forEach(c=>{
+    html += `<details class="concept-item" data-tier="${c.tier}">
+      <summary>${tierTag(c.tier)} ${authorTag(c.author)} ${c.name}</summary>
+      <div class="inner">
+        <p><b>Simple English:</b> ${c.simple}</p>
+        <span class="bn">বাংলা: ${c.bangla}</span>
+        <p><b>What the author argues:</b> ${c.argue}</p>
+        <p><b>Why it matters:</b> ${c.why}</p>
+        <p><b>Example from the text:</b> ${c.example}</p>
+        <p><b>Possible exam question:</b> <i>${c.exam}</i></p>
+        <p class="small"><b>Citation:</b> ${c.page}</p>
+      </div>
+    </details>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+function buildArguments(){
+  let html = `<h2>Core Arguments</h2>`;
+  html += `<h3>WASKO — Introduction</h3>`;
+  ARGUMENTS.wasko.forEach(a=>{
+    html += `<div class="card"><b>${a.a}</b>
+      <p>${a.e}</p>
+      <p class="small"><i>Evidence:</i> ${a.ev}</p>
+      <p class="small"><b>Use when:</b> ${a.use} &nbsp;·&nbsp; <b>Citation:</b> (Wasko, ${a.page})</p>
+    </div>`;
+  });
+  html += `<h3>BOURDIEU — On Television</h3>`;
+  ARGUMENTS.bourdieu.forEach(a=>{
+    html += `<div class="card"><b>${a.a}</b>
+      <p>${a.e}</p>
+      <p class="small"><i>Evidence:</i> ${a.ev}</p>
+      <p class="small"><b>Use when:</b> ${a.use} &nbsp;·&nbsp; <b>Citation:</b> (Bourdieu, ${a.page})</p>
+    </div>`;
+  });
+  return html;
+}
+
+function buildCitations(){
+  let html = `<h2>Exam Citation Bank</h2>
+  <p class="small">Only citation details actually supported by the PDF are used here. Where a publication year is not stated in the extracted text, none is invented.</p>
+  <table><tr><th>What I can write</th><th>Citation</th><th>Use for</th><th>Memorise as</th></tr>`;
+  CITATIONS.forEach(c=>{
+    html += `<tr><td>${c.claim}</td><td class="mono">${c.cite}</td><td>${c.use}</td><td>${c.mem}</td></tr>`;
+  });
+  html += `</table>`;
+  return html;
+}
+
+function buildQuotes(){
+  let html = `<h2>Quote Bank</h2><p class="small">Short, memorable phrasings only — enough to reproduce accurately without copying long passages.</p>`;
+  QUOTES.forEach(q=>{
+    html += `<div class="qbox">"${q.q}"<cite>— ${q.author}, ${q.page}</cite>
+      <p style="font-style:normal;margin:.4em 0 0;"><b>Meaning:</b> ${q.meaning}</p>
+      <span class="bn" style="font-style:normal;">বাংলা: ${q.bangla}</span>
+      <p style="font-style:normal;" class="small"><b>Use for:</b> ${q.use}</p>
+    </div>`;
+  });
+  return html;
+}
+
+function buildMemorize(){
+  let html = `<h2>Memorise These</h2><p class="small">Check items off as you can recall them without looking. Your progress is saved automatically.</p>`;
+  html += `<h3>10 things from Wasko</h3><div class="checklist">`+MEMORIZE.wasko.map((t,i)=>checklistItem('mw'+i,t)).join('')+`</div>`;
+  html += `<h3>15 things from Bourdieu</h3><div class="checklist">`+MEMORIZE.bourdieu.map((t,i)=>checklistItem('mb'+i,t)).join('')+`</div>`;
+  html += `<h3>5 connecting ideas</h3><div class="checklist">`+MEMORIZE.connecting.map((t,i)=>checklistItem('mc'+i,t)).join('')+`</div>`;
+  html += `<h3>5 Bangladesh / application ideas</h3><div class="checklist">`+MEMORIZE.bangladesh.map((t,i)=>checklistItem('md'+i,t)).join('')+`</div>`;
+  return html;
+}
+
+function buildQuestions(){
+  let html = `<h2>Exam Question Bank</h2>`;
+  html += `<h3>A. Wasko-only questions</h3><ul>`+QUESTIONS.wasko.map(q=>`<li>${q}</li>`).join('')+`</ul>`;
+  html += `<h3>B. Bourdieu-only questions</h3><ul>`+QUESTIONS.bourdieu.map(q=>`<li>${q}</li>`).join('')+`</ul>`;
+  html += `<h3>C. Combined questions</h3><ul>`+QUESTIONS.combined.map(q=>`<li>${q}</li>`).join('')+`</ul>`;
+  html += `<h3>D. Bangladesh / application questions</h3><ul>`+QUESTIONS.bangladesh.map(q=>`<li>${q}</li>`).join('')+`</ul>`;
+  html += `<p class="small">For a quick outline of any of these, use the <b>Answer Formula</b> tab or the <b>Random Q + Mock</b> tab.</p>`;
+  return html;
+}
+
+function buildAnswers(){
+  let html = `<h2>Full Model Answers</h2><p class="small">Toggle between 10-mark and 20-mark versions of the same answer. Study the structure, don't just memorise the words.</p>`;
+  MODEL_ANSWERS.forEach((m,idx)=>{
+    html += `<details ${idx===0?'open':''}><summary>${m.q}</summary><div class="inner">
+      <p class="small"><b>What the examiner is asking:</b> ${m.examiner}</p>
+      <p><b>Thesis:</b> ${m.thesis}</p>
+      <div class="answer-mode-toggle no-print">
+        <button class="modeBtn on" data-ans="${idx}" data-mode="10">10-mark</button>
+        <button class="modeBtn" data-ans="${idx}" data-mode="20">20-mark</button>
+      </div>
+      <div class="mode10 show" id="ans${idx}-10">
+        <p><b>Introduction:</b> ${m.intro10}</p>
+        ${m.points10.map((p,i)=>`<p><b>Point ${i+1} — ${p.c}:</b> ${p.exp} <span class="mono small">${p.cit}</span></p>`).join('')}
+        <p><b>Critical/analytical point:</b> ${m.critical}</p>
+        <p><b>Conclusion:</b> ${m.conclusion10}</p>
+      </div>
+      <div class="mode20" id="ans${idx}-20">
+        <p><b>Introduction:</b> ${m.intro20}</p>
+        ${m.points20.map((p,i)=>`<p><b>Point ${i+1} — ${p.c}:</b> ${p.exp} <span class="mono small">${p.cit}</span></p>`).join('')}
+        <p><b>Critical/analytical point:</b> ${m.critical}</p>
+        <p><b>Conclusion:</b> ${m.conclusion20}</p>
+      </div>
+      <p class="small"><b>Citation opportunities:</b> ${m.citeOpps}</p>
+    </div></details>`;
+  });
+  return html;
+}
+
+function buildFormula(){
+  let html = `<h2>Universal Answer Formula</h2>`;
+  html += `<h3>10-Mark Formula</h3><ol>`+FORMULAS.f10.map(x=>`<li>${x}</li>`).join('')+`</ol>`;
+  html += `<h3>20-Mark Formula</h3><ol>`+FORMULAS.f20.map(x=>`<li>${x}</li>`).join('')+`</ol>`;
+  html += `<h3>Combined-Question Formula (Wasko + Bourdieu)</h3><ol>`+FORMULAS.combo.map(x=>`<li>${x}</li>`).join('')+`</ol>`;
+  html += `<h3>Bangladesh-Context Formula</h3><ol>`+FORMULAS.bd.map(x=>`<li>${x}</li>`).join('')+`</ol>`;
+  html += `<h2>How to Connect the Two Authors</h2>
+  <div class="grid2">
+   <div class="card"><h3>Wasko's map</h3><p class="mono small">Television → Technology → Mass communication → Social → Political → Economic → Cultural → Ideological → Positive/negative effects → Research approaches</p></div>
+   <div class="card"><h3>Bourdieu's map</h3><p class="mono small">Television → Journalistic field → Competition → Ratings → Time pressure → Selection ("glasses") → Sensationalism → Censorship → Symbolic violence → Show/hide → Fast-thinkers → Debates → Structural effects</p></div>
+  </div>
+  <div class="card"><b>If the question combines both readings:</b> Start from Wasko's broad category (e.g. "political" or "ideological") and show how Bourdieu's matching mechanism (e.g. "invisible censorship" or "symbolic violence") explains it in more critical detail. Wasko tells you television <i>is</i> a force; Bourdieu tells you exactly <i>how</i> that force operates.</div>`;
+  return html;
+}
+
+function buildBangladesh(){
+  let html = `<h2>Bangladesh Application Bank</h2>
+  <p class="small">Use sparingly — never present these as if they came from the PDF. Always label clearly.</p>`;
+  BANGLADESH.forEach(b=>{
+    html += `<div class="card"><span class="tag outside">BANGLADESH CONTEXT</span> <b>${b.concept}</b>
+      <p><b>Example:</b> ${b.example}</p>
+      <p><b>What I can write:</b> <i>${b.write}</i></p>
+    </div>`;
+  });
+  return html;
+}
+
+function buildWriting(){
+  let html = `<h2>Writing Toolkit</h2>
+  <h3>How to give your own opinion without leaving the text</h3>
+  <ul>`+SAFE_OPINION.map(s=>`<li>${s}</li>`).join('')+`</ul>
+  <h3>Connecting words toolkit</h3>
+  <div class="grid2">`;
+  Object.entries(TOOLKIT).forEach(([k,v])=>{
+    const label = {intro:"Introducing an argument", add:"Adding an argument", evidence:"Giving evidence", contrast:"Contrasting", cause:"Cause / effect", analysis:"Giving analysis", bangladesh:"Applying to Bangladesh", critical:"Giving a critical view", conclude:"Concluding"}[k];
+    html += `<div class="card"><h3>${label}</h3><p>${v.join(' &nbsp;·&nbsp; ')}</p></div>`;
+  });
+  html += `</div>
+  <h3>🚫 Do NOT write</h3>
+  <ul>`+DO_NOT_WRITE.map(s=>`<li>${s}</li>`).join('')+`</ul>`;
+  return html;
+}
+
+function buildVocab(){
+  let html = `<h2>Vocabulary Survival List</h2><table><tr><th>Word</th><th>Simple English</th><th>বাংলা</th><th>Exam sentence</th></tr>`;
+  VOCAB.forEach(v=>{
+    html += `<tr><td><b>${v.w}</b></td><td>${v.s}</td><td>${v.bn}</td><td><i>${v.ex}</i></td></tr>`;
+  });
+  html += `</table>`;
+  return html;
+}
+
+/* ---------- Quiz & Flashcards ---------- */
+const QUIZ_QUESTIONS = [
+ {q:"According to Bourdieu, what is symbolic violence?", opts:["Physical force used by the state","Violence exercised through unconscious, tacit complicity between victim and agent","Violence shown in TV dramas","A type of censorship law"], correct:1, exp:"Bourdieu defines symbolic violence as violence wielded with the unconscious complicity of both victim and agent (p. 17)."},
+ {q:"Who called television 'a vast wasteland'?", opts:["Pierre Bourdieu","Janet Wasko","Newton Minow","Jerry Mander"], correct:2, exp:"Newton Minow, FCC chairman, made this famous 1961 remark, cited by Wasko (p. 4)."},
+ {q:"What does Bourdieu mean by 'circular circulation of information'?", opts:["Information travelling in a physical circle via satellite","Journalists getting information mainly from other journalists, producing similar content","A method of fact-checking","Television repeating the same story every hour"], correct:1, exp:"Journalists rely on each other's coverage, which homogenizes news output (p. 23–24)."},
+ {q:"According to Wasko, television is best described as:", opts:["Only a technical device","A neutral information channel","A social, political, economic and cultural force","Purely an entertainment medium"], correct:2, exp:"Wasko insists television is 'not only a technical device, but also a social, political, economic, and cultural force' (p. 2)."},
+ {q:"What does Bourdieu call audience ratings?", opts:["The journalist's Last Judgment","A minor statistic","An outdated tool","Irrelevant to content"], correct:0, exp:"Bourdieu calls ratings the journalist's 'Last Judgment' (p. 26)."},
+ {q:"Who owns TF1, according to Bourdieu's example?", opts:["Disney","Westinghouse","Bouygues","General Electric"], correct:2, exp:"Bourdieu notes TF1 belongs to Bouygues (p. 16)."},
+ {q:"What are Bourdieu's 'fast-thinkers'?", opts:["Scientists who research quickly","People who think using ready-made, clichéd 'received ideas' suited to television's time pressure","Fast-talking auctioneers","Television engineers"], correct:1, exp:"Fast-thinkers rely on received ideas because television gives no time for genuine, slow thought (p. 28–29)."},
+ {q:"What research finding does Wasko mention about TV violence studies?", opts:["They proved TV causes violence","They proved TV has no effect at all","About 4,000 studies found no conclusive results","Only 10 studies have been done"], correct:2, exp:"Wasko notes roughly 4,000 studies on TV's effects on children reached no conclusive result (p. 5)."},
+ {q:"According to Bourdieu, television can 'hide by...':", opts:["Turning off the signal","Showing something else, or showing something in a way that empties its meaning","Using subtitles","Playing music instead of speech"], correct:1, exp:"This is the core of the 'show and hide' idea (p. 19)."},
+ {q:"What does Bourdieu mean by the 'journalistic field'?", opts:["A physical location where journalists work","A microcosm with its own internal laws, not reducible to economics alone","A field of study at universities","A type of camera lens"], correct:1, exp:"The journalistic field is a structured microcosm; Bourdieu rejects pure economic reductionism about it (p. 38–39)."},
+];
+
+let flashState = {idx:0, order:[], flipped:false};
+function buildFlashcards(){
+  flashState.order = CONCEPTS.map(c=>c.id);
+  return `<div id="flashArea"></div>`;
+}
+function renderFlash(){
+  const id = flashState.order[flashState.idx];
+  const c = CONCEPTS.find(x=>x.id===id);
+  const known = state.knowMap[id];
+  const front = `<div class="side-label">FRONT · card ${flashState.idx+1}/${flashState.order.length}</div><h3>${c.name}</h3><p class="small">${authorTag(c.author)} ${tierTag(c.tier)}</p><p class="small">(Click card to flip)</p>`;
+  const back = `<div class="side-label">BACK</div>
+    <p><b>Simple:</b> ${c.simple}</p>
+    <span class="bn">বাংলা: ${c.bangla}</span>
+    <p><b>Argument:</b> ${c.argue}</p>
+    <p><b>Example:</b> ${c.example}</p>
+    <p class="small"><b>Citation:</b> ${c.page}</p>`;
+  $('#flashArea').innerHTML = `
+    <div class="flash-stage" id="flashCard" onclick="flashState.flipped=!flashState.flipped; renderFlash();">
+      ${flashState.flipped ? back : front}
+    </div>
+    <div class="pill-row">
+      <button onclick="flashNav(-1)">◀ Prev</button>
+      <button onclick="flashShuffle()">🔀 Shuffle</button>
+      <button onclick="flashMark(true)" class="${known===true?'primary':''}">✔ I know this</button>
+      <button onclick="flashMark(false)" class="${known===false?'primary':''}">↻ Need revision</button>
+      <button onclick="flashNav(1)">Next ▶</button>
+    </div>
+    <p class="small">Known: ${Object.values(state.knowMap).filter(v=>v===true).length} / ${CONCEPTS.length}</p>`;
+}
+function flashNav(d){ flashState.flipped=false; flashState.idx=(flashState.idx+d+flashState.order.length)%flashState.order.length; renderFlash(); }
+function flashShuffle(){ flashState.order.sort(()=>Math.random()-0.5); flashState.idx=0; flashState.flipped=false; renderFlash(); }
+function flashMark(v){ const id=flashState.order[flashState.idx]; state.knowMap[id]=v; saveKnow(); renderFlash(); }
+
+let quizState = {idx:0, score:0, order:[], answered:false};
+function startQuiz(){
+  quizState = {idx:0, score:0, order:QUIZ_QUESTIONS.map((_,i)=>i).sort(()=>Math.random()-0.5).slice(0,5), answered:false};
+  renderQuiz();
+}
+function renderQuiz(){
+  const area = $('#quizArea');
+  if(quizState.idx >= quizState.order.length){
+    area.innerHTML = `<div class="card"><h3>Quiz complete!</h3><p>Score: ${quizState.score} / ${quizState.order.length}</p><button onclick="startQuiz()">Try again</button></div>`;
+    return;
+  }
+  const q = QUIZ_QUESTIONS[quizState.order[quizState.idx]];
+  area.innerHTML = `<div class="card">
+    <p class="small">Question ${quizState.idx+1} of ${quizState.order.length} · Score so far: ${quizState.score}</p>
+    <p><b>${q.q}</b></p>
+    <div id="quizOpts">${q.opts.map((o,i)=>`<div><button class="quizOpt" style="display:block;width:100%;text-align:left;margin:.3em 0;" data-i="${i}">${o}</button></div>`).join('')}</div>
+    <div id="quizFeedback"></div>
+  </div>`;
+  $all('.quizOpt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(quizState.answered) return;
+      quizState.answered = true;
+      const i = parseInt(btn.dataset.i);
+      const correct = i === q.correct;
+      if(correct) quizState.score++;
+      $all('.quizOpt').forEach((b,bi)=>{
+        b.disabled = true;
+        if(bi===q.correct) b.style.borderColor = 'var(--signal-2)';
+        if(bi===i && !correct) b.style.borderColor = 'var(--signal)';
+      });
+      $('#quizFeedback').innerHTML = `<p style="margin-top:.6em;"><b>${correct?'Correct!':'Not quite.'}</b> ${q.exp}</p><button onclick="quizState.idx++; quizState.answered=false; renderQuiz();">Next →</button>`;
+    });
+  });
+}
+
+function buildRecall(){
+  return `<h2>Active Recall</h2>
+  <div class="pill-row no-print">
+   <button onclick="showSubtab('quiz')" class="subtab on" id="tab-quiz">Quiz</button>
+   <button onclick="showSubtab('flash')" class="subtab" id="tab-flash">Flashcards</button>
+  </div>
+  <div id="recallQuiz"><h3>Quiz</h3><div id="quizArea"></div></div>
+  <div id="recallFlash" style="display:none;"><h3>Flashcards</h3>${buildFlashcards()}</div>`;
+}
+function showSubtab(which){
+  $('#recallQuiz').style.display = which==='quiz' ? 'block':'none';
+  $('#recallFlash').style.display = which==='flash' ? 'block':'none';
+  $('#tab-quiz').classList.toggle('on', which==='quiz');
+  $('#tab-flash').classList.toggle('on', which==='flash');
+  if(which==='quiz' && !quizState.order.length) startQuiz();
+  if(which==='flash') renderFlash();
+}
+
+/* ---------- Random Question Generator + Mock ---------- */
+const ALL_QUESTIONS = [...QUESTIONS.wasko, ...QUESTIONS.bourdieu, ...QUESTIONS.combined, ...QUESTIONS.bangladesh];
+let mockTimer = null, mockSeconds = 0;
+function buildRandom(){
+  return `<h2>Random Question Generator</h2>
+  <div class="card">
+    <button onclick="pickRandomQ()" class="primary">🎲 Give me an exam question</button>
+    <div id="randomQArea"></div>
+  </div>
+  <h2>Mock Exam Simulator</h2>
+  <div class="card">
+    <p class="small">Pick a mode, then plan and write your answer on paper or in another window. Use the timer to simulate exam pressure.</p>
+    <div class="pill-row">
+      <button onclick="startMock(20)">20-mark mock (start 30 min timer)</button>
+      <button onclick="startMock(10)">10+10 mock (start 40 min timer)</button>
+      <button onclick="stopMock()" class="ghost">Stop timer</button>
+    </div>
+    <div id="mockTimerBox" class="timer" style="display:none;">30:00</div>
+    <div id="mockQs"></div>
+  </div>`;
+}
+function pickRandomQ(){
+  const q = ALL_QUESTIONS[Math.floor(Math.random()*ALL_QUESTIONS.length)];
+  let secs = 120;
+  const area = $('#randomQArea');
+  area.innerHTML = `<p style="margin-top:.7em;"><b>${q}</b></p>
+    <div class="timer" id="planTimer">2:00</div>
+    <p class="small">Use this time to plan your outline before revealing help.</p>
+    <div class="pill-row">
+      <button onclick="revealStructure()">Show answer structure</button>
+      <button onclick="revealModel()">Show closest model answer (if available)</button>
+      <button onclick="revealCitations()">Show citation suggestions</button>
+    </div>
+    <div id="randomReveal"></div>`;
+  clearInterval(window._planInt);
+  window._planInt = setInterval(()=>{
+    secs--;
+    const m = Math.floor(secs/60), s = String(secs%60).padStart(2,'0');
+    const el = $('#planTimer'); if(el) el.textContent = m+':'+s;
+    if(secs<=0){ clearInterval(window._planInt); if(el) el.textContent = "Time's up!"; }
+  },1000);
+  window._currentRandomQ = q;
+}
+function revealStructure(){
+  $('#randomReveal').innerHTML = `<div class="card"><b>Suggested structure:</b><br>Define → Explain author's argument → Evidence/example → Critical remark → Conclude (10-mark) or use the full 20-mark formula in the Answer Formula tab.</div>`;
+}
+function revealModel(){
+  const match = MODEL_ANSWERS.find(m=>m.q===window._currentRandomQ);
+  $('#randomReveal').innerHTML = match ? `<div class="card">A full model answer for this exact question is available in the <b>Model Answers</b> tab.</div>` : `<div class="card">No ready-made full model answer for this exact question — build one using the Answer Formula and relevant Concept Bank entries.</div>`;
+}
+function revealCitations(){
+  $('#randomReveal').innerHTML = `<div class="card">Check the <b>Citation Bank</b> tab for the citation whose "Use for" column matches this question's topic.</div>`;
+}
+function startMock(mode){
+  mockSeconds = mode===20 ? 30*60 : 40*60;
+  $('#mockTimerBox').style.display='block';
+  const qs = mode===20 ? [ALL_QUESTIONS[Math.floor(Math.random()*ALL_QUESTIONS.length)]] :
+    [QUESTIONS.wasko[Math.floor(Math.random()*QUESTIONS.wasko.length)], QUESTIONS.bourdieu[Math.floor(Math.random()*QUESTIONS.bourdieu.length)]];
+  $('#mockQs').innerHTML = `<ol>${qs.map(q=>`<li>${q}</li>`).join('')}</ol><p class="small">Write your answer(s) on paper. When the timer ends, self-evaluate using the Rubric tab.</p>`;
+  clearInterval(mockTimer);
+  mockTimer = setInterval(()=>{
+    mockSeconds--;
+    const m = Math.floor(mockSeconds/60), s=String(mockSeconds%60).padStart(2,'0');
+    $('#mockTimerBox').textContent = m+':'+s;
+    if(mockSeconds<=0){ clearInterval(mockTimer); $('#mockTimerBox').textContent="Time's up!"; }
+  },1000);
+}
+function stopMock(){ clearInterval(mockTimer); $('#mockTimerBox').style.display='none'; }
+
+function buildRubric(){
+  return `<h2>Self-Assessment Rubric</h2>
+  <p class="small">This is a study-oriented self-assessment rubric, not an official university marking scheme.</p>
+  <div class="card"><h3>20-mark checklist</h3>
+   <ul>
+    <li>Understood exactly what the question asked</li>
+    <li>Accurate, non-confused use of Wasko and/or Bourdieu</li>
+    <li>Correct use of key concepts (named accurately)</li>
+    <li>Evidence/examples drawn from the text</li>
+    <li>At least 3–4 in-text citations, correctly formatted</li>
+    <li>A genuine critical/analytical paragraph, not just description</li>
+    <li>Bangladesh/application content only where relevant, clearly labelled</li>
+    <li>Clear structure: introduction, points, critical paragraph, conclusion</li>
+    <li>Simple, grammatically safe English</li>
+    <li>A conclusion that actually answers the question</li>
+   </ul>
+  </div>`;
+}
+
+function buildSchedule(){
+  let html = `<h2>Personalized 10-Hour Study Strategy</h2>`;
+  SCHEDULE.forEach(s=>{
+    html += `<div class="card">${checklistItem('sched-'+s.t.replace(/\\W+/g,''), `<b>${s.t}:</b> ${s.act}`)}</div>`;
+  });
+  return html;
+}
+
+/* =====================================================================
+   MAIN RENDER + NAV
+===================================================================== */
+const BUILDERS = {
+  crisis: buildCrisis, concepts: buildConcepts, arguments: buildArguments,
+  citations: buildCitations, quotes: buildQuotes, memorize: buildMemorize,
+  questions: buildQuestions, answers: buildAnswers, formula: buildFormula,
+  bangladesh: buildBangladesh, writing: buildWriting, vocab: buildVocab,
+  recall: buildRecall, random: buildRandom, rubric: buildRubric, schedule: buildSchedule,
+};
+
+function renderApp(){
+  const main = $('#main');
+  main.innerHTML = SECTIONS.map(s=>`<section class="section" id="sec-${s.id}"></section>`).join('');
+  SECTIONS.forEach(s=>{ $('#sec-'+s.id).innerHTML = BUILDERS[s.id](); });
+  const nav = $('#tabs');
+  nav.innerHTML = SECTIONS.map(s=>`<button data-id="${s.id}">${s.label}</button>`).join('');
+  nav.querySelectorAll('button').forEach(b=>b.addEventListener('click', ()=>showSection(b.dataset.id)));
+  showSection('crisis');
+  updateProgress();
+  wireConceptFilters();
+  wireAnswerToggles();
+  showSubtab('quiz');
+}
+
+function showSection(id){
+  $all('.section').forEach(s=>s.classList.remove('active'));
+  const t = $('#sec-'+id); if(t) t.classList.add('active');
+  $all('#tabs button').forEach(b=>b.classList.toggle('active', b.dataset.id===id));
+  window.scrollTo({top:0, behavior:'instant'});
+  location.hash = id;
+}
+
+function wireConceptFilters(){
+  $all('.filt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      $all('.filt').forEach(b=>b.classList.remove('on'));
+      btn.classList.add('on');
+      const tier = btn.dataset.tier;
+      $all('.concept-item').forEach(c=>{
+        c.style.display = (tier==='all' || c.dataset.tier===tier) ? '' : 'none';
+      });
+    });
+  });
+}
+function wireAnswerToggles(){
+  $all('.modeBtn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const idx = btn.dataset.ans, mode = btn.dataset.mode;
+      $all(`.modeBtn[data-ans="${idx}"]`).forEach(b=>b.classList.toggle('on', b.dataset.mode===mode));
+      $('#ans'+idx+'-10').classList.toggle('show', mode==='10');
+      $('#ans'+idx+'-20').classList.toggle('show', mode==='20');
+    });
+  });
+}
+
+/* ---------- Theme, Focus, Print ---------- */
+$('#themeBtn').addEventListener('click', ()=>{
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur==='dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next==='dark'?'dark':'');
+  localStorage.setItem('tvtheme', next);
+});
+(function initTheme(){
+  const saved = localStorage.getItem('tvtheme');
+  if(saved==='dark') document.documentElement.setAttribute('data-theme','dark');
+})();
+
+let focusOn = false;
+$('#focusBtn').addEventListener('click', ()=>{
+  focusOn = !focusOn;
+  document.body.classList.toggle('focus-mode', focusOn);
+  $all('.card, details').forEach(el=>{}); // no-op hook, focus mode simplified via CSS below
+});
+
+/* ---------- Search ---------- */
+function buildSearchIndex(){
+  const idx = [];
+  CONCEPTS.forEach(c=>idx.push({type:'Concept', text:c.name+' '+c.simple+' '+c.argue, goto:'concepts'}));
+  QUOTES.forEach(q=>idx.push({type:'Quote', text:q.q+' '+q.meaning, goto:'quotes'}));
+  CITATIONS.forEach(c=>idx.push({type:'Citation', text:c.claim, goto:'citations'}));
+  ALL_QUESTIONS.forEach(q=>idx.push({type:'Question', text:q, goto:'questions'}));
+  VOCAB.forEach(v=>idx.push({type:'Vocab', text:v.w+' '+v.s, goto:'vocab'}));
+  ARGUMENTS.wasko.forEach(a=>idx.push({type:'Argument (Wasko)', text:a.a+' '+a.e, goto:'arguments'}));
+  ARGUMENTS.bourdieu.forEach(a=>idx.push({type:'Argument (Bourdieu)', text:a.a+' '+a.e, goto:'arguments'}));
+  return idx;
+}
+let SEARCH_INDEX = [];
+$('#searchBox').addEventListener('input', e=>{
+  const q = e.target.value.trim().toLowerCase();
+  const box = $('#searchResults');
+  if(q.length<2){ box.style.display='none'; return; }
+  const hits = SEARCH_INDEX.filter(item=>item.text.toLowerCase().includes(q)).slice(0,12);
+  if(!hits.length){ box.innerHTML = '<div>No matches.</div>'; box.style.display='block'; return; }
+  box.innerHTML = hits.map(h=>`<div data-goto="${h.goto}"><b>[${h.type}]</b> ${h.text.slice(0,110)}${h.text.length>110?'…':''}</div>`).join('');
+  box.style.display='block';
+  box.querySelectorAll('div[data-goto]').forEach(d=>d.addEventListener('click', ()=>{ showSection(d.dataset.goto); box.style.display='none'; e.target.value=''; }));
+});
+document.addEventListener('click', e=>{ if(!e.target.closest('#searchWrap')) $('#searchResults').style.display='none'; });
+
+/* ---------- Boot ---------- */
+renderApp();
+SEARCH_INDEX = buildSearchIndex();
+if(location.hash){ const id = location.hash.slice(1); if(SECTIONS.some(s=>s.id===id)) showSection(id); }
+</script>
+</body>
+</html>

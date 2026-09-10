@@ -1,0 +1,1727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="../../firebase-config.js?v=11"></script>
+  <script>window.AG_PAGE = {"id": "tfp503-exam-prep", "title": "Television Criticism Exam Prep"};</script>
+  <script src="../../auth-gate.js?v=11"></script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Television Criticism — Exam Prep</title>
+<style>
+:root{
+  --paper:#F7F4EC; --paper2:#F1ECE0; --ink:#20241F; --ink-soft:#4A4E45;
+  --line:#DDD6C4; --accent:#2F5D50; --accent-soft:#DCE7E1; --gold:#A8792F;
+  --gold-soft:#F1E6CC; --red:#B23A2E; --red-soft:#F5DEDB;
+  --amber:#B4820E; --amber-soft:#F6ECCF; --green:#2F6B3E; --green-soft:#E1EEDF;
+  --shadow: 0 1px 3px rgba(32,36,31,0.08);
+  --serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', serif;
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --radius: 3px;
+}
+[data-theme="dark"]{
+  --paper:#191A17; --paper2:#212319; --ink:#EDE8DA; --ink-soft:#B8B2A0;
+  --line:#3A3B32; --accent:#7FB8A4; --accent-soft:#243A34; --gold:#D8B15C;
+  --gold-soft:#332A15; --red:#E08477; --red-soft:#3A211E;
+  --amber:#E0C15C; --amber-soft:#332B15; --green:#8FCB9B; --green-soft:#1E2E20;
+  --shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--paper); color:var(--ink); font-family:var(--serif);
+  font-size:17px; line-height:1.65; min-height:100vh;
+}
+::selection{background:var(--gold-soft);}
+a{color:var(--accent);}
+button{font-family:var(--sans); cursor:pointer;}
+.hidden{display:none !important;}
+
+/* ---------- Top bar ---------- */
+#topbar{
+  position:sticky; top:0; z-index:50; background:var(--paper);
+  border-bottom:1px solid var(--line); padding:10px 18px;
+  display:flex; align-items:center; gap:14px; font-family:var(--sans);
+}
+#topbar .brand{font-family:var(--serif); font-weight:700; font-size:16px; letter-spacing:0.2px; cursor:pointer; white-space:nowrap;}
+#topbar .spacer{flex:1;}
+#topbar .countdown-mini{font-size:12.5px; color:var(--ink-soft); white-space:nowrap;}
+#topbar .countdown-mini strong{color:var(--red); font-variant-numeric:tabular-nums;}
+#topbar button.icon-btn{
+  background:none; border:1px solid var(--line); border-radius:var(--radius);
+  color:var(--ink); font-size:13px; padding:6px 10px;
+}
+#topbar button.icon-btn:hover{background:var(--paper2);}
+#searchbox{
+  font-family:var(--sans); font-size:13px; padding:6px 10px; border:1px solid var(--line);
+  border-radius:var(--radius); background:var(--paper2); color:var(--ink); width:160px;
+}
+#searchResults{
+  position:absolute; top:52px; right:18px; width:340px; max-height:70vh; overflow:auto;
+  background:var(--paper); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow); z-index:60; padding:6px;
+}
+#searchResults .sr-item{padding:8px 10px; border-bottom:1px solid var(--line); cursor:pointer; font-family:var(--sans); font-size:13.5px;}
+#searchResults .sr-item:last-child{border-bottom:none;}
+#searchResults .sr-item:hover{background:var(--paper2);}
+#searchResults .sr-tag{font-size:10.5px; color:var(--accent); text-transform:uppercase; letter-spacing:0.5px;}
+
+/* ---------- Layout ---------- */
+#app{max-width:760px; margin:0 auto; padding:24px 18px 90px;}
+.focus-mode #topbar .non-focus{display:none;}
+.focus-mode #app{max-width:680px;}
+
+/* ---------- Home ---------- */
+.home-hero{margin-bottom:26px;}
+.home-hero h1{font-size:28px; margin:0 0 4px; letter-spacing:0.2px;}
+.home-hero p.tagline{color:var(--ink-soft); margin:0; font-size:15px;}
+
+.card{
+  background:var(--paper2); border:1px solid var(--line); border-radius:var(--radius);
+  padding:18px 20px; margin-bottom:16px;
+}
+.card h2{font-size:14px; text-transform:uppercase; letter-spacing:0.8px; margin:0 0 12px; color:var(--ink-soft); font-family:var(--sans); font-weight:600;}
+
+.countdown-display{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+.countdown-display .cd-num{font-size:38px; font-weight:700; color:var(--red); font-variant-numeric:tabular-nums; font-family:var(--sans);}
+.countdown-display .cd-label{font-size:13px; color:var(--ink-soft); font-family:var(--sans);}
+.exam-time-row{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; font-family:var(--sans);}
+.exam-time-row input{font-family:var(--sans); padding:7px 9px; border:1px solid var(--line); border-radius:var(--radius); background:var(--paper); color:var(--ink); font-size:13px;}
+.btn{
+  font-family:var(--sans); background:var(--accent); color:#fff; border:none; padding:8px 14px;
+  border-radius:var(--radius); font-size:13px; font-weight:600;
+}
+.btn:hover{opacity:0.9;}
+.btn.secondary{background:none; color:var(--accent); border:1px solid var(--accent);}
+.btn.ghost{background:none; color:var(--ink-soft); border:1px solid var(--line);}
+
+.grid-2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+@media(max-width:560px){.grid-2{grid-template-columns:1fr;}}
+
+.menu-list{display:flex; flex-direction:column; gap:8px;}
+.menu-item{
+  display:flex; align-items:center; justify-content:space-between; padding:13px 16px;
+  background:var(--paper); border:1px solid var(--line); border-radius:var(--radius);
+  font-family:var(--sans); font-size:14.5px;
+}
+.menu-item:hover{border-color:var(--accent);}
+.menu-item .mi-title{font-weight:600;}
+.menu-item .mi-sub{font-size:12px; color:var(--ink-soft); margin-top:2px;}
+.menu-item .mi-arrow{color:var(--accent); font-size:16px;}
+
+.progress-bar-track{background:var(--paper); border-radius:20px; height:8px; overflow:hidden; border:1px solid var(--line);}
+.progress-bar-fill{background:var(--accent); height:100%; transition:width 0.3s;}
+.progress-row{display:flex; align-items:center; gap:10px; margin-bottom:8px; font-family:var(--sans); font-size:13px;}
+.progress-row .pr-label{width:110px; color:var(--ink-soft); flex-shrink:0;}
+.progress-row .pr-pct{width:38px; text-align:right; flex-shrink:0; font-variant-numeric:tabular-nums;}
+
+.continue-banner{
+  display:flex; justify-content:space-between; align-items:center; gap:10px;
+  background:var(--gold-soft); border:1px solid var(--gold); border-radius:var(--radius);
+  padding:12px 16px; margin-bottom:16px; font-family:var(--sans); font-size:13.5px;
+}
+
+/* ---------- Section nav (topic page) ---------- */
+.topic-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
+.topic-header h1{font-size:22px; margin:0;}
+.section-list-item{
+  display:flex; align-items:center; gap:10px; padding:12px 14px; border:1px solid var(--line);
+  border-radius:var(--radius); margin-bottom:8px; background:var(--paper2); font-family:var(--sans);
+}
+.section-list-item:hover{border-color:var(--accent);}
+.section-list-item .sli-status{width:16px; height:16px; border-radius:50%; border:2px solid var(--line); flex-shrink:0;}
+.section-list-item .sli-status.learned{background:var(--green); border-color:var(--green);}
+.section-list-item .sli-status.review{background:var(--amber); border-color:var(--amber);}
+.section-list-item .sli-status.reading{background:var(--accent-soft); border-color:var(--accent);}
+.section-list-item .sli-title{flex:1; font-size:14.5px; font-weight:600;}
+.section-list-item .sli-pri{font-size:12px;}
+
+/* ---------- Reader ---------- */
+.reader-nav{
+  display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;
+  font-family:var(--sans); font-size:12.5px; color:var(--ink-soft);
+}
+.reader-progress-track{background:var(--paper2); height:4px; border-radius:2px; margin-bottom:18px; overflow:hidden;}
+.reader-progress-fill{background:var(--accent); height:100%;}
+.section-title-block{margin-bottom:6px;}
+.section-title-block .st-eyebrow{font-family:var(--sans); font-size:11.5px; text-transform:uppercase; letter-spacing:0.8px; color:var(--ink-soft);}
+.section-title-block h1{font-size:25px; margin:6px 0 10px;}
+.pri-badge{display:inline-block; font-family:var(--sans); font-size:11px; padding:2px 8px; border-radius:20px; margin-left:8px; vertical-align:middle;}
+.pri-must{background:var(--red-soft); color:var(--red);}
+.pri-should{background:var(--amber-soft); color:var(--amber);}
+.pri-time{background:var(--green-soft); color:var(--green);}
+
+.tabs{display:flex; gap:4px; margin-bottom:16px; border-bottom:1px solid var(--line); font-family:var(--sans);}
+.tab-btn{
+  background:none; border:none; padding:8px 14px; font-size:13.5px; color:var(--ink-soft);
+  border-bottom:2px solid transparent; margin-bottom:-1px;
+}
+.tab-btn.active{color:var(--accent); border-color:var(--accent); font-weight:600;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+.quick-box{background:var(--accent-soft); border-radius:var(--radius); padding:16px 18px; font-size:16.5px;}
+.notes-block p{margin:0 0 13px;}
+.notes-block ul{margin:0 0 13px; padding-left:22px;}
+.notes-block li{margin-bottom:6px;}
+details.more-detail{margin-top:14px; border-top:1px dashed var(--line); padding-top:10px;}
+details.more-detail summary{font-family:var(--sans); font-size:13px; color:var(--accent); cursor:pointer; font-weight:600;}
+details.more-detail[open] summary{margin-bottom:8px;}
+
+.subhead{font-family:var(--sans); font-size:12px; text-transform:uppercase; letter-spacing:0.7px; color:var(--ink-soft); font-weight:700; margin:22px 0 8px;}
+.subhead:first-child{margin-top:0;}
+
+.memorize-strip{
+  font-family:var(--sans); background:var(--gold-soft); border:1px solid var(--gold);
+  border-radius:var(--radius); padding:12px 16px; font-size:14.5px; font-weight:600; color:var(--gold);
+  letter-spacing:0.2px;
+}
+.keyword-pills{display:flex; flex-wrap:wrap; gap:6px;}
+.pill{font-family:var(--sans); font-size:12.5px; background:var(--paper2); border:1px solid var(--line); padding:4px 10px; border-radius:20px;}
+
+.info-list{margin:0; padding-left:20px;}
+.info-list li{margin-bottom:6px;}
+
+.citation-card{border:1px solid var(--line); border-radius:var(--radius); padding:12px 14px; margin-bottom:10px; background:var(--paper2);}
+.citation-card .cc-source{font-family:var(--sans); font-weight:700; font-size:13.5px; margin-bottom:4px;}
+.citation-card .cc-argument{margin-bottom:8px; font-size:15.5px;}
+.citation-card .cc-usefor{font-family:var(--sans); font-size:11.5px; color:var(--ink-soft);}
+.citation-card .cc-usefor span{background:var(--accent-soft); color:var(--accent); padding:2px 8px; border-radius:20px; margin-right:5px; display:inline-block; margin-bottom:3px;}
+
+.write-steps{list-style:none; margin:0; padding:0; counter-reset:wstep;}
+.write-steps li{counter-increment:wstep; margin-bottom:10px; padding-left:30px; position:relative;}
+.write-steps li::before{content:counter(wstep); position:absolute; left:0; top:0; width:20px; height:20px; background:var(--accent); color:#fff; border-radius:50%; font-family:var(--sans); font-size:11px; display:flex; align-items:center; justify-content:center;}
+
+.skeleton-block{font-family:var(--sans); font-size:14px; background:var(--paper2); border-radius:var(--radius); padding:14px 16px; border:1px solid var(--line);}
+.skeleton-block .sk-step{font-weight:700; margin-top:8px;}
+.skeleton-block .sk-step:first-child{margin-top:0;}
+.skeleton-block .sk-sub{padding-left:16px; color:var(--ink-soft); font-weight:400;}
+
+.recall-card{border:1px solid var(--line); border-radius:var(--radius); padding:12px 14px; margin-bottom:8px; background:var(--paper2);}
+.recall-q{font-family:var(--sans); font-weight:600; font-size:14px; cursor:pointer; display:flex; justify-content:space-between;}
+.recall-a{margin-top:8px; padding-top:8px; border-top:1px dashed var(--line); font-size:15px; display:none;}
+.recall-a.show{display:block;}
+
+.vocab-card{border:1px solid var(--line); border-radius:var(--radius); padding:12px 14px; margin-bottom:8px;}
+.vocab-word{font-family:var(--sans); font-weight:700; font-size:15px; color:var(--accent);}
+.vocab-row{font-size:14.5px; margin-top:4px;}
+.vocab-row b{font-family:var(--sans); font-size:11.5px; color:var(--ink-soft); text-transform:uppercase; margin-right:6px;}
+
+.recall-mode-box{text-align:center; padding:30px 10px;}
+.recall-mode-answer{margin-top:20px; text-align:left; background:var(--paper2); border-radius:var(--radius); padding:16px 18px; border:1px solid var(--line);}
+.recall-mode-btns{display:flex; gap:8px; justify-content:center; margin-top:16px; flex-wrap:wrap;}
+.recall-mode-btns button{font-family:var(--sans); font-size:13px; padding:8px 14px; border-radius:var(--radius); border:1px solid var(--line); background:var(--paper2); color:var(--ink);}
+.recall-mode-btns button.know{border-color:var(--green); color:var(--green);}
+.recall-mode-btns button.review{border-color:var(--amber); color:var(--amber);}
+.recall-mode-btns button.forgot{border-color:var(--red); color:var(--red);}
+
+.nav-buttons{display:flex; justify-content:space-between; margin-top:30px; gap:10px; font-family:var(--sans);}
+.nav-buttons button{padding:10px 16px; border-radius:var(--radius); border:1px solid var(--line); background:var(--paper2); color:var(--ink); font-size:13.5px;}
+.mark-learned-row{display:flex; justify-content:center; gap:8px; margin-top:16px; font-family:var(--sans); flex-wrap:wrap;}
+.mark-learned-row button{font-size:12.5px; padding:6px 12px; border-radius:20px; border:1px solid var(--line); background:var(--paper2); color:var(--ink);}
+.mark-learned-row button.active-learned{background:var(--green); color:#fff; border-color:var(--green);}
+.mark-learned-row button.active-review{background:var(--amber); color:#fff; border-color:var(--amber);}
+
+/* Rapid review / master sheet / emergency modes */
+.rr-card{border:1px solid var(--line); border-radius:var(--radius); padding:18px 20px; margin-bottom:14px; background:var(--paper2);}
+.rr-card h3{margin:0 0 8px; font-size:18px;}
+.mastersheet-topic{margin-bottom:6px; margin-top:26px; font-family:var(--sans); font-size:13px; text-transform:uppercase; letter-spacing:0.6px; color:var(--accent); font-weight:700;}
+
+.compact-list{font-size:14.5px;}
+.compact-list .cl-item{border-bottom:1px solid var(--line); padding:10px 0;}
+.compact-list .cl-item:last-child{border-bottom:none;}
+.compact-title{font-weight:700; margin-bottom:4px;}
+
+.checklist-item{display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--line); font-family:var(--sans); font-size:14px;}
+.checklist-item:last-child{border-bottom:none;}
+.checklist-item input{width:16px; height:16px;}
+.checklist-item.done{color:var(--ink-soft); text-decoration:line-through;}
+
+.emg-btn{font-family:var(--sans); font-weight:700; font-size:15px; padding:16px 20px;}
+
+footer.credits{text-align:center; font-family:var(--sans); font-size:11.5px; color:var(--ink-soft); margin-top:40px;}
+</style>
+</head>
+<body>
+<div id="ag-overlay"></div>
+<div id="topbar">
+  <div class="brand" onclick="goHome()">📺 TV Criticism — Exam Prep</div>
+  <span class="countdown-mini non-focus" id="miniCountdown"></span>
+  <div class="spacer"></div>
+  <input type="text" id="searchbox" class="non-focus" placeholder="Search…" oninput="doSearch(this.value)">
+  <button class="icon-btn non-focus" onclick="toggleTheme()" id="themeBtn">🌙</button>
+  <button class="icon-btn" onclick="toggleFocus()" id="focusBtn">⤢ Focus</button>
+</div>
+<div id="searchResults" class="hidden"></div>
+<div id="app"></div>
+
+<script>
+
+// ============================================================
+// TELEVISION CRITICISM — EXAM PREP DATA
+// Topic 1: "Introduction" by Janet Wasko
+// Topic 2: "On Television" by Pierre Bourdieu
+// ============================================================
+
+const TOPICS = {
+  1: { name: "Television — Introduction", author: "Janet Wasko", short: "Topic 1" },
+  2: { name: "On Television", author: "Pierre Bourdieu", short: "Topic 2" }
+};
+
+const SECTIONS = [
+// ============================== TOPIC 1 ==============================
+{
+  id: "t1-what-is-tv",
+  topic: 1,
+  order: 1,
+  title: "What is Television?",
+  priority: "must",
+  quick: "Television is a multifaceted apparatus: a technology (electromagnetic transmission of images/sound), an industry, and a social/political/economic/cultural force all at once. Its underlying technology was built in the 1920s, but it only became a mass medium in the late 1940s–early 1950s. Early inventors like Philo Farnsworth were deeply optimistic about what TV could achieve, though that dream was never fully realized.",
+  examNotes: [
+    "<b>Formal definition</b> (American Heritage Dictionary of the English Language, 4th ed., 2000) — television has three linked senses: (1) the transmission of moving/stationary visual images, usually with sound, as electromagnetic waves, and the reconversion of received waves into images; (2a) the electronic apparatus that receives and displays these images; (2b) the audible/visible content produced by that apparatus; (3) the industry that produces and broadcasts television programs.",
+    "<b>Etymology</b> — the word \"television\" is a hybrid: half Greek (<i>tele-</i>, meaning \"far\") and half Latin/French (<i>vision</i>). English journalist <b>C. P. Scott</b> (1846–1932) mocked this mixed origin: \"Television? The word is half Greek, half Latin. No good can come of it.\"",
+    "<b>Historical development</b> — television as a form of <i>mass communication</i> did not emerge until the late 1940s and early 1950s, even though much of the underlying technology was actually developed during the <b>1920s</b>. As with many media technologies, early expectations were \"optimistic and propitious.\"",
+    "<b>Philo Farnsworth</b> — an often-overlooked American inventor of television, was hopeful about its future. His biographer (<b>Schwartz, 2002, p. 113</b>) explains Farnsworth's vision: television would become \"the world's greatest teaching tool\" and wipe out illiteracy; its immediacy meant viewers would watch news unfold live, without relying on others to interpret/distort it; people would watch sporting events and symphony orchestras; \"instead of going to the movies, the movies would come to us\"; and television would even bring about <b>world peace</b> — if people could see and understand people in other countries, misunderstandings (and war) would end.",
+    "Farnsworth's <i>full</i> vision has not been realized, though parts of it have been \"more than fulfilled.\"",
+    "Television today is a common household appliance serving as a source of <b>news, information, politics, entertainment, education, religion, art, culture, sports, weather, and music</b>.",
+    "Television is also an <b>industrial system</b> that produces and distributes products, and often promotes other commodities/commerce.",
+    "Conclusion of this section: television is not only a technical device, but also a <b>social, political, economic, and cultural force</b>.",
+    "Television keeps changing with new technology (VCRs, cable, pay TV, satellite, digital, HD) and faces growing competition from other communication systems (computers, internet). Its meaning also varies across different parts of the world.",
+    "Because of this constant variation and change, Wasko calls television an <b>\"enigmatic 'moving target'\"</b> — its future uncertain and contested. Nevertheless, scholars must still try to define its character and influence."
+  ],
+  deeper: [
+    "The dictionary definition is useful because exam answers that open with a formal definition immediately show the examiner you understand television as simultaneously a technology, an object, content, and an industry — four senses in one word.",
+    "Farnsworth is described as \"often-overlooked\" — worth noting if a question asks specifically about early inventors or the optimistic/utopian view of new media technology in general (a recurring theme across many media theories: new technologies are often first welcomed with utopian hopes, then later criticized)."
+  ],
+  memoryTrick: "Contrast chain: Definition (3-part) → Etymology (half-Greek/half-Latin, Scott's mockery) → History (1920s tech → 1940s-50s mass medium) → Farnsworth's utopia (teach, no distortion, peace) → Reality today (appliance + industry + social/political/economic/cultural force) → \"Moving target.\"",
+  memorize: "3-part definition → half-Greek/half-Latin (Scott) → 1920s tech → 1940s-50s mass medium → Farnsworth's dream (teach • live news • peace) → moving target",
+  keywords: ["electromagnetic waves", "apparatus", "industry", "Philo Farnsworth", "C. P. Scott", "moving target", "multifaceted", "Schwartz (2002)"],
+  important: [
+    "<b>Philo Farnsworth</b> — American inventor, optimistic pioneer of television technology.",
+    "<b>Schwartz (2002, p. 113)</b> — Farnsworth's biographer; source of the utopian-vision quotation.",
+    "<b>C. P. Scott</b> (1846–1932) — English journalist who mocked the word \"television\" as a hybrid Greek/Latin coinage.",
+    "American Heritage Dictionary of the English Language, 4th edition (2000) — source of the three-part formal definition."
+  ],
+  citations: [
+    { source: "American Heritage Dictionary of the English Language (4th ed., 2000)", argument: "Formal three-part definition of television: transmission technology, the receiving apparatus, and the industry of producing/broadcasting programs.", useFor: ["Definition questions", "Introduction of any TV essay"] },
+    { source: "C. P. Scott, English journalist (1846–1932)", argument: "Direct quotation: \"Television? The word is half Greek, half Latin. No good can come of it.\"", useFor: ["Essay hook/opening", "Showing early skepticism toward the new medium"] },
+    { source: "Schwartz (2002, p. 113), biographer of Philo Farnsworth", argument: "Describes Farnsworth's utopian vision of TV as a teaching tool that would end illiteracy, transmit live/undistorted news, and even bring world peace.", useFor: ["Utopian/optimistic view of media technology", "Contrast with later critics (Minow, Silver, Mander)"] }
+  ],
+  whatToWrite: [
+    "Introduction: television as a multifaceted phenomenon — technology + institution + cultural force, not just a screen.",
+    "Main point 1: give the formal/technical definition (dictionary) — electromagnetic transmission of image + sound, the apparatus, and the industry.",
+    "Main point 2: etymology — hybrid Greek/Latin word; cite C. P. Scott's skeptical quote as an early reaction.",
+    "Main point 3: historical development — underlying technology built in the 1920s, but mass-medium status only from the late 1940s/1950s.",
+    "Important example/evidence: Farnsworth's utopian vision (teaching tool, live/undistorted news, world peace) via Schwartz (2002).",
+    "Relevant thinker/author: Philo Farnsworth (optimistic inventor).",
+    "Citation: use the dictionary definition and/or the Scott quotation to anchor the introduction or conclusion.",
+    "Closing idea: because of ongoing technological change and global variation, television remains an \"enigmatic moving target\" that scholars must keep trying to define."
+  ],
+  skeleton: [
+    { step: "Introduction", sub: "define television as multifaceted (technology / institution / cultural force)" },
+    { step: "Point 1", sub: "formal definition (dictionary) + evidence" },
+    { step: "Point 2", sub: "etymology + citation (C. P. Scott)" },
+    { step: "Point 3", sub: "historical development (1920s tech → 1940s/50s mass medium)" },
+    { step: "Point 4", sub: "Farnsworth's utopian vision + citation (Schwartz 2002)" },
+    { step: "Conclusion", sub: "television as an ever-changing \"moving target\"" }
+  ],
+  recall: [
+    { q: "Who is Philo Farnsworth and what did he predict about television?", a: "An often-overlooked American inventor of television technology; he predicted TV would become the world's greatest teaching tool, end illiteracy, transmit live/undistorted news, and even bring about world peace (per his biographer Schwartz, 2002)." },
+    { q: "What did C. P. Scott say about the word \"television,\" and why?", a: "He said: \"Television? The word is half Greek, half Latin. No good can come of it\" — mocking the hybrid etymology of the term (Greek tele- + Latin/French vision)." },
+    { q: "Name three things television serves as a source of, according to Wasko.", a: "Any three of: news, information, politics, entertainment, education, religion, art, culture, sports, weather, music." },
+    { q: "Why is television called a \"moving target\"?", a: "Because it keeps changing with new technologies (VCRs, cable, satellite, digital/HD) and faces competition from computers/the internet, and its meaning varies across the world — making its future uncertain and contested." },
+    { q: "In which decade was much of television's core technology developed, and when did it become a mass medium?", a: "Technology developed mainly in the 1920s; it became a mass medium in the late 1940s and early 1950s." }
+  ],
+  vocab: [
+    { word: "multifaceted", simple: "having many sides or aspects", bangla: "বহুমুখী / বহু দিক বিশিষ্ট", context: "Television is multifaceted — it is many things at once: technology, industry, and cultural force." },
+    { word: "propitious", simple: "favorable, likely to succeed", bangla: "অনুকূল", context: "Early expectations about television technology were \"optimistic and propitious.\"" },
+    { word: "ubiquitous", simple: "found everywhere", bangla: "সর্বব্যাপী", context: "Television has become a ubiquitous feature of the modern world." },
+    { word: "enigmatic", simple: "mysterious, hard to fully understand or pin down", bangla: "রহস্যময় / দুর্বোধ্য", context: "Wasko calls television an \"enigmatic 'moving target.'\"" }
+  ],
+  useForTags: ["Definition of television", "Introduction (any essay)", "History of television technology", "Utopian view of media"]
+},
+{
+  id: "t1-why-bother",
+  topic: 1,
+  order: 2,
+  title: "Why Should We Bother to Understand Television?",
+  priority: "must",
+  quick: "Television is worth studying because it is everywhere (99% household ownership, 4+ hours of daily viewing), it is many people's main source of news and a key part of democratic politics, and it acts as society's chief \"storyteller\" and carrier of values. But opinions about its actual value split sharply: some praise it (education, family bonding, catalyst for reading), while others attack it fiercely (Minow's \"vast wasteland,\" Silver's \"degenerative effects,\" Mander's claim that TV is inherently destructive).",
+  examNotes: [
+    "Television is described as an \"inescapable part of modern culture\"; many call it the most important of all mass media. The History Channel (1996) is quoted describing television as one of the most profound influences on human history — affecting history, science, politics, culture, and social mores, so pervasive it is \"impossible to imagine a world without television.\"",
+    "<b>Pervasiveness statistics:</b> in the US and Canada, <b>99% of households</b> own at least one television set. <b>66% of Americans</b> reportedly watch television while eating dinner. TVs are also common in schools, hospitals, prisons, bars, restaurants, shopping malls, and waiting rooms.",
+    "The <b>average American watches more than 4 hours of TV per day</b> (≈28 hours/week, or about 2 months of nonstop TV per year) — though Wasko notes that measuring viewing has \"inevitable methodological problems.\"",
+    "Television is central to how people learn about news and public events; events are transmitted live, and in many countries television is a key part of elections and the democratic process.",
+    "<b>Television as \"storyteller\":</b> Wasko quotes <b>Signorielli & Bacue (1999, p. 527)</b> — television's role in society is that of \"common storyteller,\" the mainstream of popular culture; its world \"shows and tells us about life,\" who is good/bad, who wins/loses, what it means to be a man or woman — television has joined the ranks of society's socialization agents.",
+    "Because of this storytelling role, television is described as an <b>ideological source</b> of values, ideals, morals, and ethical standards that \"cannot be overlooked in modern societies.\"",
+    "<b>Positive views of television:</b> shares cultural experiences and lets families spend time together; can act as a catalyst for reading (viewers follow up TV programs by reading related books/authors); can present arts, science, and culture, teach values/life lessons, explore controversial/sensitive issues, build critical thinking, and provide pleasure and companionship, especially for lonely/isolated people.",
+    "<b>Economic impact:</b> manufacturers rely on TV advertising to boost consumption; revenue also comes from programming production/distribution and hardware sales. In <b>2001, total US broadcast TV revenues were $54.4 billion.</b> Television also provides significant (though not huge) employment.",
+    "<b>Negative views of television:</b> disparaged as \"valueless, vulgar, and vacuous\"; blamed for passivity, obesity, and stimulating aggressive/violent behavior; accused of attacking literate culture and \"shriveling public discourse\" (citing Postman, 1986).",
+    "<b>Newton Minow</b> (1961, chairman of the FCC) — his famous \"vast wasteland\" speech is quoted directly: <i>\"When television is good, nothing is better. But when television is bad, nothing is worse. I invite you to sit down in front of your TV set and keep your eyes glued to that set until the station signs off. I can assure you that you will observe a vast wasteland.\"</i>",
+    "<b>John Silver</b>, president of Boston University, called television \"the most important educational institution in the United States today\" (critically) and (<b>Silver, 1995, p. 2</b>) decried television's \"degenerative effects\" and its \"indiscriminate advocacy of pleasure,\" arguing TV has weakened \"individual obedience to the unenforceable\" on which manners, morals, and ultimately the law depend.",
+    "<b>Jerry Mander</b> (1977), a former advertising executive, argued that television is <i>not a neutral technology</i> — its very existence is inherently destructive to human nature, and it cannot be reformed.",
+    "Wasko notes values/importance of television differ across cultures, but its global prevalence and key societal role remain undeniable, making it significant for research and reflection."
+  ],
+  deeper: [
+    "The line between \"positive\" and \"negative\" views is essentially a debate the whole reading list revisits (Bourdieu, in Topic 2, mostly falls on the critical side). A strong exam answer can explicitly bridge the two topics here: Wasko's balanced overview vs. Bourdieu's sharply critical, structural analysis.",
+    "If asked to discuss television and Bangladesh, remember: no Bangladesh-specific statistics appear anywhere in this source — only the general storyteller/ideology argument can be applied by analogy, clearly labelled as an application, never as fact from the text."
+  ],
+  memoryTrick: "Contrast method: Praise (storyteller, ideology, positive uses, $54.4bn economy) ↔ Blame (Minow's \"wasteland,\" Silver's \"degenerative effects,\" Mander's \"inherently destructive\"). Chain the stats first: 99% households → 4hrs/day → storyteller → ideology → then the three critics.",
+  memorize: "99% households → 4 hrs/day → storyteller (Signorielli & Bacue) → ideology → Minow \"vast wasteland\" → Silver \"degenerative\" → Mander \"inherently destructive\" → $54.4bn (2001)",
+  keywords: ["pervasiveness", "storyteller", "ideological source", "vast wasteland (Minow)", "degenerative effects (Silver)", "inherently destructive (Mander)", "$54.4 billion", "Signorielli & Bacue"],
+  important: [
+    "<b>Newton Minow</b> — 1961 FCC chairman, gave the \"vast wasteland\" speech.",
+    "<b>John Silver</b> — president of Boston University, critic (1995).",
+    "<b>Jerry Mander</b> — former advertising executive, wrote critically about television in 1977.",
+    "<b>Signorielli & Bacue (1999, p. 527)</b> — theorists of TV's \"storyteller\" role.",
+    "The History Channel (1996) — quoted on TV's profound historical influence.",
+    "Neil Postman (1986) — referenced (not quoted directly) regarding TV's effect on literate culture/public discourse."
+  ],
+  citations: [
+    { source: "Signorielli & Bacue (1999, p. 527)", argument: "Television is society's \"common storyteller\" and mainstream of popular culture; it shows/tells us about life and has joined the ranks of socialization agents.", useFor: ["TV's ideological/cultural role", "The \"storyteller\" argument", "Balanced intro to the positive/negative debate"] },
+    { source: "Newton Minow (1961)", argument: "\"Vast wasteland\" speech: \"When television is good, nothing is better. But when television is bad, nothing is worse.\"", useFor: ["Negative view of television", "Critical discussion questions", "A strong concluding quote for a balanced essay"] },
+    { source: "John Silver (1995, p. 2)", argument: "Television's \"degenerative effects\" and its weakening of \"individual obedience to the unenforceable.\"", useFor: ["Negative/moralistic critique of television"] },
+    { source: "Jerry Mander (1977)", argument: "Television is not a neutral technology; it is inherently destructive to human nature and cannot be reformed.", useFor: ["Radical/technological-determinist critique of TV"] },
+    { source: "The History Channel (1996)", argument: "Television as one of the most profound influences on human history.", useFor: ["Introduction/hook for questions on TV's importance"] }
+  ],
+  whatToWrite: [
+    "Introduction: television is pervasive and inescapable; many call it the most important mass medium.",
+    "Main point 1 (pervasiveness): give statistics — 99% household ownership, 4+ hours/day average viewing, TVs in public spaces too.",
+    "Main point 2 (news & democracy): TV as primary news source for many; live transmission; role in elections.",
+    "Main point 3 (storyteller/ideology): cite Signorielli & Bacue — TV as socializing storyteller and ideological source.",
+    "Important examples/evidence: positive view (education, family bonding, reading catalyst) vs negative view (Minow, Silver, Mander quotes).",
+    "Relevant thinkers/authors: Newton Minow, John Silver, Jerry Mander, Signorielli & Bacue.",
+    "Citation: use the Minow \"vast wasteland\" quote or the Signorielli & Bacue \"storyteller\" quote depending on the angle of the question.",
+    "Closing idea: opinions are sharply divided, but TV's global prevalence and social/political/economic/cultural weight make it essential to study."
+  ],
+  skeleton: [
+    { step: "Introduction", sub: "TV is pervasive and important — set up the debate" },
+    { step: "Point 1", sub: "statistics of reach (99% households, 4 hrs/day)" },
+    { step: "Point 2", sub: "role in news and democracy" },
+    { step: "Point 3", sub: "storyteller / ideological function + citation (Signorielli & Bacue)" },
+    { step: "Point 4", sub: "positive assessments (education, bonding, reading catalyst)" },
+    { step: "Point 5", sub: "negative assessments + citations (Minow, Silver, Mander)" },
+    { step: "Point 6", sub: "economic significance ($54.4 billion, 2001)" },
+    { step: "Conclusion", sub: "contested but undeniably central force in society" }
+  ],
+  recall: [
+    { q: "What percentage of US/Canada households own a television?", a: "99%." },
+    { q: "How many hours does the average American watch television per day, according to this source?", a: "More than 4 hours a day (about 28 hours a week)." },
+    { q: "Who gave the \"vast wasteland\" speech, and in what year?", a: "Newton Minow, chairman of the FCC, in 1961." },
+    { q: "What does John Silver say television weakens?", a: "\"Individual obedience to the unenforceable\" — the informal norms that manners, morals, and ultimately the law depend on." },
+    { q: "What is Jerry Mander's core argument about television (1977)?", a: "That television is not a neutral technology — it is inherently destructive to human nature and cannot be reformed." },
+    { q: "According to Signorielli & Bacue, what role does television play in society?", a: "It is society's \"common storyteller\" — the mainstream of popular culture, showing us who is good/bad, who wins/loses, and what it means to be a man or woman." },
+    { q: "What was the US broadcast TV revenue figure for 2001?", a: "$54.4 billion." }
+  ],
+  vocab: [
+    { word: "vacuous", simple: "empty, lacking substance", bangla: "শূন্যগর্ভ / অন্তঃসারশূন্য", context: "Television has been criticized as \"valueless, vulgar, and vacuous.\"" },
+    { word: "disparaged", simple: "criticized, spoken of with disrespect", bangla: "নিন্দা করা হয়েছে", context: "\"Many commentators have also disparaged television...\"" },
+    { word: "degenerative", simple: "causing decline or decay", bangla: "অবক্ষয়কারী", context: "Silver refers to television's \"degenerative effects.\"" },
+    { word: "socialization", simple: "the process by which people learn society's values and norms", bangla: "সামাজিকীকরণ", context: "Television has joined the ranks of \"socialization agents\" in society." }
+  ],
+  useForTags: ["Importance of television", "Positive vs negative views of TV", "TV and democracy/news", "TV as ideology/storyteller", "Bangladesh application (general, cautious)"]
+},
+{
+  id: "t1-how-understand",
+  topic: 1,
+  order: 3,
+  title: "How Do We Understand Television?",
+  priority: "should",
+  quick: "Scholars have studied television from several angles over time: early \"media effects\" research (quantitative, focused especially on TV violence and children), then literary/dramatic and cultural-studies approaches focused on texts and audiences (1970s–80s), and more recently historical and structural research into ownership, the state, and television's role in shaping public opinion.",
+  examNotes: [
+    "Television study has long been part of broader mass-media research, drawing on political science, sociology, economics, psychology, and literary studies — but television itself has also become a distinct focus of academic research in its own right.",
+    "General approaches are often characterized as either <b>social scientific</b> or <b>humanistic</b>.",
+    "<b>Early orientation — media effects:</b> much early television research searched for quantitative measures of TV's impact on audiences, especially the effect of violent content on behavior. According to one estimate, <b>approximately 4,000 studies</b> have examined television's effects on children — yet \"no conclusive results have been found.\"",
+    "<b>1970s–1980s — literary/cultural studies:</b> the growth of \"television studies\" in this period drew on literary/dramatic criticism, focusing mostly on television texts and audiences, and increasingly integrating <b>cultural studies</b>, <b>feminist analysis</b>, and a range of qualitative methodologies.",
+    "<b>More recently:</b> historical studies of television have \"blossomed,\" along with work examining television's structure, organizations, and ownership, its connections to the state and other media, and its role in influencing public opinion and the public sphere."
+  ],
+  deeper: [
+    "Notice the three-stage progression this section implies: Effects (quantitative) → Texts/Audiences (cultural/qualitative) → Structure/History/Ownership (recent). This progression itself is a useful mini-timeline to memorize, and pairs neatly with Bourdieu's own structural approach in Topic 2 (journalistic field, ownership of TF1, etc.) — a natural bridge for a \"connect the two topics\" question."
+  ],
+  memoryTrick: "Three-stage chain: Effects (quantitative, violence, children, 4,000 studies, inconclusive) → Texts/Audience (cultural studies, feminist analysis, qualitative, 1970s–80s) → Structure/History (ownership, state, public sphere, recent).",
+  memorize: "Effects → Texts → Structure | 4,000 studies, no conclusion | cultural + feminist + qualitative | ownership + public sphere",
+  keywords: ["media effects", "quantitative research", "cultural studies", "feminist analysis", "qualitative methodology", "historical studies", "ownership", "public sphere"],
+  important: [
+    "No single named theorist is central to this passage — it summarizes a field rather than one author's argument.",
+    "Key fact: approximately 4,000 studies on TV violence and children — inconclusive results.",
+    "\"Television studies\" as a named academic growth area of the 1970s–80s."
+  ],
+  citations: [
+    { source: "General reference (no specific named author/date given in this passage)", argument: "Approximately 4,000 studies have examined television's effects on children, without conclusive results.", useFor: ["Discussing media-effects research tradition", "Critiquing over-reliance on quantitative effects research"] }
+  ],
+  whatToWrite: [
+    "Introduction: television research draws on many disciplines but has also become its own field of study.",
+    "Main point 1: early orientation = media effects (quantitative), especially violence and children.",
+    "Important evidence: approximately 4,000 studies on TV violence and children — inconclusive.",
+    "Main point 2: 1970s–80s — growth of television studies from literary/dramatic-criticism roots into cultural studies, feminist analysis, qualitative methods.",
+    "Main point 3: recent research — historical studies plus structural/ownership/state-connection studies and public-sphere/public-opinion research.",
+    "Relevant framing: social scientific vs humanistic approaches.",
+    "Citation: the \"4,000 studies, no conclusive results\" statistic is the strongest concrete evidence in this section.",
+    "Closing idea: the range of approaches (quantitative to qualitative to structural) reflects how complex a phenomenon television really is."
+  ],
+  skeleton: [
+    { step: "Introduction", sub: "overview of TV research's disciplinary roots" },
+    { step: "Point 1", sub: "media-effects tradition + evidence (4,000 studies)" },
+    { step: "Point 2", sub: "literary/cultural-studies tradition (1970s–80s)" },
+    { step: "Point 3", sub: "recent historical/structural/public-sphere research" },
+    { step: "Conclusion", sub: "multiple approaches reflect TV's complexity" }
+  ],
+  recall: [
+    { q: "What was the focus of early television research?", a: "A \"media effects\" orientation — quantitative measures of TV's impact on audiences, especially violence's effect on behavior." },
+    { q: "Roughly how many studies have examined TV's effects on children, and what did they conclude?", a: "Approximately 4,000 studies — with no conclusive results." },
+    { q: "What two methodological/theoretical traditions grew in television studies during the 1970s–80s?", a: "Literary/dramatic criticism evolving into cultural studies and feminist analysis, using qualitative methodologies." },
+    { q: "Name three areas that recent television research has focused on.", a: "Any three of: historical studies, television's structure/organizations/ownership, connections to the state and other media, and TV's role in shaping public opinion/the public sphere." }
+  ],
+  vocab: [
+    { word: "orientation (research orientation)", simple: "a general approach or focus", bangla: "অভিমুখ / দৃষ্টিভঙ্গি", context: "Early research adhered to a \"media effects orientation.\"" },
+    { word: "purview", simple: "scope, area of focus", bangla: "পরিধি / দৃষ্টিসীমা", context: "Scholars examined content \"from the purview of literary or dramatic criticism.\"" }
+  ],
+  useForTags: ["Academic approaches to studying television", "History of TV/media research", "Connecting Topic 1 and Topic 2 (structural approach)"]
+},
+
+// ============================== TOPIC 2 ==============================
+{
+  id: "t2-opening",
+  topic: 2,
+  order: 1,
+  title: "Opening Questions: Why (and How) Speak on Television?",
+  priority: "should",
+  quick: "Bourdieu opens by questioning whether one can say anything meaningful \"on\" television at all, given the constraints normally imposed on speakers. He is speaking under unusually free conditions — no time limit, his own topic, no outside interference — which reveals, by contrast, how constrained ordinary TV appearances really are. He argues many people appear on TV mainly out of a \"desire to be seen,\" turning the screen into a space of narcissistic self-display, yet he still believes scholars have a duty to communicate their research publicly, under the right conditions.",
+  examNotes: [
+    "Bourdieu poses questions <i>about</i> television <i>on</i> television, acknowledging a paradox: in general \"you can't say much on television, particularly not about television.\"",
+    "He is speaking under \"absolutely exceptional circumstances\": he faces <b>no time limit</b>, his <b>topic is his own</b> (not imposed, and he can still change it), and no one is present to bring him into line with technical requirements, \"the public-that-won't-understand,\" or morality/decency. He calls this unusual \"control of the instruments of production.\"",
+    "This exceptional situation itself reveals something about what <i>normally</i> happens when someone appears on television (i.e., ordinary guests usually lack this control).",
+    "Bourdieu raises a question rarely asked by researchers, scholars, writers, or journalists who appear on TV: <b>why do people accept the usual constrained conditions</b> imposed on television guests?",
+    "His answer: by agreeing to appear on shows without worrying whether they'll be able to say anything, guests reveal they aren't really there to say something at all, but for \"altogether different reasons\" — chiefly the <b>\"desire to be seen.\"</b>",
+    "He cites the philosopher <b>Berkeley</b>: <i>\"to be is to be perceived.\"</i> For some thinkers and writers, \"to be\" has come to mean \"to be perceived on television\" — that is, to be perceived by journalists, to be on their \"good side.\"",
+    "Because such thinkers/writers cannot count on their work lasting over time, they feel they have \"no recourse but to appear on television as often as possible\" — churning out work whose real function, as <b>Gilles Deleuze</b> used to say, is simply \"to get them on television.\"",
+    "Result: the television screen \"becomes a sort of mirror for Narcissus, a space for narcissistic exhibitionism.\"",
+    "Bourdieu argues artists, writers, and thinkers should ask themselves these questions <b>openly and collectively</b> — ideally negotiating a kind of contract with journalists together, rather than each person deciding alone. This is not about blaming/fighting journalists (who also suffer real constraints), but about resisting \"the threat of instrumentalization.\"",
+    "He does not think one can categorically refuse to appear on television — in some cases there is even something of a <b>\"duty\"</b> to appear, under the right conditions, especially because television offers, in theory, the possibility of reaching everybody.",
+    "Researchers and scholars have an obligation — \"especially urgent for the social sciences\" — to make the results of research available to everyone. He cites <b>Edmund Husserl</b>: in Europe, scholars are paid by the government as <i>\"humanity's civil servants\"</i> to make discoveries, and sharing findings is part of that responsibility.",
+    "Before agreeing to appear on television, Bourdieu says everyone invited should ask themselves (or be forced to ask): <b>\"Do I have something to say? Can I say it in these conditions? Is what I have to say worth saying here and now? In a word, what am I doing here?\"</b>"
+  ],
+  deeper: [
+    "This preamble sets up the whole essay's method: Bourdieu will move (as he says explicitly) \"from what's most obvious to what's most concealed\" — a structural clue useful for essay organization on Bourdieu's method as a whole."
+  ],
+  memoryTrick: "Chain: Paradox (can't say much on TV) → Bourdieu's exceptional conditions (no time limit / own topic / no interference) → Why do people normally accept constraints? → \"Desire to be seen\" (Berkeley) → Narcissus mirror / exhibitionism (Deleuze) → Still a duty to speak, IF conditions are right → Husserl's \"civil servants\" → 4 key self-questions.",
+  memorize: "Paradox → exceptional conditions → \"desire to be seen\" (Berkeley) → Narcissus mirror (Deleuze) → duty if conditions right (Husserl) → 4 self-questions",
+  keywords: ["control of the instruments of production", "desire to be seen", "Berkeley — \"to be is to be perceived\"", "narcissistic exhibitionism", "instrumentalization", "Husserl — \"humanity's civil servants\""],
+  important: [
+    "<b>Berkeley</b> (philosopher) — \"to be is to be perceived.\"",
+    "<b>Gilles Deleuze</b> — said the real function of some intellectual work is just to get its author onto television.",
+    "<b>Edmund Husserl</b> — called European scholars \"humanity's civil servants.\""
+  ],
+  citations: [
+    { source: "Berkeley (philosopher, cited by Bourdieu)", argument: "\"To be is to be perceived\" — reinterpreted by Bourdieu as \"to be perceived on television.\"", useFor: ["Critiquing media culture of visibility/narcissism", "Introduction to Bourdieu's TV critique"] },
+    { source: "Gilles Deleuze (paraphrased by Bourdieu)", argument: "The principal function of some intellectual work is simply to get its author onto television.", useFor: ["Critique of intellectuals seeking media exposure over substance"] },
+    { source: "Edmund Husserl (paraphrased by Bourdieu)", argument: "European researchers/scholars are \"humanity's civil servants,\" paid by government to make discoveries and share them.", useFor: ["Arguing scholars' duty to communicate research publicly", "Balancing critique of TV with a case for responsible public engagement"] }
+  ],
+  whatToWrite: [
+    "Introduction: Bourdieu opens \"On Television\" questioning whether meaningful speech on TV is even possible, given the usual constraints.",
+    "Main point 1: he is speaking under exceptional conditions (no time limit, own topic, no interference) — atypical of most TV appearances.",
+    "Main point 2: a rarely asked question — why do people accept the usual constrained conditions? His answer: \"desire to be seen\" (cite Berkeley).",
+    "Important example/evidence: television becomes a space of narcissistic exhibitionism; some work exists just \"to get its author on television\" (Deleuze).",
+    "Main point 3: yet Bourdieu argues scholars have a duty to communicate research (Husserl: \"humanity's civil servants\") — under the right conditions.",
+    "Relevant thinkers: Berkeley, Gilles Deleuze, Edmund Husserl.",
+    "Citation: Berkeley's \"to be is to be perceived\" is the sharpest quote for a critical essay.",
+    "Closing idea: Bourdieu proposes a self-questioning framework before appearing on TV — \"Do I have something to say? Can I say it here?\""
+  ],
+  skeleton: [
+    { step: "Introduction", sub: "the central paradox of speaking on television" },
+    { step: "Point 1", sub: "Bourdieu's exceptional speaking conditions" },
+    { step: "Point 2", sub: "why people normally accept constraints — the \"desire to be seen\" (Berkeley)" },
+    { step: "Point 3", sub: "narcissistic exhibitionism / Deleuze" },
+    { step: "Point 4", sub: "scholarly duty to communicate (Husserl)" },
+    { step: "Conclusion", sub: "self-questioning framework before appearing on TV" }
+  ],
+  recall: [
+    { q: "What are the three exceptional conditions under which Bourdieu says he is speaking?", a: "No time limit; his own topic (not imposed, and changeable); and no one present to enforce technical requirements, \"the public-that-won't-understand,\" or morality/decency." },
+    { q: "What quote from Berkeley does Bourdieu use, and what does he take it to mean here?", a: "\"To be is to be perceived\" — reinterpreted as: for some thinkers, to exist is to be perceived on television, i.e. by journalists." },
+    { q: "According to Deleuze (as cited by Bourdieu), what is the real function of some intellectual work?", a: "Simply to get its author onto television." },
+    { q: "What does Husserl call European scholars, according to Bourdieu?", a: "\"Humanity's civil servants.\"" },
+    { q: "What four questions does Bourdieu say people should ask before appearing on television?", a: "Do I have something to say? Can I say it in these conditions? Is what I have to say worth saying here and now? What am I doing here?" }
+  ],
+  vocab: [
+    { word: "instrumentalization", simple: "being used as a tool by someone else's agenda", bangla: "যন্ত্র হিসেবে ব্যবহার করা", context: "Resisting the \"threat of instrumentalization\" by journalists/television." },
+    { word: "narcissistic exhibitionism", simple: "excessive self-display driven by self-admiration/desire for attention", bangla: "আত্মপ্রদর্শনী মনোভাব", context: "The television screen becomes \"a space for narcissistic exhibitionism.\"" }
+  ],
+  useForTags: ["Why people appear on television", "Bourdieu's opening argument", "Media and narcissism/visibility"]
+},
+{
+  id: "t2-invisible-censorship",
+  topic: 2,
+  order: 2,
+  title: "Invisible Censorship",
+  priority: "must",
+  quick: "Bourdieu argues television's apparent openness hides a powerful, mostly invisible form of censorship. Obvious factors — time limits, political control, and ownership (e.g. NBC/GE, TF1/Bouygues) — matter, but they hide deeper, unconscious structural mechanisms. He defines \"symbolic violence\" as violence exercised through tacit complicity that both sides remain unaware of, and illustrates the point using sensationalism: TV fills valuable airtime with \"safe,\" attention-grabbing news, giving it a de facto monopoly over what a large part of the population thinks.",
+  examNotes: [
+    "Open access to television is \"offset by a powerful censorship\" — a loss of independence linked to the conditions imposed on speakers.",
+    "<b>Time limits</b>, above all, make it highly unlikely that anything substantial can be said.",
+    "<b>Political censorship</b> is real, especially in hiring for top positions at radio/TV stations under direct government control. Because of widespread job insecurity, there is a greater tendency today toward <b>political conformity</b> — people <b>censor themselves</b>, consciously or unconsciously, without needing to be \"called into line.\"",
+    "<b>Economic censorship:</b> ultimately, pressure on television is economic — but knowing only an owner's name, ad budget, and subsidies \"wouldn't tell you much\" by itself. Still, ownership facts matter: <b>NBC is owned by General Electric</b>; <b>CBS by Westinghouse</b>; <b>ABC by Disney</b>; the French channel <b>TF1 belongs to Bouygues</b> (a construction company) — these facts \"lead to consequences through a whole series of mediations\" (e.g., the government won't cross Bouygues, knowing it controls TF1).",
+    "But these crude, obvious facts (ownership) actually <b>hide other things</b>: the anonymous, invisible mechanisms of censorship that make television \"such a formidable instrument for maintaining the symbolic order.\"",
+    "Sociological analysis of these mechanisms is often misread by journalists as a personal \"denunciation\" or ad hominem attack, when it is really structural analysis. The deeper the analysis goes, the more individuals appear to be manipulated as much as they manipulate — <i>\"they manipulate even more effectively the more they are themselves manipulated and the more unconscious they are of this.\"</i>",
+    "Bourdieu's key concept — <b>symbolic violence</b> — is defined precisely: <b>\"violence wielded with tacit complicity between its victims and its agents, insofar as both remain unconscious of submitting to or wielding it.\"</b>",
+    "The function of sociology, like any science, is to <b>reveal what is hidden</b>, which can help minimize symbolic violence within social relations, particularly relations of communication.",
+    "<b>Example — sensationalism:</b> sensational news (blood, sex, melodrama, crime) has always been \"the favorite food of the tabloids.\" Early television, modeled on the printed press's sense of respectability, kept such attention-grabbers \"under wraps,\" but competition for audience share inevitably brings sensationalism to the headlines and to the start of TV news broadcasts.",
+    "Mechanism: sensationalism <i>attracts</i> notice but also <i>diverts</i> it — like a magician whose basic operating principle is to direct attention elsewhere. News selects elements that \"engage everybody\" — safe, non-divisive, generally-agreed-on content that interests everyone without touching on anything important — consuming valuable time that could be used for real information.",
+    "<b>Key quotation (highlighted in the source):</b> <i>\"Television enjoys a de facto monopoly on what goes into the heads of a significant part of the population and what they think.\"</i> This is because a very high proportion of the population reads no newspaper at all and depends solely on television for news.",
+    "Result: a division between those who can read \"serious\" newspapers and international/foreign sources (less influenced by television's monopoly), and everyone else, who gets from TV news \"precious little\" real political information — distancing them from real understanding of politicians."
+  ],
+  deeper: [
+    "The three named companies (NBC/GE, CBS/Westinghouse, ABC/Disney) plus TF1/Bouygues are exactly the kind of concrete, memorable fact examiners like to see quoted precisely — worth over-learning even though Bourdieu says by themselves they \"wouldn't tell you much.\"",
+    "Note the careful nuance: Bourdieu does NOT claim ownership alone explains everything (this becomes explicit again later, in \"Marketshare and Competition\") — he is already hinting here that a purely economic/ownership explanation is insufficient on its own."
+  ],
+  memoryTrick: "Chain: Open access ↔ Censorship (offset) → Time limits → Political censorship (self-censorship) → Ownership facts (NBC–GE / CBS–Westinghouse / ABC–Disney / TF1–Bouygues) → BUT these hide deeper invisible mechanisms → Symbolic violence (memorize the definition!) → Sociology reveals the hidden → Example: Sensationalism → TV's \"de facto monopoly\" on thought.",
+  memorize: "Access ↔ Censorship → time limits → ownership (NBC-GE / CBS-Westinghouse / ABC-Disney / TF1-Bouygues) → symbolic violence (tacit complicity) → sensationalism → \"de facto monopoly on what people think\"",
+  keywords: ["invisible censorship", "symbolic violence", "tacit complicity", "sensationalism", "de facto monopoly", "structural corruption", "ownership / mediations"],
+  important: [
+    "<b>NBC</b> = General Electric; <b>CBS</b> = Westinghouse; <b>ABC</b> = Disney; <b>TF1</b> = Bouygues.",
+    "Precise definition of <b>symbolic violence</b> must be memorized: \"violence wielded with tacit complicity between its victims and its agents, insofar as both remain unconscious of submitting to or wielding it.\"",
+    "<b>Patrick Champagne</b> is referenced here only generally (elaborated in the next section, \"Show and Hide\")."
+  ],
+  citations: [
+    { source: "Bourdieu (definition of symbolic violence)", argument: "\"Violence wielded with tacit complicity between its victims and its agents, insofar as both remain unconscious of submitting to or wielding it.\"", useFor: ["Any question on Bourdieu's key concepts", "Critical discussion of television's power", "Conclusion of essays on media and manipulation"] },
+    { source: "Bourdieu (key highlighted quote)", argument: "\"Television enjoys a de facto monopoly on what goes into the heads of a significant part of the population and what they think.\"", useFor: ["TV's ideological power", "Media monopoly arguments", "Strong concluding line for critical essays on TV's societal danger"] },
+    { source: "Bourdieu's own ownership examples", argument: "NBC/General Electric, CBS/Westinghouse, ABC/Disney, TF1/Bouygues — concrete illustrations of economic/structural pressure on television.", useFor: ["Illustrating economic censorship with specific facts", "10-mark short-answer evidence"] }
+  ],
+  whatToWrite: [
+    "Introduction: Bourdieu argues television's apparent openness hides a powerful, mostly invisible censorship.",
+    "Main point 1: obvious forms of censorship — time limits, political control/self-censorship, ownership pressures — with examples (NBC/GE, TF1/Bouygues).",
+    "Main point 2: these crude, obvious facts hide deeper, invisible mechanisms of censorship.",
+    "Important concept: define symbolic violence precisely (quote it) — the key theoretical concept in this section.",
+    "Evidence/example: sensationalism — how sensational, \"safe\" news consumes airtime and diverts attention from substantive issues.",
+    "Citation: the \"de facto monopoly on what goes into the heads...\" quote — TV's ideological power over less-informed audiences.",
+    "Relevant idea: role of sociology — to reveal hidden mechanisms and reduce symbolic violence.",
+    "Closing idea: censorship on television is less about individual bias and more about structural, invisible mechanisms."
+  ],
+  skeleton: [
+    { step: "Introduction", sub: "paradox of open access vs. hidden censorship" },
+    { step: "Point 1", sub: "visible/obvious censorship — time, political, ownership + examples" },
+    { step: "Point 2", sub: "concept of symbolic violence + precise definition (quote)" },
+    { step: "Point 3", sub: "sensationalism example — mechanism and effect" },
+    { step: "Point 4", sub: "\"de facto monopoly\" quote — TV's power over public thought" },
+    { step: "Conclusion", sub: "role of sociology in exposing hidden structures" }
+  ],
+  fullAnswer10: "Bourdieu argues that although television seems to offer open access to information, this openness is actually offset by a powerful but largely invisible censorship. Obvious factors play a role — strict time limits make sustained argument almost impossible, political pressures encourage self-censorship (especially where stations are state-controlled), and ownership matters: NBC is owned by General Electric, CBS by Westinghouse, ABC by Disney, and the French channel TF1 by the construction company Bouygues. Yet Bourdieu insists these crude, visible facts actually conceal deeper, unconscious mechanisms. He calls this hidden pressure \"symbolic violence\": violence exercised with the tacit complicity of both the people who wield it and the people who suffer it, neither fully aware of what is happening. Sociology's task, he says, is to expose such hidden mechanisms. As an example, he points to sensationalism: television devotes scarce airtime to \"safe,\" attention-grabbing stories — blood, sex, crime — that interest everyone but touch nothing important, crowding out substantive news. Because a large part of the population relies solely on television for information, he concludes that \"television enjoys a de facto monopoly on what goes into the heads of a significant part of the population and what they think.\" For Bourdieu, then, real censorship on television operates less through obvious political or economic control and more through invisible structural mechanisms that shape thought without anyone consciously intending it.",
+  recall: [
+    { q: "Define \"symbolic violence\" in Bourdieu's own words (as closely as you can).", a: "\"Violence wielded with tacit complicity between its victims and its agents, insofar as both remain unconscious of submitting to or wielding it.\"" },
+    { q: "Which company owns NBC? CBS? ABC? TF1?", a: "NBC = General Electric; CBS = Westinghouse; ABC = Disney; TF1 = Bouygues." },
+    { q: "What is the \"de facto monopoly\" that television enjoys, per Bourdieu?", a: "A monopoly on what goes into the heads of a significant part of the population and what they think — because many people rely solely on TV for news." },
+    { q: "Why does sensationalism get so much airtime, according to Bourdieu?", a: "Because it attracts and interests everyone without being divisive or touching anything important, filling up valuable time that could otherwise carry substantive news." },
+    { q: "Why do journalists often misread sociological analysis of the media as a personal \"attack\"?", a: "Because they mistake structural/mechanism-level analysis for ad hominem denunciation of individuals, when in fact deeper analysis shows people are manipulated as much as they manipulate." }
+  ],
+  vocab: [
+    { word: "tacit complicity", simple: "silent or unspoken involvement/agreement", bangla: "নীরব যোগসাজশ", context: "Symbolic violence works through \"tacit complicity between its victims and its agents.\"" },
+    { word: "de facto", simple: "in practice / actually (even if not official)", bangla: "প্রকৃতপক্ষে / বাস্তবে", context: "Television's \"de facto monopoly\" on public thought." },
+    { word: "ad hominem", simple: "attacking the person rather than the argument", bangla: "ব্যক্তি আক্রমণ", context: "Journalists see sociological critique as an \"ad hominem polemic.\"" }
+  ],
+  useForTags: ["Censorship on television", "Symbolic violence (core Bourdieu concept)", "Media ownership", "Sensationalism", "Critical discussion of TV's power over the public"]
+},
+{
+  id: "t2-show-and-hide",
+  topic: 2,
+  order: 3,
+  title: "Show and Hide",
+  priority: "must",
+  quick: "Television can \"hide by showing\": it conceals reality precisely through what and how it displays things — showing something else, showing things insignificantly, or constructing images that distort reality. Journalists select stories through their own perceptual \"glasses,\" driven by the search for the sensational and \"dramatization.\" Using Patrick Champagne's research (inner-city reporting, the 1986 student strike), Bourdieu argues television doesn't just record reality — it creates it.",
+  examNotes: [
+    "Central paradox: television can hide things \"by showing something other than what would be shown if television did what it's supposed to do\" (i.e. provide real information); or by showing what has to be shown but in a way that makes it insignificant; or by constructing an image so it takes on a meaning unrelated to reality.",
+    "Bourdieu draws two examples from <b>Patrick Champagne's</b> work, especially <i>La Misère du monde</i>, a detailed study of how media represent events in \"the inner city.\"",
+    "Journalists are shaped by: (a) the exigencies of their job, (b) their view of the world, (c) their training/orientation, and (d) the profession's own internal reasoning. They select very specific aspects of the inner city based on their own perceptual categories.",
+    "<b>Metaphor:</b> journalists have special \"glasses\" — invisible structures (built from education, history, etc.) that organize perception, determining what is seen or not seen, and how it is seen.",
+    "The principle driving story selection is the <b>search for the sensational and the spectacular</b>. Television calls for <b>dramatization</b>, in both senses of the term: it puts an event \"on stage\" (in images), and it exaggerates the event's seriousness and dramatic/tragic character. For the inner city, this dramatization typically means <b>riots</b>.",
+    "Words themselves get dramatized too: photos are \"nothing without words\" (the French word for caption, <i>légende</i>, literally means \"legend\" — a caption \"can show anything at all\"). To name something is to show/create/bring it into existence — words \"can do a lot of damage\" (Bourdieu's example: is a headscarf \"Islamic\" or \"Islamicist\"?). Careless words create \"phantasms, fears, and phobias\" or simply \"false representations.\"",
+    "Journalists are drawn to the exceptional — whatever is exceptional \"for them\" (fires, floods, murders) — under constant pressure to get a \"scoop.\" Paradoxically, this competitive search for exclusivity produces uniformity and banality: everyone copies everyone else.",
+    "<b>Key highlighted quote:</b> <i>\"The political dangers inherent in the ordinary use of television have to do with the fact that images have the peculiar capacity to produce what literary critics call a reality effect. They show things and make people believe in what they show. This power to show is also a power to mobilize.\"</i> This mobilizing power can carry political or ethnic significance, potentially unleashing racism, chauvinism, or xenophobia.",
+    "<b>Second key quote:</b> <i>\"The simple report, the very fact of reporting, of putting on record as a reporter, always implies a social construction of reality that can mobilize (or demobilize) individuals or groups.\"</i>",
+    "<b>Champagne's second example — the 1986 French high-school student strike:</b> journalists, acting \"in all good faith and in complete innocence,\" were guided by their own interests, presuppositions, and unconscious expectations. They had in mind the political upheaval of May 1968 and feared \"missing 'a new 1968.'\" Because the students were not very politically aware, reporters sought out the most articulate/politicized representatives — unintentionally distorting the story and producing \"reality effects\" that \"nobody wants,\" which can in some cases be catastrophic.",
+    "<b>Key conclusion (highlighted):</b> <i>\"Television, which claims to record reality, creates it instead. We are getting closer and closer to the point where the social world is primarily described—and in a sense prescribed—by television.\"</i>",
+    "Illustration: to successfully campaign today (e.g., for early retirement at 50) one would no longer need a real street demonstration — one would need a \"savvy media consultant\" and mediagenic elements (disguises, masks); television can produce an effect \"close to what you'd have from fifty thousand protesters in the streets.\"",
+    "Broader stake: political struggles today are about the capacity to impose \"a way of seeing the world,\" making people wear \"glasses\" that divide the world in certain ways (young vs. old, foreigners vs. French). These divisions create mobilizable groups. To have maximum effect, demonstrations increasingly have to be <b>produced for television</b>, to fit journalists' perceptual categories.",
+    "Bourdieu notes there is \"nothing more difficult to convey than reality in all its ordinariness\" — quoting <b>Flaubert</b>, who said it takes hard work to \"portray mediocrity.\" Sociologists face the same challenge."
+  ],
+  deeper: [
+    "The headscarf example (\"Islamic or Islamicist?\") is a compact, quotable illustration of how a single word choice can carry ideological weight — useful as a short, vivid example in an answer without needing to explain the whole inner-city study.",
+    "The demonstration/media-consultant illustration is one of the most memorable and exam-friendly passages in the whole reading — concrete, vivid, and easy to reproduce accurately."
+  ],
+  memoryTrick: "\"SHOW ≠ TELL the truth.\" Chain: Journalists' \"glasses\" (perceptual categories) → search for the sensational → dramatization → naming/words → reality effect → mobilizing power → Champagne's two examples (inner city / 1986 strike) → TV creates reality, doesn't just record it → protests must now be staged for TV.",
+  memorize: "Glasses → dramatization → reality effect → mobilize → Champagne (inner city, 1986 strike) → \"TV creates reality\" → media consultant needed to protest",
+  keywords: ["reality effect", "dramatization", "journalists' \"glasses\"", "Patrick Champagne", "La Misère du monde", "1986 student strike", "social construction of reality", "mobilize / demobilize"],
+  important: [
+    "<b>Patrick Champagne</b> — sociologist; studied media coverage of the inner city and the 1986 student strike.",
+    "<b>Flaubert</b> — quoted on the difficulty of portraying ordinariness/mediocrity."
+  ],
+  citations: [
+    { source: "Bourdieu (key highlighted quote)", argument: "Images have the capacity to produce a \"reality effect\": they show things and make people believe in what they show — \"this power to show is also a power to mobilize.\"", useFor: ["TV's power over public belief/perception", "Critical discussion of media manipulation", "The strongest single quote in this section"] },
+    { source: "Bourdieu", argument: "\"The simple report, the very fact of reporting... always implies a social construction of reality that can mobilize (or demobilize) individuals or groups.\"", useFor: ["Media as constructor (not neutral recorder) of reality"] },
+    { source: "Bourdieu (key concluding quote)", argument: "\"Television, which claims to record reality, creates it instead... the social world is primarily described—and in a sense prescribed—by television.\"", useFor: ["Conclusion of essays on TV's power over social reality", "Overall thesis statement for critical essays"] },
+    { source: "Patrick Champagne (cited in Bourdieu)", argument: "Studies of inner-city media coverage (La Misère du monde) and the 1986 high-school strike, showing how journalists' own categories and expectations distort coverage.", useFor: ["Concrete evidence for \"media constructs reality\" argument", "Examples in a 20-mark answer"] }
+  ],
+  whatToWrite: [
+    "Introduction: Bourdieu argues television paradoxically hides reality through the very act of showing.",
+    "Main point 1: journalists' \"glasses\" — perceptual categories shaping what is selected and shown.",
+    "Main point 2: the principle of selection is the search for the sensational/spectacular, leading to \"dramatization.\"",
+    "Important concept: define the \"reality effect\" (quote it) — images make people believe what they show, and showing is a power to mobilize.",
+    "Evidence/examples: Champagne's inner-city study (riots emphasized) and the 1986 strike study (reporters unconsciously sought a \"new 1968\").",
+    "Citation: \"television, which claims to record reality, creates it instead\" — the strongest conclusion-quote.",
+    "Application: political demonstrations today must be staged \"for television\" to be effective.",
+    "Closing idea: television does not merely reflect the world — it actively constructs (and can mobilize or demobilize) social reality."
+  ],
+  skeleton: [
+    { step: "Introduction", sub: "the \"hide by showing\" paradox" },
+    { step: "Point 1", sub: "journalists' perceptual \"glasses\"" },
+    { step: "Point 2", sub: "dramatization and the search for the sensational" },
+    { step: "Point 3", sub: "\"reality effect\" — definition + quote" },
+    { step: "Point 4", sub: "Champagne's two examples (inner city, 1986 strike)" },
+    { step: "Point 5", sub: "\"television creates reality\" — conclusion quote" },
+    { step: "Point 6", sub: "practical implication — protests staged for television" },
+    { step: "Conclusion", sub: "television as constructor, not neutral recorder, of reality" }
+  ],
+  fullAnswer20: "Bourdieu's central claim in \"Show and Hide\" is paradoxical: television can conceal reality precisely by showing it. Rather than presenting a neutral window onto events, television shows something other than what genuine information would require, presents things so insignificantly that they lose meaning, or constructs images that take on a meaning that has nothing to do with reality. Bourdieu explains this through the metaphor of journalists' \"glasses\": invisible perceptual categories, shaped by education, training and the pressures of the job, that determine what journalists notice and how they interpret it. The governing principle behind story selection, he argues, is the search for the sensational and the spectacular — television calls for \"dramatization,\" both putting events on stage and exaggerating their seriousness. He draws on sociologist Patrick Champagne's research to illustrate this. In coverage of the inner city (from Champagne's La Misère du monde), dramatization typically means riots; ordinary, monotonous daily life is considered uninteresting by journalists, even when it might be more truthful. Bourdieu also stresses that words themselves can distort — a caption or a label such as \"Islamic\" versus \"Islamicist\" can create fear or false impressions even from a simple choice of vocabulary. Champagne's second example, the 1986 French high-school strike, shows how journalists, acting in good faith, unconsciously sought out the most articulate and politicized student representatives because they feared missing \"a new 1968\" — inadvertently distorting the story they were meant to simply report. From these examples Bourdieu draws his central theoretical claim: images possess a \"reality effect\" — they make people believe in what is shown — and this power to show is simultaneously a power to mobilize people, sometimes along dangerous political or ethnic lines. The very act of reporting, he insists, is never neutral; it always implies a social construction of reality that can mobilize or demobilize groups. This leads to his most quoted line in the section: \"television, which claims to record reality, creates it instead,\" so that the social world becomes increasingly described — and in a sense prescribed — by television. He extends this with a striking practical example: organizing a demonstration today (say, for early retirement) may matter less than hiring a \"savvy media consultant,\" because a demonstration staged with the right visual elements can, through television, produce an effect equivalent to fifty thousand real protesters in the street. The wider political stake, Bourdieu concludes, is the capacity to impose a particular \"way of seeing the world\" on the public — and increasingly, political actors must design their actions specifically for television's perceptual categories in order to be seen and to have any effect at all.",
+  recall: [
+    { q: "What metaphor does Bourdieu use for journalists' perceptual categories?", a: "\"Glasses\" — invisible structures shaped by education/training that determine what journalists see and how they see it." },
+    { q: "Define the \"reality effect\" and give the key quote.", a: "Images have the capacity to make people believe in what they show; \"they show things and make people believe in what they show. This power to show is also a power to mobilize.\"" },
+    { q: "What is Patrick Champagne's 1986 example about?", a: "A French high-school student strike, where journalists unconsciously sought out the most politicized student voices, fearing they'd miss \"a new 1968,\" thereby distorting the coverage." },
+    { q: "Complete the quote: \"Television, which claims to record reality, _____.\"", a: "\"...creates it instead.\"" },
+    { q: "Why does Bourdieu say you'd need a \"media consultant\" to protest effectively today?", a: "Because a well-staged, television-friendly demonstration can produce an effect equal to fifty thousand real street protesters, since political effect now depends on how television perceives and dramatizes an event." }
+  ],
+  vocab: [
+    { word: "dramatization", simple: "making something seem more dramatic or exciting than it actually is", bangla: "নাটকীয়করণ", context: "\"Television calls for dramatization.\"" },
+    { word: "mobilize / demobilize", simple: "to activate people to take action (or to discourage them from acting)", bangla: "সংগঠিত করা / নিরুৎসাহিত করা", context: "Reporting \"can mobilize (or demobilize) individuals or groups.\"" },
+    { word: "phantasm", simple: "an imagined, often false or unsettling, mental image or fear", bangla: "কাল্পনিক ভীতি / ছায়ামূর্তি", context: "Careless words \"create phantasms, fears, and phobias.\"" }
+  ],
+  useForTags: ["Reality effect", "Media construction of reality", "Journalists' bias/selection", "Political protest and television", "Critical discussion of TV's danger to society"]
+},
+{
+  id: "t2-circular-circulation",
+  topic: 2,
+  order: 4,
+  title: "The Circular Circulation of Information",
+  priority: "must",
+  quick: "Bourdieu argues that journalism is not really driven by independent individual journalists, but by a closed, self-referential system. Journalists constantly monitor each other, compete for the same stories, and end up producing remarkably similar content despite apparent rivalry — a \"circular circulation\" that produces homogenization and a subtle, invisible form of censorship, increasingly governed by audience ratings and a \"rating mindset.\"",
+  examNotes: [
+    "\"The journalist\" as an abstract, unified subject doesn't really exist — real journalists differ by sex, age, education, affiliation, and medium. The journalistic world is divided, full of conflict, competition, and rivalry.",
+    "BUT despite this, journalistic <b>products are much more alike than is generally thought</b>. Even political-tendency differences between newspapers are \"becoming less and less evident.\"",
+    "These similarities trace back to shared pressures from sources and mechanisms — the most important being <b>competition</b>.",
+    "<b>Paradox:</b> free-market economics holds that monopoly produces uniformity and competition produces diversity. Bourdieu observes the <i>opposite</i> in journalism: <b>competition homogenizes</b> when journalists/outlets face identical pressures, the same opinion polls, and the same recurring cast of commentators (who move easily between outlets).",
+    "Evidence: weekly newsmagazine covers at two-week intervals show \"nearly identical headlines.\"",
+    "Why this happens: production is a \"collective enterprise.\" Unlike cinema (clear individual authorship via credits), television news is produced by journalism as a whole. \"We're a lot less original than we think we are.\"",
+    "Mechanism: journalists perform a daily \"review of the press\" — an essential professional tool; to know what to say, they must know what everyone else has said. If one outlet headlines a story, a rival outlet cannot ignore it. Small differences journalists obsess over (Bourdieu's direct quote: <i>\"we left TF1 in the dust\"</i>, meaning something as minor as \"they didn't have the sound, and we did\") are \"completely missed by viewers\" but matter enormously to producers who believe such differences affect ratings.",
+    "Result: a \"game of mirrors reflecting one another,\" producing a \"formidable effect of mental closure.\"",
+    "This produces a form of <b>censorship</b> that is \"as effective—more even, because its principle remains invisible—as direct political intervention.\" Evidence: unscheduled or unusual news topics (e.g. Algeria, the status of foreigners in France) are systematically excluded because they're assumed to bore audiences and rarely get analytical coverage unless written by a \"big name.\"",
+    "To \"break out of the circle,\" a story must first break <i>into</i> the media system itself — grab the attention of at least one \"medium,\" so it can be amplified by competitors.",
+    "\"Information about information\" (deciding what's important/worth broadcasting) largely comes from other informers, producing a leveling/homogenization of news judgment. Example: a program executive found his scheduling choices simply \"obvious\" — an unconscious internalization of professional norms.",
+    "<b>Audience ratings</b> (Nielsen in the US) can now pinpoint audience share by the quarter hour and even by social group; ratings have become \"the journalist's <b>Last Judgment</b>.\" Even most independent outlets (apart from a few exceptions, e.g. <i>Le Canard enchaîné</i>, <i>Le Monde diplomatique</i>) are \"fixated on ratings\" — a \"rating mindset\" dominates newsrooms and publishing houses.",
+    "Historical contrast: since Baudelaire and Flaubert (mid-19th century), immediate market success was long seen as suspect among serious/avant-garde writers and artists. Today the market is accepted \"more and more as a legitimate means of legitimation.\" Example: a radio announcer declared \"philosophy is hot this year\" because a popular philosophy book (referred to as <i>Le Monde de Sophie</i>, i.e. Sophie's World) sold <b>eight hundred thousand copies</b> — treating sales as absolute proof of value.",
+    "Bourdieu warns that historically the \"highest human products\" — math, poetry, literature, philosophy — were produced <i>against</i> market imperatives, so a ratings/sales mindset spreading even into avant-garde/intellectual institutions is dangerous: it can jeopardize works that don't meet existing audience expectations but might, given time, create their own audience."
+  ],
+  deeper: [
+    "The phrase \"we left TF1 in the dust\" is worth quoting exactly — it's a real, direct quote from a journalist and makes for a vivid, memorable piece of evidence in an exam answer.",
+    "This section connects tightly to \"Working Under Pressure and Fast-Thinking\" (next section) — both are driven by the same underlying force: competitive/ratings pressure."
+  ],
+  memoryTrick: "Chain: No single \"journalist\" (abstract) → yet products alike → why? competition homogenizes → daily press review → tiny differences matter to producers, invisible to viewers → mirror-of-mirrors effect → mental closure/invisible censorship → ratings = \"Last Judgment\" → market legitimizes value (Sophie's World example) → danger to \"pure\"/non-market works.",
+  memorize: "No individual journalist → products alike → competition homogenizes → mirror of mirrors → mental closure → ratings = \"Last Judgment\" → Sophie's World, 800,000 copies → danger to \"pure\" works",
+  keywords: ["circular circulation", "homogenization", "review of the press", "mental closure", "Nielsen ratings", "\"journalist's Last Judgment\"", "rating mindset", "market legitimation"],
+  important: [
+    "<b>Le Canard enchaîné</b>, <b>Le Monde diplomatique</b> — cited as rare exceptions to the \"rating mindset.\"",
+    "<b>Le Monde de Sophie</b> (Sophie's World) — sold 800,000 copies, cited as an example of market-based legitimation.",
+    "<b>Baudelaire</b> and <b>Flaubert</b> — historical figures representing the older, anti-market artistic tradition."
+  ],
+  citations: [
+    { source: "Bourdieu (direct quote from a journalist)", argument: "\"We left TF1 in the dust\" — meaning minor technical differences (e.g. sound quality) that matter to insiders but go unnoticed by viewers.", useFor: ["Illustrating how insider rivalry misses the actual audience", "Evidence for the homogenization argument"] },
+    { source: "Bourdieu", argument: "Audience ratings have become the \"journalist's Last Judgment.\"", useFor: ["Critique of commercial pressure on journalism/quality content"] },
+    { source: "Radio announcer example (paraphrased by Bourdieu)", argument: "Declaring \"philosophy is hot this year\" based on Sophie's World selling 800,000 copies.", useFor: ["Critique of conflating market/sales success with intellectual or cultural value"] }
+  ],
+  whatToWrite: [
+    "Introduction: Bourdieu argues journalism functions as a closed, circular system rather than a collection of independent reporters.",
+    "Main point 1: \"the journalist\" as an abstract subject doesn't exist, yet journalistic products are strikingly similar.",
+    "Main point 2: paradox — competition, which should produce diversity, actually homogenizes journalism (identical pressures, shared commentators).",
+    "Important evidence: nearly identical newsmagazine headlines; the daily \"review of the press\" as a professional necessity; the \"we left TF1 in the dust\" quote.",
+    "Main point 3: result is \"mental closure\" and invisible censorship (systematic exclusion of unpopular/unscheduled topics like Algeria).",
+    "Main point 4: audience ratings (Nielsen) function as the \"journalist's Last Judgment\" — commercial pressure dominates newsrooms.",
+    "Important example: the market increasingly seen as legitimation of value (Sophie's World, 800,000 copies) — contrasted with the historical anti-market avant-garde tradition (Baudelaire/Flaubert).",
+    "Closing idea: circular circulation produces uniformity and a subtle but powerful form of self-censorship within journalism."
+  ],
+  skeleton: [
+    { step: "Introduction", sub: "\"the journalist\" doesn't exist as an individual, yet output is alike" },
+    { step: "Point 1", sub: "competition paradoxically homogenizes (vs. free-market theory)" },
+    { step: "Point 2", sub: "mechanism — daily press review, mirror effect, mental closure" },
+    { step: "Point 3", sub: "invisible censorship of unpopular topics" },
+    { step: "Point 4", sub: "ratings as the \"journalist's Last Judgment\"" },
+    { step: "Point 5", sub: "market as legitimation (Sophie's World example)" },
+    { step: "Conclusion", sub: "structural uniformity and self-censorship in journalism" }
+  ],
+  recall: [
+    { q: "Why does Bourdieu say \"the journalist\" doesn't really exist as a subject?", a: "Because real journalists differ hugely by sex, age, education, affiliation, and medium — \"the journalist\" is only an abstract, generalized category." },
+    { q: "Why does competition homogenize journalism instead of diversifying it, according to Bourdieu?", a: "Because competing journalists/outlets face identical pressures, the same opinion polls, and rely on the same recurring commentators, so they end up producing very similar content." },
+    { q: "What two French publications are cited as exceptions to the \"rating mindset\"?", a: "Le Canard enchaîné and Le Monde diplomatique." },
+    { q: "What does \"journalist's Last Judgment\" refer to?", a: "Audience ratings — they have become the ultimate, almost sacred, measure that determines a journalist's professional fate." },
+    { q: "What is the Sophie's World example meant to illustrate?", a: "That commercial/sales success is increasingly treated as proof of cultural or intellectual value, replacing older standards of judgment." }
+  ],
+  vocab: [
+    { word: "homogenize / homogenization", simple: "to make everything the same or uniform", bangla: "একরূপ করা", context: "\"Competition homogenizes when it occurs between journalists... subject to identical pressures.\"" },
+    { word: "legitimation", simple: "the act of making something accepted as valid or legitimate", bangla: "বৈধতা প্রদান", context: "\"The market is accepted... as a legitimate means of legitimation.\"" }
+  ],
+  useForTags: ["Homogenization of the media", "Competition and journalism", "Audience ratings", "Market vs. intellectual/cultural value"]
+},
+{
+  id: "t2-fast-thinking",
+  topic: 2,
+  order: 5,
+  title: "Working Under Pressure and Fast-Thinking",
+  priority: "must",
+  quick: "Audience-ratings pressure forces journalists to work in a hurry — which, Bourdieu argues, makes genuine thought difficult. Television rewards \"fast-thinkers\" who can respond instantly because they rely on ready-made clichés (Flaubert's \"received ideas\"), not the slow, logical reasoning that real thought requires.",
+  examNotes: [
+    "Audience ratings create pressure to produce content quickly — a relentless competition for scoops, for \"getting there first.\"",
+    "Evidence: <b>Alain Accardo's</b> book of interviews with journalists shows how, simply because one competing network has \"covered\" a flood, other television journalists must also cover the same flood and try to find something the others missed.",
+    "Stories are \"pushed on viewers because they are pushed on the producers,\" who are in turn pushed by competition with other producers.",
+    "Bourdieu links this to an old philosophical debate: <b>Plato's</b> distinction between the philosopher (who has time) and people in the \"agora\" (public space), who are in a hurry and under pressure — \"you can't think when you're in a hurry.\" Bourdieu notes this view is \"clearly aristocratic,\" the perspective of a privileged person who has time and doesn't question the privileges that grant it.",
+    "Central question: is it possible to \"think fast\"? By giving airtime specifically to thinkers considered able to think quickly, isn't television doomed to produce only <b>\"fast-thinkers\"</b> — \"thinkers who think faster than a speeding bullet\"?",
+    "Bourdieu's answer: such individuals can respond instantly precisely because they think in <b>clichés</b> — <b>Flaubert's \"received ideas\"</b> (<i>idées reçues</i>): banal, conventional, commonly accepted ideas.",
+    "Because received ideas are already familiar to everyone, \"reception is never a problem\" — communication becomes \"instantaneous\" precisely because, in a deeper sense, \"it has not occurred\" — there is no real exchange of new content, just mutual recognition of the familiar.",
+    "Contrast: real <b>thought</b> is, \"by definition, subversive\" — it dismantles received ideas and constructs a logical demonstration. Bourdieu cites <b>Descartes</b> as the model of reasoning through logical chains (\"therefore,\" \"consequently,\" \"that said,\" \"given the fact that...\"). This kind of thinking is intrinsically time-dependent.",
+    "Television rewards fast-thinkers who offer cultural \"<b>fast food</b>\" — \"predigested and prethought culture\" — partly because regular TV commentators are \"virtually on call,\" tied to the urgency of TV news production.",
+    "The \"list of commentators varies little\" (e.g. one go-to expert for Russia, another for Germany) — these recurring \"authorities\" spare journalists the trouble of finding people who genuinely have something new to say (often younger, still-unknown researchers who aren't good at \"talking to the media\").",
+    "These media-savvy \"authorities\" are described as \"the special kind of thinkers who can 'think' in these conditions where no one can do so\" — implying their on-air \"thinking\" isn't really thinking at all."
+  ],
+  deeper: [
+    "Bourdieu's careful phrase \"clearly aristocratic\" about Plato's view is itself a small piece of critical self-awareness worth noting — he uses a classical philosophical reference but immediately flags its class-based bias, which is a useful nuance for a 20-mark critical-discussion answer."
+  ],
+  memoryTrick: "Chain: Ratings pressure → hurry / scoop competition → Plato (philosopher has time vs. agora is rushed) → Can you think fast? → Fast-thinkers = clichés / received ideas (Flaubert) → Real thought = subversive + time-dependent (Descartes) → TV rewards \"cultural fast food\" → same recurring \"authorities.\"",
+  memorize: "Ratings → hurry → Plato (philosopher vs agora) → fast-thinkers = clichés (Flaubert's \"received ideas\") → real thought = subversive + time-dependent (Descartes) → \"cultural fast food\" → same recurring experts",
+  keywords: ["fast-thinkers", "received ideas (idées reçues)", "cultural fast food", "Plato — philosopher vs. agora", "Descartes — logical demonstration", "Alain Accardo"],
+  important: [
+    "<b>Alain Accardo</b> — author of interviews with journalists; source of the flood-coverage example.",
+    "<b>Plato</b> — cited for the philosopher/agora distinction, which Bourdieu calls an \"aristocratic\" viewpoint.",
+    "<b>Flaubert</b> — originator of the concept of \"received ideas\" (<i>idées reçues</i>).",
+    "<b>Descartes</b> — cited as the model of logical, time-dependent demonstration/reasoning."
+  ],
+  citations: [
+    { source: "Bourdieu", argument: "Television rewards \"fast-thinkers... thinkers who think faster than a speeding bullet.\"", useFor: ["Critique of TV's superficiality", "The \"cultural fast food\" argument"] },
+    { source: "Flaubert (via Bourdieu)", argument: "\"Received ideas\" — banal, conventional, commonly accepted notions that fast-thinkers rely on.", useFor: ["Explaining why some guests can speak instantly and fluently on TV"] },
+    { source: "Bourdieu", argument: "\"Thought, by definition, is subversive... it begins by taking apart 'received ideas.'\"", useFor: ["Contrast between real thought and TV's fast-thinking", "Conclusion for essays on TV and intellectual quality"] },
+    { source: "Alain Accardo", argument: "Interviews with journalists showing how competitive pressure forces them to \"cover\" the same events (e.g. the flood example) as rival networks.", useFor: ["Evidence of ratings-driven pressure and homogenization"] }
+  ],
+  whatToWrite: [
+    "Introduction: Bourdieu argues audience-ratings pressure creates a constant \"hurry\" that undermines real thought on television.",
+    "Main point 1: competitive/ratings pressure forces speed (Accardo's flood-coverage example).",
+    "Main point 2: philosophical background — Plato's philosopher (has time) vs. the agora (rushed) — real thought needs time.",
+    "Main point 3: television's response = \"fast-thinkers\" who can speak instantly because they rely on clichés/\"received ideas\" (Flaubert).",
+    "Important concept: define real thought as \"subversive,\" dismantling received ideas via logical demonstration (Descartes) — inherently time-consuming.",
+    "Main point 4: consequence — the same recurring \"authorities\"/commentators dominate television, sidelining genuine researchers.",
+    "Citation: \"thought, by definition, is subversive\" is the strongest theoretical quote for a conclusion.",
+    "Closing idea: television structurally favors clichéd \"cultural fast food\" over genuine, time-dependent thought."
+  ],
+  skeleton: [
+    { step: "Introduction", sub: "ratings pressure produces a constant \"hurry\"" },
+    { step: "Point 1", sub: "Plato's philosopher vs. agora distinction" },
+    { step: "Point 2", sub: "fast-thinkers = received ideas (Flaubert)" },
+    { step: "Point 3", sub: "real thought = subversive + time-dependent (Descartes)" },
+    { step: "Point 4", sub: "recurring media \"authorities\" crowd out real experts" },
+    { step: "Conclusion", sub: "television rewards cliché over genuine thought" }
+  ],
+  recall: [
+    { q: "What historical/philosophical distinction does Bourdieu use to link time and thought?", a: "Plato's distinction between the philosopher (who has time) and people in the agora/public space (who are rushed and under pressure)." },
+    { q: "What are \"received ideas,\" and who coined the concept (per Bourdieu)?", a: "Banal, conventional, commonly accepted ideas — the concept comes from Flaubert (\"idées reçues\")." },
+    { q: "Why does Bourdieu call real thought \"subversive\"?", a: "Because it begins by taking apart \"received ideas\" and builds a logical demonstration, unlike the comfortable, familiar clichés that make instant TV communication possible." },
+    { q: "Which philosopher does Bourdieu cite as a model of time-dependent, logical reasoning?", a: "Descartes." },
+    { q: "What is Bourdieu's example (via Accardo) of competitive pressure forcing coverage?", a: "Simply because a rival network \"covered\" a flood, television journalists have to cover the same flood too and find something the others missed." }
+  ],
+  vocab: [
+    { word: "cliché", simple: "an overused, unoriginal phrase or idea", bangla: "গতানুগতিক / বহুব্যবহৃত ধারণা", context: "Fast-thinkers \"think in clichés.\"" },
+    { word: "subversive", simple: "challenging or undermining an established idea, system, or order", bangla: "বিদ্রোহাত্মক / প্রচলিত ধারণা ভাঙা", context: "\"Thought, by definition, is subversive.\"" }
+  ],
+  useForTags: ["Fast-thinkers", "Television and the quality of thought", "Time pressure in journalism", "Received ideas / clichés"]
+},
+{
+  id: "t2-debates",
+  topic: 2,
+  order: 6,
+  title: "Debates Truly False or Falsely True",
+  priority: "must",
+  quick: "Bourdieu distinguishes two kinds of flawed televised debates: those that are openly fake (pundits who supposedly disagree but are secretly \"birds of a feather\"), and those that only look genuinely democratic while hidden mechanisms — the moderator's power, panel selection, prior arrangements, and unconscious bias — actually distort and unequalize the discussion. His main case study is the debate organized by Cavada during the November strikes.",
+  examNotes: [
+    "<b>Two types of bogus debates:</b> (1) entirely bogus, immediately recognizable ones — TV talk shows pairing pundits such as <b>Alain Minc & Jacques Attali</b>, or <b>Luc Ferry & Alain Finkielkraut</b>, who supposedly represent opposite views but are \"birds of a feather\": these people \"know each other, lunch together, have dinner together.\"",
+    "<b>Example:</b> in <b>Guillaume Durand's</b> program about elites, Attali began to say \"Nicolas...\" to Sarkozy before pausing and adding \"Sarkozy\" — a near-slip that would have revealed their closeness, even though they're meant to represent opposite political sides — a \"tiny signal of complicity.\"",
+    "The \"milieu of television regulars\" is a closed, self-reinforcing world; figures like <b>Julliard and Imbert</b>, supposedly representing Left and Right, are \"at odds but in an utterly conventional way\" (a Kabyle saying is quoted: \"he put my east in the west,\" meaning someone who twists/distorts positions).",
+    "(2) Debates that \"seem genuine, but are falsely so\" — Bourdieu's main example: the debate organized by <b>Cavada</b> during the November strikes, which \"looked for all the world like a democratic debate,\" making his case \"all the stronger.\"",
+    "Bourdieu identifies a hidden \"string of censorship\" within this seemingly fair debate:",
+    "&nbsp;&nbsp;(a) <b>The moderator</b> — highly interventionist; determines the subject and decides the debate question (sometimes absurdly framed, e.g. Durand's \"should elites be burned?\"); keeps debaters \"in line with the rules of the game\" — rules that vary depending on who's speaking (different for a union organizer vs. an Académie Française member); allots time and sets the tone (respectful/impatient); subtle cues (\"yeah, yeah, yeah,\" a curt \"thank you\") shape or discourage speakers, often unconsciously even for the moderator.",
+    "&nbsp;&nbsp;(b) <b>Result:</b> in a two-hour Cavada program, the union delegate had exactly <b>five minutes</b> to speak — even though the strike was the entire reason for the program. Yet, on the surface, \"the program adhered to all the formal signs of equality.\"",
+    "&nbsp;&nbsp;(c) <b>Structural inequality:</b> not all discussants are equal — some are professional TV talkers, others (e.g. striking workers) are \"rank amateurs.\" True equality would require the moderator to be <b>\"inegalitarian\"</b> — actively helping less-experienced speakers, as Bourdieu's own research team does in interviews for <i>La Misère du monde</i> — calling this a \"Socratic mission.\" But TV moderators typically do the opposite: they fail to help unaccustomed speakers, and often inhibit them (not ceding the floor at the right moment, putting people on the spot, showing impatience).",
+    "&nbsp;&nbsp;(d) <b>Backstage panel selection (invisible):</b> who gets invited (and who doesn't, or declines) shapes the debate before it airs. Example: the <i>Cercle de minuit</i> talk show ran two successive programs on intellectuals and the strikes — for the second program, the set arrangement was reshuffled and people originally seated on the \"right\" moved to the \"left,\" literally changing the visual message sent, purely by rearranging seating.",
+    "&nbsp;&nbsp;(e) <b>Set arrangement</b> gives an exaggerated, performative image of \"democratic equilibrium,\" with the moderator positioned as neutral \"referee.\" In the Cavada debate, strikers themselves were there to \"explain themselves,\" while others were positioned as detached observer-commentators making \"metadiscourse\" (talk about talk).",
+    "&nbsp;&nbsp;(f) <b>Prior arrangements/rehearsal:</b> agreements made with guests beforehand create a \"screenplay\" guests are expected to follow, leaving little room for spontaneity — considered \"too risky\" otherwise for the moderator/program.",
+    "&nbsp;&nbsp;(g) <b>The \"language game\"</b> (citing <b>Ludwig Wittgenstein</b>): television debates follow tacit rules modeled on wrestling — there must be conflict (good guys/bad guys), but not all \"holds\" are allowed; language must stay within formal, intellectual bounds.",
+    "&nbsp;&nbsp;(h) <b>\"Good guests\":</b> a TV-industry term for reliable, smooth-talking \"fast-thinkers\" who are always safe to invite because they \"won't create problems\" — they \"take to the television format like fish to water,\" unlike less media-savvy speakers (\"fish on dry land\").",
+    "&nbsp;&nbsp;(i) <b>The moderator's unconscious:</b> even sympathetic journalists often ask Bourdieu questions unrelated to the actual matter at hand, due to their own ingrained \"glasses\"/categories — forcing him to politely reframe the question before answering."
+  ],
+  deeper: [
+    "The Cercle de minuit example (seat reshuffling) is one of the most concrete, testable facts in this whole reading — an examiner could easily ask specifically about it, so it's worth memorizing precisely: same people, same studio, but simply moved from right to left between two episodes, changing the apparent political message."
+  ],
+  memoryTrick: "Chain: Bogus/obvious (Minc–Attali) → Falsely genuine (Cavada debate) → Moderator controls (question / rules / time) → Structural inequality (5 min for the union delegate in a 2-hour show) → Backstage panel selection (Cercle de minuit reshuffle) → Fake equilibrium (set arrangement) → Pre-arranged \"screenplay\" → Wittgenstein's \"language game\" (wrestling model) → \"Good guests\" (fish to water) → Moderator's unconscious.",
+  memorize: "Bogus (Minc–Attali) → falsely genuine (Cavada) → moderator controls Q & rules & time → 5 min vs 2 hrs → panel reshuffle (Cercle de minuit) → fake equilibrium → prescripted screenplay → Wittgenstein's wrestling game → \"good guests\"",
+  keywords: ["bogus debates", "Cavada debate", "the moderator", "structural inequality", "\"good guests\"", "language game (Wittgenstein)", "Cercle de minuit", "prescripted scenario"],
+  important: [
+    "<b>Alain Minc, Jacques Attali, Alain Finkielkraut, Luc Ferry, Jacques Julliard, Claude Imbert</b> — examples of \"birds of a feather\" TV pundits.",
+    "<b>Guillaume Durand</b> — hosted the program about elites.",
+    "<b>Cavada</b> — organized the falsely-genuine November-strikes debate.",
+    "<b>Ludwig Wittgenstein</b> — source of the \"language game\" concept.",
+    "<b>Cercle de minuit</b> — talk show example of panel reshuffling."
+  ],
+  citations: [
+    { source: "Bourdieu", argument: "TV pundit-pairs are \"birds of a feather\" despite appearing to represent opposite sides.", useFor: ["Critique of fake balance/false debate on television"] },
+    { source: "Bourdieu (Cavada debate example)", argument: "Description of the Cavada debate's hidden \"string of censorship\" despite looking democratic; the union delegate had only 5 minutes to speak in a 2-hour program.", useFor: ["Main example of \"falsely true\" debates", "Strong evidence for critical-discussion essays"] },
+    { source: "Ludwig Wittgenstein's \"language game\" concept (as applied by Bourdieu)", argument: "Television debates follow tacit rules modeled on wrestling — conflict is required, but only within formal, limited bounds.", useFor: ["Theoretical framing of how the TV debate format itself constrains discourse"] },
+    { source: "Bourdieu", argument: "\"Good guests\" — the media-industry term for reliable, smooth-talking \"fast-thinkers\" who are always safe to invite.", useFor: ["Linking to the fast-thinkers section", "Critique of guest-selection bias"] }
+  ],
+  whatToWrite: [
+    "Introduction: Bourdieu identifies two kinds of flawed TV debates — those obviously fake, and those that appear genuinely democratic but aren't.",
+    "Main point 1 (truly false/bogus): pundit-pairs who are \"birds of a feather\" despite performing opposition — example: Minc/Attali, Durand's near-slip with Sarkozy's first name.",
+    "Main point 2 (falsely true — main example): the Cavada debate during the November strikes — looked democratic, but had a hidden \"string of censorship.\"",
+    "Important evidence a: the moderator's power — sets the question, controls time, unconsciously shapes tone (result: the union delegate got only 5 minutes in a 2-hour program).",
+    "Important evidence b: structural inequality between professional talkers and amateurs; real equality would require an \"inegalitarian\" moderator (Socratic mission) — which TV moderators usually fail to provide.",
+    "Important evidence c: invisible backstage panel selection (Cercle de minuit reshuffling example) and a pre-arranged \"screenplay.\"",
+    "Relevant theory: Wittgenstein's \"language game,\" TV debate modeled on wrestling (conflict allowed within formal limits); \"good guests\" as reliable, safe fast-talkers.",
+    "Closing idea: even seemingly fair TV debates are structured by invisible mechanisms that undermine genuine democratic discussion."
+  ],
+  skeleton: [
+    { step: "Introduction", sub: "two types of flawed TV debate" },
+    { step: "Point 1", sub: "truly false/bogus debates (pundit examples)" },
+    { step: "Point 2", sub: "falsely true: the Cavada debate as main case study" },
+    { step: "Point 3", sub: "the moderator's hidden power (question, time, tone)" },
+    { step: "Point 4", sub: "structural inequality (amateurs vs. professionals)" },
+    { step: "Point 5", sub: "backstage selection and set arrangement" },
+    { step: "Point 6", sub: "the language game (Wittgenstein) and \"good guests\"" },
+    { step: "Conclusion", sub: "surface equality hides real censorship" }
+  ],
+  fullAnswer20: "Bourdieu distinguishes two broad categories of flawed televised debate. The first, \"truly false\" debates, are immediately recognizable as bogus: pairs of well-known pundits such as Alain Minc and Jacques Attali, or Luc Ferry and Alain Finkielkraut, are presented as representing opposing viewpoints, but in reality they belong to the same closed social milieu — they know each other, lunch together, and share far more in common than the program lets on. Bourdieu offers a small but telling example: during a program about elites hosted by Guillaume Durand, Attali began addressing Sarkozy simply as \"Nicolas,\" catching himself and adding the surname only at the last moment — a near-slip revealing an intimacy at odds with their supposed political opposition. Far more interesting to Bourdieu, though, are debates that are \"falsely true\" — that look genuinely democratic on the surface while actually being shaped by invisible mechanisms of censorship. His central example is a debate organized by the moderator Cavada during the November strikes, chosen precisely because it looked, on the surface, like an exemplary democratic exchange. Bourdieu uncovers a whole \"string of censorship\" within it. First, the moderator himself wields enormous, often unconscious power: he sets the topic and frames the question (sometimes absurdly, as in Durand's \"should elites be burned?\"), controls how much time each speaker gets, and shapes tone through small verbal cues. The practical result, in Cavada's two-hour broadcast, was that the striking union delegate — the very reason the program existed — received only five minutes of speaking time, even though the program maintained all the surface signs of formal equality. This points to a deeper structural inequality: professional television talkers and ordinary participants such as striking workers are simply not equally equipped to perform on air, and real equality, Bourdieu argues, would require the moderator to actively help the less experienced speak — a kind of \"Socratic mission\" that television moderators rarely undertake. Behind the scenes, panel selection is equally decisive: the Cercle de minuit talk show, covering intellectuals and the strikes over two successive episodes, simply moved the same people from the right side of the set to the left between programs, changing the entire visual message of the debate through nothing more than a seating rearrangement. Guests are also often bound by prior agreements that function like a rehearsed \"screenplay,\" leaving little room for spontaneity. Bourdieu frames all of this using Wittgenstein's concept of a \"language game\": televised debate follows tacit rules modeled on wrestling, in which conflict between \"good guys\" and \"bad guys\" is expected, but only within tightly formal, intellectual bounds. This is why the industry favors so-called \"good guests\" — smooth, reliable fast-talkers who \"take to the television format like fish to water\" and never cause problems for producers. Altogether, Bourdieu's analysis shows that even television debates that appear scrupulously fair are structured, often invisibly, in ways that systematically favor the already powerful and marginalize genuine outsiders.",
+  recall: [
+    { q: "Name two pairs of TV pundits Bourdieu calls \"birds of a feather.\"", a: "Alain Minc & Jacques Attali; or Luc Ferry & Alain Finkielkraut (also Jacques Julliard & Claude Imbert)." },
+    { q: "What incident with Attali and Sarkozy reveals hidden complicity?", a: "Attali began to say \"Nicolas\" (first name only) before catching himself and adding \"Sarkozy\" — a near-slip revealing their closeness despite supposedly opposing political sides." },
+    { q: "What is the Cavada debate, and why is it Bourdieu's strongest example?", a: "A debate organized during the November strikes that looked genuinely democratic on the surface, making it a stronger example of hidden censorship than the obviously bogus debates." },
+    { q: "How much speaking time did the union delegate get in the two-hour Cavada program?", a: "Only five minutes." },
+    { q: "What does Bourdieu say true equality on a panel would require from the moderator?", a: "The moderator would have to be \"inegalitarian\" — actively helping those unaccustomed to speaking publicly, a \"Socratic mission.\"" },
+    { q: "What theoretical concept from Wittgenstein does Bourdieu apply to TV debates?", a: "The \"language game\" — TV debate follows tacit rules modeled on wrestling: conflict is expected, but only within formal limits." },
+    { q: "What are \"good guests\"?", a: "The TV-industry term for reliable, smooth-talking \"fast-thinkers\" who are always safe to invite because they won't create problems." }
+  ],
+  vocab: [
+    { word: "inegalitarian", simple: "not equal — here, deliberately helping the disadvantaged to create real equality", bangla: "অসমতাবাদী (এখানে দুর্বলকে সাহায্য করার অর্থে)", context: "The moderator \"would have to be inegalitarian\" to create real equality." },
+    { word: "metadiscourse", simple: "talk about talk itself; discourse about discourse", bangla: "আলোচনা সম্পর্কে আলোচনা", context: "Some panelists were there \"to explain things, to make a metadiscourse, a talk about talk.\"" }
+  ],
+  useForTags: ["Televised debates", "Bias and manipulation on TV", "The moderator's power", "Democracy and television", "Critically discuss television's fairness"]
+},
+{
+  id: "t2-contradictions",
+  topic: 2,
+  order: 7,
+  title: "Contradictions and Tensions",
+  priority: "should",
+  quick: "Bourdieu closes Part One by describing television as an instrument with very little independence, caught between relentless competition and hidden collusion among journalists. He highlights a fundamental contradiction between producing serious, independent cultural work and the market conditions required to broadcast it to everyone — and contrasts highly visible, highly-paid TV stars with the anonymous \"invisible drones\" who do the actual reporting.",
+  examNotes: [
+    "Television is \"an instrument of communication with very little <b>autonomy</b>,\" subject to pressures from journalists' social relations: <b>relations of competition</b> (\"relentless and pitiless, even to the point of absurdity\") and <b>relations of collusion</b> (from shared/objective common interests).",
+    "These interests stem from journalists' shared position in the \"field of symbolic production\" and shared cognitive/perceptual/evaluative structures (from common social background and training).",
+    "So television, though it appears to run free, is actually \"reined in.\"",
+    "<b>Historical note:</b> in the 1960s, when television was a new phenomenon, some \"sociologists\" (Bourdieu uses scare-quotes) predicted TV would \"<b>massify</b>\" everything — flattening all viewers into one big, undifferentiated mass.",
+    "This assessment seriously underestimated (a) viewers' capacity for resistance, and — more importantly — (b) television's ability to transform its very own producers and the other journalists competing with it, and, ultimately, through its \"irresistible fascination,\" the whole ensemble of cultural producers.",
+    "<b>Key point (underlined in the source):</b> the \"extraordinary extension of the power of television over the whole of cultural production, including scientific and artistic production\" is the most important — and hardest to foresee — development.",
+    "<b>Central contradiction:</b> there is a basic contradiction between the economic and social conditions necessary to <i>produce</i> certain kinds of work (cutting-edge math, avant-garde poetry, serious philosophy/sociology — work \"relatively independent of the market\") and the conditions necessary to <i>transmit</i> that work to everybody. Television pushes this contradiction to the extreme because, more than any other medium of cultural production, it is subject to market/ratings pressures.",
+    "Within journalism itself, there is high tension between: (a) those who want to defend independence and freedom from market demands/managers, and (b) those who submit to market necessity and are rewarded for it. These tensions \"can hardly be expressed... at least not on screen.\"",
+    "Specific tension: between big-name, highly-paid TV stars (very visible, very rewarded, but also very exposed to market pressure) and the \"<b>invisible drones</b>\" who actually do the reporting/newsgathering — who are increasingly well-educated (more so than their 1960s counterparts) but assigned to increasingly pedestrian, insignificant jobs. This creates a growing gap between what the job demands and what journalism-school/college-trained people aspire to.",
+    "Result: journalism is \"one of the areas where you find the greatest number of people who are anxious, dissatisfied, rebellious, or cynically resigned\" — yet this discontent rarely becomes real (individual or collective) resistance.",
+    "Bourdieu invokes <b>Plato</b>: \"we are god's puppets\" — television creates an illusion that social actors (even seemingly powerful/independent/glamorous media figures) are free, when they are really \"puppets of a necessity\" (a structure) that sociology must \"unearth and bring to light.\""
+  ],
+  deeper: [
+    "This section functions as a summary/closing statement for the whole of Part One — a good place to draw on quotes from earlier sections (symbolic violence, reality effect, circular circulation, fast-thinking, false debates) as supporting evidence if asked a broad \"summarize Part One\" question."
+  ],
+  memoryTrick: "Chain: Little autonomy → Competition + Collusion (shared field) → 1960s \"massification\" prediction, proven WRONG → TV's real power = transforming cultural producers themselves → Central contradiction (serious work vs. market transmission) → Stars vs. \"invisible drones\" → Discontent without resistance → Plato: \"god's puppets.\"",
+  memorize: "Little autonomy → competition + collusion → \"massification\" myth (1960s, wrong) → TV transforms producers → contradiction (serious work vs market) → stars vs invisible drones → discontent, no resistance → \"god's puppets\" (Plato)",
+  keywords: ["autonomy", "competition & collusion", "massification", "field of symbolic production", "invisible drones", "central contradiction", "Plato — \"god's puppets\""],
+  important: [
+    "1960s \"sociologists\" (Bourdieu's scare-quotes) — wrongly predicted TV would \"massify\" everyone into one undifferentiated mass.",
+    "<b>Plato</b> — \"we are god's puppets\" (Bourdieu notes he is citing him \"a lot today\")."
+  ],
+  citations: [
+    { source: "Bourdieu", argument: "Television is \"an instrument of communication with very little autonomy,\" subject to relations of competition and collusion among journalists.", useFor: ["Summarizing TV's structural constraints", "Strong closing/summary point for essays on Part One"] },
+    { source: "Bourdieu", argument: "Critique of 1960s \"massification\" theory: it underestimated television's ability to \"transform its very producers... and, ultimately... the ensemble of cultural producers.\"", useFor: ["Showing TV's real power lies in shaping producers/the cultural field, not just audiences"] },
+    { source: "Bourdieu", argument: "The central contradiction between conditions of production (independent, \"pure\" work) and conditions of transmission (market/ratings-driven television).", useFor: ["Theoretical/critical-discussion questions on television and culture/knowledge"] },
+    { source: "Plato (cited by Bourdieu)", argument: "\"We are god's puppets.\"", useFor: ["Concluding a critical essay on television's structural power over seemingly free individuals"] }
+  ],
+  whatToWrite: [
+    "Introduction: Bourdieu concludes Part One by describing television as an instrument with little real autonomy, caught in structural contradictions.",
+    "Main point 1: television is shaped by both competition AND collusion among journalists (shared field/background).",
+    "Main point 2: critique the outdated 1960s \"massification\" theory — television's real power is reshaping producers/the cultural field, not just flattening audiences.",
+    "Important concept: the central contradiction — conditions for producing serious/independent work vs. conditions for mass transmission via ratings-driven TV.",
+    "Main point 3: internal journalism tension — market-independence idealists vs. those who submit to and are rewarded by market logic.",
+    "Important example: TV stars vs. \"invisible drones\" — visibility/reward vs. anonymity/pedestrian work, despite similar or better education.",
+    "Relevant idea: resulting widespread professional discontent that rarely becomes real resistance.",
+    "Closing idea: cite Plato — social actors on TV are \"puppets\" of a structure that sociology must expose."
+  ],
+  skeleton: [
+    { step: "Introduction", sub: "television's limited autonomy" },
+    { step: "Point 1", sub: "competition + collusion (shared field)" },
+    { step: "Point 2", sub: "1960s massification theory, debunked" },
+    { step: "Point 3", sub: "central production-vs-transmission contradiction" },
+    { step: "Point 4", sub: "internal journalism tensions (independence vs. market reward)" },
+    { step: "Point 5", sub: "stars vs. invisible drones" },
+    { step: "Conclusion", sub: "Plato's \"god's puppets\" / sociology's task to reveal structure" }
+  ],
+  recall: [
+    { q: "What two kinds of \"relations\" shape journalists, according to Bourdieu?", a: "Relations of competition (relentless, pitiless) and relations of collusion (from shared/objective common interests)." },
+    { q: "What did 1960s \"sociologists\" wrongly predict about television?", a: "That it would \"massify\" everything, turning all viewers into one big, undifferentiated mass." },
+    { q: "What is Bourdieu's central contradiction regarding \"pure\" cultural production and television?", a: "There's a basic contradiction between the conditions needed to produce independent/serious work (math, poetry, philosophy) and the market-driven conditions needed to transmit that work to everyone via television." },
+    { q: "Who are the \"invisible drones,\" and how do they differ from TV \"stars\"?", a: "The reporters/newsgatherers who do the actual work — increasingly well-educated but assigned to pedestrian, insignificant jobs — unlike highly visible, highly-paid, highly-rewarded TV stars." },
+    { q: "What Plato quote does Bourdieu use to close this discussion?", a: "\"We are god's puppets.\"" }
+  ],
+  vocab: [
+    { word: "autonomy", simple: "independence, self-governance", bangla: "স্বায়ত্তশাসন / স্বাধীনতা", context: "Television has \"very little autonomy.\"" },
+    { word: "collusion", simple: "secret or tacit cooperation, often for unfair advantage", bangla: "গোপন আঁতাত", context: "\"Relations of collusion, derived from objective common interests.\"" },
+    { word: "pedestrian (here meaning)", simple: "dull, unremarkable, ordinary", bangla: "সাধারণ / নিরস", context: "Jobs \"more and more pedestrian, more and more insignificant.\"" }
+  ],
+  useForTags: ["Autonomy of television", "Journalism as a field", "Contradiction between market and culture", "Conclusion for Part One essays"]
+},
+{
+  id: "t2-marketshare",
+  topic: 2,
+  order: 8,
+  title: "Marketshare and Competition (Part Two opening)",
+  priority: "should",
+  quick: "Opening Part Two, Bourdieu introduces the concept of the \"journalistic field\" — a semi-independent microcosm with its own internal laws — arguing that understanding a channel like TF1 requires looking BOTH at its ownership (Bouygues) AND at its position within the wider competitive system of TV networks. Neither factor alone is sufficient — a purely economic/ownership-based explanation is a \"half-baked\" form of materialism that explains nothing.",
+  examNotes: [
+    "To move beyond mere description of what happens in a TV studio, Bourdieu introduces a \"somewhat technical term\": the <b>journalistic field</b>.",
+    "Journalism is a \"microcosm with its own laws,\" defined both by (a) its position in the world at large, and (b) the attractions/repulsions it faces from other such microcosms (fields).",
+    "To say journalism is \"independent or autonomous, that it has its own laws\" means what happens inside it cannot be explained by looking only at external (e.g. purely economic) factors.",
+    "Bourdieu explicitly rejects pure economic determinism: <i>\"What happens on TF1 cannot be explained simply by the fact that it is owned by the Bouygues holding company.\"</i> An explanation that ignores ownership would be inadequate — but an explanation based <i>solely</i> on ownership would be \"just as inadequate — more inadequate still,\" because it would falsely seem complete.",
+    "He calls this ownership-only kind of explanation a <b>\"half-baked version of materialism, associated with Marxism\"</b> that \"condemns without shedding light anywhere and ultimately explains nothing.\"",
+    "To understand TF1 specifically, Bourdieu says you must account for everything TF1 owes to its position within \"a universe of objective relations between the different, competing television networks\" — and recognize that the form competition takes is shaped invisibly by unperceived power [relations].",
+    "<b>Note:</b> this section is incomplete in the provided source excerpt — the text ends mid-sentence (\"...defined invisibly by unperceived power\"). Do not invent what comes next; mark it <span class='pill'>VERIFY FROM PDF</span> if a complete continuation is needed."
+  ],
+  deeper: [
+    "This section is a natural bridge back to \"Invisible Censorship,\" where the same NBC/CBS/ABC/TF1 ownership facts first appeared — Bourdieu is now explicitly clarifying that those ownership facts, while necessary, are not sufficient on their own."
+  ],
+  memoryTrick: "Chain: Beyond mere description → \"journalistic field\" (technical term) → a field = its own laws + position + attractions/repulsions from other fields → NOT purely economic (reject \"half-baked Marxism\") → TF1 example: ownership (Bouygues) insufficient alone → must also see its position within the competing-networks universe.",
+  memorize: "Journalistic field → own laws + position → NOT just ownership (reject half-baked Marxism) → TF1 = Bouygues + competitive position (BOTH needed)",
+  keywords: ["journalistic field", "microcosm", "autonomy", "half-baked materialism", "TF1", "Bouygues", "marketshare", "competition"],
+  important: [
+    "The \"journalistic field\" is Bourdieu's key sociological concept here (drawn from his broader field theory).",
+    "TF1 = French private channel, owned by Bouygues (a construction conglomerate) — used as the running example.",
+    "Source text ends mid-sentence in the provided excerpt — <b>[TEXT INCOMPLETE IN PROVIDED PDF — VERIFY FROM FULL SOURCE IF NEEDED]</b>."
+  ],
+  citations: [
+    { source: "Bourdieu", argument: "The \"journalistic field\" is defined as \"a microcosm with its own laws, defined both by its position in the world at large and by the attractions and repulsions to which it is subject from other such microcosms.\"", useFor: ["Theoretical-framework questions", "Linking Bourdieu's TV analysis to his broader sociology (field theory)"] },
+    { source: "Bourdieu", argument: "Rejection of pure economic explanation: ownership-only analysis is a \"half-baked version of materialism... [that] explains nothing.\"", useFor: ["Showing nuance in Bourdieu's method (not simple Marxist economic determinism)", "Critical-discussion questions on Bourdieu's methodology"] }
+  ],
+  whatToWrite: [
+    "Introduction: Bourdieu opens Part Two by introducing the concept of the \"journalistic field\" to explain television beyond mere surface description.",
+    "Main point 1: define the field — a microcosm with its own laws, shaped by its position relative to other fields.",
+    "Main point 2: autonomy means internal events can't be explained solely by external (economic) factors.",
+    "Important concept: critique of pure ownership-based (quasi-Marxist) explanations as inadequate (\"half-baked materialism\").",
+    "Example: TF1 case — ownership (Bouygues) matters but is not sufficient; must also consider TF1's position within the competitive network of channels.",
+    "Note: the excerpt breaks off before Bourdieu fully develops this point — mark as VERIFY FROM PDF if a fuller answer is needed, but the essential concept (field theory applied to journalism) is already clear from what's given.",
+    "Closing idea: field theory is Bourdieu's analytical tool for avoiding both naive idealism and naive economic determinism."
+  ],
+  skeleton: [
+    { step: "Introduction", sub: "moving beyond description to explanation: the \"journalistic field\"" },
+    { step: "Point 1", sub: "definition of a field/microcosm" },
+    { step: "Point 2", sub: "autonomy = not fully explained by external factors" },
+    { step: "Point 3", sub: "critique of ownership-only (\"half-baked materialism\") explanation" },
+    { step: "Point 4", sub: "TF1/Bouygues example — need both ownership AND competitive position" },
+    { step: "Conclusion", sub: "field theory as Bourdieu's analytical tool (note: source excerpt ends here)" }
+  ],
+  recall: [
+    { q: "What technical term does Bourdieu introduce to move beyond mere description of a TV studio?", a: "The \"journalistic field.\"" },
+    { q: "What two factors define a \"field,\" according to Bourdieu?", a: "Its position in the world at large, and the attractions/repulsions it faces from other such microcosms (fields)." },
+    { q: "Why does Bourdieu reject explaining TF1 purely through its ownership by Bouygues?", a: "Because an ownership-only explanation would be inadequate — it would seem complete while actually explaining very little; you also need to account for TF1's position within the wider competitive network of channels." },
+    { q: "What does Bourdieu call this ownership-only style of explanation?", a: "A \"half-baked version of materialism, associated with Marxism.\"" }
+  ],
+  vocab: [
+    { word: "microcosm", simple: "a small system that reflects the characteristics of something larger", bangla: "ক্ষুদ্র জগৎ (বৃহত্তর কাঠামোর প্রতিচ্ছবি)", context: "\"Journalism is a microcosm with its own laws.\"" },
+    { word: "materialism (philosophical/Marxist sense)", simple: "the view that economic/material conditions determine social phenomena", bangla: "বস্তুবাদ", context: "A \"half-baked version of materialism, associated with Marxism.\"" }
+  ],
+  useForTags: ["Journalistic field", "TF1 / Bouygues", "Bourdieu's methodology", "Ownership vs. structural explanation"]
+}
+];
+
+// Priority label helper
+const PRI_LABEL = { must: "🔴 MUST KNOW", should: "🟡 SHOULD KNOW", time: "🟢 IF TIME" };
+const PRI_CLASS = { must: "pri-must", should: "pri-should", time: "pri-time" };
+
+
+// ============================================================
+// TELEVISION CRITICISM — EXAM PREP APP LOGIC
+// ============================================================
+
+const LS = {
+  get(key, fallback){ try{ const v = localStorage.getItem(key); return v===null?fallback:JSON.parse(v);}catch(e){return fallback;} },
+  set(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){} }
+};
+
+let STATE = {
+  examTime: LS.get('tvcrit_examTime', null),
+  progress: LS.get('tvcrit_progress', {}), // id -> 'reading'|'learned'|'review'
+  currentSection: LS.get('tvcrit_currentSection', null),
+  theme: LS.get('tvcrit_theme', 'light'),
+  recallStatus: LS.get('tvcrit_recallStatus', {}) // sectionId -> 'know'|'review'|'forgot'
+};
+
+function saveProgress(){ LS.set('tvcrit_progress', STATE.progress); }
+function saveExamTime(){ LS.set('tvcrit_examTime', STATE.examTime); }
+function saveCurrent(id){ STATE.currentSection = id; LS.set('tvcrit_currentSection', id); }
+function saveRecall(){ LS.set('tvcrit_recallStatus', STATE.recallStatus); }
+
+// ---------- Theme ----------
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme', STATE.theme);
+  document.getElementById('themeBtn').textContent = STATE.theme === 'dark' ? '☀️' : '🌙';
+}
+function toggleTheme(){
+  STATE.theme = STATE.theme === 'dark' ? 'light' : 'dark';
+  LS.set('tvcrit_theme', STATE.theme);
+  applyTheme();
+}
+applyTheme();
+
+// ---------- Focus mode ----------
+function toggleFocus(){
+  document.body.classList.toggle('focus-mode');
+}
+
+// ---------- Countdown ----------
+function updateCountdowns(){
+  const el1 = document.getElementById('miniCountdown');
+  if(!STATE.examTime){
+    if(el1) el1.textContent = '';
+    const big = document.getElementById('bigCountdown');
+    if(big) big.innerHTML = '<span style="color:var(--ink-soft);font-size:14px;">No exam time set</span>';
+    return;
+  }
+  const target = new Date(STATE.examTime).getTime();
+  const now = Date.now();
+  let diff = target - now;
+  let text;
+  if(diff <= 0){ text = "Exam time reached"; }
+  else{
+    const totalSec = Math.floor(diff/1000);
+    const d = Math.floor(totalSec/86400);
+    const h = Math.floor((totalSec%86400)/3600);
+    const m = Math.floor((totalSec%3600)/60);
+    const s = totalSec%60;
+    text = (d>0? d+"d ":"") + String(h).padStart(2,'0')+"h "+String(m).padStart(2,'0')+"m "+String(s).padStart(2,'0')+"s";
+  }
+  if(el1) el1.innerHTML = 'Exam in <strong>'+text+'</strong>';
+  const big = document.getElementById('bigCountdown');
+  if(big) big.innerHTML = '<span class="cd-num">'+text+'</span>';
+}
+setInterval(updateCountdowns, 1000);
+
+// ---------- Helpers ----------
+function sectionsByTopic(topic){ return SECTIONS.filter(s=>s.topic===topic).sort((a,b)=>a.order-b.order); }
+function getSection(id){ return SECTIONS.find(s=>s.id===id); }
+function statusOf(id){ return STATE.progress[id] || 'not-started'; }
+function setStatus(id, status){ STATE.progress[id] = status; saveProgress(); }
+
+function coveragePct(topic){
+  const secs = topic ? sectionsByTopic(topic) : SECTIONS;
+  if(secs.length===0) return 0;
+  const done = secs.filter(s=>{ const st = statusOf(s.id); return st==='learned' || st==='reading' || st==='review'; }).length;
+  return Math.round(done/secs.length*100);
+}
+function learnedPct(topic){
+  const secs = topic ? sectionsByTopic(topic) : SECTIONS;
+  if(secs.length===0) return 0;
+  const done = secs.filter(s=> statusOf(s.id)==='learned').length;
+  return Math.round(done/secs.length*100);
+}
+
+function escapeHtml(s){ return (s+'').replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+// ============================================================
+// ROUTER
+// ============================================================
+let CURRENT_VIEW = 'home';
+
+function goHome(){ CURRENT_VIEW='home'; render(); }
+function goTopic(topic){ CURRENT_VIEW='topic'; CURRENT_TOPIC=topic; render(); }
+function goSection(id){ CURRENT_VIEW='reader'; saveCurrent(id); if(statusOf(id)==='not-started') setStatus(id,'reading'); render(); window.scrollTo(0,0); }
+function goRapid(){ CURRENT_VIEW='rapid'; RAPID_IDX=0; render(); }
+function goMaster(){ CURRENT_VIEW='master'; render(); }
+function goLast15(){ CURRENT_VIEW='last15'; render(); }
+function goLast5(){ CURRENT_VIEW='last5'; render(); }
+function goCitations(){ CURRENT_VIEW='citations'; render(); }
+function goChecklist(){ CURRENT_VIEW='checklist'; render(); }
+function goRecallMode(id){ CURRENT_VIEW='recallmode'; saveCurrent(id); RECALL_REVEALED=false; render(); }
+function goAll(){ CURRENT_VIEW='all'; render(); }
+function goConnect(){ CURRENT_VIEW='connect'; render(); }
+function goEmergency(){ CURRENT_VIEW='emergency'; render(); }
+
+let CURRENT_TOPIC = 1;
+let RAPID_IDX = 0;
+let RECALL_REVEALED = false;
+let ACTIVE_TAB = 'quick';
+
+// ============================================================
+// RENDER: HOME
+// ============================================================
+function renderHome(){
+  const totalPct = coveragePct(null);
+  const t1Pct = coveragePct(1);
+  const t2Pct = coveragePct(2);
+  let continueHtml = '';
+  if(STATE.currentSection){
+    const s = getSection(STATE.currentSection);
+    if(s){
+      continueHtml = `<div class="continue-banner">
+        <span>Continue where you stopped: <b>${TOPICS[s.topic].short} → ${escapeHtml(s.title)}</b></span>
+        <button class="btn" onclick="goSection('${s.id}')">Continue →</button>
+      </div>`;
+    }
+  }
+  return `
+  <div class="home-hero">
+    <h1>Television Criticism</h1>
+    <p class="tagline">Your complete exam-preparation notebook — Wasko's "Introduction" &amp; Bourdieu's "On Television"</p>
+  </div>
+  ${continueHtml}
+  <div class="card">
+    <h2>Exam Countdown</h2>
+    <div id="bigCountdown" class="countdown-display"></div>
+    <div class="exam-time-row">
+      <input type="datetime-local" id="examTimeInput" value="${STATE.examTime ? toLocalInputValue(STATE.examTime) : ''}">
+      <button class="btn" onclick="setExamTime()">Set Exam Time</button>
+      ${STATE.examTime ? '<button class="btn ghost" onclick="resetExamTime()">Reset</button>' : ''}
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>PDF Coverage</h2>
+    <div class="progress-row"><span class="pr-label">Overall</span><div class="progress-bar-track" style="flex:1;"><div class="progress-bar-fill" style="width:${totalPct}%;"></div></div><span class="pr-pct">${totalPct}%</span></div>
+    <div class="progress-row"><span class="pr-label">Topic 1 (Wasko)</span><div class="progress-bar-track" style="flex:1;"><div class="progress-bar-fill" style="width:${t1Pct}%;"></div></div><span class="pr-pct">${t1Pct}%</span></div>
+    <div class="progress-row"><span class="pr-label">Topic 2 (Bourdieu)</span><div class="progress-bar-track" style="flex:1;"><div class="progress-bar-fill" style="width:${t2Pct}%;"></div></div><span class="pr-pct">${t2Pct}%</span></div>
+  </div>
+
+  <div class="card">
+    <h2>Start Studying</h2>
+    <div class="menu-list">
+      <div class="menu-item" onclick="goTopic(1)"><div><div class="mi-title">Topic 1 — Television: Introduction (Wasko)</div><div class="mi-sub">3 sections</div></div><span class="mi-arrow">→</span></div>
+      <div class="menu-item" onclick="goTopic(2)"><div><div class="mi-title">Topic 2 — On Television (Bourdieu)</div><div class="mi-sub">8 sections</div></div><span class="mi-arrow">→</span></div>
+      <div class="menu-item" onclick="goAll()"><div><div class="mi-title">All Sections</div><div class="mi-sub">Browse every headline across both topics</div></div><span class="mi-arrow">→</span></div>
+      <div class="menu-item" onclick="goRapid()"><div><div class="mi-title">Rapid Review</div><div class="mi-sub">Cycle through every headline quickly</div></div><span class="mi-arrow">→</span></div>
+      <div class="menu-item" onclick="goCitations()"><div><div class="mi-title">Citation Bank</div><div class="mi-sub">Every citation, organized by headline &amp; use</div></div><span class="mi-arrow">→</span></div>
+      <div class="menu-item" onclick="goMaster()"><div><div class="mi-title">Final Revision Sheet</div><div class="mi-sub">Everything on one scrollable page</div></div><span class="mi-arrow">→</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Emergency Modes</h2>
+    <div class="grid-2">
+      <button class="btn secondary emg-btn" onclick="goEmergency()">⏱ I only have 30 minutes</button>
+      <button class="btn secondary emg-btn" onclick="goLast15()">Last 15 Minutes</button>
+      <button class="btn secondary emg-btn" onclick="goLast5()">Last 5 Minutes</button>
+      <button class="btn secondary emg-btn" onclick="goChecklist()">✓ Coverage Checklist</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Connect the Two Topics</h2>
+    <div class="menu-item" onclick="goConnect()"><div><div class="mi-title">Wasko ↔ Bourdieu</div><div class="mi-sub">Where the two texts meet — similarities &amp; contrasts</div></div><span class="mi-arrow">→</span></div>
+  </div>
+  <footer class="credits">Built from your uploaded PDF. All source content stays faithful to the original text — labelled where anything is explanation, application, or Bangladesh context.</footer>
+  `;
+}
+
+function toLocalInputValue(iso){
+  const d = new Date(iso);
+  const pad = n=>String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());
+}
+function setExamTime(){
+  const v = document.getElementById('examTimeInput').value;
+  if(!v) return;
+  STATE.examTime = new Date(v).toISOString();
+  saveExamTime();
+  updateCountdowns();
+  render();
+}
+function resetExamTime(){
+  STATE.examTime = null;
+  saveExamTime();
+  render();
+}
+
+// ============================================================
+// RENDER: TOPIC LIST
+// ============================================================
+function renderTopic(topic){
+  const secs = sectionsByTopic(topic);
+  const t = TOPICS[topic];
+  const items = secs.map(s=>{
+    const st = statusOf(s.id);
+    const statusClass = st==='learned' ? 'learned' : (st==='review' ? 'review' : (st==='reading' ? 'reading' : ''));
+    return `<div class="section-list-item" onclick="goSection('${s.id}')">
+      <span class="sli-status ${statusClass}"></span>
+      <span class="sli-title">${s.order}. ${escapeHtml(s.title)}</span>
+      <span class="sli-pri">${PRI_LABEL[s.priority]}</span>
+    </div>`;
+  }).join('');
+  return `
+  <div class="topic-header">
+    <h1>${t.short} — ${escapeHtml(t.name)} <span style="font-size:14px;color:var(--ink-soft);font-family:var(--sans);">by ${escapeHtml(t.author)}</span></h1>
+    <button class="btn ghost" onclick="goHome()">← Home</button>
+  </div>
+  <div class="progress-row"><span class="pr-label">Progress</span><div class="progress-bar-track" style="flex:1;"><div class="progress-bar-fill" style="width:${coveragePct(topic)}%;"></div></div><span class="pr-pct">${coveragePct(topic)}%</span></div>
+  <div style="margin-top:16px;">${items}</div>
+  `;
+}
+
+// ============================================================
+// RENDER: ALL SECTIONS (both topics)
+// ============================================================
+function renderAll(){
+  let html = `<div class="topic-header"><h1>All Sections</h1><button class="btn ghost" onclick="goHome()">← Home</button></div>`;
+  [1,2].forEach(topic=>{
+    html += `<div class="mastersheet-topic">${TOPICS[topic].short} — ${escapeHtml(TOPICS[topic].name)}</div>`;
+    sectionsByTopic(topic).forEach(s=>{
+      const st = statusOf(s.id);
+      const statusClass = st==='learned' ? 'learned' : (st==='review' ? 'review' : (st==='reading' ? 'reading' : ''));
+      html += `<div class="section-list-item" onclick="goSection('${s.id}')">
+        <span class="sli-status ${statusClass}"></span>
+        <span class="sli-title">${escapeHtml(s.title)}</span>
+        <span class="sli-pri">${PRI_LABEL[s.priority]}</span>
+      </div>`;
+    });
+  });
+  return html;
+}
+
+// ============================================================
+// RENDER: SECTION READER
+// ============================================================
+function renderReader(){
+  const s = getSection(STATE.currentSection);
+  if(!s){ CURRENT_VIEW='home'; return renderHome(); }
+  const secs = sectionsByTopic(s.topic);
+  const idx = secs.findIndex(x=>x.id===s.id);
+  const prev = idx>0 ? secs[idx-1] : null;
+  const next = idx<secs.length-1 ? secs[idx+1] : null;
+  const pct = Math.round(((idx+1)/secs.length)*100);
+  const st = statusOf(s.id);
+
+  const tabs = [
+    ['quick','Quick'], ['notes','Exam Notes'], ['memory','Memory'], ['citations','Citations'],
+    ['write','What to Write'], ['recall','Quick Recall'], ['vocab','Vocabulary']
+  ];
+  const tabBtns = tabs.map(([k,label])=>`<button class="tab-btn ${ACTIVE_TAB===k?'active':''}" onclick="setTab('${k}')">${label}</button>`).join('');
+
+  return `
+  <div class="reader-nav">
+    <span>${TOPICS[s.topic].short} · Section ${idx+1} of ${secs.length}</span>
+    <span>${pct}% through topic</span>
+  </div>
+  <div class="reader-progress-track"><div class="reader-progress-fill" style="width:${pct}%;"></div></div>
+
+  <div class="section-title-block">
+    <div class="st-eyebrow">${TOPICS[s.topic].name} — ${escapeHtml(TOPICS[s.topic].author)}</div>
+    <h1>${escapeHtml(s.title)} <span class="pri-badge ${PRI_CLASS[s.priority]}">${PRI_LABEL[s.priority]}</span></h1>
+  </div>
+
+  <div class="tabs">${tabBtns}</div>
+
+  <div class="tab-panel ${ACTIVE_TAB==='quick'?'active':''}">
+    <div class="subhead">Level 1 — Quick Understanding</div>
+    <div class="quick-box">${s.quick}</div>
+    <div class="subhead">If this becomes the question — what do I write?</div>
+    <ol class="write-steps">${s.whatToWrite.map(w=>`<li>${w}</li>`).join('')}</ol>
+    <div class="subhead">Answer Skeleton</div>
+    <div class="skeleton-block">
+      ${s.skeleton.map(step=>`<div class="sk-step">${step.step}</div><div class="sk-sub">→ ${step.sub}</div>`).join('')}
+    </div>
+    ${s.fullAnswer10 ? `<details class="more-detail"><summary>Show 10-mark model answer</summary><p>${s.fullAnswer10}</p></details>` : ''}
+    ${s.fullAnswer20 ? `<details class="more-detail"><summary>Show 20-mark model answer</summary><p>${s.fullAnswer20}</p></details>` : ''}
+  </div>
+
+  <div class="tab-panel ${ACTIVE_TAB==='notes'?'active':''}">
+    <div class="subhead">Level 2 — Detailed Exam Notes (from the PDF)</div>
+    <div class="notes-block"><ul>${s.examNotes.map(n=>`<li>${n}</li>`).join('')}</ul></div>
+    ${s.deeper && s.deeper.length ? `<details class="more-detail"><summary>Show more — Level 3, deeper detail</summary><div class="notes-block"><ul>${s.deeper.map(n=>`<li>${n}</li>`).join('')}</ul></div></details>` : ''}
+    <div class="subhead">Important Information</div>
+    <ul class="info-list">${s.important.map(i=>`<li>${i}</li>`).join('')}</ul>
+  </div>
+
+  <div class="tab-panel ${ACTIVE_TAB==='memory'?'active':''}">
+    <div class="subhead">Memorize This</div>
+    <div class="memorize-strip">${escapeHtml(s.memorize)}</div>
+    <div class="subhead" style="margin-top:20px;">Memory Trick</div>
+    <p style="font-size:15px;">${s.memoryTrick}</p>
+    <div class="subhead">Keywords</div>
+    <div class="keyword-pills">${s.keywords.map(k=>`<span class="pill">${escapeHtml(k)}</span>`).join('')}</div>
+    <div style="margin-top:22px; text-align:center;">
+      <button class="btn secondary" onclick="goRecallMode('${s.id}')">Can I write this from memory? →</button>
+    </div>
+  </div>
+
+  <div class="tab-panel ${ACTIVE_TAB==='citations'?'active':''}">
+    <div class="subhead">Citations / Evidence for this section</div>
+    ${s.citations.map(c=>`
+      <div class="citation-card">
+        <div class="cc-source">${escapeHtml(c.source)}</div>
+        <div class="cc-argument">${c.argument}</div>
+        <div class="cc-usefor">Use this citation when discussing: ${c.useFor.map(u=>`<span>${escapeHtml(u)}</span>`).join('')}</div>
+      </div>
+    `).join('')}
+  </div>
+
+  <div class="tab-panel ${ACTIVE_TAB==='write'?'active':''}">
+    <div class="subhead">If this headline comes as the question — what should I write?</div>
+    <ol class="write-steps">${s.whatToWrite.map(w=>`<li>${w}</li>`).join('')}</ol>
+    <div class="subhead">Answer Skeleton</div>
+    <div class="skeleton-block">
+      ${s.skeleton.map(step=>`<div class="sk-step">${step.step}</div><div class="sk-sub">→ ${step.sub}</div>`).join('')}
+    </div>
+    ${s.fullAnswer10 ? `<details class="more-detail"><summary>10-mark model answer</summary><p>${s.fullAnswer10}</p></details>` : ''}
+    ${s.fullAnswer20 ? `<details class="more-detail"><summary>20-mark model answer</summary><p>${s.fullAnswer20}</p></details>` : ''}
+  </div>
+
+  <div class="tab-panel ${ACTIVE_TAB==='recall'?'active':''}">
+    <div class="subhead">Quick Recall — test yourself</div>
+    ${s.recall.map((r,i)=>`
+      <div class="recall-card">
+        <div class="recall-q" onclick="toggleRecall(this)">Q: ${r.q} <span>▾</span></div>
+        <div class="recall-a">${r.a}</div>
+      </div>
+    `).join('')}
+  </div>
+
+  <div class="tab-panel ${ACTIVE_TAB==='vocab'?'active':''}">
+    <div class="subhead">Difficult Words</div>
+    ${s.vocab.length ? s.vocab.map(v=>`
+      <div class="vocab-card">
+        <div class="vocab-word">${escapeHtml(v.word)}</div>
+        <div class="vocab-row"><b>Simple</b>${escapeHtml(v.simple)}</div>
+        <div class="vocab-row"><b>বাংলা</b>${escapeHtml(v.bangla)}</div>
+        <div class="vocab-row"><b>Context</b>${v.context}</div>
+      </div>
+    `).join('') : '<p style="color:var(--ink-soft);">No especially difficult vocabulary flagged for this section.</p>'}
+  </div>
+
+  <div class="mark-learned-row">
+    <button class="${st==='learned'?'active-learned':''}" onclick="markStatus('${s.id}','learned')">I Know It ✓</button>
+    <button class="${st==='review'?'active-review':''}" onclick="markStatus('${s.id}','review')">Need Review ~</button>
+    <button onclick="markStatus('${s.id}','forgot')">Forgot It ✗</button>
+  </div>
+
+  <div class="nav-buttons">
+    <button onclick="${prev? `goSection('${prev.id}')` : 'goTopic('+s.topic+')'}">${prev? '← Previous: '+escapeHtml(prev.title) : '← Back to topic'}</button>
+    <button onclick="${next? `goSection('${next.id}')` : 'goTopic('+s.topic+')'}">${next? 'Next: '+escapeHtml(next.title)+' →' : 'Finish topic →'}</button>
+  </div>
+  `;
+}
+function setTab(t){ ACTIVE_TAB = t; render(); }
+function toggleRecall(el){ el.nextElementSibling.classList.toggle('show'); }
+function markStatus(id, status){
+  if(status==='forgot'){ setStatus(id,'review'); }
+  else{ setStatus(id, status); }
+  render();
+}
+
+// ============================================================
+// RENDER: RECALL MODE ("Can I write this from memory?")
+// ============================================================
+function renderRecallMode(){
+  const s = getSection(STATE.currentSection);
+  if(!s) return renderHome();
+  return `
+  <div class="topic-header"><h1>Can I write this from memory?</h1><button class="btn ghost" onclick="goSection('${s.id}')">← Back to section</button></div>
+  <div class="recall-mode-box">
+    <div class="st-eyebrow">${TOPICS[s.topic].name}</div>
+    <h1 style="margin:8px 0 20px;">${escapeHtml(s.title)}</h1>
+    <div class="keyword-pills" style="justify-content:center; margin-bottom:14px;">${s.keywords.map(k=>`<span class="pill">${escapeHtml(k)}</span>`).join('')}</div>
+    <div class="memorize-strip" style="display:inline-block;">${escapeHtml(s.memorize)}</div>
+    <p style="color:var(--ink-soft); font-family:var(--sans); font-size:13px; margin-top:20px;">Citation prompt: ${s.citations.map(c=>escapeHtml(c.source)).join(' · ')}</p>
+    <p style="margin-top:24px;">Now try to reconstruct the full answer in your own words — out loud or on paper — before revealing.</p>
+    ${!RECALL_REVEALED ? `<button class="btn" onclick="revealRecall()">Reveal Answer</button>` : ''}
+    ${RECALL_REVEALED ? `<div class="recall-mode-answer"><ul>${s.examNotes.slice(0,6).map(n=>`<li style="margin-bottom:8px;">${n}</li>`).join('')}</ul></div>` : ''}
+    <div class="recall-mode-btns">
+      <button class="know" onclick="setRecallStatus('${s.id}','know')">I Know It ✓</button>
+      <button class="review" onclick="setRecallStatus('${s.id}','review')">Need Review ~</button>
+      <button class="forgot" onclick="setRecallStatus('${s.id}','forgot')">Forgot It ✗</button>
+    </div>
+  </div>
+  `;
+}
+function revealRecall(){ RECALL_REVEALED = true; render(); }
+function setRecallStatus(id, status){
+  STATE.recallStatus[id] = status;
+  saveRecall();
+  if(status==='know') setStatus(id,'learned');
+  else if(status==='review'||status==='forgot') setStatus(id,'review');
+  goSection(id);
+}
+
+// ============================================================
+// RENDER: RAPID REVIEW
+// ============================================================
+function renderRapid(){
+  const s = SECTIONS.sort((a,b)=> a.topic-b.topic || a.order-b.order)[RAPID_IDX];
+  const total = SECTIONS.length;
+  return `
+  <div class="topic-header"><h1>Rapid Review</h1><button class="btn ghost" onclick="goHome()">← Home</button></div>
+  <div class="reader-nav"><span>Headline ${RAPID_IDX+1} of ${total}</span><span>${TOPICS[s.topic].short}</span></div>
+  <div class="reader-progress-track"><div class="reader-progress-fill" style="width:${Math.round(((RAPID_IDX+1)/total)*100)}%;"></div></div>
+  <div class="rr-card">
+    <h3>${escapeHtml(s.title)}</h3>
+    <div class="subhead">Key points</div>
+    <ul class="info-list">${s.examNotes.slice(0,5).map(n=>`<li>${n}</li>`).join('')}</ul>
+    <div class="subhead">Memory trigger</div>
+    <div class="memorize-strip">${escapeHtml(s.memorize)}</div>
+    <div class="subhead" style="margin-top:16px;">Citation</div>
+    <p style="font-size:14.5px;">${s.citations[0] ? escapeHtml(s.citations[0].source)+' — '+s.citations[0].argument : '—'}</p>
+    <div class="subhead">What to write</div>
+    <p style="font-size:14.5px;">${s.whatToWrite[0]}</p>
+  </div>
+  <div class="nav-buttons">
+    <button onclick="rapidPrev()" ${RAPID_IDX===0?'disabled':''}>← Previous</button>
+    <button onclick="rapidNext()">${RAPID_IDX===total-1? 'Done — Back to Home' : 'Next →'}</button>
+  </div>
+  `;
+}
+function rapidNext(){ if(RAPID_IDX < SECTIONS.length-1){ RAPID_IDX++; render(); } else { goHome(); } }
+function rapidPrev(){ if(RAPID_IDX>0){ RAPID_IDX--; render(); } }
+
+// ============================================================
+// RENDER: FINAL MASTER SHEET
+// ============================================================
+function renderMaster(){
+  let html = `<div class="topic-header"><h1>Final Exam Sheet</h1><button class="btn ghost" onclick="goHome()">← Home</button></div>`;
+  [1,2].forEach(topic=>{
+    html += `<div class="mastersheet-topic">${TOPICS[topic].short} — ${escapeHtml(TOPICS[topic].name)}</div>`;
+    sectionsByTopic(topic).forEach(s=>{
+      html += `<div class="rr-card">
+        <h3>${escapeHtml(s.title)} <span class="pri-badge ${PRI_CLASS[s.priority]}">${PRI_LABEL[s.priority]}</span></h3>
+        <div class="memorize-strip" style="margin-bottom:12px;">${escapeHtml(s.memorize)}</div>
+        <div class="subhead">Trigger points</div>
+        <ul class="info-list">${s.examNotes.slice(0,4).map(n=>`<li>${n}</li>`).join('')}</ul>
+        <div class="subhead">Important names/concepts</div>
+        <ul class="info-list">${s.important.map(i=>`<li>${i}</li>`).join('')}</ul>
+        <div class="subhead">Key citation</div>
+        <p style="font-size:14px;">${s.citations[0] ? escapeHtml(s.citations[0].source)+' — '+s.citations[0].argument : '—'}</p>
+        <div class="subhead">Answer skeleton</div>
+        <div class="skeleton-block">${s.skeleton.map(st=>`<div class="sk-step">${st.step}</div><div class="sk-sub">→ ${st.sub}</div>`).join('')}</div>
+        <div style="text-align:right; margin-top:10px;"><button class="btn ghost" onclick="goSection('${s.id}')">Open full section →</button></div>
+      </div>`;
+    });
+  });
+  return html;
+}
+
+// ============================================================
+// RENDER: LAST 15 MINUTES
+// ============================================================
+function renderLast15(){
+  let html = `<div class="topic-header"><h1>Last 15 Minutes</h1><button class="btn ghost" onclick="goHome()">← Home</button></div>
+  <p style="color:var(--ink-soft); font-family:var(--sans); font-size:13.5px;">No long explanations — just triggers.</p>`;
+  [1,2].forEach(topic=>{
+    html += `<div class="mastersheet-topic">${TOPICS[topic].short}</div>`;
+    sectionsByTopic(topic).forEach(s=>{
+      html += `<div class="compact-list"><div class="cl-item">
+        <div class="compact-title">${escapeHtml(s.title)}</div>
+        <div style="font-size:13.5px;"><b>Keywords:</b> ${s.keywords.slice(0,6).join(', ')}</div>
+        <div style="font-size:13.5px; margin-top:3px;"><b>Memory:</b> ${escapeHtml(s.memorize)}</div>
+        <div style="font-size:13.5px; margin-top:3px;"><b>Citation:</b> ${s.citations[0] ? escapeHtml(s.citations[0].source) : '—'}</div>
+        <div style="font-size:13.5px; margin-top:3px;"><b>Names:</b> ${s.important.slice(0,3).map(i=>i.replace(/<\/?b>/g,'')).join(' · ')}</div>
+      </div></div>`;
+    });
+  });
+  return html;
+}
+
+// ============================================================
+// RENDER: LAST 5 MINUTES
+// ============================================================
+function renderLast5(){
+  let html = `<div class="topic-header"><h1>Last 5 Minutes</h1><button class="btn ghost" onclick="goHome()">← Home</button></div>
+  <div class="card"><h2>Trigger Chains (all sections)</h2>`;
+  SECTIONS.forEach(s=>{ html += `<div style="font-size:13.5px; margin-bottom:8px;"><b>${escapeHtml(s.title)}:</b> ${escapeHtml(s.memorize)}</div>`; });
+  html += `</div>
+  <div class="card"><h2>Most Important Names</h2><div class="keyword-pills">
+    ${["Philo Farnsworth","C. P. Scott","Newton Minow","John Silver","Jerry Mander","Signorielli & Bacue","Berkeley","Gilles Deleuze","Edmund Husserl","Patrick Champagne","Flaubert","Alain Accardo","Plato","Descartes","Ludwig Wittgenstein","Cavada","Guillaume Durand"].map(n=>`<span class="pill">${n}</span>`).join('')}
+  </div></div>
+  <div class="card"><h2>Most Useful Citations</h2>
+    <p style="font-size:14.5px;">"Television enjoys a de facto monopoly on what goes into the heads of a significant part of the population and what they think." (Bourdieu)</p>
+    <p style="font-size:14.5px;">"Television, which claims to record reality, creates it instead." (Bourdieu)</p>
+    <p style="font-size:14.5px;">Symbolic violence = "violence wielded with tacit complicity between its victims and its agents." (Bourdieu)</p>
+    <p style="font-size:14.5px;">"When television is good, nothing is better. But when television is bad, nothing is worse." (Minow, 1961)</p>
+    <p style="font-size:14.5px;">"Television? The word is half Greek, half Latin. No good can come of it." (C. P. Scott)</p>
+  </div>
+  <div class="card"><h2>Answer Introduction Pattern</h2><p style="font-size:14.5px;">Define the concept → name the author/thinker → give one precise citation → state why it matters.</p></div>
+  <div class="card"><h2>Answer Conclusion Pattern</h2><p style="font-size:14.5px;">Summarize the main mechanism in one sentence → tie back to the strongest quote → note any real-world/Bangladesh application only if clearly asked.</p></div>
+  `;
+  return html;
+}
+
+// ============================================================
+// RENDER: EMERGENCY 30-MINUTE MODE
+// ============================================================
+function renderEmergency(){
+  let html = `<div class="topic-header"><h1>I Only Have 30 Minutes</h1><button class="btn ghost" onclick="goHome()">← Home</button></div>
+  <p style="color:var(--ink-soft); font-family:var(--sans); font-size:13.5px;">Every headline, compressed to the essentials — because any headline can appear in the exam.</p>`;
+  SECTIONS.forEach(s=>{
+    html += `<div class="rr-card">
+      <h3>${escapeHtml(s.title)} <span class="pri-badge ${PRI_CLASS[s.priority]}">${PRI_LABEL[s.priority]}</span></h3>
+      <p style="font-size:14.5px;">${s.quick}</p>
+      <div class="memorize-strip" style="margin:10px 0;">${escapeHtml(s.memorize)}</div>
+      <p style="font-size:13.5px;"><b>Citation:</b> ${s.citations[0] ? escapeHtml(s.citations[0].source) : '—'}</p>
+      <p style="font-size:13.5px;"><b>What to write:</b> ${s.whatToWrite[0]}</p>
+    </div>`;
+  });
+  return html;
+}
+
+// ============================================================
+// RENDER: CITATION BANK
+// ============================================================
+function renderCitations(){
+  let html = `<div class="topic-header"><h1>Citation Bank</h1><button class="btn ghost" onclick="goHome()">← Home</button></div>`;
+  [1,2].forEach(topic=>{
+    html += `<div class="mastersheet-topic">${TOPICS[topic].short}</div>`;
+    sectionsByTopic(topic).forEach(s=>{
+      if(!s.citations.length) return;
+      html += `<div class="rr-card"><h3 style="font-size:16px;">${escapeHtml(s.title)}</h3>`;
+      s.citations.forEach(c=>{
+        html += `<div class="citation-card">
+          <div class="cc-source">${escapeHtml(c.source)}</div>
+          <div class="cc-argument">${c.argument}</div>
+          <div class="cc-usefor">Use for: ${c.useFor.map(u=>`<span>${escapeHtml(u)}</span>`).join('')}</div>
+        </div>`;
+      });
+      html += `</div>`;
+    });
+  });
+  return html;
+}
+
+// ============================================================
+// RENDER: COVERAGE CHECKLIST
+// ============================================================
+function renderChecklist(){
+  let html = `<div class="topic-header"><h1>Full PDF Coverage Checklist</h1><button class="btn ghost" onclick="goHome()">← Home</button></div>`;
+  [1,2].forEach(topic=>{
+    html += `<div class="card"><h2>${TOPICS[topic].short} — ${escapeHtml(TOPICS[topic].name)}</h2>`;
+    sectionsByTopic(topic).forEach(s=>{
+      const done = statusOf(s.id)==='learned';
+      html += `<div class="checklist-item ${done?'done':''}">
+        <input type="checkbox" ${done?'checked':''} onchange="toggleChecklist('${s.id}', this.checked)">
+        <span>${escapeHtml(s.title)}</span>
+      </div>`;
+    });
+    html += `</div>`;
+  });
+  return html;
+}
+function toggleChecklist(id, checked){
+  setStatus(id, checked ? 'learned' : 'reading');
+  render();
+}
+
+// ============================================================
+// RENDER: CONNECT THE TWO TOPICS
+// ============================================================
+function renderConnect(){
+  return `
+  <div class="topic-header"><h1>Connect the Two Topics</h1><button class="btn ghost" onclick="goHome()">← Home</button></div>
+  <div class="rr-card">
+    <h3>Positive vs. Critical framing of television</h3>
+    <p style="font-size:15px;">Wasko's introduction presents a <b>balanced overview</b> — television as storyteller, ideology-carrier, and economic force, with both praise (education, bonding) and blame (Minow's "vast wasteland," Silver, Mander). Bourdieu's "On Television" takes the <b>critical/structural side much further</b>, arguing that television's dangers are not just moral (as Minow/Silver suggest) but structural and largely invisible — symbolic violence, circular circulation, fast-thinking, staged debates.</p>
+    <p style="font-size:13.5px; color:var(--ink-soft);"><i>Possible combined question: "Compare Wasko's balanced view of television's social role with Bourdieu's structural critique of television's power."</i></p>
+  </div>
+  <div class="rr-card">
+    <h3>Television as "ideological source" / "storyteller" ↔ "symbolic violence" / "reality effect"</h3>
+    <p style="font-size:15px;">Wasko's claim that television is an <b>ideological source</b> of values (via Signorielli & Bacue's "storyteller" idea) is a general sociological observation. Bourdieu gives this a precise mechanism: <b>symbolic violence</b> (tacit, unconscious complicity) and the <b>reality effect</b> (images make people believe what is shown, and showing is a power to mobilize) explain <i>how</i> television's ideological power actually operates.</p>
+    <p style="font-size:13.5px; color:var(--ink-soft);"><i>Similarity:</i> both see television as shaping belief/values, not just reflecting them. <i>Difference:</i> Wasko's account is broader/sociological; Bourdieu's is a specific, mechanism-level critique.</p>
+  </div>
+  <div class="rr-card">
+    <h3>Academic approaches to television (Wasko) ↔ Bourdieu's method</h3>
+    <p style="font-size:15px;">Wasko's "How Do We Understand Television?" section describes a shift in TV research from media-effects (quantitative) to cultural/textual studies to structural/ownership research. Bourdieu's own analysis is a clear example of this <b>structural</b> approach: he explicitly discusses TV's ownership (NBC/GE, TF1/Bouygues) and introduces the "journalistic field" as a structural, sociological concept.</p>
+    <p style="font-size:13.5px; color:var(--ink-soft);"><i>Possible combined question: "How does Bourdieu's method exemplify the trends in television scholarship that Wasko describes?"</i></p>
+  </div>
+  <div class="rr-card">
+    <h3>Economic impact of television (Wasko) ↔ Ownership &amp; market pressure (Bourdieu)</h3>
+    <p style="font-size:15px;">Wasko notes television's economic significance ($54.4 billion in US broadcast revenue, 2001). Bourdieu explores the deeper structural consequences of commercial pressure: audience ratings as the "journalist's Last Judgment," the "rating mindset," and market success increasingly treated as "legitimation" of cultural value (the Sophie's World example).</p>
+  </div>
+  `;
+}
+
+// ============================================================
+// SEARCH
+// ============================================================
+function buildSearchIndex(){
+  const idx = [];
+  SECTIONS.forEach(s=>{
+    idx.push({ type:'Section', label:s.title, sub:TOPICS[s.topic].short, go:()=>goSection(s.id), text:(s.title+' '+s.keywords.join(' ')+' '+s.quick).toLowerCase() });
+    s.important.forEach(i=>{ idx.push({ type:'Name', label:i.replace(/<\/?b>/g,''), sub:s.title, go:()=>goSection(s.id), text:i.replace(/<[^>]+>/g,'').toLowerCase() }); });
+    s.citations.forEach(c=>{ idx.push({ type:'Citation', label:c.source, sub:s.title, go:()=>goSection(s.id), text:(c.source+' '+c.argument).toLowerCase() }); });
+    s.vocab.forEach(v=>{ idx.push({ type:'Vocab', label:v.word, sub:s.title, go:()=>goSection(s.id), text:(v.word+' '+v.simple).toLowerCase() }); });
+    s.keywords.forEach(k=>{ idx.push({ type:'Keyword', label:k, sub:s.title, go:()=>goSection(s.id), text:k.toLowerCase() }); });
+  });
+  return idx;
+}
+const SEARCH_INDEX = buildSearchIndex();
+let searchResultFns = [];
+
+function doSearch(q){
+  const box = document.getElementById('searchResults');
+  q = q.trim().toLowerCase();
+  if(q.length < 2){ box.classList.add('hidden'); box.innerHTML=''; return; }
+  const matches = SEARCH_INDEX.filter(item=>item.text.includes(q)).slice(0,25);
+  if(matches.length===0){ box.innerHTML = '<div class="sr-item">No matches.</div>'; box.classList.remove('hidden'); return; }
+  searchResultFns = matches.map(m=>m.go);
+  box.innerHTML = matches.map((m,i)=>`<div class="sr-item" onclick="runSearchResult(${i})"><span class="sr-tag">${m.type}</span><br>${escapeHtml(m.label)} <span style="color:var(--ink-soft);">— ${escapeHtml(m.sub)}</span></div>`).join('');
+  box.classList.remove('hidden');
+}
+function runSearchResult(i){
+  document.getElementById('searchResults').classList.add('hidden');
+  document.getElementById('searchbox').value='';
+  searchResultFns[i]();
+}
+document.addEventListener('click', function(e){
+  const box = document.getElementById('searchResults');
+  if(!box.contains(e.target) && e.target.id !== 'searchbox'){ box.classList.add('hidden'); }
+});
+
+// ============================================================
+// MAIN RENDER DISPATCH
+// ============================================================
+function render(){
+  const app = document.getElementById('app');
+  let html = '';
+  switch(CURRENT_VIEW){
+    case 'home': html = renderHome(); break;
+    case 'topic': html = renderTopic(CURRENT_TOPIC); break;
+    case 'all': html = renderAll(); break;
+    case 'reader': html = renderReader(); break;
+    case 'recallmode': html = renderRecallMode(); break;
+    case 'rapid': html = renderRapid(); break;
+    case 'master': html = renderMaster(); break;
+    case 'last15': html = renderLast15(); break;
+    case 'last5': html = renderLast5(); break;
+    case 'emergency': html = renderEmergency(); break;
+    case 'citations': html = renderCitations(); break;
+    case 'checklist': html = renderChecklist(); break;
+    case 'connect': html = renderConnect(); break;
+    default: html = renderHome();
+  }
+  app.innerHTML = html;
+  updateCountdowns();
+}
+
+// Init
+render();
+
+
+</script>
+</body>
+</html>
