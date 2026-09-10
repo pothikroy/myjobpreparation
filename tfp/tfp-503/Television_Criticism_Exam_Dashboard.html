@@ -30,19 +30,45 @@ body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-ser
 h1,h2,h3,h4{font-family:Georgia,'Times New Roman',serif;line-height:1.25;}
 h2{border-bottom:2px solid var(--border);padding-bottom:6px;margin-top:0;}
 a{color:var(--accent2);}
-.wrap{max-width:980px;margin:0 auto;padding:0 16px 80px;}
-header.top{position:sticky;top:0;z-index:50;background:var(--panel);border-bottom:1px solid var(--border);}
-.topbar{display:flex;align-items:center;gap:10px;padding:10px 16px;max-width:980px;margin:0 auto;flex-wrap:wrap;}
-.topbar h1{font-size:1.05rem;margin:0;flex:1;min-width:180px;}
-#searchBox{flex:1;min-width:140px;padding:7px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);}
+:root{--sbw:250px;}
+.wrap{max-width:800px;margin:0 auto;padding:28px 20px 90px;}
+main.content{margin-left:var(--sbw);min-height:100vh;}
+
+/* ---- Sidebar (desktop) ---- */
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sbw);z-index:60;
+  background:var(--panel);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;gap:16px;padding:20px 16px;
+  overflow-y:auto;transition:transform .25s ease;}
+.sidebar h1{font-size:1rem;margin:0;letter-spacing:.01em;}
+.sidebar .subtitle{font-size:.74rem;color:var(--muted);margin-top:-12px;}
+.sidebar-block{display:flex;flex-direction:column;gap:8px;}
+#searchBox{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:.85rem;}
 button{cursor:pointer;border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:8px;padding:7px 12px;font-size:.85rem;}
 button:hover{border-color:var(--accent2);}
 button.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
-#progressWrap{width:100%;background:var(--border);border-radius:6px;height:8px;overflow:hidden;margin-top:6px;}
+.icon-row{display:flex;gap:8px;}
+.icon-row button{flex:1;}
+#progressWrap{width:100%;background:var(--border);border-radius:6px;height:6px;overflow:hidden;margin-top:6px;}
 #progressBar{height:100%;background:var(--accent);width:0%;transition:width .3s;}
-nav.tabs{display:flex;gap:6px;overflow-x:auto;padding:8px 16px;max-width:980px;margin:0 auto;border-top:1px solid var(--border);}
-nav.tabs a{white-space:nowrap;font-size:.78rem;padding:5px 9px;border-radius:14px;background:var(--code);text-decoration:none;color:var(--text);}
-nav.tabs a:hover{background:var(--accent);color:#fff;}
+#progressLabel{font-size:.72rem;}
+.sidebar hr{border:none;border-top:1px solid var(--border);margin:2px 0;width:100%;}
+nav.tabs{display:flex;flex-direction:column;gap:1px;overflow-y:auto;}
+nav.tabs a{white-space:nowrap;font-size:.82rem;padding:7px 10px;border-radius:7px;text-decoration:none;color:var(--text);}
+nav.tabs a:hover{background:var(--code);}
+nav.tabs a.active{background:var(--accent);color:#fff;}
+
+/* ---- Mobile: sidebar becomes a foldable drawer ---- */
+#mobileMenuBtn{display:none;position:fixed;top:14px;left:14px;z-index:70;
+  width:40px;height:40px;padding:0;border-radius:10px;font-size:1.1rem;background:var(--panel);}
+#sidebarOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:55;}
+#sidebarOverlay.show{display:block;}
+@media(max-width:860px){
+  .sidebar{transform:translateX(-100%);box-shadow:2px 0 24px rgba(0,0,0,.2);}
+  .sidebar.open{transform:translateX(0);}
+  main.content{margin-left:0;}
+  #mobileMenuBtn{display:block;}
+  .wrap{padding-top:56px;}
+}
 section{padding:26px 0;border-bottom:1px dashed var(--border);}
 .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin:12px 0;}
 .tag{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.03em;padding:2px 8px;border-radius:10px;color:#fff;margin-right:6px;}
@@ -74,7 +100,8 @@ blockquote{border-left:4px solid var(--accent);margin:10px 0;padding:6px 14px;ba
 mark{background:#f0d060;color:#111;padding:0 2px;border-radius:3px;}
 #focusToggleBar.on ~ .wrap section:not(.focused){display:none;}
 @media print{
-  header.top,nav.tabs,button,.toc-jump,#focusBtn,.no-print{display:none !important;}
+  .sidebar,#mobileMenuBtn,#sidebarOverlay,button,.toc-jump,.no-print{display:none !important;}
+  main.content{margin-left:0;}
   section{page-break-inside:avoid;border:none;}
   body{background:#fff;color:#000;}
 }
@@ -83,20 +110,30 @@ mark{background:#f0d060;color:#111;padding:0 2px;border-radius:3px;}
 <body>
 <div id="ag-overlay"></div>
 
-<header class="top">
-  <div class="topbar">
-    <h1>📺 TV Criticism — Exam Dashboard</h1>
-    <input id="searchBox" type="text" placeholder="Search concepts, quotes, questions…">
-    <button id="darkToggle">🌓</button>
+<button id="mobileMenuBtn" aria-label="Open menu">☰</button>
+<div id="sidebarOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-block">
+    <h1>📺 TV Criticism</h1>
+    <div class="subtitle">Exam Dashboard — Wasko &amp; Bourdieu</div>
+  </div>
+
+  <input id="searchBox" type="text" placeholder="Search concepts, quotes…">
+
+  <div class="icon-row">
+    <button id="darkToggle">🌓 Theme</button>
     <button id="focusBtn">🎯 Focus</button>
   </div>
-  <div class="topbar" style="padding-top:0;">
-    <div style="flex:1;">
-      <div id="progressWrap"><div id="progressBar"></div></div>
-      <div class="small" id="progressLabel">0% of tracked items checked</div>
-    </div>
+
+  <div>
+    <div id="progressWrap"><div id="progressBar"></div></div>
+    <div id="progressLabel">0% checked</div>
   </div>
-  <nav class="tabs">
+
+  <hr>
+
+  <nav class="tabs" id="navTabs">
     <a href="#crisis">🚨 Crisis Mode</a>
     <a href="#mustknow">⭐ Must-Know</a>
     <a href="#core">🧩 Core Arguments</a>
@@ -117,8 +154,9 @@ mark{background:#f0d060;color:#111;padding:0 2px;border-radius:3px;}
     <a href="#rubric">📋 Rubric</a>
     <a href="#emergency">🆘 5-Min Emergency</a>
   </nav>
-</header>
+</aside>
 
+<main class="content">
 <div class="wrap">
 
 <!-- ============ SOURCE NOTE ============ -->
@@ -794,8 +832,35 @@ mark{background:#f0d060;color:#111;padding:0 2px;border-radius:3px;}
 </section>
 
 </div><!-- /wrap -->
+</main>
 
 <script>
+// ---------- Sidebar (mobile fold) ----------
+const sidebar=document.getElementById('sidebar');
+const mobileMenuBtn=document.getElementById('mobileMenuBtn');
+const sidebarOverlay=document.getElementById('sidebarOverlay');
+function openSidebar(){sidebar.classList.add('open');sidebarOverlay.classList.add('show');}
+function closeSidebar(){sidebar.classList.remove('open');sidebarOverlay.classList.remove('show');}
+mobileMenuBtn.addEventListener('click',()=>{
+  sidebar.classList.contains('open')?closeSidebar():openSidebar();
+});
+sidebarOverlay.addEventListener('click',closeSidebar);
+document.querySelectorAll('#navTabs a').forEach(a=>{
+  a.addEventListener('click',()=>{ if(window.innerWidth<=860) closeSidebar(); });
+});
+
+// ---------- Highlight active nav link on scroll ----------
+const navLinks=[...document.querySelectorAll('#navTabs a')];
+const targets=navLinks.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+function updateActiveLink(){
+  let current=targets[0];
+  const y=window.scrollY+120;
+  targets.forEach(t=>{ if(t && t.offsetTop<=y) current=t; });
+  navLinks.forEach(a=>a.classList.toggle('active', current && a.getAttribute('href')==='#'+current.id));
+}
+window.addEventListener('scroll',updateActiveLink,{passive:true});
+updateActiveLink();
+
 // ---------- Dark mode ----------
 const darkToggle=document.getElementById('darkToggle');
 darkToggle.addEventListener('click',()=>{document.body.classList.toggle('dark');localStorage.setItem('tvDark',document.body.classList.contains('dark'));});
