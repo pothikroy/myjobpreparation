@@ -9,6 +9,31 @@
   var ICON_USER = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>';
   var ICON_SHIELD = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 3v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V5l8-3z"/></svg>';
   var ICON_CLOSE = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+  var ICON_HOME = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5.5 9.5V20h13V9.5"/><path d="M9.5 20v-6h5v6"/></svg>';
+
+  // Resolve the site root from this script's own src, so the home link works
+  // at any folder depth without each page having to declare it.
+  var HOME_URL = (function(){
+    try{
+      var list = document.getElementsByTagName('script');
+      for(var i=list.length-1; i>=0; i--){
+        var src = list[i].getAttribute('src') || '';
+        if(src.indexOf('auth-gate.js') !== -1){
+          return new URL(src.split('?')[0].replace(/auth-gate\.js$/, 'index.html'), location.href).href;
+        }
+      }
+    }catch(e){}
+    return null;
+  })();
+
+  function isHomePage(){
+    if(!HOME_URL) return false;
+    try{
+      var home = new URL(HOME_URL).pathname.replace(/index\.html$/, '');
+      var here = location.pathname.replace(/index\.html$/, '');
+      return home === here;
+    }catch(e){ return false; }
+  }
   var ICON_CLOCK = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>';
 
   function buildOverlay(){
@@ -52,6 +77,10 @@
       '.ag-acct .em{font-size:12px;word-break:break-all;line-height:1.4;}',
       '.ag-acct .role{font-size:10px;color:#a9702f;text-transform:uppercase;letter-spacing:.06em;}',
       '.sync-status{font-size:10.5px;line-height:1.5;margin:-4px 0 14px;padding:0 2px;color:#9fb0bd;}',
+      '#ag-home-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;',
+      'background:#1d3340;color:#8fc8e6;border:1px solid #2c4d61;border-radius:9px;padding:10px;',
+      'font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;',
+      'box-sizing:border-box;margin-bottom:10px;}',
       '#ag-signout-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;',
       'background:#3a2420;color:#e8a37c;border:1px solid #5a332c;border-radius:9px;padding:10px;',
       'font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}',
@@ -123,6 +152,7 @@
           '<div class="role">'+(role==='owner'?'Owner':'Guest')+'</div></div>'+
         '</div>'+
         '<div id="ag-sync-status" class="sync-status">সিঙ্ক করার অপেক্ষায়…</div>'+
+        (HOME_URL && !isHomePage() ? '<a id="ag-home-btn" href="'+HOME_URL+'">'+ICON_HOME+' হোমপেজ</a>' : '')+
         '<button id="ag-signout-btn">'+ICON_POWER+' Sign out</button>'+
         (page.admin && role==='owner' ? '<div id="ag-admin-section"><h4>'+ICON_SHIELD+' Access Requests</h4><div id="ag-admin-list">Loading...</div></div>' : '')+
       '</div>';
