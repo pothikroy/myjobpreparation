@@ -31,7 +31,7 @@
     doc.getElementById('ui-focus').click();assert(doc.documentElement.dataset.studyFocus==='false','Focus mode did not exit');
    }
    win.StudyUI.openTools();assert(doc.getElementById('ui-tool-picker').open,'Tool picker did not open');
-   assert(doc.querySelectorAll('.ui-tool-link').length===36,'Tool picker omitted modules');
+   assert(doc.querySelectorAll('.ui-tool-link').length===STUDY_CATALOG.length,'Tool picker omitted modules');
    const search=doc.getElementById('ui-tool-search');search.value='constitution';search.dispatchEvent(new win.Event('input',{bubbles:true}));
    assert(doc.querySelectorAll('.ui-tool-link').length===1,'Tool search failed');doc.getElementById('ui-tool-picker').close();
    win.AG_OPEN_ACCOUNT();assert(doc.getElementById('ag-sidebar').inert===false,'Account panel inaccessible');doc.getElementById('ag-sb-close').click();assert(doc.getElementById('ag-sidebar').inert===true,'Closed account panel stays interactive');
@@ -40,7 +40,7 @@
   }catch(e){error=e.message;failed++;}
   const li=document.createElement('li');li.className=error?'fail':'pass';li.textContent=mod.id+': '+(error||'PASS · themes, preferences, navigation, focus and account');list.append(li);
  }
- host.replaceChildren();document.getElementById('status').textContent='Complete: '+(37-failed)+'/37 pages passed';
- fetch('/__qa/report',{method:'POST',body:JSON.stringify({kind:'study-ui-complete',total:37,failed})});
+ host.replaceChildren();document.getElementById('status').textContent='Complete: '+(STUDY_CATALOG.length+1-failed)+'/'+(STUDY_CATALOG.length+1)+' pages passed';
+ fetch('/__qa/report',{method:'POST',body:JSON.stringify({kind:'study-ui-complete',total:STUDY_CATALOG.length+1,failed})});
 })();
 </script></body></html>
