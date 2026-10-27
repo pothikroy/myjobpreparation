@@ -14,7 +14,7 @@
     search:'M21 21l-5-5 M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0',
     settings:'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z',
     menu:'M3 6h18 M3 12h18 M3 18h18', external:'M14 3h7v7 M21 3l-9 9 M10 3H4v17h17v-6',
-    close:'M6 6l12 12 M18 6 6 18', star:'m12 3 3 6 6 1-4.5 4.5 1 6.5-5.5-3-5.5 3 1-6.5L3 10l6-1z',
+    close:'M6 6l12 12 M18 6 6 18', user:'M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M4 21v-2a8 8 0 0 1 16 0v2', shield:'m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6z m-4 9 3 3 5-6', star:'m12 3 3 6 6 1-4.5 4.5 1 6.5-5.5-3-5.5 3 1-6.5L3 10l6-1z',
     download:'M12 3v12 m-5-5 5 5 5-5 M4 16v5h16v-5', upload:'M12 16V4 m-5 5 5-5 5 5 M4 16v5h16v-5'
   };
   const icon = name => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${paths[name] || paths.book}"/></svg>`;
@@ -25,9 +25,31 @@
   const day = d => new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Dhaka'}).format(d);
   const shortDate = ts => ts ? new Date(ts).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : 'Not opened yet';
   let summaries = [], category = 'all', view = 'overview', currentModule = null, refreshTimer, pendingBackup;
+  const mobileNavigation = matchMedia('(max-width:800px)');
+  let sidebarCollapsed = false;
+  try { sidebarCollapsed = localStorage.getItem('study_sidebar_collapsed') === 'true'; } catch (_) {}
   function syncNavigation() {
-    const hidden = view === 'study' || (matchMedia('(max-width:800px)').matches && !$('sidebar').classList.contains('open'));
+    const open = mobileNavigation.matches ? $('sidebar').classList.contains('open') : !sidebarCollapsed;
+    const hidden = view === 'study' || !open;
+    document.documentElement.classList.toggle('sidebar-collapsed',sidebarCollapsed);
     $('sidebar').inert = hidden; $('sidebar').setAttribute('aria-hidden',String(hidden));
+    $('mobile-menu').setAttribute('aria-expanded',String(!hidden));
+    $('mobile-menu').setAttribute('aria-label',hidden ? 'Show navigation' : 'Hide navigation');
+    $('mobile-menu').title = hidden ? 'Show navigation' : 'Hide navigation';
+    $('navigation-backdrop').hidden = hidden || !mobileNavigation.matches;
+  }
+  function setNavigation(open, focusToggle = false) {
+    if(mobileNavigation.matches) $('sidebar').classList.toggle('open',open);
+    else {
+      sidebarCollapsed = !open;
+      try { localStorage.setItem('study_sidebar_collapsed',String(sidebarCollapsed)); } catch (_) {}
+    }
+    syncNavigation();
+    if(focusToggle) $('mobile-menu').focus();
+    else if(open && mobileNavigation.matches) $('sidebar-close').focus();
+  }
+  function syncAccountControls() {
+    $('approvals-button').hidden = typeof window.AG_OPEN_APPROVALS !== 'function';
   }
   function metric(id) { return summaries.find(s => s.id === id) || { attempted:0,correct:0,due:0,mastered:0,hasData:false }; }
   function toast(message) { $('toast').textContent = message; $('toast').classList.add('visible'); clearTimeout(toast.timer); toast.timer = setTimeout(() => $('toast').classList.remove('visible'),4500); }
@@ -126,8 +148,12 @@
     const days=value ? Math.ceil((new Date(value+'T23:59:59+06:00')-Date.now())/86400000) : null;
     $('exam-countdown').textContent = days === null ? '' : days < 0 ? 'Your selected exam date has passed.' : days+' days to your selected exam date.';
   }
-  $('mobile-menu').onclick=() => { const open=$('sidebar').classList.toggle('open'); $('mobile-menu').setAttribute('aria-expanded',String(open)); syncNavigation(); if(open)$('sidebar').querySelector('a').focus(); };
+  $('mobile-menu').onclick=() => setNavigation($('sidebar').inert);
+  $('sidebar-close').onclick=() => setNavigation(false,true);
+  $('navigation-backdrop').onclick=() => setNavigation(false,true);
   $('account-button').onclick=() => { if (window.AG_OPEN_ACCOUNT) window.AG_OPEN_ACCOUNT(); };
+  $('header-account-button').onclick=() => { if (window.AG_OPEN_ACCOUNT) window.AG_OPEN_ACCOUNT(); };
+  $('approvals-button').onclick=() => { if (window.AG_OPEN_APPROVALS) window.AG_OPEN_APPROVALS(); };
   $('settings-button').onclick=() => { const data=StudyStore.hubData(); $('goal-input').value=data.goal || 30; $('exam-input').value=data.examDate || ''; countdown(); $('settings-dialog').showModal(); };
   document.querySelectorAll('[data-close-dialog]').forEach(b => b.onclick=() => b.closest('dialog').close());
   $('exam-input').oninput=countdown;
@@ -135,7 +161,7 @@
   $('category-filters').onclick=e => { const button=e.target.closest('[data-category]'); if (button) { category=button.dataset.category; renderLibrary(); } };
   ['module-search','section-filter','sort-modules','saved-only'].forEach(id => $(id).addEventListener(id === 'module-search' ? 'input' : 'change',renderLibrary));
   document.addEventListener('click',e => { const button=e.target.closest('[data-save]'); if (!button) return; const data=StudyStore.hubData(); data.saved ||= {}; data.saved[button.dataset.save]=!data.saved[button.dataset.save]; StudyStore.saveHub(data); renderLibrary(); });
-  document.addEventListener('keydown',e => { if (e.key === '/' && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) { e.preventDefault(); if (view !== 'library') location.hash='#library'; setTimeout(() => $('module-search').focus(),0); } if (e.key === 'Escape') { const open=$('sidebar').classList.contains('open'); $('sidebar').classList.remove('open'); $('mobile-menu').setAttribute('aria-expanded','false'); syncNavigation(); if(open)$('mobile-menu').focus(); } });
+  document.addEventListener('keydown',e => { if(e.defaultPrevented || e.target.closest?.('dialog,#ag-sidebar')) return; if (e.key === '/' && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) { e.preventDefault(); if (view !== 'library') location.hash='#library'; setTimeout(() => $('module-search').focus(),0); } if (e.key === 'Escape' && mobileNavigation.matches && $('sidebar').classList.contains('open')) setNavigation(false,true); });
   $('export-button').onclick=async () => { try { await backup(); toast('Backup downloaded for every study tool.'); } catch(e) { toast('Backup failed: '+e.message); } };
   $('import-button').onclick=() => $('import-file').click();
   $('import-file').onchange=async e => { const file=e.target.files[0]; if (!file) return; try { if (file.size>20*1024*1024) throw new Error('Backup is too large (maximum 20 MB).'); pendingBackup=StudyStore.validateBackup(JSON.parse(await file.text())); $('restore-description').textContent=Object.keys(pendingBackup.modules).length+' module records · exported '+new Date(pendingBackup.exportedAt).toLocaleString(); $('restore-dialog').showModal(); } catch(e) { toast(e.message); } finally { $('import-file').value=''; } };
@@ -143,6 +169,8 @@
   $('sync-button').onclick=async () => { $('sync-button').disabled=true; await StudyStore.syncNow(); $('sync-button').disabled=false; toast(StudyStore.status().label); };
   StudyStore.onChange(() => { clearTimeout(refreshTimer); refreshTimer=setTimeout(refresh,250); });
   window.addEventListener('study-ready',refresh); window.addEventListener('hashchange',route);
+  window.addEventListener('study-ready',syncAccountControls);
+  syncAccountControls();
   window.addEventListener('resize',syncNavigation);
   $('today').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',timeZone:'Asia/Dhaka'});
   icons(); route();

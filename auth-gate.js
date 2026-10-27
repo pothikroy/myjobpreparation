@@ -102,7 +102,7 @@
       '.ag-ghost{color:#526875;background:#f3f6f8;border-color:#dbe4e9!important;}.ag-spin{border-color:#dbe4e9;border-top-color:#17665d;}',
       '#ag-sidebar{width:360px;max-width:100vw;background:var(--ui-surface,#fff);color:var(--ui-text,#192f3b);border-color:var(--ui-border,#dbe4e9);box-shadow:-10px 0 60px #132b4026;font-family:Inter,"Noto Sans Bengali","Nirmala UI",sans-serif;}',
       '#ag-sb-head{padding:22px;border-color:var(--ui-border,#dbe4e9);}#ag-sb-head b{font-size:18px;}#ag-sb-close{min-height:42px;min-width:42px;color:var(--ui-muted,#526875);}',
-      '#ag-sb-body{padding:22px;}.ag-acct{padding:16px;background:var(--ui-surface-2,#eef3f6);margin-bottom:18px;}.ag-acct .em{font-size:14px;line-height:1.6;}.ag-acct .role{font-size:12px;color:var(--ui-accent,#17665d);}.ag-acct svg{color:var(--ui-accent,#17665d);}',
+      '#ag-sb-head{flex-shrink:0;}#ag-sb-body{padding:22px;min-height:0;}.ag-acct{padding:16px;background:var(--ui-surface-2,#eef3f6);margin-bottom:18px;}.ag-acct .em{font-size:14px;line-height:1.6;}.ag-acct .role{font-size:12px;color:var(--ui-accent,#17665d);}.ag-acct svg{color:var(--ui-accent,#17665d);}',
       '.sync-status{font-size:13px;line-height:1.8;color:var(--ui-muted,#526875);margin:0 0 18px;}#ag-home-btn{min-height:46px;font-size:14px;color:var(--ui-accent,#17665d);background:var(--ui-accent-soft,#e5f2ed);border-color:var(--ui-border,#dbe4e9);}',
       '#ag-signout-btn{min-height:46px;font-size:14px;color:#a03535;background:#faeaea;border-color:#edcaca;}#ag-admin-section{border-color:var(--ui-border,#dbe4e9);}#ag-admin-section h4{font-size:15px;color:var(--ui-text,#192f3b);}',
       '.ag-req-row{font-size:14px;border-color:var(--ui-border,#dbe4e9);}.ag-req-row .tm,.ag-req-row .st{font-size:12px;color:var(--ui-muted,#526875);}.ag-req-actions button{min-height:42px;font-size:13px;}',
@@ -173,22 +173,25 @@
         '<div id="ag-sync-status" class="sync-status">সিঙ্ক করার অপেক্ষায়…</div>'+
         (HOME_URL && !isHomePage() ? '<a id="ag-home-btn" href="'+HOME_URL+'">'+ICON_HOME+' হোমপেজ</a>' : '')+
         '<button id="ag-signout-btn">'+ICON_POWER+' Sign out</button>'+
-        (page.admin && role==='owner' ? '<div id="ag-admin-section"><h4>'+ICON_SHIELD+' Access Requests</h4><div id="ag-admin-list">Loading...</div></div>' : '')+
+        (page.admin && role==='owner' ? '<div id="ag-admin-section"><h4 id="ag-requests-title" tabindex="-1">'+ICON_SHIELD+' Access approvals</h4><div id="ag-admin-list">Loading...</div></div>' : '')+
       '</div>';
     document.body.appendChild(sb);
     if(window.self !== window.top){ tab.style.display = 'none'; }
 
     var returnFocus = null;
-    function openSidebar(){
+    function openSidebar(section){
       returnFocus = document.activeElement;
       sb.inert = false; sb.setAttribute('aria-hidden','false'); sb.classList.add('open');
-      document.getElementById('ag-sb-close').focus();
+      var body = document.getElementById('ag-sb-body');
+      body.scrollTop = section === 'approvals' ? document.getElementById('ag-admin-section').offsetTop - body.offsetTop : 0;
+      (section === 'approvals' ? document.getElementById('ag-requests-title') : document.getElementById('ag-sb-close')).focus({preventScroll:true});
     }
     function closeSidebar(){
       sb.classList.remove('open');sb.inert = true;sb.setAttribute('aria-hidden','true');
       if(returnFocus && returnFocus.isConnected) returnFocus.focus();
     }
     window.AG_OPEN_ACCOUNT = openSidebar;
+    window.AG_OPEN_APPROVALS = page.admin && role === 'owner' ? function(){ openSidebar('approvals'); } : null;
     tab.onclick = function(){ if(!tabWasDragged()) openSidebar(); };
     document.getElementById('ag-sb-close').setAttribute('aria-label','Close account panel');
     document.getElementById('ag-sb-close').onclick = closeSidebar;
