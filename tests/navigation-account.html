@@ -1,0 +1,86 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Homepage navigation and account checks</title><style>body{font:15px system-ui;margin:24px;background:#f5f7fa}iframe{width:1280px;height:600px;border:1px solid #dbe4e9}.pass{color:#236a43}.fail{color:#a03535}li{padding:5px}</style></head><body>
+<h1>Homepage navigation and account checks</h1><p id="status">Running…</p><ol id="results"></ol><iframe id="preview" title="Isolated homepage under test"></iframe>
+<script>
+(async()=>{
+ const frame=document.getElementById('preview'),results=[];
+ const initialPreference=localStorage.getItem('study_sidebar_collapsed');
+ const uid='qa-navigation-'+Date.now(),guestUID=uid+'-guest',pendingUID=uid+'-pending';
+ const pendingEmail=pendingUID+'@example.test';
+ const cloud=JSON.parse(localStorage.getItem('__qaCloud')||'{}');
+ cloud['/accessRequests/'+guestUID]={email:'qa.guest@example.test',status:'approved'};
+ cloud['/accessRequests/'+pendingUID]={email:pendingEmail,status:'pending'};
+ localStorage.setItem('__qaCloud',JSON.stringify(cloud));localStorage.setItem('study_sidebar_collapsed','false');
+ const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+ const assert=(value,message)=>{if(!value)throw new Error(message);};
+ async function test(name,fn){try{await fn();results.push({name,passed:true});}catch(e){results.push({name,passed:false,error:e.message});}const item=results.at(-1),li=document.createElement('li');li.className=item.passed?'pass':'fail';li.textContent=name+': '+(item.passed?'PASS':item.error);document.getElementById('results').append(li);}
+ async function load(query){
+  await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error('Homepage initialization timed out')),15000);frame.onload=()=>{const done=()=>{clearTimeout(timer);resolve();};frame.contentWindow.addEventListener('study-ready',done,{once:true});if(frame.contentDocument.getElementById('ag-overlay')?.style.display==='none')done();};frame.src='../index.html?'+query+'#overview';});
+  await pause(250);return frame.contentWindow;
+ }
+ let win=await load('qa-user='+uid),doc=win.document;
+ const inside=el=>{const r=el.getBoundingClientRect();return r.left>=0&&r.right<=win.innerWidth+1&&r.top>=0&&r.bottom<=win.innerHeight+1;};
+ await test('Short desktop keeps account footer on screen',()=>{
+  assert(!doc.getElementById('sidebar').inert,'Desktop navigation unexpectedly hidden');
+  assert(inside(doc.getElementById('account-button')),'Sidebar account footer falls below viewport');
+  const scroll=doc.querySelector('.sidebar-scroll');assert(scroll.scrollHeight>scroll.clientHeight,'Expected scrollable navigation in short viewport');
+ });
+ await test('Desktop sidebar hides, reopens and remembers its state',async()=>{
+  doc.getElementById('sidebar-close').click();
+  assert(doc.getElementById('sidebar').inert,'Hidden sidebar still interactive');
+  assert(parseFloat(win.getComputedStyle(doc.querySelector('.page-shell')).marginLeft)===0,'Content does not fill collapsed space');
+  assert(doc.getElementById('mobile-menu').getAttribute('aria-label')==='Show navigation','Reopen action missing');
+  win=await load('qa-user='+uid+'&reload=1');doc=win.document;
+  assert(doc.getElementById('sidebar').inert,'Hidden desktop preference lost after reload');
+  doc.getElementById('mobile-menu').click();assert(!doc.getElementById('sidebar').inert,'Navigation did not reopen');
+ });
+ await test('Top-bar Account opens visible sign-out control',async()=>{
+  doc.getElementById('sidebar-close').click();doc.getElementById('header-account-button').focus();doc.getElementById('header-account-button').click();await pause(250);
+  assert(!doc.getElementById('ag-sidebar').inert,'Account panel not opened');
+  assert(inside(doc.getElementById('ag-signout-btn')),'Sign out is outside the viewport');
+  doc.getElementById('ag-sb-close').click();
+  assert(doc.activeElement.id==='header-account-button','Account did not restore keyboard focus');
+ });
+ await test('Owner can reach approvals and approve a local test request',async()=>{
+  const approvals=doc.getElementById('approvals-button');assert(!approvals.hidden&&inside(approvals),'Owner approvals not visible in top bar');
+  approvals.click();await pause(250);assert(doc.activeElement.id==='ag-requests-title','Approvals heading not focused');
+  const row=Array.from(doc.querySelectorAll('.ag-req-row')).find(el=>el.textContent.includes(pendingEmail));
+  assert(row,'Pending request missing');Array.from(row.querySelectorAll('button')).find(b=>b.textContent==='Approve').click();
+  await pause(30);assert(JSON.parse(localStorage.getItem('__qaCloud'))['/accessRequests/'+pendingUID].status==='approved','Approve handler did not write local test status');
+  doc.getElementById('ag-sb-close').click();
+ });
+ for(const width of [850,390,320])await test('Navigation and account access at '+width+'px',async()=>{
+  frame.style.width=width+'px';frame.style.height='500px';await pause(300);
+  assert(inside(doc.getElementById('header-account-button')),'Account button clipped');
+  assert(inside(doc.getElementById('approvals-button')),'Approvals button clipped');
+  assert(inside(doc.getElementById('mobile-menu')),'Navigation toggle clipped');
+  doc.getElementById('mobile-menu').click();await pause(250);
+  assert(!doc.getElementById('sidebar').inert,'Navigation did not open');
+  assert(inside(doc.getElementById('account-button')),'Sidebar account footer clipped');
+  doc.getElementById('sidebar-close').click();
+  if(width<=800){
+   doc.getElementById('mobile-menu').click();assert(!doc.getElementById('navigation-backdrop').hidden,'Outside-click backdrop missing');
+   doc.getElementById('navigation-backdrop').click();assert(doc.getElementById('sidebar').inert,'Outside click did not close navigation');
+   doc.getElementById('mobile-menu').click();doc.dispatchEvent(new win.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+   assert(doc.getElementById('sidebar').inert,'Escape did not close navigation');
+  }
+  doc.getElementById('header-account-button').click();await pause(250);assert(inside(doc.getElementById('ag-signout-btn')),'Sign out clipped in account panel');doc.getElementById('ag-sb-close').click();
+  assert(win.QA_ERRORS.length===0,'Runtime errors: '+win.QA_ERRORS.map(e=>e.message).join('; '));
+ });
+ await test('Approved guest has account access without owner approval controls',async()=>{
+  win=await load('qa-user='+guestUID+'&qa-role=guest');doc=win.document;
+  assert(doc.getElementById('approvals-button').hidden,'Guest sees owner action');
+  assert(!win.AG_OPEN_APPROVALS&&!doc.getElementById('ag-admin-section'),'Guest has approval interface');
+  doc.getElementById('header-account-button').click();await pause(250);assert(inside(doc.getElementById('ag-signout-btn')),'Guest sign out missing');
+ });
+ await test('Sign out returns the isolated guest to sign-in screen',async()=>{
+  const loaded=new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error('Sign-out reload timed out')),10000);frame.onload=()=>{clearTimeout(timer);resolve();};});
+  doc.getElementById('ag-signout-btn').click();await loaded;await pause(250);
+  assert(frame.contentDocument.getElementById('ag-signin'),'Sign out did not show sign-in screen');
+  assert(sessionStorage.getItem('__qaSignedOut_'+guestUID)==='true','Auth sign-out handler not called');
+ });
+ if(initialPreference===null)localStorage.removeItem('study_sidebar_collapsed');else localStorage.setItem('study_sidebar_collapsed',initialPreference);
+ const failed=results.filter(r=>!r.passed).length;
+ document.getElementById('status').textContent='Complete: '+(results.length-failed)+'/'+results.length+' checks passed';
+ fetch('/__qa/report',{method:'POST',body:JSON.stringify({kind:'navigation-account-complete',total:results.length,failed,results})});
+})().catch(e=>{document.getElementById('status').textContent='Failed: '+e.message;fetch('/__qa/report',{method:'POST',body:JSON.stringify({kind:'navigation-account-error',message:e.message})});});
+</script></body></html>

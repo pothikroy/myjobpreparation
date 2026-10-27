@@ -9,6 +9,11 @@ owner approval flow and account-specific progress storage.
 
 - index.html, dashboard.css and dashboard.js provide the overview, searchable
   library, embedded study workspace, review queue and combined progress record.
+  The sidebar has a scrollable middle section and a pinned account footer. Its
+  close button and top-bar navigation toggle support every viewport; desktop
+  hiding is remembered on this device using study_sidebar_collapsed. Mobile
+  navigation also closes on backdrop click or Escape. Account/sign out remains
+  available in the top bar, alongside an owner-only Approvals shortcut.
 - study-catalog.js is the shared inventory of all 36 study tools: 32 BCS, 2 bank,
   2 TFP. Preserve stable IDs and paths when adding or moving content.
 - shared-progress.js contains read-only adapters for the different progress
@@ -17,6 +22,9 @@ owner approval flow and account-specific progress storage.
   offline retry, study activity and full-site JSON backup/restore.
 - auth-gate.js retains sign-in, owner approval and account controls. It waits for
   account selection and initial cloud hydration before activating module scripts.
+  AG_OPEN_ACCOUNT opens account/sign-out controls; AG_OPEN_APPROVALS is exposed
+  only on the owner's admin-enabled homepage and focuses the existing request
+  list. Firestore authorization and the owner/guest access flow are unchanged.
 - study-ui.css and study-ui.js add the shared study header, searchable tool
   switcher, focus mode, readable typography, mobile fixes and reading appearance.
   They initialize after study-ready, preserving native module events and data.
@@ -89,6 +97,11 @@ light/dark contrast screening) and /tests/study-ui.html (reading preferences,
 navigation, focus, account controls and exam date regression checks). QA identities
 are isolated from each other and the live backend. See UI_AUDIT.md for scope and
 limitations; these checks do not certify complete WCAG conformance.
+
+/tests/navigation-account.html checks desktop collapse persistence, short-screen
+sidebar scrolling, mobile dismiss controls at 320/390px, top-bar account access,
+owner/guest approval visibility, local test approval and sign out back to sign-in.
+It uses synthetic accounts and never approves or signs out a live user.
 
 Publish verified changes through GitHub using the connected account or authorized
 session credentials. Never store credentials in files, Git remotes or commits.
