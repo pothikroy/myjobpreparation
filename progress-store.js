@@ -5,6 +5,8 @@
   const hubSpec = { type:'keys', keys:['studyHub_v1'] };
   const hub = { id:'_hub', storage:hubSpec };
   const all = [...catalog.filter(m => m.storage), hub];
+  const cloudRecordsURL = new URL('cloud-records.js?v=16',document.currentScript.src).href;
+  const cloudFormat = 'study-text-parts-v1';
   const native = { get:Storage.prototype.getItem, set:Storage.prototype.setItem, remove:Storage.prototype.removeItem, key:Storage.prototype.key };
   const managed = key => all.some(m => matches(m.storage, key)) || key === 'buApp_v1';
   let uid = null, prefix = '', db = null, activePage = null, timer = null, hydrated = false, busy = false;
@@ -122,17 +124,26 @@
   });
   function collection() { return db.collection('users').doc(uid).collection('progress'); }
   const cloudParts = new Map();
+  let codecPromise;
+  async function cloudCodec() {
+    if (!window.StudyCloudRecords) {
+      codecPromise ||= import(cloudRecordsURL).catch(e => { codecPromise = null; throw e; });
+      await codecPromise;
+    }
+    return window.StudyCloudRecords;
+  }
   async function readCloud(mod, record, documents) {
-    if (record.format !== StudyCloudRecords.FORMAT) { cloudParts.set(mod.id, []); return record.data; }
-    if (mod.id !== 'gre-big-book' || !StudyCloudRecords.validParts(mod.id,record.parts)) throw new Error('Invalid saved progress manifest.');
+    if (record.format !== cloudFormat) { cloudParts.set(mod.id, []); return record.data; }
+    const codec = await cloudCodec();
+    if (mod.id !== 'gre-big-book' || !codec.validParts(mod.id,record.parts)) throw new Error('Invalid saved progress manifest.');
     const snapshots = await deadline(Promise.all(record.parts.map(id => documents.get(id) || collection().doc(id).get())));
-    const data = StudyCloudRecords.decode(snapshots.map(snap => snap.exists ? snap.data().text : null));
+    const data = codec.decode(snapshots.map(snap => snap.exists ? snap.data().text : null));
     if (!data || typeof data !== 'object' || Array.isArray(data) || Object.entries(data).some(([key,value]) => !matches(mod.storage,key) || typeof value !== 'string')) throw new Error('Invalid saved progress parts.');
     cloudParts.set(mod.id,record.parts);return data;
   }
   async function writeCloud(mod, data) {
     const oldParts = cloudParts.get(mod.id) || [];
-    const encoded = mod.id === 'gre-big-book' ? StudyCloudRecords.encode(data) : {data};
+    const encoded = mod.id === 'gre-big-book' ? (await cloudCodec()).encode(data) : {data};
     let parts = [];
     if (encoded.parts) {
       const revision = Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10);
@@ -141,7 +152,7 @@
     }
     // Publish the pointer only after every part succeeds. A failed upload leaves
     // the preceding complete cloud snapshot and the local dirty record intact.
-    const payload = parts.length ? {format:StudyCloudRecords.FORMAT,parts} : {data};
+    const payload = parts.length ? {format:cloudFormat,parts} : {data};
     await deadline(collection().doc(mod.id).set({...payload,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}));
     cloudParts.set(mod.id,parts);
     // Previous immutable parts are obsolete only after the new pointer commits.
