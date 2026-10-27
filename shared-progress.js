@@ -20,6 +20,7 @@
     geography: { rows:'q' }, math: { rows:'questions' }, ict: { rows:'perQuestion' },
     morality: { rows:'progress' }, 'science-quiz': { rows:'q' },
     'khairul-advanced-math': { rows:'' }, 'word-smart-vocabulary': { rows:'' },
+    'gre-big-book': { rows:'questions', statuses:'words', read:'readPages' },
     'bangla-bhasha-sahitya': { rows:'mcqStats', cards:'srs', read:'readProgress' },
     'bcs-english-command': { rows:'questions', statuses:'lectures' },
     'english-literature-master': { statuses:'qStatus', cards:'srs', history:'testHistory', score:true },

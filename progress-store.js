@@ -121,12 +121,39 @@
     promise.then(v => { clearTimeout(timer); resolve(v); }, e => { clearTimeout(timer); reject(e); });
   });
   function collection() { return db.collection('users').doc(uid).collection('progress'); }
+  const cloudParts = new Map();
+  async function readCloud(mod, record, documents) {
+    if (record.format !== StudyCloudRecords.FORMAT) { cloudParts.set(mod.id, []); return record.data; }
+    if (mod.id !== 'gre-big-book' || !StudyCloudRecords.validParts(mod.id,record.parts)) throw new Error('Invalid saved progress manifest.');
+    const snapshots = await deadline(Promise.all(record.parts.map(id => documents.get(id) || collection().doc(id).get())));
+    const data = StudyCloudRecords.decode(snapshots.map(snap => snap.exists ? snap.data().text : null));
+    if (!data || typeof data !== 'object' || Array.isArray(data) || Object.entries(data).some(([key,value]) => !matches(mod.storage,key) || typeof value !== 'string')) throw new Error('Invalid saved progress parts.');
+    cloudParts.set(mod.id,record.parts);return data;
+  }
+  async function writeCloud(mod, data) {
+    const oldParts = cloudParts.get(mod.id) || [];
+    const encoded = mod.id === 'gre-big-book' ? StudyCloudRecords.encode(data) : {data};
+    let parts = [];
+    if (encoded.parts) {
+      const revision = Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10);
+      parts = encoded.parts.map((_,i) => mod.id+'--'+revision+'--'+i);
+      await deadline(Promise.all(encoded.parts.map((text,i) => collection().doc(parts[i]).set({text}))));
+    }
+    // Publish the pointer only after every part succeeds. A failed upload leaves
+    // the preceding complete cloud snapshot and the local dirty record intact.
+    const payload = parts.length ? {format:StudyCloudRecords.FORMAT,parts} : {data};
+    await deadline(collection().doc(mod.id).set({...payload,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}));
+    cloudParts.set(mod.id,parts);
+    // Previous immutable parts are obsolete only after the new pointer commits.
+    await Promise.allSettled(oldParts.filter(id => !parts.includes(id)).map(id => collection().doc(id).delete()));
+  }
   let syncModules = [];
   async function hydrate() {
     const snapshots = activePage.id === 'index'
       ? await deadline(collection().get())
       : await deadline(Promise.all(syncModules.map(m => collection().doc(m.id).get())));
     const docs = activePage.id === 'index' ? snapshots.docs : snapshots;
+    const documents = new Map(docs.map(snap => [snap.id,snap]));
     const found = new Set();
     for (const snap of docs) {
       if (!snap.exists) continue;
@@ -135,8 +162,9 @@
       // An open module owns its in-memory state until it closes.
       if (hydrated && Number(rawGet(prefix + '__live:' + mod.id)) > Date.now()) continue;
       const cloud = snap.data(), meta = metadata()[mod.id] || {};
-      if (cloud.data && (!meta.dirty || stamp(cloud) > (meta.savedAt || 0))) {
-        await apply(mod, cloud.data); mark(mod.id, stamp(cloud), false);
+      const data = await readCloud(mod,cloud,documents);
+      if (data && (!meta.dirty || stamp(cloud) > (meta.savedAt || 0))) {
+        await apply(mod, data); mark(mod.id, stamp(cloud), false);
       }
     }
     for (const mod of syncModules) {
@@ -157,7 +185,7 @@
         if (!dirty[mod.id] || !dirty[mod.id].dirty) continue;
         const before = dirty[mod.id].savedAt;
         const data = await gather(mod);
-        await deadline(collection().doc(mod.id).set({ data, updatedAt:firebase.firestore.FieldValue.serverTimestamp() }));
+        await writeCloud(mod,data);
         // Edits made during the request must stay dirty for the next pass.
         if ((metadata()[mod.id] || {}).savedAt === before) mark(mod.id, before, false);
       }
@@ -167,6 +195,7 @@
   }
   async function connect(database, id, page) {
     if (uid === id && activePage) return;
+    if (uid !== id) cloudParts.clear();
     db = database; activePage = page;
     await bindUser(id);
     syncModules = page.id === 'index' ? all : [all.find(m => m.id === page.id), hub].filter(Boolean);

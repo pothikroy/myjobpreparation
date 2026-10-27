@@ -650,6 +650,25 @@ window.STUDY_CATALOG = [
     }
   },
   {
+    "id": "gre-big-book",
+    "bn": "GRE Big Book · ব্যাংক ও IBA প্রস্তুতি",
+    "en": "27-Test Practice Lab · Bangladesh Bank AD & IBA MBA",
+    "path": "bank/gre-big-book/index.html",
+    "category": "bank",
+    "categoryName": "Bank Preparation",
+    "categoryBn": "ব্যাংক প্রস্তুতি",
+    "accent": "#166d67",
+    "section": "books",
+    "sectionName": "GRE & Aptitude Practice",
+    "subject": "Verbal, Quantitative & Analytical · BB AD & IBA MBA",
+    "storage": {
+      "type": "keys",
+      "keys": [
+        "gre_big_book_v1"
+      ]
+    }
+  },
+  {
     "id": "tfp502-exam-tutor",
     "bn": "ইমার্জেন্সি এক্সাম টিউটর",
     "en": "Emergency Exam Tutor",
