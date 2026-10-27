@@ -18,7 +18,8 @@ test('all 36 modules have unique IDs, existing paths and safe empty summaries',(
     assert.ok(fs.existsSync(path.join(root,mod.path)),mod.path);
     const empty = summarize(mod,{}); assert.equal(empty.hasData,false,mod.id); assert.equal(empty.attempted,0);
     const source=fs.readFileSync(path.join(root,mod.path),'utf8');
-    assert.ok(source.includes('progress-store.js?v=13'),mod.id);
+    assert.ok(source.includes('progress-store.js?v=14'),mod.id);
+    assert.ok(source.includes('study-ui.css?v=14') && source.includes('study-ui.js?v=14'),mod.id+' shared reading interface');
     assert.ok(source.includes('text/x-study-script'),mod.id);
     for(const m of source.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
       assert.ok(/src=|type=/.test(m[1]) || /window.AG_PAGE\s*=/.test(m[2]),'Executable script before hydration: '+mod.id);

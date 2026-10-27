@@ -96,6 +96,7 @@
     document.querySelectorAll('[data-route]').forEach(a => a.classList.toggle('active',a.dataset.route === view || (view === 'study' && a.dataset.route === 'library')));
     const studying = target === 'study', mod = studying && modules.find(m => m.id === id);
     if (studying && !mod) { location.hash = '#library'; toast('That study tool was not found.'); return; }
+    document.documentElement.classList.toggle('studying',studying);
     $('dashboard-view').hidden = studying; $('study-view').hidden = !studying;
     $('breadcrumb').textContent = studying ? mod.categoryName : {overview:'Overview',library:'Study library',review:'Review queue',progress:'Progress record'}[target];
     for (const v of ['overview','library','review','progress']) $(v+'-content').hidden = v !== target;

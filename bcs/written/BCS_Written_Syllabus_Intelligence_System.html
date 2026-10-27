@@ -4,12 +4,12 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script src="../../firebase-config.js?v=13"></script>
+  <script src="../../firebase-config.js?v=14"></script>
   <script>window.AG_PAGE = {"id": "written-syllabus-intelligence", "title": "BCS Written Syllabus Intelligence", "storage": {"type": "keys", "keys": ["bcsIntel_v1"]}};</script>
-  <script src="../../study-catalog.js?v=13"></script>
-<script src="../../shared-progress.js?v=13"></script>
-<script src="../../progress-store.js?v=13"></script>
-<script src="../../auth-gate.js?v=13"></script>
+  <script src="../../study-catalog.js?v=14"></script>
+<script src="../../shared-progress.js?v=14"></script>
+<script src="../../progress-store.js?v=14"></script>
+<script src="../../auth-gate.js?v=14"></script>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -257,6 +257,11 @@ table.simple th{font-size:11px; text-transform:uppercase; color:var(--ink-soft);
   .grid.cols-4, .grid.cols-3{grid-template-columns:repeat(2,1fr);}
 }
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;650;700&family=Noto+Sans+Bengali:wght@400;500;600;650;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../study-ui.css?v=14">
+<script src="../../study-ui.js?v=14" defer></script>
 </head>
 <body>
 <div id="ag-overlay"></div>
@@ -871,7 +876,7 @@ function renderDashboard(){
   ${rec ? `<div class="card" style="margin-bottom:26px; border-left:3px solid var(--gold);">
     <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;">
       <div>
-        <div class="badge insight" style="margin-bottom:8px;">AI INSIGHT · Recommended next</div>
+        <div class="badge insight" style="margin-bottom:8px;">STUDY INSIGHT · Recommended next</div>
         <h3 style="margin-bottom:4px;">${escapeHtml(rec.topic.name)}</h3>
         <div style="font-size:12.5px; color:var(--ink-soft);">${escapeHtml(rec.topic.subjectName)} · ${rec.reason}</div>
       </div>
@@ -1524,7 +1529,7 @@ function renderSettings(){
   <div class="grid cols-2">
     <div class="card">
       <h3 style="font-size:15px;">Data</h3>
-      <p class="sub">Everything (${stat.totalTopics} topics tracked, ${DB.facts.length} facts, ${DB.mistakes.length} mistakes, ${DB.globalCurrentAffairs.length} current-affairs links) is stored locally in this browser via <code>localStorage</code>. Nothing is sent anywhere.</p>
+      <p class="sub">Everything (${stat.totalTopics} topics tracked, ${DB.facts.length} facts, ${DB.mistakes.length} mistakes, ${DB.globalCurrentAffairs.length} current-affairs links) is stored locally in this browser via <code>localStorage</code>. Your progress also syncs to your signed-in account.</p>
       <button class="btn sm" id="settingsExport">⇩ Export backup (JSON)</button>
       <button class="btn sm" id="settingsImport">⇧ Import backup (JSON)</button>
       <button class="btn sm danger" id="settingsReset" style="margin-top:8px;">Reset all progress…</button>

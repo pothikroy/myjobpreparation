@@ -4,12 +4,12 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script src="../../firebase-config.js?v=13"></script>
+  <script src="../../firebase-config.js?v=14"></script>
   <script>window.AG_PAGE = {"id": "ethics-values-governance-46th-bcs", "title": "Ethics, Values & Good Governance", "storage": {"type": "keys", "keys": ["ethics46_bcs_state_v1"]}};</script>
-  <script src="../../study-catalog.js?v=13"></script>
-<script src="../../shared-progress.js?v=13"></script>
-<script src="../../progress-store.js?v=13"></script>
-<script src="../../auth-gate.js?v=13"></script>
+  <script src="../../study-catalog.js?v=14"></script>
+<script src="../../shared-progress.js?v=14"></script>
+<script src="../../progress-store.js?v=14"></script>
+<script src="../../auth-gate.js?v=14"></script>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
@@ -181,6 +181,11 @@ mark{background:var(--gold-light);color:var(--maroon-dark);padding:0 2px;border-
 
 footer.app-footer{margin-top:30px;text-align:center;color:var(--ink-soft);font-size:.82em;}
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;650;700&family=Noto+Sans+Bengali:wght@400;500;600;650;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../study-ui.css?v=14">
+<script src="../../study-ui.js?v=14" defer></script>
 </head>
 <body>
 <div id="ag-overlay"></div>
@@ -1038,7 +1043,7 @@ function viewGuide(){
     <h3>উৎস সম্পর্কে সীমাবদ্ধতা</h3>
     <p>উৎস PDF-এ কেবল সিলেবাস-স্কোপ বুলেট পয়েন্ট এবং MCQ ব্যাংক ছিল — কোনো বিস্তারিত অনুচ্ছেদ-ভিত্তিক পাঠ্য বা PYQ পরীক্ষার বছরের ট্যাগ ছিল না, তাই এখানেও তা যোগ করা হয়নি। সবগুলো উত্তর মূল উৎসের ছাপানো উত্তরমালার সাথে দুইবার মিলিয়ে যাচাই করা হয়েছে। উৎসে যেভাবে ছাপা হয়েছে, উত্তর ঠিক সেভাবেই রাখা হয়েছে — কোনো উত্তর নিজে থেকে "সংশোধন" করা হয়নি, এমনকি কিছু ক্ষেত্রে (যেমন লেকচার-০২ প্রশ্ন ৩৫ ও ৪৪) উত্তরমালার পছন্দ ভাষাগতভাবে প্রত্যাশিত উত্তর থেকে ভিন্ন মনে হলেও।</p>
     <h3>ডেটা কোথায় সংরক্ষিত হয়?</h3>
-    <p>আপনার সব অগ্রগতি (MCQ ইতিহাস, ফ্ল্যাশকার্ড শিডিউল, বুকমার্ক, স্ট্রিক ইত্যাদি) শুধুমাত্র আপনার ব্রাউজারের localStorage-এ সংরক্ষিত থাকে। এই .html ফাইলটি অন্য কোনো ডিভাইসে নিলে অগ্রগতি স্থানান্তর করতে সেটিংস পেজের এক্সপোর্ট/ইমপোর্ট ব্যবহার করুন।</p>
+    <p>আপনার অগ্রগতি এই ডিভাইসে সংরক্ষিত থাকে এবং সাইন ইন করা অ্যাকাউন্টে সিঙ্ক হয়। ব্রাউজারের ডেটা মোছার আগে মূল ড্যাশবোর্ডের Progress record থেকে সম্পূর্ণ ব্যাকআপ নিন।</p>
   `;
   wrap.appendChild(card);
   return wrap;

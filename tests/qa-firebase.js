@@ -4,7 +4,7 @@
   const report = (kind,message) => { window.QA_ERRORS.push({kind,message}); fetch('/__qa/report',{method:'POST',body:JSON.stringify({page:location.pathname,kind,message})}); };
   window.addEventListener('error',e => { if(e.message) report('error',e.message); });
   window.addEventListener('unhandledrejection',e => report('rejection',String(e.reason?.message || e.reason)));
-  const auth={onAuthStateChanged(fn){queueMicrotask(()=>fn({uid:localStorage.getItem('__qa_uid') || 'qa-user',email:OWNER_EMAIL}));},signOut:async()=>{},signInWithPopup:async()=>{}};
+  const auth={onAuthStateChanged(fn){queueMicrotask(()=>fn({uid:new URL(location.href).searchParams.get('qa-user') || localStorage.getItem('__qa_uid') || 'qa-user',email:OWNER_EMAIL}));},signOut:async()=>{},signInWithPopup:async()=>{}};
   function snapshot(id,data){return {id,exists:!!data,data:()=>({...data,updatedAt:{toMillis:()=>data?.__time || 0}})};}
   function ref(path){return {
     collection:name=>ref(path+'/'+name), doc:id=>ref(path+'/'+id),

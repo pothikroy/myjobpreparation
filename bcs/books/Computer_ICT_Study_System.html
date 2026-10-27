@@ -4,12 +4,12 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script src="../../firebase-config.js?v=13"></script>
+  <script src="../../firebase-config.js?v=14"></script>
   <script>window.AG_PAGE = {"id": "computer-ict-study-system", "title": "Computer & ICT", "storage": {"type": "keys", "keys": ["bcsComputerStudyV1"]}};</script>
-  <script src="../../study-catalog.js?v=13"></script>
-<script src="../../shared-progress.js?v=13"></script>
-<script src="../../progress-store.js?v=13"></script>
-<script src="../../auth-gate.js?v=13"></script>
+  <script src="../../study-catalog.js?v=14"></script>
+<script src="../../shared-progress.js?v=14"></script>
+<script src="../../progress-store.js?v=14"></script>
+<script src="../../auth-gate.js?v=14"></script>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -257,6 +257,11 @@ mark{background:#ffe28a;color:#000;padding:0 2px;border-radius:2px;}
 .btn.muted{opacity:.6;}
 .lec-footer{margin-top:22px;padding-top:14px;border-top:1px solid var(--line);}
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;650;700&family=Noto+Sans+Bengali:wght@400;500;600;650;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../study-ui.css?v=14">
+<script src="../../study-ui.js?v=14" defer></script>
 </head>
 <body>
 <div id="ag-overlay"></div>
@@ -1476,7 +1481,7 @@ RENDER.help = function(){
     </div>
     <div class="card">
       <h3>ডেটা কীভাবে সংরক্ষিত হয়</h3>
-      <p>আপনার সকল অগ্রগতি (পঠিত পৃষ্ঠা, MCQ স্কোর, ফ্ল্যাশকার্ড শিডিউল ইত্যাদি) আপনার ব্রাউজারের localStorage-এ সংরক্ষিত হয় — ইন্টারনেট ছাড়াই কাজ করে এবং কোনো সার্ভারে পাঠানো হয় না। ব্রাউজারের ডেটা মুছলে অগ্রগতিও মুছে যাবে; তাই "অগ্রগতি" পেজ থেকে নিয়মিত JSON ব্যাকআপ এক্সপোর্ট করে রাখুন।</p>
+      <p>আপনার অগ্রগতি এই ডিভাইসে সংরক্ষিত থাকে এবং সাইন ইন করা অ্যাকাউন্টে সিঙ্ক হয়। ব্রাউজারের ডেটা মোছার আগে মূল ড্যাশবোর্ডের Progress record থেকে সম্পূর্ণ ব্যাকআপ নিন। ব্রাউজারের ডেটা মুছলে অগ্রগতিও মুছে যাবে; তাই "অগ্রগতি" পেজ থেকে নিয়মিত JSON ব্যাকআপ এক্সপোর্ট করে রাখুন।</p>
     </div>
   `;
 };

@@ -4,12 +4,12 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script src="../../firebase-config.js?v=13"></script>
+  <script src="../../firebase-config.js?v=14"></script>
   <script>window.AG_PAGE = {"id": "english-lang-lit-study-app", "title": "English Language & Literature — BCS Study App", "storage": {"type": "keys", "keys": ["english_language_literature_study_v1"]}};</script>
-  <script src="../../study-catalog.js?v=13"></script>
-<script src="../../shared-progress.js?v=13"></script>
-<script src="../../progress-store.js?v=13"></script>
-<script src="../../auth-gate.js?v=13"></script>
+  <script src="../../study-catalog.js?v=14"></script>
+<script src="../../shared-progress.js?v=14"></script>
+<script src="../../progress-store.js?v=14"></script>
+<script src="../../auth-gate.js?v=14"></script>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -451,6 +451,11 @@ hr.rule { border:none; border-top:1px solid var(--line); margin: 20px 0; }
 :focus-visible { outline: 2px solid var(--maroon); outline-offset: 2px; }
 
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;650;700&family=Noto+Sans+Bengali:wght@400;500;600;650;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../study-ui.css?v=14">
+<script src="../../study-ui.js?v=14" defer></script>
 </head>
 <body>
 <div id="ag-overlay"></div>
@@ -1830,7 +1835,7 @@ VIEW_RENDERERS.settings = function () {
       '<div class="field-row"><label>Reading column width: <span id="rw-val">' + s.readWidth + 'px</span></label><input type="range" id="set-readwidth" min="480" max="900" step="10" value="' + s.readWidth + '"></div>' +
     "</div>" +
     '<div class="card">' +
-      "<h3>Your data</h3><p class=\"muted\" style=\"font-size:13px;\">Everything is stored only in this browser (localStorage). Nothing is uploaded anywhere.</p>" +
+      "<h3>Your data</h3><p class=\"muted\" style=\"font-size:13px;\">Your progress is saved on this device and synced to your signed-in account. Export a full backup from Progress record before clearing browser data.</p>" +
       '<div class="btn-row" style="margin-top:10px;">' +
         '<button class="btn" id="export-btn">⬇ Export progress (JSON)</button>' +
         '<button class="btn" id="import-btn">⬆ Import progress</button>' +
@@ -1910,7 +1915,7 @@ VIEW_RENDERERS.help = function () {
     ["Mistake Book", "Every MCQ or PYQ you get wrong (with a confirmed answer) is logged here automatically, separate from your bookmarks, so you can retry it later."],
     ["Progress", "A dashboard of every study dimension: reading, MCQs, flashcards, recall, revision and mock-test history."],
     ["Export / Import", "In Settings, export your progress as a JSON file, or import a previously exported file. Only your progress is exported — not the academic content."],
-    ["Data &amp; storage", "Everything lives in this browser's local storage. Nothing is sent anywhere. Clearing your browser data will erase your progress unless you've exported it."]
+    ["Data &amp; storage", "Everything lives in this browser's local storage. Your progress also syncs to your signed-in account. Clearing your browser data will erase your progress unless you've exported it."]
   ];
   return '<div class="view-header"><div class="eyebrow">Reference</div><h1>Guide &amp; Help</h1>' +
     '<p class="desc">How each part of the study system works.</p></div>' +
