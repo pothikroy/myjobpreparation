@@ -4,9 +4,12 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script src="../../firebase-config.js?v=12"></script>
+  <script src="../../firebase-config.js?v=13"></script>
   <script>window.AG_PAGE = {"id": "computer-ict-study-system", "title": "Computer & ICT", "storage": {"type": "keys", "keys": ["bcsComputerStudyV1"]}};</script>
-  <script src="../../auth-gate.js?v=12"></script>
+  <script src="../../study-catalog.js?v=13"></script>
+<script src="../../shared-progress.js?v=13"></script>
+<script src="../../progress-store.js?v=13"></script>
+<script src="../../auth-gate.js?v=13"></script>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -321,7 +324,7 @@ mark{background:#ffe28a;color:#000;padding:0 2px;border-radius:2px;}
   </main>
 </div>
 
-<script>
+<script type="text/x-study-script">
 /* =========================================================
    DATA LOAD
    ========================================================= */
@@ -452,7 +455,7 @@ setInterval(()=>{ STATE.studyTimeSec += 15; saveState(); }, 15000);
    ========================================================= */
 const RENDER = {};
 </script>
-<script id="app-logic">
+<script type="text/x-study-script" id="app-logic">
 /* Part 2 logic injected here */
 /* ===================== DASHBOARD ===================== */
 RENDER.dashboard = function(){

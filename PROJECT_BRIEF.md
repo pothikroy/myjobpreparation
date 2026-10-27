@@ -1,75 +1,82 @@
-# Project brief — My Job Preparation website
+# Project brief — My Job Preparation
 
-Paste this whole message at the start of a new chat (Claude Sonnet or better, with
-the bash/file tools enabled) to resume work on my study site.
+This is a static study workspace hosted on GitHub Pages at
+https://pothikroy.github.io/myjobpreparation/ from the main branch, repository root.
+Firebase Authentication and Firestore provide the existing Google sign-in,
+owner approval flow and account-specific progress storage.
 
-## What this is
-A personal, password-gated study hub hosted on GitHub Pages. It links out to a
-growing set of self-contained interactive HTML study tools (BCS question banks,
-vocabulary apps, etc.), gated behind Google Sign-In, with progress synced to the
-cloud so it follows me across devices.
+## Unified workspace
 
-## Live site & repo
-- Live: https://pothikroy.github.io/myjobpreparation/
-- Repo: https://github.com/pothikroy/myjobpreparation (GitHub Pages, branch `main`, root)
-- Backend: Firebase project `myjobpreparation-d563b` — Google Sign-In (Authentication)
-  + Firestore, free tier.
-- Owner login: donyroy9@gmail.com — auto-approved. Anyone else who signs in goes
-  into a pending queue I approve/deny from the in-site sidebar admin panel.
+- index.html, dashboard.css and dashboard.js provide the overview, searchable
+  library, embedded study workspace, review queue and combined progress record.
+- study-catalog.js is the shared inventory of all 36 study tools: 32 BCS, 2 bank,
+  2 TFP. Preserve stable IDs and paths when adding or moving content.
+- shared-progress.js contains read-only adapters for the different progress
+  schemas. Original module data remains the source of truth.
+- progress-store.js handles account-specific browser storage, cloud hydration,
+  offline retry, study activity and full-site JSON backup/restore.
+- auth-gate.js retains sign-in, owner approval and account controls. It waits for
+  account selection and initial cloud hydration before activating module scripts.
+- firebase-config.js is the existing public Firebase web configuration. Never
+  put GitHub tokens, service-account keys or other server secrets in site files.
 
-## How the site is put together
-- `/index.html` — homepage. All navigation is data-driven from a `CATALOG`
-  JS array near the bottom of the file: categories (each with an `accent`
-  hex colour) → subcategories → items (`{id, bn, en, path}`). **To add a new
-  subject, add one entry here — nothing else in index.html needs to change.**
-- `/firebase-config.js` — shared Firebase project keys + `OWNER_EMAIL`. Loaded
-  by every page.
-- `/auth-gate.js` — shared login gate, approval-request flow, and cross-device
-  progress sync. Loaded by every page. Also builds the right-edge sidebar tab
-  (account info, sign-out, owner-only admin panel) — deliberately NOT a floating
-  badge, so it doesn't sit on top of content while studying. Icons in it are
-  inline SVG, never Unicode glyphs (a Unicode power icon once rendered broken
-  on mobile — don't reintroduce that).
-- Subject tools live under folders like `/bcs/question-bank/*.html` and
-  `/bank/vocabulary/*.html`.
+## Persistence and migration
 
-## The pattern for adding a new subject HTML file
-1. Check how the uploaded file stores its own progress: grep it for
-   `localStorage`, `LS_KEY` / `STORE_KEY` / `STORAGE_KEY` / `STORAGE_PREFIX`,
-   or `indexedDB.open(...)`. Note the exact key name(s), or for IndexedDB the
-   DB name/version/object store names.
-2. Inject into `<head>`: the three Firebase SDK `<script>` tags, then
-   `firebase-config.js`, then a `window.AG_PAGE = {...}` config object with
-   `id`, `title`, and a `storage` spec matching what you found in step 1
-   (`{type:'keys', keys:[...]}`, `{type:'prefix', prefix:'...'}`, or
-   `{type:'indexeddb', dbName, version, stores:[...]}`), then `auth-gate.js`.
-3. Inject `<div id="ag-overlay"></div>` right after the opening `<body>` tag.
-4. Script `src` paths are relative back to the repo root — match the file's
-   folder depth (e.g. two levels deep needs `../../firebase-config.js`).
-5. Place the file in the right folder, add one entry to `CATALOG` in
-   `index.html` pointing at it.
-6. Bump the `?v=N` cache-busting query string on `firebase-config.js` and
-   `auth-gate.js` script tags site-wide (every page references them) whenever
-   either shared file changes, so browsers don't serve a stale cached copy.
+Browser storage for managed study keys is namespaced by Firebase UID. The
+first account to migrate the old unscoped records claims those legacy records;
+the originals are retained locally as a migration backup. Exam Simulator uses
+an account-specific IndexedDB database with the original object-store schema.
 
-## Deploying changes
-I don't have git set up locally — Claude does this via its sandbox. Each time:
-1. Generate a fresh **fine-grained GitHub Personal Access Token**
-   (github.com → Settings → Developer settings → Fine-grained tokens),
-   scoped to the `myjobpreparation` repo only, with **Contents: Read and write**.
-2. Paste the repo URL and the token into the chat.
-3. Claude commits and pushes the changes, then I revoke/regenerate the token
-   once it confirms the push succeeded (tokens are never reused across sessions
-   or stored anywhere).
+Cloud records stay at users/{uid}/progress/{moduleId}, with their original data
+maps. Shared activity and settings use the same collection's _hub document.
+Local edits retry every 25 seconds, on reconnect and when leaving a page.
+The dashboard reads all cloud records on sign-in; Progress record > Sync now
+also retrieves remote changes. An active module's in-memory state is protected
+from background hydration. Simultaneous edits on different devices use the
+newer module snapshot; avoid editing the same module on two devices at once.
 
-## Design conventions to keep
-- Bengali text uses the Kalpurush font (via `fonts.maateen.me`), with
-  Baloo Da 2 / Hind Siliguri / Playfair Display as fallback/accent fonts.
-- Each top-level category gets its own accent colour, applied via a CSS
-  variable (`--cat-accent`) set inline on that category's element.
-- No progress dashboard on the homepage — per-subject internal progress
-  schemas differ too much to summarize honestly; don't re-add one unless
-  I ask for it explicitly.
-- The homepage has a live countdown to a placeholder exam date
-  (`EXAM_DATE` constant in index.html, currently 2027-01-01) — update that
-  one line when I give you the real announced date.
+Each module's executable inline scripts use type="text/x-study-script" so they
+cannot initialize or write defaults before the account's progress has loaded.
+The shared store activates them in original order, including DOMContentLoaded
+initializers. Keep data scripts with application/json unchanged.
+
+Combined accuracy is weighted by recorded answers. Cumulative counters retain
+repeated attempts; modules that only store the latest result count once per
+question. History is used only where it does not duplicate question counters.
+Mastery and due counts come from explicit statuses and saved dates. No global
+completion percentage is inferred across questions, books, words and topics.
+Activity time starts with this version and counts focused, recently active study
+windows. The exam date is a personal setting, not an assumed official date.
+
+## Backups
+
+Progress record > Export all progress includes every persisted module, original
+notes/bookmarks/schedules, all Exam Simulator stores and workspace settings.
+Restore validates the file before writing, downloads the current backup first,
+and rolls back if storage fails. Imported modules replace their current records.
+Export files contain personal progress; keep them private.
+
+## Adding a study tool
+
+1. Add it to study-catalog.js with a stable ID, path, labels and exact storage spec.
+2. Include the existing Firebase SDKs, firebase-config.js, AG_PAGE, shared catalog,
+   shared-progress.js, progress-store.js and auth-gate.js using correct relative paths.
+3. Defer executable inline scripts with type="text/x-study-script". Keep AG_PAGE
+   executable before auth-gate.js; preserve JSON data script types.
+4. Add an explicit adapter in shared-progress.js for any new progress schema.
+5. Bump shared script cache versions across all pages when changing shared code.
+
+## Verification and publishing
+
+No dependency installation or build is required. Run `node --test tests/*.test.cjs`
+(or npm test with Node on PATH). For an ordinary preview run
+`python -m http.server 4173 --bind 127.0.0.1`.
+
+For isolated browser checks run `python tests/qa_server.py`, then visit
+http://127.0.0.1:4173/tests/browser.html and /tests/integration.html. That server
+replaces Firebase only in its HTTP responses with a local test double. It never
+changes production sources or contacts the real backend. Never use it for hosting.
+
+Publish verified changes through GitHub using the connected account or authorized
+session credentials. Never store credentials in files, Git remotes or commits.
+The main branch is the existing GitHub Pages deployment target.
