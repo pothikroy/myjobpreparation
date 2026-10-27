@@ -1,0 +1,24 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>All-module browser verification</title><script src="../study-catalog.js"></script><style>body{font:14px system-ui;background:#f5f3ed;margin:24px;color:#233533}iframe{width:1200px;height:760px;border:1px solid #ccc}li{padding:4px}.pass{color:green}.fail{color:crimson}</style></head><body><h1>All-module browser verification</h1><p id="status">Starting…</p><ol id="results"></ol><div id="host"></div><script>
+(async function(){
+ const host=document.getElementById('host'),results=document.getElementById('results');
+ let failed=0;
+ for (const mod of STUDY_CATALOG) {
+  document.getElementById('status').textContent='Checking '+mod.id;
+  const frame=document.createElement('iframe');host.replaceChildren(frame);
+  const result=await new Promise(resolve=>{
+   let done=false;
+   const finish=(errors)=>{if(done)return;done=true;clearTimeout(timeout);resolve(errors);};
+   const timeout=setTimeout(()=>finish(['Timed out waiting for study-ready']),16000);
+   frame.onload=()=>{
+    frame.contentWindow.addEventListener('study-ready',()=>setTimeout(()=>finish(frame.contentWindow.QA_ERRORS.map(x=>x.message)),400),{once:true});
+    if(frame.contentWindow.StudyStore?.status().uid && frame.contentDocument.getElementById('ag-overlay')?.style.display==='none')setTimeout(()=>finish(frame.contentWindow.QA_ERRORS.map(x=>x.message)),400);
+   };
+   frame.src='../'+mod.path;
+  });
+  const li=document.createElement('li');li.className=result.length?'fail':'pass';li.textContent=mod.id+': '+(result.length?result.join(' | '):'PASS');results.append(li);
+  if(result.length)failed++;
+ }
+ host.replaceChildren();document.getElementById('status').textContent=`Complete: ${STUDY_CATALOG.length-failed}/${STUDY_CATALOG.length} passed`;
+ fetch('/__qa/report',{method:'POST',body:JSON.stringify({kind:'complete',failed,total:STUDY_CATALOG.length})});
+})();
+</script></body></html>

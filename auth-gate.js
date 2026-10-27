@@ -157,10 +157,11 @@
         (page.admin && role==='owner' ? '<div id="ag-admin-section"><h4>'+ICON_SHIELD+' Access Requests</h4><div id="ag-admin-list">Loading...</div></div>' : '')+
       '</div>';
     document.body.appendChild(sb);
+    if(window.self !== window.top){ tab.style.display = 'none'; sb.style.display = 'none'; }
 
     tab.onclick = function(){ if(!tabWasDragged()) sb.classList.add('open'); };
     document.getElementById('ag-sb-close').onclick = function(){ sb.classList.remove('open'); };
-    document.getElementById('ag-signout-btn').onclick = function(){ auth.signOut(); location.reload(); };
+    document.getElementById('ag-signout-btn').onclick = async function(){ await StudyStore.flush(); await auth.signOut(); location.reload(); };
 
     var tabWasDragged = makeTabDraggable(tab);
 
@@ -307,100 +308,16 @@
     window.addEventListener('beforeunload', flush);
   }
 
-  // ---------- progress sync ----------
-  function gatherLocal(spec){
-    var out = {};
-    if(spec.type === 'keys'){
-      spec.keys.forEach(function(k){ var v = localStorage.getItem(k); if(v!==null) out[k]=v; });
-    } else if(spec.type === 'prefix'){
-      for(var i=0;i<localStorage.length;i++){
-        var k = localStorage.key(i);
-        if(k && k.indexOf(spec.prefix)===0) out[k] = localStorage.getItem(k);
-      }
+  // Shared store owns hydration, account isolation and sync for all tools.
+  function watchSharedSync(){
+    if(!window.StudyStore) return;
+    function update(){
+      var state = StudyStore.status();
+      var el = document.getElementById('ag-sync-status');
+      if(el){ el.textContent = state.label; el.title = state.error; }
     }
-    return out;
-  }
-  function applyLocal(dataObj){
-    Object.keys(dataObj||{}).forEach(function(k){ localStorage.setItem(k, dataObj[k]); });
-  }
-
-  function idbExportAll(dbName, version, stores){
-    return new Promise(function(resolve, reject){
-      var req = indexedDB.open(dbName, version);
-      req.onerror = function(){ reject(req.error); };
-      req.onsuccess = function(){
-        var db = req.result, out = {}, remaining = stores.length;
-        if(remaining===0) return resolve(out);
-        var tx = db.transaction(stores, 'readonly');
-        stores.forEach(function(s){
-          var r = tx.objectStore(s).getAll();
-          r.onsuccess = function(){ out[s]=r.result; if(--remaining===0) resolve(out); };
-          r.onerror = function(){ reject(r.error); };
-        });
-      };
-    });
-  }
-  function idbImportAll(dbName, version, dataObj){
-    return new Promise(function(resolve, reject){
-      var req = indexedDB.open(dbName, version);
-      req.onerror = function(){ reject(req.error); };
-      req.onsuccess = function(){
-        var db = req.result, stores = Object.keys(dataObj||{});
-        if(stores.length===0) return resolve();
-        var tx = db.transaction(stores, 'readwrite');
-        stores.forEach(function(s){
-          var os = tx.objectStore(s);
-          os.clear();
-          (dataObj[s]||[]).forEach(function(rec){ try{ os.put(rec); }catch(e){} });
-        });
-        tx.oncomplete = function(){ resolve(); };
-        tx.onerror = function(){ reject(tx.error); };
-      };
-    });
-  }
-
-  function setupSync(db, uid, page){
-    var spec = page.storage;
-    if(!spec) return;
-    var docRef = db.collection('users').doc(uid).collection('progress').doc(page.id);
-
-    function pushUp(){
-      if(spec.type === 'indexeddb'){
-        idbExportAll(spec.dbName, spec.version, spec.stores).then(function(data){
-          return docRef.set({ data: data, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, {merge:true});
-        }).then(function(){
-          setSyncStatus(true, 'অগ্রগতি সংরক্ষিত হচ্ছে');
-        }).catch(function(e){
-          console.warn('[progress-sync] write failed:', e && e.message);
-          setSyncStatus(false, 'অগ্রগতি সংরক্ষণ ব্যর্থ', e && e.message);
-        });
-      } else {
-        docRef.set({ data: gatherLocal(spec), updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, {merge:true})
-          .then(function(){
-            setSyncStatus(true, 'অগ্রগতি সংরক্ষিত হচ্ছে');
-          }).catch(function(e){
-            console.warn('[progress-sync] write failed:', e && e.message);
-            setSyncStatus(false, 'অগ্রগতি সংরক্ষণ ব্যর্থ', e && e.message);
-          });
-      }
-    }
-
-    docRef.get().then(function(snap){
-      if(snap.exists && snap.data().data){
-        var cloud = snap.data().data;
-        if(spec.type === 'indexeddb'){
-          idbImportAll(spec.dbName, spec.version, cloud).catch(function(){});
-        } else {
-          applyLocal(cloud);
-        }
-      } else {
-        pushUp();
-      }
-    }).catch(function(){});
-
-    setInterval(pushUp, 25000);
-    window.addEventListener('pagehide', pushUp);
-    document.addEventListener('visibilitychange', function(){ if(document.hidden) pushUp(); });
+    StudyStore.onChange(update);
+    update();
   }
 
   // ---------- main ----------
@@ -414,21 +331,32 @@
       return;
     }
 
-    firebase.initializeApp(FIREBASE_CONFIG);
+    if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     var auth = firebase.auth();
     var db = firebase.firestore();
     var provider = new firebase.auth.GoogleAuthProvider();
 
-    function grant(user, role){
-      overlay.style.display = 'none';
-      buildSidebar(user, role, auth, db, page);
-      if(page.storage) setupSync(db, user.uid, page);
-      if(role === 'guest') setupTimeTracking(db, user.uid);
-      if(!page.storage && role !== 'guest'){
-        var el = document.getElementById('ag-sync-status');
-        if(el) el.textContent = '';
+    var grantedUid = null;
+    async function grant(user, role){
+      if(grantedUid === user.uid) return;
+      if(grantedUid){ location.reload(); return; }
+      grantedUid = user.uid;
+      showLoading(overlay, 'আপনার অগ্রগতি লোড হচ্ছে…');
+      try{
+        await StudyStore.connect(db, user.uid, page);
+        await StudyStore.activate();
+        buildSidebar(user, role, auth, db, page);
+        watchSharedSync();
+        if(role === 'guest') setupTimeTracking(db, user.uid);
+        overlay.style.display = 'none';
+        window.AG_OPEN_ACCOUNT = function(){ document.getElementById('ag-sidebar').classList.add('open'); };
+        if(typeof window.AG_ON_GRANT === 'function') window.AG_ON_GRANT(db, user.uid);
+        window.dispatchEvent(new CustomEvent('study-ready', {detail:{uid:user.uid}}));
+      }catch(e){
+        render(overlay, '<h2>Progress could not load</h2><p id="ag-load-error"></p><button class="ag-primary" id="ag-retry">Retry</button>');
+        document.getElementById('ag-load-error').textContent = e.message;
+        document.getElementById('ag-retry').onclick = function(){ location.reload(); };
       }
-      if(typeof window.AG_ON_GRANT === 'function') window.AG_ON_GRANT(db, user.uid);
     }
 
     auth.onAuthStateChanged(function(user){
