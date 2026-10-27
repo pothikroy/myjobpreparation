@@ -18,7 +18,7 @@ test('all catalogued modules have unique IDs, existing paths and safe empty summ
     assert.ok(fs.existsSync(path.join(root,mod.path)),mod.path);
     const empty = summarize(mod,{}); assert.equal(empty.hasData,false,mod.id); assert.equal(empty.attempted,0);
     const source=fs.readFileSync(path.join(root,mod.path),'utf8');
-    assert.ok(source.includes('progress-store.js?v=16'),mod.id);
+    assert.ok(source.includes('progress-store.js?v=17'),mod.id);
     assert.ok(source.includes('cloud-records.js?v=16') && source.indexOf('cloud-records.js')<source.indexOf('progress-store.js'),mod.id+' cloud transport must load before persistence');
     assert.ok(source.includes('study-ui.css?v=14') && source.includes('study-ui.js?v=14'),mod.id+' shared reading interface');
     assert.ok(source.includes('text/x-study-script'),mod.id);
