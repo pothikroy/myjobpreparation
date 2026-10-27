@@ -25,6 +25,10 @@
   const day = d => new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Dhaka'}).format(d);
   const shortDate = ts => ts ? new Date(ts).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : 'Not opened yet';
   let summaries = [], category = 'all', view = 'overview', currentModule = null, refreshTimer, pendingBackup;
+  function syncNavigation() {
+    const hidden = view === 'study' || (matchMedia('(max-width:800px)').matches && !$('sidebar').classList.contains('open'));
+    $('sidebar').inert = hidden; $('sidebar').setAttribute('aria-hidden',String(hidden));
+  }
   function metric(id) { return summaries.find(s => s.id === id) || { attempted:0,correct:0,due:0,mastered:0,hasData:false }; }
   function toast(message) { $('toast').textContent = message; $('toast').classList.add('visible'); clearTimeout(toast.timer); toast.timer = setTimeout(() => $('toast').classList.remove('visible'),4500); }
   function card(mod) {
@@ -93,9 +97,11 @@
     }
     view = target;
     $('sidebar').classList.remove('open'); $('mobile-menu').setAttribute('aria-expanded','false');
+    syncNavigation();
     document.querySelectorAll('[data-route]').forEach(a => a.classList.toggle('active',a.dataset.route === view || (view === 'study' && a.dataset.route === 'library')));
     const studying = target === 'study', mod = studying && modules.find(m => m.id === id);
     if (studying && !mod) { location.hash = '#library'; toast('That study tool was not found.'); return; }
+    document.documentElement.classList.toggle('studying',studying);
     $('dashboard-view').hidden = studying; $('study-view').hidden = !studying;
     $('breadcrumb').textContent = studying ? mod.categoryName : {overview:'Overview',library:'Study library',review:'Review queue',progress:'Progress record'}[target];
     for (const v of ['overview','library','review','progress']) $(v+'-content').hidden = v !== target;
@@ -120,7 +126,7 @@
     const days=value ? Math.ceil((new Date(value+'T23:59:59+06:00')-Date.now())/86400000) : null;
     $('exam-countdown').textContent = days === null ? '' : days < 0 ? 'Your selected exam date has passed.' : days+' days to your selected exam date.';
   }
-  $('mobile-menu').onclick=() => { const open=$('sidebar').classList.toggle('open'); $('mobile-menu').setAttribute('aria-expanded',String(open)); };
+  $('mobile-menu').onclick=() => { const open=$('sidebar').classList.toggle('open'); $('mobile-menu').setAttribute('aria-expanded',String(open)); syncNavigation(); if(open)$('sidebar').querySelector('a').focus(); };
   $('account-button').onclick=() => { if (window.AG_OPEN_ACCOUNT) window.AG_OPEN_ACCOUNT(); };
   $('settings-button').onclick=() => { const data=StudyStore.hubData(); $('goal-input').value=data.goal || 30; $('exam-input').value=data.examDate || ''; countdown(); $('settings-dialog').showModal(); };
   document.querySelectorAll('[data-close-dialog]').forEach(b => b.onclick=() => b.closest('dialog').close());
@@ -129,7 +135,7 @@
   $('category-filters').onclick=e => { const button=e.target.closest('[data-category]'); if (button) { category=button.dataset.category; renderLibrary(); } };
   ['module-search','section-filter','sort-modules','saved-only'].forEach(id => $(id).addEventListener(id === 'module-search' ? 'input' : 'change',renderLibrary));
   document.addEventListener('click',e => { const button=e.target.closest('[data-save]'); if (!button) return; const data=StudyStore.hubData(); data.saved ||= {}; data.saved[button.dataset.save]=!data.saved[button.dataset.save]; StudyStore.saveHub(data); renderLibrary(); });
-  document.addEventListener('keydown',e => { if (e.key === '/' && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) { e.preventDefault(); if (view !== 'library') location.hash='#library'; setTimeout(() => $('module-search').focus(),0); } if (e.key === 'Escape') { $('sidebar').classList.remove('open'); $('mobile-menu').setAttribute('aria-expanded','false'); } });
+  document.addEventListener('keydown',e => { if (e.key === '/' && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) { e.preventDefault(); if (view !== 'library') location.hash='#library'; setTimeout(() => $('module-search').focus(),0); } if (e.key === 'Escape') { const open=$('sidebar').classList.contains('open'); $('sidebar').classList.remove('open'); $('mobile-menu').setAttribute('aria-expanded','false'); syncNavigation(); if(open)$('mobile-menu').focus(); } });
   $('export-button').onclick=async () => { try { await backup(); toast('Backup downloaded for every study tool.'); } catch(e) { toast('Backup failed: '+e.message); } };
   $('import-button').onclick=() => $('import-file').click();
   $('import-file').onchange=async e => { const file=e.target.files[0]; if (!file) return; try { if (file.size>20*1024*1024) throw new Error('Backup is too large (maximum 20 MB).'); pendingBackup=StudyStore.validateBackup(JSON.parse(await file.text())); $('restore-description').textContent=Object.keys(pendingBackup.modules).length+' module records · exported '+new Date(pendingBackup.exportedAt).toLocaleString(); $('restore-dialog').showModal(); } catch(e) { toast(e.message); } finally { $('import-file').value=''; } };
@@ -137,6 +143,7 @@
   $('sync-button').onclick=async () => { $('sync-button').disabled=true; await StudyStore.syncNow(); $('sync-button').disabled=false; toast(StudyStore.status().label); };
   StudyStore.onChange(() => { clearTimeout(refreshTimer); refreshTimer=setTimeout(refresh,250); });
   window.addEventListener('study-ready',refresh); window.addEventListener('hashchange',route);
+  window.addEventListener('resize',syncNavigation);
   $('today').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',timeZone:'Asia/Dhaka'});
   icons(); route();
 })();

@@ -1,0 +1,50 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Study UI audit</title><script src="../study-catalog.js"></script><style>body{font:14px system-ui;margin:24px;background:#f5f7fa}iframe{width:1280px;height:850px;border:0;display:block}li{padding:5px}.fail{color:#b91c1c}#host{overflow:auto}</style></head><body><h1>Study UI audit · all pages</h1><p id="status">Starting…</p><ol id="results"></ol><div id="host"></div><script>
+(async function(){
+ const results=[],host=document.getElementById('host'),list=document.getElementById('results');
+ const selector=el=>el.tagName.toLowerCase()+(el.id?'#'+el.id:el.classList.length?'.'+Array.from(el.classList).slice(0,2).join('.'):'');
+ const visible=(el,win)=>{const r=el.getBoundingClientRect(),s=win.getComputedStyle(el);return r.width>0&&r.height>0&&s.visibility!=='hidden'&&r.right>0&&r.left<win.innerWidth&&r.bottom>0&&r.top<win.innerHeight;};
+ function inspect(win){
+  const doc=win.document,width=doc.documentElement.clientWidth;
+  const nodes=Array.from(doc.body.querySelectorAll('*')).filter(el=>!el.closest('#ag-sidebar,#ag-overlay,script,style')&&visible(el,win));
+  const intentionalScroll=el=>{let p=el.parentElement;while(p&&p!==doc.body){if(p.matches('[data-ui-horizontal],.mobile-nav,.bottom-nav,#bottomnav,.bottom-nav-inner,#app-nav,.activity-bars,#mobilebar .mrow,html[data-study-module=vocab-mastery-bcs] #sidebar')&&['auto','scroll'].includes(win.getComputedStyle(p).overflowX)&&p.getBoundingClientRect().right<=width+4)return true;p=p.parentElement;}return false;};
+  const overflow=nodes.filter(el=>{const r=el.getBoundingClientRect();return (r.width>width+2||r.right>width+4)&&!intentionalScroll(el);}).slice(0,10).map(el=>({element:selector(el),width:Math.round(el.getBoundingClientRect().width),right:Math.round(el.getBoundingClientRect().right)}));
+  const small=nodes.filter(el=>el.childElementCount===0&&el.textContent.trim()&&parseFloat(win.getComputedStyle(el).fontSize)<12).map(el=>({element:selector(el),font:win.getComputedStyle(el).fontSize,text:el.textContent.trim().slice(0,50)}));
+  const controls=nodes.filter(el=>el.matches('button,input,select,textarea,[role="button"],a[href]'));
+  const tiny=controls.filter(el=>{const r=el.getBoundingClientRect();return (r.height<35||r.width<30)&&!el.matches('input[type=checkbox],input[type=radio]');}).map(el=>({element:selector(el),text:(el.textContent||el.title||el.getAttribute('aria-label')||'').trim().slice(0,40),height:Math.round(el.getBoundingClientRect().height)}));
+  const fixed=nodes.filter(el=>['fixed','sticky'].includes(win.getComputedStyle(el).position)).map(el=>({element:selector(el),position:win.getComputedStyle(el).position,top:win.getComputedStyle(el).top,height:Math.round(el.getBoundingClientRect().height)}));
+  const unnamed=controls.filter(el=>el.matches('button,input:not([type=hidden]),select,textarea')&&!el.getAttribute('aria-label')&&!el.getAttribute('aria-labelledby')&&!el.title&&!el.placeholder&&!el.labels?.length&&!/[a-zA-Z\u0980-\u09ff]/.test(el.textContent)).map(selector);
+  const rgb=s=>{const m=s.match(/[\d.]+/g);return m&&m.length>=3?m.map(Number):null;};
+  const lum=c=>c.slice(0,3).map(v=>{v/=255;return v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4);}).reduce((a,v,i)=>a+v*[.2126,.7152,.0722][i],0);
+  const contrast=[];
+  for(const el of nodes){
+   if(el.childElementCount||!el.textContent.trim()||el.closest('svg')||el.matches(':disabled'))continue;
+   const style=win.getComputedStyle(el),color=rgb(style.color);if(!color||color[3]===0)continue;
+   let parent=el,bg=null,gradient=false;
+   while(parent){const s=win.getComputedStyle(parent);if(s.backgroundImage!=='none'){gradient=true;break;}const c=rgb(s.backgroundColor);if(c&&(c.length===3||c[3]===1)){bg=c;break;}if(c&&c[3]>0&&c[3]<1){gradient=true;break;}parent=parent.parentElement;}
+   if(!bg||gradient)continue;
+   const a=lum(color),b=lum(bg),ratio=(Math.max(a,b)+.05)/(Math.min(a,b)+.05),large=parseFloat(style.fontSize)>=24||(parseFloat(style.fontSize)>=18.66&&Number(style.fontWeight)>=700);
+   if(ratio<(large?3:4.5)-.05)contrast.push({element:selector(el),text:el.textContent.trim().slice(0,50),color:style.color,bg:bg.slice(0,3),ratio:Math.round(ratio*100)/100});
+  }
+  return {width,scroll:doc.documentElement.scrollWidth,overflow,small:small.slice(0,12),smallCount:small.length,tiny:tiny.slice(0,8),tinyCount:tiny.length,unnamed:unnamed.slice(0,12),fixed,contrast:contrast.slice(0,14),contrastCount:contrast.length};
+ }
+ const selected=new URLSearchParams(location.search).get('only');
+ for(const mod of [{id:'index',path:'index.html'},...STUDY_CATALOG].filter(m=>!selected||selected.split(',').includes(m.id))){
+  document.getElementById('status').textContent='Inspecting '+mod.id;
+  const frame=document.createElement('iframe');host.replaceChildren(frame);
+  const errors=await new Promise(resolve=>{let done=false;const finish=()=>{if(done)return;done=true;clearTimeout(timer);resolve(frame.contentWindow.QA_ERRORS||[]);};const timer=setTimeout(()=>{done=true;resolve([{message:'Initialization timed out'}]);},18000);frame.onload=()=>{frame.contentWindow.addEventListener('study-ready',()=>setTimeout(finish,350),{once:true});if(frame.contentWindow.document.getElementById('ag-overlay')?.style.display==='none')setTimeout(finish,350);};frame.src='../'+mod.path+'?qa-user=qa-ui-layout';});
+  const desktop=inspect(frame.contentWindow);
+  frame.style.width='390px';await new Promise(resolve=>setTimeout(resolve,250));
+  const mobile=inspect(frame.contentWindow);
+  let dark=null;
+  if(frame.contentWindow.StudyUI){
+   frame.style.width='1280px';frame.contentWindow.StudyUI.openAppearance();frame.contentDocument.querySelector('[data-ui-theme=dark]').click();frame.contentDocument.getElementById('ui-appearance').close();
+   await new Promise(resolve=>setTimeout(resolve,350));dark=inspect(frame.contentWindow);
+   frame.contentDocument.querySelector('[data-ui-theme=light]').click();
+  }
+  const item={id:mod.id,path:mod.path,desktop,mobile,dark,errors};results.push(item);
+  const li=document.createElement('li');li.textContent=mod.id+': '+errors.length+' errors · mobile '+mobile.scroll+'/'+mobile.width+'px · '+desktop.smallCount+' tiny text · '+desktop.tinyCount+' small controls';if(errors.length||mobile.scroll>mobile.width)li.className='fail';list.append(li);
+ }
+ host.replaceChildren();document.getElementById('status').textContent='Complete: '+results.length+' pages inspected';
+ fetch('/__qa/report',{method:'POST',body:JSON.stringify({kind:'ui-audit',pages:results})});
+})();
+</script></body></html>

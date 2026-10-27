@@ -13,6 +13,10 @@ os.chdir(ROOT)
 REPORTS = []
 
 class Handler(SimpleHTTPRequestHandler):
+    def end_headers(self):
+        self.send_header('Cache-Control', 'no-store')
+        super().end_headers()
+
     def do_GET(self):
         route = self.path.split('?')[0]
         if route == '/__qa/reports':
@@ -25,6 +29,12 @@ class Handler(SimpleHTTPRequestHandler):
                 html = file.read_text(encoding='utf-8-sig')
                 html = re.sub(r'<script src="https://www.gstatic.com/firebasejs/[^\"]+"></script>', '', html)
                 html = html.replace('<head>', '<head><script src="/tests/qa-firebase.js"></script>')
+                def fresh_asset(match):
+                    asset = file.parent / match.group(2).split('?')[0]
+                    stamp = asset.stat().st_mtime_ns if asset.is_file() else 0
+                    separator = '&' if '?' in match.group(2) else '?'
+                    return match.group(1) + match.group(2) + separator + 'qa=' + str(stamp) + match.group(3)
+                html = re.sub(r'((?:src|href)=")((?!https?:|//)[^"\s]+\.(?:js|css)(?:\?[^"\s]*)?)(")', fresh_asset, html)
                 data = html.encode()
                 self.send_response(200); self.send_header('Content-Type','text/html; charset=utf-8'); self.end_headers(); self.wfile.write(data)
                 return

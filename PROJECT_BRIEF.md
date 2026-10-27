@@ -17,6 +17,11 @@ owner approval flow and account-specific progress storage.
   offline retry, study activity and full-site JSON backup/restore.
 - auth-gate.js retains sign-in, owner approval and account controls. It waits for
   account selection and initial cloud hydration before activating module scripts.
+- study-ui.css and study-ui.js add the shared study header, searchable tool
+  switcher, focus mode, readable typography, mobile fixes and reading appearance.
+  They initialize after study-ready, preserving native module events and data.
+  Reader preferences live in the account's _hub.reader map. Keep semantic study
+  statuses and original progress schemas independent of appearance settings.
 - firebase-config.js is the existing public Firebase web configuration. Never
   put GitHub tokens, service-account keys or other server secrets in site files.
 
@@ -65,6 +70,8 @@ Export files contain personal progress; keep them private.
    executable before auth-gate.js; preserve JSON data script types.
 4. Add an explicit adapter in shared-progress.js for any new progress schema.
 5. Bump shared script cache versions across all pages when changing shared code.
+6. Include study-ui.css and deferred study-ui.js after the module's styles and
+   shared store scripts. Use the shared Inter/Noto Sans Bengali font link.
 
 ## Verification and publishing
 
@@ -76,6 +83,12 @@ For isolated browser checks run `python tests/qa_server.py`, then visit
 http://127.0.0.1:4173/tests/browser.html and /tests/integration.html. That server
 replaces Firebase only in its HTTP responses with a local test double. It never
 changes production sources or contacts the real backend. Never use it for hosting.
+
+The same QA server also serves /tests/ui-audit.html (all 37 desktop/mobile views,
+light/dark contrast screening) and /tests/study-ui.html (reading preferences,
+navigation, focus, account controls and exam date regression checks). QA identities
+are isolated from each other and the live backend. See UI_AUDIT.md for scope and
+limitations; these checks do not certify complete WCAG conformance.
 
 Publish verified changes through GitHub using the connected account or authorized
 session credentials. Never store credentials in files, Git remotes or commits.

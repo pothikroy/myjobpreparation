@@ -94,6 +94,20 @@
       '.ag-req-actions button{flex:1;min-width:56px;border:none;border-radius:6px;padding:6px;font-size:11px;',
       'font-weight:700;color:#fff;cursor:pointer;}'
     ].join('');
+    css.textContent += [
+      '#ag-overlay{background:#f3f6f8;color:#192f3b;font-family:Inter,"Noto Sans Bengali","Nirmala UI",sans-serif;}',
+      '#ag-box{background:#fff;border-color:#dbe4e9;border-radius:18px;padding:38px 32px;max-width:430px;box-shadow:0 20px 70px #16314212;}',
+      '#ag-box h2{font-size:24px;line-height:1.6;font-weight:650;}#ag-box p{color:#526875;font-size:16px;line-height:1.9;}',
+      '#ag-box button{min-height:48px;font-size:15px;font-weight:600;}.ag-primary{background:#17665d;color:white;}',
+      '.ag-ghost{color:#526875;background:#f3f6f8;border-color:#dbe4e9!important;}.ag-spin{border-color:#dbe4e9;border-top-color:#17665d;}',
+      '#ag-sidebar{width:360px;max-width:100vw;background:var(--ui-surface,#fff);color:var(--ui-text,#192f3b);border-color:var(--ui-border,#dbe4e9);box-shadow:-10px 0 60px #132b4026;font-family:Inter,"Noto Sans Bengali","Nirmala UI",sans-serif;}',
+      '#ag-sb-head{padding:22px;border-color:var(--ui-border,#dbe4e9);}#ag-sb-head b{font-size:18px;}#ag-sb-close{min-height:42px;min-width:42px;color:var(--ui-muted,#526875);}',
+      '#ag-sb-body{padding:22px;}.ag-acct{padding:16px;background:var(--ui-surface-2,#eef3f6);margin-bottom:18px;}.ag-acct .em{font-size:14px;line-height:1.6;}.ag-acct .role{font-size:12px;color:var(--ui-accent,#17665d);}.ag-acct svg{color:var(--ui-accent,#17665d);}',
+      '.sync-status{font-size:13px;line-height:1.8;color:var(--ui-muted,#526875);margin:0 0 18px;}#ag-home-btn{min-height:46px;font-size:14px;color:var(--ui-accent,#17665d);background:var(--ui-accent-soft,#e5f2ed);border-color:var(--ui-border,#dbe4e9);}',
+      '#ag-signout-btn{min-height:46px;font-size:14px;color:#a03535;background:#faeaea;border-color:#edcaca;}#ag-admin-section{border-color:var(--ui-border,#dbe4e9);}#ag-admin-section h4{font-size:15px;color:var(--ui-text,#192f3b);}',
+      '.ag-req-row{font-size:14px;border-color:var(--ui-border,#dbe4e9);}.ag-req-row .tm,.ag-req-row .st{font-size:12px;color:var(--ui-muted,#526875);}.ag-req-actions button{min-height:42px;font-size:13px;}',
+      '#ag-overlay :focus-visible,#ag-sidebar :focus-visible{outline:3px solid #315f92;outline-offset:3px;}'
+    ].join('');
     document.head.appendChild(css);
     var ov = document.getElementById('ag-overlay');
     if(!ov){ ov = document.createElement('div'); ov.id='ag-overlay'; document.body.insertBefore(ov, document.body.firstChild); }
@@ -144,6 +158,11 @@
 
     var sb = document.createElement('div');
     sb.id = 'ag-sidebar';
+    sb.setAttribute('role','dialog');
+    sb.setAttribute('aria-label','Account and access');
+    sb.setAttribute('aria-modal','true');
+    sb.setAttribute('aria-hidden','true');
+    sb.inert = true;
     sb.innerHTML =
       '<div id="ag-sb-head"><b>অ্যাকাউন্ট</b><button id="ag-sb-close">'+ICON_CLOSE+'</button></div>'+
       '<div id="ag-sb-body">'+
@@ -157,10 +176,30 @@
         (page.admin && role==='owner' ? '<div id="ag-admin-section"><h4>'+ICON_SHIELD+' Access Requests</h4><div id="ag-admin-list">Loading...</div></div>' : '')+
       '</div>';
     document.body.appendChild(sb);
-    if(window.self !== window.top){ tab.style.display = 'none'; sb.style.display = 'none'; }
+    if(window.self !== window.top){ tab.style.display = 'none'; }
 
-    tab.onclick = function(){ if(!tabWasDragged()) sb.classList.add('open'); };
-    document.getElementById('ag-sb-close').onclick = function(){ sb.classList.remove('open'); };
+    var returnFocus = null;
+    function openSidebar(){
+      returnFocus = document.activeElement;
+      sb.inert = false; sb.setAttribute('aria-hidden','false'); sb.classList.add('open');
+      document.getElementById('ag-sb-close').focus();
+    }
+    function closeSidebar(){
+      sb.classList.remove('open');sb.inert = true;sb.setAttribute('aria-hidden','true');
+      if(returnFocus && returnFocus.isConnected) returnFocus.focus();
+    }
+    window.AG_OPEN_ACCOUNT = openSidebar;
+    tab.onclick = function(){ if(!tabWasDragged()) openSidebar(); };
+    document.getElementById('ag-sb-close').setAttribute('aria-label','Close account panel');
+    document.getElementById('ag-sb-close').onclick = closeSidebar;
+    sb.addEventListener('keydown',function(e){
+      if(e.key === 'Escape'){e.preventDefault();closeSidebar();}
+      if(e.key !== 'Tab') return;
+      var items = Array.prototype.filter.call(sb.querySelectorAll('button,a[href],input,select,textarea,[tabindex="0"]'),function(el){return !el.disabled && el.getClientRects().length;});
+      if(!items.length) return;
+      if(e.shiftKey && document.activeElement === items[0]){e.preventDefault();items[items.length-1].focus();}
+      else if(!e.shiftKey && document.activeElement === items[items.length-1]){e.preventDefault();items[0].focus();}
+    });
     document.getElementById('ag-signout-btn').onclick = async function(){ await StudyStore.flush(); await auth.signOut(); location.reload(); };
 
     var tabWasDragged = makeTabDraggable(tab);
@@ -349,7 +388,6 @@
         watchSharedSync();
         if(role === 'guest') setupTimeTracking(db, user.uid);
         overlay.style.display = 'none';
-        window.AG_OPEN_ACCOUNT = function(){ document.getElementById('ag-sidebar').classList.add('open'); };
         if(typeof window.AG_ON_GRANT === 'function') window.AG_ON_GRANT(db, user.uid);
         window.dispatchEvent(new CustomEvent('study-ready', {detail:{uid:user.uid}}));
       }catch(e){

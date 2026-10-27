@@ -4,12 +4,12 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script src="../../firebase-config.js?v=13"></script>
+  <script src="../../firebase-config.js?v=14"></script>
   <script>window.AG_PAGE = {"id": "tfp502-exam-tutor", "title": "New Media Emergency Exam Tutor", "storage": {"type": "keys", "keys": ["nm_study_state"]}};</script>
-  <script src="../../study-catalog.js?v=13"></script>
-<script src="../../shared-progress.js?v=13"></script>
-<script src="../../progress-store.js?v=13"></script>
-<script src="../../auth-gate.js?v=13"></script>
+  <script src="../../study-catalog.js?v=14"></script>
+<script src="../../shared-progress.js?v=14"></script>
+<script src="../../progress-store.js?v=14"></script>
+<script src="../../auth-gate.js?v=14"></script>
 
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -284,6 +284,11 @@ body{
 }
 
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;650;700&family=Noto+Sans+Bengali:wght@400;500;600;650;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../study-ui.css?v=14">
+<script src="../../study-ui.js?v=14" defer></script>
 </head>
 <body>
 <div id="ag-overlay"></div>
@@ -334,10 +339,6 @@ function loadState(){
     const raw = localStorage.getItem('nm_study_state');
     if(raw){ const parsed = JSON.parse(raw); state = Object.assign(state, parsed); }
   }catch(e){}
-  if(!state.examDate){
-    const d = new Date(); d.setHours(d.getHours()+10);
-    state.examDate = d.toISOString();
-  }
 }
 function saveState(){
   try{ localStorage.setItem('nm_study_state', JSON.stringify(state)); }catch(e){}
@@ -413,6 +414,11 @@ function toggleSidebar(){
 
 /* ---------- COUNTDOWN ---------- */
 function updateCountdown(){
+  if(!state.examDate || !Number.isFinite(new Date(state.examDate).getTime())){
+    const empty = document.getElementById('countdownDisplay');
+    if(empty) empty.textContent = 'Set your exam date';
+    return;
+  }
   const target = new Date(state.examDate);
   const now = new Date();
   let diff = Math.max(0, target - now);
@@ -456,7 +462,7 @@ function renderHome(main){
     <h1>🚨 10-Hour Emergency Preparation</h1>
     <p class="lede">Exam-focused study system built from your <strong>New Media.pdf</strong> — four sources: Plantin et al. (2018) on infrastructure/platforms, Schiller (via Webster) on information & capitalism, Castells (via Webster) on urban change, and Anantrasirichai & Bull (2022) on AI in the creative industries.</p>
     <div class="countdown-card">
-      <div class="cd-label">TIME REMAINING (edit below if your exam is at a different time)</div>
+      <div class="cd-label">YOUR EXAM COUNTDOWN · Set your own date and time</div>
       <div id="countdownDisplay" class="cd-time">--</div>
       <label class="cd-set">Exam date/time: <input type="datetime-local" id="examDateInput"/></label>
     </div>
@@ -476,9 +482,9 @@ function renderHome(main){
   main.appendChild(wrap);
 
   const dtInput = document.getElementById('examDateInput');
-  const dt = new Date(state.examDate);
-  dtInput.value = dt.toISOString().slice(0,16);
-  dtInput.onchange = ()=>{ state.examDate = new Date(dtInput.value).toISOString(); saveState(); updateCountdown(); };
+  const dt = state.examDate ? new Date(state.examDate) : null;
+  dtInput.value = dt && Number.isFinite(dt.getTime()) ? new Date(dt.getTime()-dt.getTimezoneOffset()*60000).toISOString().slice(0,16) : '';
+  dtInput.onchange = ()=>{ state.examDate = dtInput.value ? new Date(dtInput.value).toISOString() : null; saveState(); updateCountdown(); };
   updateCountdown();
 
   const phasesWrap = document.getElementById('phasesWrap');
@@ -1028,7 +1034,7 @@ function renderSearch(main){
 /* ---------- NOTES ---------- */
 function renderNotes(main){
   const wrap = el('div','page');
-  wrap.innerHTML = `<h1>📝 My Notes</h1><p class="lede">Saved automatically in your browser (localStorage) — survives refresh, but only on this device/browser.</p>`;
+  wrap.innerHTML = `<h1>📝 My Notes</h1><p class="lede">Notes are saved automatically on this device and synced with your signed-in account.</p>`;
   const generalBox = el('div','card');
   generalBox.innerHTML = `<h2>General exam reminders</h2><textarea id="noteGeneral" class="note-area" placeholder="Write any reminders here...">${state.notes.general||''}</textarea>`;
   wrap.appendChild(generalBox);

@@ -1,0 +1,46 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Study interface workflow checks</title><script src="../study-catalog.js"></script><style>body{font:14px system-ui;margin:24px;background:#f5f7fa}iframe{width:1200px;height:800px;border:0}li{padding:5px}.fail{color:#a03535}.pass{color:#236a43}</style></head><body><h1>Study interface workflow checks</h1><p id="status">Starting…</p><ol id="results"></ol><div id="host"></div><script>
+(async()=>{
+ const host=document.getElementById('host'),list=document.getElementById('results'),testUID='qa-ui-workflow-'+Date.now();let failed=0;
+ const assert=(value,message)=>{if(!value)throw new Error(message);};
+ for(const mod of [{id:'index',path:'index.html'},...STUDY_CATALOG]){
+  document.getElementById('status').textContent='Checking '+mod.id;
+  const frame=document.createElement('iframe');host.replaceChildren(frame);let error='';
+  try{
+   const win=await new Promise((resolve,reject)=>{let done=false;const finish=()=>{if(done)return;done=true;clearTimeout(timer);setTimeout(()=>resolve(frame.contentWindow),200);};const timer=setTimeout(()=>reject(new Error('Timed out initializing interface')),18000);frame.onload=()=>{frame.contentWindow.addEventListener('study-ready',finish,{once:true});if(frame.contentDocument.getElementById('ag-overlay')?.style.display==='none')finish();};frame.src='../'+mod.path+'?qa-user='+testUID;});
+   const doc=win.document;
+   if(mod.id==='tfp502-exam-tutor'){
+    assert(doc.getElementById('examDateInput').value==='','An exam date was invented');
+    const date=doc.getElementById('examDateInput');date.value='2027-01-05T09:15';date.dispatchEvent(new win.Event('change'));
+    win.render();assert(doc.getElementById('examDateInput').value==='2027-01-05T09:15','Local exam time shifted');
+    const clear=doc.getElementById('examDateInput');clear.value='';clear.dispatchEvent(new win.Event('change'));
+    assert(doc.getElementById('countdownDisplay').textContent==='Set your exam date','Empty exam date did not clear safely');
+   }
+   assert(win.StudyUI,'Shared interface missing');
+   if(mod.id!=='index')assert(doc.getElementById('ui-studybar')&&doc.getElementById('ui-study-surface'),'Study navigation missing');
+   win.StudyUI.openAppearance();assert(doc.getElementById('ui-appearance').open,'Appearance did not open');
+   doc.querySelector('[data-ui-theme=dark]').click();assert(doc.documentElement.dataset.studyTheme==='dark','Dark theme not applied');
+   doc.querySelector('[data-ui-theme=sepia]').click();assert(doc.documentElement.dataset.studyTheme==='sepia','Sepia theme not applied');
+   const size=doc.getElementById('ui-font-size');size.value='22';size.dispatchEvent(new win.Event('input',{bubbles:true}));
+   assert(doc.documentElement.style.getPropertyValue('--ui-reader-size')==='22px','Reading size did not change');
+   assert(win.StudyStore.hubData().reader.fontSize===22,'Reading preference not persisted');
+   doc.getElementById('ui-appearance').close();
+   if(mod.id!=='index'){
+    doc.getElementById('ui-focus').click();assert(doc.documentElement.dataset.studyFocus==='true','Focus mode did not enable');
+    const sidebar=doc.querySelector('#ui-study-surface .sidebar,#ui-study-surface #sidebar,#ui-study-surface .side-nav,#ui-study-surface #sidenav');
+    if(sidebar)assert(win.getComputedStyle(sidebar).display==='none','Focus mode left navigation visible');
+    doc.getElementById('ui-focus').click();assert(doc.documentElement.dataset.studyFocus==='false','Focus mode did not exit');
+   }
+   win.StudyUI.openTools();assert(doc.getElementById('ui-tool-picker').open,'Tool picker did not open');
+   assert(doc.querySelectorAll('.ui-tool-link').length===36,'Tool picker omitted modules');
+   const search=doc.getElementById('ui-tool-search');search.value='constitution';search.dispatchEvent(new win.Event('input',{bubbles:true}));
+   assert(doc.querySelectorAll('.ui-tool-link').length===1,'Tool search failed');doc.getElementById('ui-tool-picker').close();
+   win.AG_OPEN_ACCOUNT();assert(doc.getElementById('ag-sidebar').inert===false,'Account panel inaccessible');doc.getElementById('ag-sb-close').click();assert(doc.getElementById('ag-sidebar').inert===true,'Closed account panel stays interactive');
+   doc.getElementById('ui-reset-reading').click();
+   assert(win.QA_ERRORS.length===0,win.QA_ERRORS.map(x=>x.message).join(' | '));
+  }catch(e){error=e.message;failed++;}
+  const li=document.createElement('li');li.className=error?'fail':'pass';li.textContent=mod.id+': '+(error||'PASS · themes, preferences, navigation, focus and account');list.append(li);
+ }
+ host.replaceChildren();document.getElementById('status').textContent='Complete: '+(37-failed)+'/37 pages passed';
+ fetch('/__qa/report',{method:'POST',body:JSON.stringify({kind:'study-ui-complete',total:37,failed})});
+})();
+</script></body></html>

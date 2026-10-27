@@ -4,12 +4,12 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script src="../../firebase-config.js?v=13"></script>
+  <script src="../../firebase-config.js?v=14"></script>
   <script>window.AG_PAGE = {"id": "math-short-technique", "title": "Math Short Technique", "storage": {"type": "keys", "keys": ["mathmastery_state_v1"]}};</script>
-  <script src="../../study-catalog.js?v=13"></script>
-<script src="../../shared-progress.js?v=13"></script>
-<script src="../../progress-store.js?v=13"></script>
-<script src="../../auth-gate.js?v=13"></script>
+  <script src="../../study-catalog.js?v=14"></script>
+<script src="../../shared-progress.js?v=14"></script>
+<script src="../../progress-store.js?v=14"></script>
+<script src="../../auth-gate.js?v=14"></script>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
@@ -295,6 +295,11 @@ footer.app-footer{border-top:1px solid var(--rule); padding:20px 22px; text-alig
 .modal-box .reset-option:last-of-type{border-bottom:none;}
 .modal-box .reset-option span{color:var(--ink);}
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;650;700&family=Noto+Sans+Bengali:wght@400;500;600;650;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../study-ui.css?v=14">
+<script src="../../study-ui.js?v=14" defer></script>
 </head>
 <body data-theme="light">
 <div id="ag-overlay"></div>
@@ -2252,7 +2257,7 @@ function dataFootprintHTML(){
 function openSettingsModal(){
   openModal(`
     <h3 id="modalTitle">⚙️ সেটিংস ও ডেটা</h3>
-    <p>আপনার সব অগ্রগতি শুধুমাত্র এই ব্রাউজারে (localStorage) সংরক্ষিত আছে — অন্য কোথাও পাঠানো হয় না।</p>
+    <p>আপনার অগ্রগতি এই ডিভাইসে সংরক্ষিত থাকে এবং সাইন ইন করা অ্যাকাউন্টে সিঙ্ক হয়। ব্রাউজারের ডেটা মোছার আগে মূল ড্যাশবোর্ডের Progress record থেকে সম্পূর্ণ ব্যাকআপ নিন।</p>
     ${dataFootprintHTML()}
     <div class="modal-actions" style="margin-top:18px; flex-direction:column; align-items:stretch;">
       <button class="btn ghost" id="resetPartialBtn" style="justify-content:center;">শুধু কুইজ ইতিহাস ও ভুল খাতা মুছুন</button>
