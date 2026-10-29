@@ -125,3 +125,18 @@ The main branch is the existing GitHub Pages deployment target.
 /tests/gre-cloud.html verifies large Unicode round-trips, interrupted uploads,
 manifest hydration, backup fidelity, obsolete-part cleanup and incomplete-snapshot
 protection. Run it separately from tests that toggle the mock offline switch.
+
+
+## Typed GRE workspace (29 October 2026)
+
+The GRE main page now uses native text, 14 exam-skill lessons and a searchable
+index rather than a scanned-page reader. There are 69 edited items with learning
+notes, 2,316 unproofread text drafts and 2,635 source-check records (including
+incomplete boundaries and figures). It does not claim full-book transcription
+is finished. Scoring is restricted to edited or personally confirmed text. The
+current BB AD/DU IBA mapping and source authority are documented in
+bank/gre-big-book/TRANSCRIPTION.md and curriculum.js. Typed sessions retain
+original question IDs and gre_big_book_v1 cloud/backup compatibility.
+
+The old PDF workflow remains in reader.html with previous section drafts intact.
+New checks: tests/gre-typed.test.cjs and the isolated tests/gre-typed.html.

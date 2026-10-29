@@ -1,0 +1,28 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="GRE Big Book practice for Bangladesh Bank AD and IBA MBA: 27 tests, an original-page reader, answer tracking and spaced revision.">
+<title>Legacy reader · GRE Big Book Lab · Bank & IBA Preparation</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="../../firebase-config.js?v=14"></script><script>window.AG_PAGE={id:'gre-big-book',title:'GRE Big Book Lab',storage:{type:'keys',keys:['gre_big_book_v1']}};</script>
+<script src="../../study-catalog.js?v=16"></script><script src="../../shared-progress.js?v=16"></script><script src="../../cloud-records.js?v=16"></script><script src="../../progress-store.js?v=17"></script><script src="../../auth-gate.js?v=15"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;650;700&family=Noto+Sans+Bengali:wght@400;500;600;650;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="gre.css?v=1"><link rel="stylesheet" href="../../study-ui.css?v=14">
+<script src="book-data.js?v=1" defer></script><script src="gre-core.js?v=1" defer></script><script src="gre-app.js?v=1" defer></script><script src="../../study-ui.js?v=14" defer></script>
+</head><body><div id="ag-overlay"></div>
+<div id="app" class="gre-app">
+<nav class="gre-tabs" aria-label="GRE study navigation" data-ui-horizontal="true">
+<button type="button" data-view="overview" aria-current="page">Overview</button><button type="button" data-view="tests">27-test library</button><button type="button" data-view="practice">Study room</button><button type="button" data-view="revision">Mistakes & revision <span id="due-badge">0</span></button><button type="button" data-view="vocabulary">Vocabulary <span id="words-due-badge">0</span></button><button type="button" data-view="plan">Plan & source</button>
+</nav>
+<main id="gre-main" tabindex="-1"><div id="gre-content"></div></main>
+</div>
+<dialog id="setup-dialog" class="gre-dialog" aria-labelledby="setup-title"><form id="setup-form">
+<div class="gre-dialog-head"><h2 id="setup-title">Set up your session</h2><button type="button" data-close aria-label="Close session setup">×</button></div>
+<p id="setup-description"></p><input type="hidden" id="setup-section">
+<label for="setup-mode">Practice mode</label><select id="setup-mode"><option value="study">Study · untimed, check as you go</option><option value="timed">Timed · answers after submission</option></select>
+<div class="gre-form-grid"><label>First question<input id="setup-first" type="number" min="1" value="1" required></label><label>Last question<input id="setup-last" type="number" min="1" required></label><label>Time in minutes<input id="setup-minutes" type="number" min="1" max="180" value="30" required></label></div>
+<p class="gre-muted">30 minutes is this book’s section time. You can choose your own practice time; this is not an official BB AD or IBA mock.</p><button type="submit" class="gre-button">Start session</button>
+</form></dialog>
+<dialog id="finish-dialog" class="gre-dialog" aria-labelledby="finish-title"><div class="gre-dialog-head"><h2 id="finish-title">Finish this session?</h2><button type="button" data-close aria-label="Keep studying">×</button></div><p id="finish-description"></p><div class="gre-actions"><button type="button" class="gre-button" id="confirm-finish">Submit & review</button><button type="button" class="gre-button secondary" data-close>Keep studying</button></div></dialog>
+<div id="gre-toast" role="status" aria-live="polite"></div>
+<script type="text/x-study-script">GreApp.init();</script>
+</body></html>
