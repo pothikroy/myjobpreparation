@@ -1,5 +1,10 @@
 # GRE Big Book Lab — source and implementation notes
 
+The primary experience was replaced by the typed topic workspace on 29 October
+2026. See [TRANSCRIPTION.md](TRANSCRIPTION.md) for current coverage, quality
+labels and curriculum research. The original reader described below is now an
+optional legacy view for source checking and previous section drafts.
+
 Source: the user-supplied `9.GRE_big_book.pdf`, ETS, 1996, 1,089 PDF pages.
 `gre-big-book.pdf` is an unchanged copy. Its SHA-256 is stored in `book-data.js`
 and checked by the regression suite. Printed page numbers are generally PDF page
