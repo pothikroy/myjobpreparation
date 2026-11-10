@@ -129,7 +129,7 @@
     for (const v of ['overview','library','review','progress']) $(v+'-content').hidden = v !== target;
     const copy = {overview:['Preparation, all together.','এক জায়গায় সব বিষয়, প্রতিদিনের অগ্রগতি।'],library:['A place for every subject.','বই, প্রশ্নব্যাংক, আর আপনার সব প্রস্তুতির টুল।'],review:['Keep your knowledge close.','নিয়মিত রিভিশনে শেখা হোক আরও স্থায়ী।'],progress:['See how far you’ve come.','সব বিষয়ের অগ্রগতির একত্রিত রেকর্ড।']};
     if (!studying) { $('page-title').textContent=copy[target][0]; $('page-description').textContent=copy[target][1]; }
-    if (target === 'library') { category = ['bcs','bank','tfp'].includes(id) ? id : 'all'; renderLibrary(); }
+    if (target === 'library') { category = ['bcs','bank','tfp','other'].includes(id) ? id : 'all'; renderLibrary(); }
     if (studying && currentModule !== id) {
       currentModule = id; $('study-title').textContent = mod.bn; $('study-subtitle').textContent = mod.en;
       $('standalone-link').href = mod.path;

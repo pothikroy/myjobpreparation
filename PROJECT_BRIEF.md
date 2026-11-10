@@ -14,8 +14,8 @@ owner approval flow and account-specific progress storage.
   hiding is remembered on this device using study_sidebar_collapsed. Mobile
   navigation also closes on backdrop click or Escape. Account/sign out remains
   available in the top bar, alongside an owner-only Approvals shortcut.
-- study-catalog.js is the shared inventory of all 37 study tools: 32 BCS, 3 bank,
-  2 TFP. Preserve stable IDs and paths when adding or moving content.
+- study-catalog.js is the shared inventory of all 38 study tools: 32 BCS, 3 bank,
+  2 TFP, 1 Other Job Exams. Preserve stable IDs and paths when adding or moving content.
 - shared-progress.js contains read-only adapters for the different progress
   schemas. Original module data remains the source of truth.
 - progress-store.js handles account-specific browser storage, cloud hydration,
@@ -140,3 +140,19 @@ original question IDs and gre_big_book_v1 cloud/backup compatibility.
 
 The old PDF workflow remains in reader.html with previous section drafts intact.
 New checks: tests/gre-typed.test.cjs and the isolated tests/gre-typed.html.
+
+## Other Job Exams — Ministry of Defence AD (10 November 2026)
+
+other-jobs/mod-ad/MoD_AD_Interactive_Study.html (catalog id mod-ad-study, category
+"other") is one self-contained page built from the Bangla study guide (v8) and
+the 2-day crash guide: 36 guide chapters as readable HTML plus 972 MCQs in 23 sets
+(MoD AD 2018/2019/2023 actual papers, MoD 2016, DGFI 2025, BCS 46-50, BB AD,
+current affairs, practice sets and three 80-question mocks). Features: reader with
+chapter search/notes/read marks, filtered practice with instant feedback, Leitner
+spaced repetition, timed mock tests with negative marking, flashcards, review
+queues, global search and a 2-day plan. Progress lives in modad_study_v1
+(questions, readChapters, chapterNotes, mockHistory, plan, examDate, settings);
+shared-progress.js reads rows:questions and read:readChapters. Data and the app
+script are embedded (application/json and text/x-study-script). The page is
+generated outside this repository from the guide sources; edit the source and
+regenerate rather than hand-editing the embedded JSON.

@@ -703,5 +703,24 @@ window.STUDY_CATALOG = [
       "type": "prefix",
       "prefix": "tvx_"
     }
+  },
+  {
+    "id": "mod-ad-study",
+    "bn": "প্রতিরক্ষা মন্ত্রণালয় — সহকারী পরিচালক",
+    "en": "Interactive Study: Guide, Past Papers & Mock Tests",
+    "path": "other-jobs/mod-ad/MoD_AD_Interactive_Study.html",
+    "category": "other",
+    "categoryName": "Other Job Exams",
+    "categoryBn": "অন্যান্য চাকরির পরীক্ষা",
+    "accent": "#2f6b57",
+    "section": "question-bank",
+    "sectionName": "Ministry of Defence — Assistant Director",
+    "subject": "Ministry of Defence — Assistant Director",
+    "storage": {
+      "type": "keys",
+      "keys": [
+        "modad_study_v1"
+      ]
+    }
   }
 ];
