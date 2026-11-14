@@ -669,6 +669,25 @@ window.STUDY_CATALOG = [
     }
   },
   {
+    "id": "senior-officer-study",
+    "bn": "সিনিয়র অফিসার — সমাধান ও মডেল টেস্ট",
+    "en": "Senior Officer Solution: Read, Practice & Test",
+    "path": "bank/senior-officer/Senior_Officer_Solution_Study.html",
+    "category": "bank",
+    "categoryName": "Bank Preparation",
+    "categoryBn": "ব্যাংক প্রস্তুতি",
+    "accent": "#166d67",
+    "section": "question-bank",
+    "sectionName": "Senior Officer — Solved Paper",
+    "subject": "Senior Officer — Solved Paper",
+    "storage": {
+      "type": "keys",
+      "keys": [
+        "seniorofficer_study_v1"
+      ]
+    }
+  },
+  {
     "id": "tfp502-exam-tutor",
     "bn": "ইমার্জেন্সি এক্সাম টিউটর",
     "en": "Emergency Exam Tutor",
@@ -720,25 +739,6 @@ window.STUDY_CATALOG = [
       "type": "keys",
       "keys": [
         "modad_study_v1"
-      ]
-    }
-  },
-  {
-    "id": "senior-officer-study",
-    "bn": "সিনিয়র অফিসার — সমাধান ও মডেল টেস্ট",
-    "en": "Senior Officer Solution: Read, Practice & Test",
-    "path": "other-jobs/senior-officer/Senior_Officer_Solution_Study.html",
-    "category": "other",
-    "categoryName": "Other Job Exams",
-    "categoryBn": "অন্যান্য চাকরির পরীক্ষা",
-    "accent": "#24508f",
-    "section": "question-bank",
-    "sectionName": "Senior Officer — Solved Paper",
-    "subject": "Senior Officer — Solved Paper",
-    "storage": {
-      "type": "keys",
-      "keys": [
-        "seniorofficer_study_v1"
       ]
     }
   }

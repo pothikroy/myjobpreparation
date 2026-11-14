@@ -14,8 +14,8 @@ owner approval flow and account-specific progress storage.
   hiding is remembered on this device using study_sidebar_collapsed. Mobile
   navigation also closes on backdrop click or Escape. Account/sign out remains
   available in the top bar, alongside an owner-only Approvals shortcut.
-- study-catalog.js is the shared inventory of all 39 study tools: 32 BCS, 3 bank,
-  2 TFP, 2 Other Job Exams. Preserve stable IDs and paths when adding or moving content.
+- study-catalog.js is the shared inventory of all 39 study tools: 32 BCS, 4 bank,
+  2 TFP, 1 Other Job Exams. Preserve stable IDs and paths when adding or moving content.
 - shared-progress.js contains read-only adapters for the different progress
   schemas. Original module data remains the source of truth.
 - progress-store.js handles account-specific browser storage, cloud hydration,
@@ -157,10 +157,10 @@ script are embedded (application/json and text/x-study-script). The page is
 generated outside this repository from the guide sources; edit the source and
 regenerate rather than hand-editing the embedded JSON.
 
-## Other Job Exams — Senior Officer solved paper (14 November 2026)
+## Bank preparation — Senior Officer solved paper (14 November 2026)
 
-other-jobs/senior-officer/Senior_Officer_Solution_Study.html (catalog id
-senior-officer-study, category "other") is a self-contained page built from the
+bank/senior-officer/Senior_Officer_Solution_Study.html (catalog id
+senior-officer-study, category "bank") is a self-contained page built from the
 supplied "Senior Officer Solution" PDF: 100 MCQs in six sections (English 1-20,
 Bangla 21-40, Mathematics 41-60, Banking & Finance 61-70, Analytical 71-90,
 Computer & ICT 91-100) with the PDF's Bangla explanations and a topic tag per
