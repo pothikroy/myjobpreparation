@@ -178,3 +178,22 @@ Progress lives in seniorofficer_study_v1: people, rec[examineeId] (q rows,
 read, tests), draft, settings. The top-level questions/read maps are a combined
 copy across examinees recomputed on every save; shared-progress.js reads
 rows:questions and read:read. Question data is embedded as application/json.
+
+## Dashboard identity and navigation groups (14 November 2026)
+
+The sidebar groups categories under JOB EXAM (BCS, Bank, Other Job Exams) and
+ACADEMIC (TFP Coursework); labels use title case and every [data-count] badge is
+filled from study-catalog.js, so counts cannot drift. Category ids are unchanged.
+
+The visual identity block at the end of dashboard.css takes its palette from the
+owner's riverside photograph (assets/pothik-riverside.jpg, avatar crop
+assets/pothik-avatar.jpg): --d-teal, --d-rose, --d-amber, --d-violet, with
+Fraunces and Noto Serif Bengali for display type. It keeps the --ui-* theme
+variables, so light, dark and sepia still work.
+
+signature.js draws the owner's handwritten signature on canvas[data-signature]
+(hero: animated, click to replay; sidebar: static, replays on hover).
+assets/signature-map.png is derived from the supplied signature video: red is
+the time the pen reached a pixel, green is ink coverage. The animation waits for
+study-ready, pauses off-screen and honours prefers-reduced-motion.
+

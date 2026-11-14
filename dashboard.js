@@ -55,7 +55,7 @@
   function toast(message) { $('toast').textContent = message; $('toast').classList.add('visible'); clearTimeout(toast.timer); toast.timer = setTimeout(() => $('toast').classList.remove('visible'),4500); }
   function card(mod) {
     const s = metric(mod.id), data = StudyStore.hubData(), saved = !!(data.saved || {})[mod.id];
-    return `<article class="module-card"><div class="card-top"><span class="card-tag">${esc(mod.categoryName)}</span><button class="save-module ${saved ? 'saved' : ''}" data-save="${mod.id}" aria-pressed="${saved}" aria-label="${saved?'Unsave':'Save'} ${esc(mod.bn)}">${icon('star')}</button></div><h2><a href="#study/${mod.id}">${esc(mod.bn)}</a></h2><p class="module-en">${esc(mod.en)}</p><p class="module-category">${esc(mod.subject)}</p><div class="module-metrics">${s.error ? '<span class="error">Records temporarily unavailable</span>' : s.hasData ? `<span>${format(s.attempted)} answers</span><span>${format(s.mastered)} mastered</span>${s.due ? `<span class="due">${format(s.due)} due</span>` : ''}` : '<span>Ready when you are</span>'}</div><div class="card-bottom"><small>${esc(shortDate((data.recent || {})[mod.id]))}</small><a href="#study/${mod.id}">${s.hasData ? 'Continue' : 'Start studying'} ${icon('arrow')}</a></div></article>`;
+    return `<article class="module-card cat-${mod.category}"><div class="card-top"><span class="card-tag">${esc(mod.categoryName)}</span><button class="save-module ${saved ? 'saved' : ''}" data-save="${mod.id}" aria-pressed="${saved}" aria-label="${saved?'Unsave':'Save'} ${esc(mod.bn)}">${icon('star')}</button></div><h2><a href="#study/${mod.id}">${esc(mod.bn)}</a></h2><p class="module-en">${esc(mod.en)}</p><p class="module-category">${esc(mod.subject)}</p><div class="module-metrics">${s.error ? '<span class="error">Records temporarily unavailable</span>' : s.hasData ? `<span>${format(s.attempted)} answers</span><span>${format(s.mastered)} mastered</span>${s.due ? `<span class="due">${format(s.due)} due</span>` : ''}` : '<span>Ready when you are</span>'}</div><div class="card-bottom"><small>${esc(shortDate((data.recent || {})[mod.id]))}</small><a href="#study/${mod.id}">${s.hasData ? 'Continue' : 'Start studying'} ${icon('arrow')}</a></div></article>`;
   }
   function empty(title,text,link = false) { return `<div class="empty-state"><h2>${esc(title)}</h2><p>${esc(text)}</p>${link ? '<a class="button" href="#library">Explore study library '+icon('arrow')+'</a>' : ''}</div>`; }
   function renderLibrary() {
@@ -81,7 +81,7 @@
     const last = [...modules].sort((a,b) => (recent[b.id] || 0)-(recent[a.id] || 0)).filter(m => recent[m.id]);
     $('continue-button').href = last.length ? '#study/' + last[0].id : '#library';
     $('continue-button').innerHTML = (last.length ? 'Continue studying ' : 'Explore study library ') + icon('arrow');
-    $('continue-detail').textContent = last.length ? last[0].bn + ' · ' + shortDate(recent[last[0].id]) : 'BCS · Bank preparation · TFP';
+    $('continue-detail').textContent = last.length ? last[0].bn + ' · ' + shortDate(recent[last[0].id]) : 'BCS · Bank Preparation · TFP';
     $('recent-description').textContent = last.length ? 'Pick up where you left off.' : 'Choose a starting point for today.';
     const starting = [modules[1], modules.find(m => m.id === 'word-smart-vocabulary'), modules.find(m => m.id === 'prelim-master-tracker')];
     $('recent-modules').innerHTML = (last.length ? last.slice(0,3) : starting).map(m => `<a href="#study/${m.id}" class="recent-card"><span class="module-symbol ${m.category}">${icon('book')}</span><div><h3>${esc(m.bn)}</h3><small>${esc(m.en)}</small></div>${icon('arrow')}</a>`).join('');
@@ -125,11 +125,12 @@
     if (studying && !mod) { location.hash = '#library'; toast('That study tool was not found.'); return; }
     document.documentElement.classList.toggle('studying',studying);
     $('dashboard-view').hidden = studying; $('study-view').hidden = !studying;
-    $('breadcrumb').textContent = studying ? mod.categoryName : {overview:'Overview',library:'Study library',review:'Review queue',progress:'Progress record'}[target];
+    $('breadcrumb').textContent = studying ? mod.categoryName : {overview:'Overview',library:'Study Library',review:'Review Queue',progress:'Progress Record'}[target];
     for (const v of ['overview','library','review','progress']) $(v+'-content').hidden = v !== target;
     const copy = {overview:['Preparation, all together.','এক জায়গায় সব বিষয়, প্রতিদিনের অগ্রগতি।'],library:['A place for every subject.','বই, প্রশ্নব্যাংক, আর আপনার সব প্রস্তুতির টুল।'],review:['Keep your knowledge close.','নিয়মিত রিভিশনে শেখা হোক আরও স্থায়ী।'],progress:['See how far you’ve come.','সব বিষয়ের অগ্রগতির একত্রিত রেকর্ড।']};
     if (!studying) { $('page-title').textContent=copy[target][0]; $('page-description').textContent=copy[target][1]; }
     if (target === 'library') { category = ['bcs','bank','tfp','other'].includes(id) ? id : 'all'; renderLibrary(); }
+    document.querySelectorAll('.category-nav a').forEach(link => link.classList.toggle('active',target === 'library' && link.getAttribute('href') === '#library/'+id));
     if (studying && currentModule !== id) {
       currentModule = id; $('study-title').textContent = mod.bn; $('study-subtitle').textContent = mod.en;
       $('standalone-link').href = mod.path;
@@ -173,5 +174,7 @@
   syncAccountControls();
   window.addEventListener('resize',syncNavigation);
   $('today').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',timeZone:'Asia/Dhaka'});
+  // Category counts come from the catalog so the navigation never drifts from it.
+  document.querySelectorAll('[data-count]').forEach(el => { const key = el.dataset.count; el.textContent = key === 'all' ? modules.length : modules.filter(m => m.category === key).length; });
   icons(); route();
 })();
