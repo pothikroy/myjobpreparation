@@ -164,7 +164,8 @@ senior-officer-study, category "bank") is a self-contained page built from the
 supplied "Senior Officer Solution" PDF: 100 MCQs in six sections (English 1-20,
 Bangla 21-40, Mathematics 41-60, Banking & Finance 61-70, Analytical 71-90,
 Computer & ICT 91-100) with the PDF's Bangla explanations and a topic tag per
-question. Q42 has no correct option in the source, so it is shown but never scored.
+question. Q42 says "no correct answer" in the source (exact value 191 cans); the page
+scores it as B. 200 (pi taken as 3, also the nearest option) and explains why.
 
 Features: named examinees (several per device) with separate records; reading
 mode with answer hiding/self-check, notes, bookmarks and read marks; practice
