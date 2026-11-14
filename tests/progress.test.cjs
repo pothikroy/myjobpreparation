@@ -13,7 +13,7 @@ function summary(id,data,now=Date.now()) {
   return summarize(mod,{[key]:JSON.stringify(data)},now);
 }
 test('all catalogued modules have unique IDs, existing paths and safe empty summaries',() => {
-  assert.equal(catalog.length,38); assert.equal(new Set(catalog.map(m=>m.id)).size,catalog.length);
+  assert.equal(catalog.length,39); assert.equal(new Set(catalog.map(m=>m.id)).size,catalog.length);
   for (const mod of catalog) {
     assert.ok(fs.existsSync(path.join(root,mod.path)),mod.path);
     const empty = summarize(mod,{}); assert.equal(empty.hasData,false,mod.id); assert.equal(empty.attempted,0);
@@ -69,4 +69,8 @@ test('explicit totals and unique answer maps have correct denominators',() => {
 test('MoD AD study counts cumulative answers, mastery, due reviews, bookmarks, notes and read chapters',() => {
   const s=summary('mod-ad-study',{questions:{a:{attempts:3,correctCount:2,wrongCount:1,box:4,status:'mastered',nextReview:'2020-01-01',bookmarked:true},b:{attempts:1,correctCount:0,wrongCount:1,box:1,status:'learning',nextReview:'2020-01-01',note:'x'}},readChapters:{0:true,3:true,5:false}});
   assert.equal(s.attempted,4); assert.equal(s.correct,2); assert.equal(s.mastered,1); assert.equal(s.due,2); assert.equal(s.bookmarks,1); assert.equal(s.notes,1); assert.equal(s.studied,4); assert.equal(s.hasData,true);
+});
+test('Senior Officer study counts combined answers, mastery, due reviews, bookmarks, notes and read questions',() => {
+  const s=summary('senior-officer-study',{people:{p1:{name:'A'}},questions:{so001:{attempts:4,correctCount:3,wrongCount:1,status:'mastered',nextReview:'2020-01-01',bookmarked:true},so002:{attempts:2,correctCount:0,wrongCount:2,status:'learning',nextReview:'2999-01-01',note:'x'}},read:{so001:true,so050:true}});
+  assert.equal(s.attempted,6); assert.equal(s.correct,3); assert.equal(s.mastered,1); assert.equal(s.due,1); assert.equal(s.bookmarks,1); assert.equal(s.notes,1); assert.equal(s.studied,4); assert.equal(s.hasData,true);
 });

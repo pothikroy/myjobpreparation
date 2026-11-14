@@ -42,7 +42,8 @@
     'written-syllabus-intelligence': { statuses:'topics', practice:true },
     'tfp502-exam-tutor': { read:'mastered' },
     'tfp503-exam-prep-alt': { key:'tvx_progress', statuses:'' },
-    'mod-ad-study': { rows:'questions', read:'readChapters' }
+    'mod-ad-study': { rows:'questions', read:'readChapters' },
+    'senior-officer-study': { rows:'questions', read:'read' }
   };
   function summarize(mod, raw, now = Date.now()) {
     const out = { id:mod.id, attempted:0, correct:0, mastered:0, studied:0, due:0, bookmarks:0, notes:0, hasData:false };
