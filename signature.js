@@ -4,9 +4,9 @@
 (function () {
   'use strict';
   const MAP = 'assets/signature-map.png';
-  const DRAW_MS = 3000, FEATHER = 0.035, TIP = 0.07, FLOW_MS = 9000;
-  // Dusk-river palette taken from the cover photograph; first stop repeats so the flow loops.
-  const STOPS = [[255, 118, 138], [255, 184, 100], [246, 228, 190], [188, 168, 255], [255, 118, 138]];
+  const DRAW_MS = 3000, FEATHER = 0.035, TIP = 0.07;
+  // One ink: champagne gold, shading only slightly along the stroke like foil catching light.
+  const STOPS = [[236, 214, 168], [250, 240, 214], [228, 200, 146], [244, 230, 196]];
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
   const LUT = new Uint8Array(256 * 3);
   for (let i = 0; i < 256; i++) {
@@ -36,13 +36,13 @@
     canvas.width = data.w; canvas.height = data.h;
     const ctx = canvas.getContext('2d'), frame = ctx.createImageData(data.w, data.h), px = frame.data;
     const still = canvas.dataset.signature === 'static';
-    let start = 0, raf = 0, visible = true, lastFlow = 0;
+    let start = 0, raf = 0, visible = true;
     function paint(p, phase) {
       const { idx, time, cover, hue } = data;
       for (let n = 0; n < idx.length; n++) {
         const i = idx[n], since = p - time[n];
         if (since <= 0) { px[i + 3] = 0; continue; }
-        const o = (((hue[n] + phase) % 1) * 256 | 0) * 3;
+        const o = Math.min(255, (hue[n] + phase) * 256 | 0) * 3;
         const glow = since < TIP ? (1 - since / TIP) * 0.85 : 0;
         px[i] = LUT[o] + (255 - LUT[o]) * glow; px[i + 1] = LUT[o + 1] + (255 - LUT[o + 1]) * glow; px[i + 2] = LUT[o + 2] + (255 - LUT[o + 2]) * glow;
         px[i + 3] = since >= FEATHER ? cover[n] : cover[n] * since / FEATHER;
@@ -54,10 +54,7 @@
       if (!visible || document.hidden) return;
       const elapsed = now - start, p = Math.min(1 + TIP, elapsed / DRAW_MS * (1 + TIP));
       if (p < 1 + TIP) { paint(p, 0); raf = requestAnimationFrame(tick); return; }
-      if (still || reduce.matches) { paint(2, 0); return; }
-      // Once written, the colours drift slowly along the stroke.
-      if (now - lastFlow > 40) { lastFlow = now; paint(2, 1 - ((elapsed - DRAW_MS) % FLOW_MS) / FLOW_MS); }
-      raf = requestAnimationFrame(tick);
+      paint(2, 0); // written once, then it rests
     }
     function play() {
       cancelAnimationFrame(raf);

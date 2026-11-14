@@ -53,9 +53,23 @@
   }
   function metric(id) { return summaries.find(s => s.id === id) || { attempted:0,correct:0,due:0,mastered:0,hasData:false }; }
   function toast(message) { $('toast').textContent = message; $('toast').classList.add('visible'); clearTimeout(toast.timer); toast.timer = setTimeout(() => $('toast').classList.remove('visible'),4500); }
+  // The library is drawn as a bookcase: one shelf per category, one book per study tool.
+  const shelves = [
+    { id:'bcs', group:'Job Exam', name:'BCS Preparation', tones:[352,10,24,340,2] },
+    { id:'bank', group:'Job Exam', name:'Bank Preparation', tones:[172,158,188,146] },
+    { id:'other', group:'Job Exam', name:'Other Job Exams', tones:[38,48,30] },
+    { id:'tfp', group:'Academic', name:'TFP Coursework', tones:[262,246,280] }
+  ];
+  const heights = [226,210,220,204,216,224,208];
+  const look = {};
+  for (const shelf of shelves) modules.filter(m => m.category === shelf.id).forEach((m,i) => { look[m.id] = { tone:shelf.tones[i % shelf.tones.length], height:heights[(i*3 + shelf.id.length) % heights.length] }; });
   function card(mod) {
-    const s = metric(mod.id), data = StudyStore.hubData(), saved = !!(data.saved || {})[mod.id];
-    return `<article class="module-card cat-${mod.category}"><div class="card-top"><span class="card-tag">${esc(mod.categoryName)}</span><button class="save-module ${saved ? 'saved' : ''}" data-save="${mod.id}" aria-pressed="${saved}" aria-label="${saved?'Unsave':'Save'} ${esc(mod.bn)}">${icon('star')}</button></div><h2><a href="#study/${mod.id}">${esc(mod.bn)}</a></h2><p class="module-en">${esc(mod.en)}</p><p class="module-category">${esc(mod.subject)}</p><div class="module-metrics">${s.error ? '<span class="error">Records temporarily unavailable</span>' : s.hasData ? `<span>${format(s.attempted)} answers</span><span>${format(s.mastered)} mastered</span>${s.due ? `<span class="due">${format(s.due)} due</span>` : ''}` : '<span>Ready when you are</span>'}</div><div class="card-bottom"><small>${esc(shortDate((data.recent || {})[mod.id]))}</small><a href="#study/${mod.id}">${s.hasData ? 'Continue' : 'Start studying'} ${icon('arrow')}</a></div></article>`;
+    const s = metric(mod.id), data = StudyStore.hubData(), saved = !!(data.saved || {})[mod.id], style = look[mod.id] || { tone:200, height:216 };
+    const foot = s.error ? 'Records unavailable' : s.hasData ? `${format(s.attempted)} answers · ${format(s.mastered)} mastered` : 'Unread';
+    return `<article class="book cat-${mod.category}" style="--tone:${style.tone};--book-h:${style.height}px"><a class="book-cover" href="#study/${mod.id}" title="${esc(mod.bn)} — ${esc(mod.en)}"><span class="book-shelfmark">${esc(mod.sectionName || mod.subject)}</span><span class="book-title">${esc(mod.bn)}</span><span class="book-sub">${esc(mod.en)}</span><span class="book-foot">${esc(foot)}</span></a><button class="save-module ${saved ? 'saved' : ''}" data-save="${mod.id}" aria-pressed="${saved}" aria-label="${saved?'Remove bookmark from':'Bookmark'} ${esc(mod.bn)}" title="${saved?'Bookmarked':'Bookmark'}"></button>${s.due ? `<span class="book-due">${format(s.due)} due</span>` : ''}</article>`;
+  }
+  function bookcase(list) {
+    return shelves.map(shelf => { const books = list.filter(m => m.category === shelf.id); return books.length ? `<section class="shelf"><header class="shelf-plate"><span>${shelf.group}</span><h2>${shelf.name}</h2><small>${books.length} ${books.length === 1 ? 'book' : 'books'}</small></header><div class="shelf-row">${books.map(card).join('')}</div></section>` : ''; }).join('');
   }
   function empty(title,text,link = false) { return `<div class="empty-state"><h2>${esc(title)}</h2><p>${esc(text)}</p>${link ? '<a class="button" href="#library">Explore study library '+icon('arrow')+'</a>' : ''}</div>`; }
   function renderLibrary() {
@@ -67,8 +81,8 @@
     if ($('sort-modules').value === 'recent') result.sort((a,b) => (recent[b.id] || 0) - (recent[a.id] || 0));
     if ($('sort-modules').value === 'due') result.sort((a,b) => metric(b.id).due - metric(a.id).due);
     if ($('sort-modules').value === 'name') result.sort((a,b) => a.bn.localeCompare(b.bn));
-    $('module-grid').innerHTML = result.map(card).join('') || empty('No matching study tools','Try another search, module type, or preparation category.');
-    $('results-caption').textContent = result.length + ' of ' + modules.length + ' study tools';
+    $('module-grid').innerHTML = bookcase(result) || empty('No matching study tools','Try another search, module type, or preparation category.');
+    $('results-caption').textContent = result.length + ' of ' + modules.length + ' books on the shelves';
     document.querySelectorAll('[data-category]').forEach(el => { const active = el.dataset.category === category; el.classList.toggle('active',active); el.setAttribute('aria-pressed',String(active)); });
   }
   function renderOverview() {
@@ -83,11 +97,15 @@
     $('continue-button').innerHTML = (last.length ? 'Continue studying ' : 'Explore study library ') + icon('arrow');
     $('continue-detail').textContent = last.length ? last[0].bn + ' · ' + shortDate(recent[last[0].id]) : 'BCS · Bank Preparation · TFP';
     $('recent-description').textContent = last.length ? 'Pick up where you left off.' : 'Choose a starting point for today.';
-    const starting = [modules[1], modules.find(m => m.id === 'word-smart-vocabulary'), modules.find(m => m.id === 'prelim-master-tracker')];
-    $('recent-modules').innerHTML = (last.length ? last.slice(0,3) : starting).map(m => `<a href="#study/${m.id}" class="recent-card"><span class="module-symbol ${m.category}">${icon('book')}</span><div><h3>${esc(m.bn)}</h3><small>${esc(m.en)}</small></div>${icon('arrow')}</a>`).join('');
+    const starting = [modules[1], modules.find(m => m.id === 'word-smart-vocabulary'), modules.find(m => m.id === 'prelim-master-tracker'), modules.find(m => m.id === 'senior-officer-study')];
+    $('recent-modules').innerHTML = (last.length ? last.slice(0,4) : starting).map(card).join('');
+    $('shelf-summary').innerHTML = shelves.map(shelf => { const books = modules.filter(m => m.category === shelf.id); return `<a class="mini-shelf" href="#library/${shelf.id}"><span class="mini-label"><small>${shelf.group}</small>${shelf.name}</span><span class="mini-spines" aria-hidden="true">${books.map(m => `<i style="--tone:${look[m.id].tone};--h:${Math.round(look[m.id].height/226*100)}%"></i>`).join('')}</span><b>${books.length}</b></a>`; }).join('');
+    const examDays = data.examDate ? Math.ceil((new Date(data.examDate+'T23:59:59+06:00')-Date.now())/86400000) : null;
+    $('exam-chip').hidden = examDays === null || examDays < 0;
+    if (examDays !== null && examDays >= 0) $('exam-chip').innerHTML = `<b>${examDays}</b> ${examDays === 1 ? 'day' : 'days'} to your exam`;
     const due = [...summaries].filter(s => s.due).sort((a,b) => b.due-a.due);
     $('review-preview').innerHTML = due.length ? due.slice(0,3).map(s => `<a class="review-item" href="#study/${s.id}"><span>${esc(modules.find(m => m.id === s.id).bn)}</span><strong>${format(s.due)} due</strong></a>`).join('') : '<p class="review-empty">No scheduled reviews due right now. Your question and flashcard schedules will appear here as you study.</p>';
-    $('review-grid').innerHTML = due.length ? due.map(s => card(modules.find(m => m.id === s.id))).join('') : empty('A clear review queue.','No saved review schedules are due. Study a subject to build your revision routine.',true);
+    $('review-grid').innerHTML = due.length ? bookcase(due.map(s => modules.find(m => m.id === s.id))) : empty('A clear review queue.','No saved review schedules are due. Study a subject to build your revision routine.',true);
     const now = new Date(), chart = [];
     for (let i=6;i>=0;i--) { const date = new Date(now.getTime()-i*86400000), key = day(date); chart.push({date,key,seconds:Object.values(days[key] || {}).reduce((a,b) => a+Number(b || 0),0)}); }
     const seconds = chart.reduce((a,b) => a+b.seconds,0), todayMinutes = Math.floor(chart[6].seconds/60), goal = data.goal || 30;
@@ -127,7 +145,7 @@
     $('dashboard-view').hidden = studying; $('study-view').hidden = !studying;
     $('breadcrumb').textContent = studying ? mod.categoryName : {overview:'Overview',library:'Study Library',review:'Review Queue',progress:'Progress Record'}[target];
     for (const v of ['overview','library','review','progress']) $(v+'-content').hidden = v !== target;
-    const copy = {overview:['Preparation, all together.','এক জায়গায় সব বিষয়, প্রতিদিনের অগ্রগতি।'],library:['A place for every subject.','বই, প্রশ্নব্যাংক, আর আপনার সব প্রস্তুতির টুল।'],review:['Keep your knowledge close.','নিয়মিত রিভিশনে শেখা হোক আরও স্থায়ী।'],progress:['See how far you’ve come.','সব বিষয়ের অগ্রগতির একত্রিত রেকর্ড।']};
+    const copy = {overview:['Preparation, all together.','এক জায়গায় সব বিষয়, প্রতিদিনের অগ্রগতি।'],library:['A shelf for every subject.','বই, প্রশ্নব্যাংক, আর আপনার সব প্রস্তুতির টুল।'],review:['Keep your knowledge close.','নিয়মিত রিভিশনে শেখা হোক আরও স্থায়ী।'],progress:['See how far you’ve come.','সব বিষয়ের অগ্রগতির একত্রিত রেকর্ড।']};
     if (!studying) { $('page-title').textContent=copy[target][0]; $('page-description').textContent=copy[target][1]; }
     if (target === 'library') { category = ['bcs','bank','tfp','other'].includes(id) ? id : 'all'; renderLibrary(); }
     document.querySelectorAll('.category-nav a').forEach(link => link.classList.toggle('active',target === 'library' && link.getAttribute('href') === '#library/'+id));
@@ -158,10 +176,10 @@
   $('settings-button').onclick=() => { const data=StudyStore.hubData(); $('goal-input').value=data.goal || 30; $('exam-input').value=data.examDate || ''; countdown(); $('settings-dialog').showModal(); };
   document.querySelectorAll('[data-close-dialog]').forEach(b => b.onclick=() => b.closest('dialog').close());
   $('exam-input').oninput=countdown;
-  $('settings-form').onsubmit=e => { e.preventDefault(); const data=StudyStore.hubData(); data.goal=Number($('goal-input').value); data.examDate=$('exam-input').value; StudyStore.saveHub(data); $('settings-dialog').close(); toast('Study settings saved.'); StudyStore.flush(); };
+  $('settings-form').onsubmit=e => { e.preventDefault(); const data=StudyStore.hubData(); data.goal=Number($('goal-input').value); data.examDate=$('exam-input').value; StudyStore.saveHub(data); $('settings-dialog').close(); toast('Study settings saved.'); StudyStore.flush(); renderOverview(); };
   $('category-filters').onclick=e => { const button=e.target.closest('[data-category]'); if (button) { category=button.dataset.category; renderLibrary(); } };
   ['module-search','section-filter','sort-modules','saved-only'].forEach(id => $(id).addEventListener(id === 'module-search' ? 'input' : 'change',renderLibrary));
-  document.addEventListener('click',e => { const button=e.target.closest('[data-save]'); if (!button) return; const data=StudyStore.hubData(); data.saved ||= {}; data.saved[button.dataset.save]=!data.saved[button.dataset.save]; StudyStore.saveHub(data); renderLibrary(); });
+  document.addEventListener('click',e => { const button=e.target.closest('[data-save]'); if (!button) return; const data=StudyStore.hubData(); data.saved ||= {}; data.saved[button.dataset.save]=!data.saved[button.dataset.save]; StudyStore.saveHub(data); renderLibrary(); renderOverview(); });
   document.addEventListener('keydown',e => { if(e.defaultPrevented || e.target.closest?.('dialog,#ag-sidebar')) return; if (e.key === '/' && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) { e.preventDefault(); if (view !== 'library') location.hash='#library'; setTimeout(() => $('module-search').focus(),0); } if (e.key === 'Escape' && mobileNavigation.matches && $('sidebar').classList.contains('open')) setNavigation(false,true); });
   $('export-button').onclick=async () => { try { await backup(); toast('Backup downloaded for every study tool.'); } catch(e) { toast('Backup failed: '+e.message); } };
   $('import-button').onclick=() => $('import-file').click();

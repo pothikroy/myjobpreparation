@@ -179,21 +179,32 @@ read, tests), draft, settings. The top-level questions/read maps are a combined
 copy across examinees recomputed on every save; shared-progress.js reads
 rows:questions and read:read. Question data is embedded as application/json.
 
-## Dashboard identity and navigation groups (14 November 2026)
+## Dashboard: night library design (14 November 2026)
 
-The sidebar groups categories under JOB EXAM (BCS, Bank, Other Job Exams) and
-ACADEMIC (TFP Coursework); labels use title case and every [data-count] badge is
-filled from study-catalog.js, so counts cannot drift. Category ids are unchanged.
+index.html, dashboard.css and the render functions in dashboard.js were rebuilt
+as a dark glass "personal library". Element ids, routes, storage and account
+behaviour are unchanged, so auth-gate.js, study-ui.js and the browser tests keep
+working against the same hooks.
 
-The visual identity block at the end of dashboard.css takes its palette from the
-owner's riverside photograph (assets/pothik-riverside.jpg, avatar crop
-assets/pothik-avatar.jpg): --d-teal, --d-rose, --d-amber, --d-violet, with
-Fraunces and Noto Serif Bengali for display type. It keeps the --ui-* theme
-variables, so light, dark and sepia still work.
-
-signature.js draws the owner's handwritten signature on canvas[data-signature]
-(hero: animated, click to replay; sidebar: static, replays on hover).
-assets/signature-map.png is derived from the supplied signature video: red is
-the time the pen reached a pixel, green is ink coverage. The animation waits for
-study-ready, pauses off-screen and honours prefers-reduced-motion.
-
+- Floating glass sidebar with two groups: JOB EXAM (BCS, Bank, Other Job Exams)
+  and ACADEMIC (TFP Coursework). Labels use title case. Every [data-count] badge
+  is filled from study-catalog.js, so counts cannot drift. Category ids are
+  unchanged.
+- The Study Library and Review Queue are a bookcase: one glass shelf section per
+  category and one cloth-bound book per study tool (card() and bookcase() in
+  dashboard.js). Cover hue and height come from the book's position in its
+  category. The ribbon on a book is the existing "saved" toggle.
+- Overview is a reading desk: photo hero, today's goal ring with an optional
+  exam countdown (examDate in the hub record), four figures, books on the desk,
+  revision slips, study rhythm and a miniature of each shelf.
+- The dashboard is always dark; tokens are prefixed --g- because study-ui.css
+  overrides common names such as --ink and --gold. The reading theme chosen in
+  study-ui still applies to study tools and shared dialogs.
+- Assets: assets/pothik-riverside.jpg (hero), pothik-ambient.jpg (tiny blurred
+  copy used as page light), pothik-avatar.jpg (brand and account).
+- signature.js draws the owner's handwritten signature in one champagne-gold
+  ink on canvas[data-signature] (hero corner: written once, click to replay;
+  sidebar: static, replays on hover). assets/signature-map.png is derived from
+  the supplied signature video: red is when the pen reached a pixel, green is
+  ink coverage. It waits for study-ready, pauses off-screen and honours
+  prefers-reduced-motion.
