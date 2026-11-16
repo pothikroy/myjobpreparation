@@ -741,5 +741,24 @@ window.STUDY_CATALOG = [
         "modad_study_v1"
       ]
     }
+  },
+  {
+    "id": "petrobangla-am-study",
+    "bn": "পেট্রোবাংলা — সহকারী ব্যবস্থাপক (প্রশাসন)",
+    "en": "Guide, Past Papers, Mock Tests & Flashcards",
+    "path": "other-jobs/petrobangla-am/Petrobangla_AM_Admin_Study.html",
+    "category": "other",
+    "categoryName": "Other Job Exams",
+    "categoryBn": "অন্যান্য চাকরির পরীক্ষা",
+    "accent": "#2f6b57",
+    "section": "question-bank",
+    "sectionName": "Petrobangla — Assistant Manager (Administration)",
+    "subject": "Petrobangla — Assistant Manager (Administration)",
+    "storage": {
+      "type": "keys",
+      "keys": [
+        "petrobangla_am_study_v1"
+      ]
+    }
   }
 ];

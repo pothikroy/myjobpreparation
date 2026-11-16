@@ -14,8 +14,8 @@ owner approval flow and account-specific progress storage.
   hiding is remembered on this device using study_sidebar_collapsed. Mobile
   navigation also closes on backdrop click or Escape. Account/sign out remains
   available in the top bar, alongside an owner-only Approvals shortcut.
-- study-catalog.js is the shared inventory of all 39 study tools: 32 BCS, 4 bank,
-  2 TFP, 1 Other Job Exams. Preserve stable IDs and paths when adding or moving content.
+- study-catalog.js is the shared inventory of all 40 study tools: 32 BCS, 4 bank,
+  2 TFP, 2 Other Job Exams. Preserve stable IDs and paths when adding or moving content.
 - shared-progress.js contains read-only adapters for the different progress
   schemas. Original module data remains the source of truth.
 - progress-store.js handles account-specific browser storage, cloud hydration,
@@ -102,7 +102,7 @@ http://127.0.0.1:4173/tests/browser.html and /tests/integration.html. That serve
 replaces Firebase only in its HTTP responses with a local test double. It never
 changes production sources or contacts the real backend. Never use it for hosting.
 
-The same QA server also serves /tests/ui-audit.html (all 39 desktop/mobile views,
+The same QA server also serves /tests/ui-audit.html (all 40 desktop/mobile views,
 light/dark contrast screening) and /tests/study-ui.html (reading preferences,
 navigation, focus, account controls and exam date regression checks). QA identities
 are isolated from each other and the live backend. See UI_AUDIT.md for scope and
@@ -156,6 +156,25 @@ shared-progress.js reads rows:questions and read:readChapters. Data and the app
 script are embedded (application/json and text/x-study-script). The page is
 generated outside this repository from the guide sources; edit the source and
 regenerate rather than hand-editing the embedded JSON.
+
+## Other Job Exams — Petrobangla Assistant Manager (Administration) (16 November 2026)
+
+other-jobs/petrobangla-am/Petrobangla_AM_Admin_Study.html (catalog id
+petrobangla-am-study, category "other") is one self-contained page generated from
+the preparation book written for the 29 September 2026 circular: 42 guide chapters
+as readable HTML, 321 MCQs (Petrobangla AM 2024, 2016 and 2011 actual papers, two
+70-question mocks and chapter quizzes), 1,108 flashcards in 14 decks and 14
+written-practice prompts. Tabs: dashboard (verified exam structure, countdown),
+guide reader (search, read marks, hide answers), practice with instant feedback,
+timed tests (drafts resume; negative marking and time are personal settings
+because neither is officially announced), flashcards with Leitner scheduling,
+written practice, review queues, records and backup. Progress lives in
+petrobangla_am_study_v1 (questions, readChapters, cards, written, tests, draft,
+settings); shared-progress.js reads rows:questions, read:readChapters and
+cards:cards. The book itself (.docx and .pdf) sits beside the page. The page is
+generated outside this repository from the book markup; regenerate rather than
+hand-editing the embedded JSON. Facts are dated 16 November 2026; items marked
+"check" in guide chapter 37 need updating before the examination.
 
 ## Bank preparation — Senior Officer solved paper (14 November 2026)
 
