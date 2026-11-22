@@ -13,7 +13,7 @@ function summary(id,data,now=Date.now()) {
   return summarize(mod,{[key]:JSON.stringify(data)},now);
 }
 test('all catalogued modules have unique IDs, existing paths and safe empty summaries',() => {
-  assert.equal(catalog.length,40); assert.equal(new Set(catalog.map(m=>m.id)).size,catalog.length);
+  assert.equal(catalog.length,41); assert.equal(new Set(catalog.map(m=>m.id)).size,catalog.length);
   for (const mod of catalog) {
     assert.ok(fs.existsSync(path.join(root,mod.path)),mod.path);
     const empty = summarize(mod,{}); assert.equal(empty.hasData,false,mod.id); assert.equal(empty.attempted,0);

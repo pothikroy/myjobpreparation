@@ -724,6 +724,26 @@ window.STUDY_CATALOG = [
     }
   },
   {
+    "id": "tfp-typing-test",
+    "bn": "অটিউর টাইপ — টাইপিং প্র্যাকটিস",
+    "en": "Auteur Type — Typing Practice",
+    "path": "tfp/typing-test/index.html",
+    "category": "tfp",
+    "categoryName": "TFP Study Materials",
+    "categoryBn": "টিএফপি স্টাডি ম্যাটেরিয়ালস",
+    "accent": "#5a3e85",
+    "section": "tfp-typing",
+    "sectionName": "TFP Typing Practice",
+    "subject": "TFP Typing Practice",
+    "storage": {
+      "type": "keys",
+      "keys": [
+        "auteurtype:settings:v1",
+        "auteurtype:data:v1"
+      ]
+    }
+  },
+  {
     "id": "mod-ad-study",
     "bn": "প্রতিরক্ষা মন্ত্রণালয় — সহকারী পরিচালক",
     "en": "Interactive Study: Guide, Past Papers & Mock Tests",

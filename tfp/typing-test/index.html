@@ -1,0 +1,2244 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="../../firebase-config.js?v=14"></script>
+<script>window.AG_PAGE = {"id": "tfp-typing-test", "title": "Auteur Type — Typing Practice", "storage": {"type": "keys", "keys": ["auteurtype:settings:v1", "auteurtype:data:v1"]}};</script>
+<script src="../../study-catalog.js?v=20"></script>
+<script src="../../shared-progress.js?v=19"></script>
+<script src="../../cloud-records.js?v=16"></script><script src="../../progress-store.js?v=17"></script>
+<script src="../../auth-gate.js?v=15"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Auteur Type — typing practice</title>
+<meta name="description" content="A distraction-free typing trainer built around an essay on auteur theory. Timed tests, passage practice, error analysis and progress tracking. Runs entirely in your browser.">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='5' width='26' height='22' rx='4' fill='%23f2b84b'/%3E%3Crect x='7' y='9' width='18' height='14' rx='2' fill='%2315140f'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="../../study-ui.css?v=14">
+<script src="../../study-ui.js?v=14" defer></script>
+</head>
+<body data-view="home">
+<div id="ag-overlay"></div>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header id="topbar" class="topbar">
+  <button class="brand" id="brandBtn" type="button" aria-label="Auteur Type — go to dashboard">
+    <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="4" width="28" height="24" rx="5" fill="currentColor"/><rect x="8" y="9" width="16" height="14" rx="2" fill="var(--bg)"/><g fill="var(--bg)"><rect x="3.6" y="8" width="2" height="2.4" rx=".6"/><rect x="3.6" y="14.8" width="2" height="2.4" rx=".6"/><rect x="3.6" y="21.6" width="2" height="2.4" rx=".6"/><rect x="26.4" y="8" width="2" height="2.4" rx=".6"/><rect x="26.4" y="14.8" width="2" height="2.4" rx=".6"/><rect x="26.4" y="21.6" width="2" height="2.4" rx=".6"/></g></svg>
+    <span class="brand-text">Auteur<span>Type</span></span>
+  </button>
+  <nav class="nav" aria-label="Main">
+    <button type="button" class="nav-btn" data-nav="home">Practice</button>
+    <button type="button" class="nav-btn" data-nav="progress">Progress</button>
+  </nav>
+  <div class="top-actions">
+    <button type="button" class="icon-btn" id="btnTheme" title="Toggle light / dark theme" aria-label="Toggle theme">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+    </button>
+    <button type="button" class="icon-btn" id="btnFullscreen" title="Full-screen" aria-label="Toggle full-screen">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button type="button" class="icon-btn" id="btnHelp" title="Keyboard shortcuts &amp; help" aria-label="Help and shortcuts">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 9.3a2.6 2.6 0 1 1 3.9 2.2c-.9.6-1.4 1-1.4 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="16.8" r="1.1" fill="currentColor"/></svg>
+    </button>
+    <button type="button" class="icon-btn" id="btnSettings" title="Settings" aria-label="Settings">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="16" cy="7" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="8" cy="17" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="main" class="main">
+
+  <!-- ================= HOME / DASHBOARD ================= -->
+  <section id="view-home" class="view" aria-labelledby="homeTitle">
+    <div class="hero">
+      <div>
+        <p class="eyebrow">Typing practice · <span id="heroDoc">Auteur Theory essay</span></p>
+        <h1 id="homeTitle">Type the essay. Learn the theory.</h1>
+        <p class="lead">Every passage is the original text, word for word. Pick a mode, settle in, and watch your speed and accuracy improve.</p>
+      </div>
+      <div class="hero-stats" id="heroStats" aria-label="Quick stats"></div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="modes">
+        <h2 class="section-title">Choose a mode</h2>
+
+        <article class="card mode" id="modeTimed">
+          <div class="mode-head"><h3>Timed test</h3><span class="tag">Race the clock</span></div>
+          <p class="muted">Type continuously from a section onward until the timer runs out.</p>
+          <div class="chips" id="durChips" role="radiogroup" aria-label="Test duration"></div>
+          <div class="row">
+            <label class="field-inline">Start from
+              <select id="timedStart"></select>
+            </label>
+            <button type="button" class="btn primary" id="startTimed">Start timed test</button>
+          </div>
+        </article>
+
+        <article class="card mode" id="modePassage">
+          <div class="mode-head"><h3>Passage</h3><span class="tag">One section</span></div>
+          <p class="muted">Type one complete passage. It finishes when you reach the last character.</p>
+          <div class="row">
+            <label class="field-inline grow">Passage
+              <select id="passageSelect"></select>
+            </label>
+            <button type="button" class="btn primary" id="startPassage">Start passage</button>
+          </div>
+        </article>
+
+        <article class="card mode" id="modeFull">
+          <div class="mode-head"><h3>Full document</h3><span class="tag" id="fullTag">Section by section</span></div>
+          <p class="muted" id="fullDesc">Work through the whole essay in order, one passage at a time.</p>
+          <div class="progress-line"><div class="bar"><i id="docBar"></i></div><span id="docPct">0%</span></div>
+          <div class="row">
+            <button type="button" class="btn primary" id="startFullContinue">Continue</button>
+            <button type="button" class="btn" id="startFullBegin">From the beginning</button>
+          </div>
+        </article>
+
+        <article class="card mode" id="modeCustom">
+          <div class="mode-head"><h3>Custom range</h3><span class="tag">Your selection</span></div>
+          <p class="muted">Choose where to begin and end. The passages in between become one continuous test.</p>
+          <div class="row">
+            <label class="field-inline grow">From
+              <select id="customFrom"></select>
+            </label>
+            <label class="field-inline grow">To
+              <select id="customTo"></select>
+            </label>
+            <button type="button" class="btn primary" id="startCustom">Start range</button>
+          </div>
+        </article>
+
+        <article class="card mode" id="modeMistakes">
+          <div class="mode-head"><h3>Mistake practice</h3><span class="tag" id="mistakeTag">Targeted</span></div>
+          <p class="muted" id="mistakeDesc">Drills built from the words you mistype most.</p>
+          <div class="word-cloud" id="mistakeCloud" aria-label="Words you mistype most"></div>
+          <div class="row">
+            <button type="button" class="btn primary" id="startMistakes">Practise my mistakes</button>
+          </div>
+        </article>
+      </div>
+
+      <aside class="side">
+        <h2 class="section-title">Today</h2>
+        <article class="card goal-card">
+          <div class="goal-ring" id="goalRing" role="img" aria-label="Daily goal progress">
+            <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-bg" cx="60" cy="60" r="52"/><circle class="ring-fg" id="goalArc" cx="60" cy="60" r="52"/></svg>
+            <div class="ring-text"><strong id="goalNow">0</strong><span id="goalOf">of 15 min</span></div>
+          </div>
+          <div class="goal-meta">
+            <p id="goalMsg" class="muted">Set a daily target and keep a streak.</p>
+            <label class="field-inline">Daily goal
+              <select id="goalSelect"></select>
+            </label>
+            <p class="muted small" id="streakLine"></p>
+          </div>
+        </article>
+
+        <h2 class="section-title">Document completion</h2>
+        <article class="card">
+          <div class="progress-line big"><div class="bar"><i id="docBar2"></i></div><span id="docPct2">0%</span></div>
+          <p class="muted small" id="docCount"></p>
+          <p class="muted small" id="docRemaining"></p>
+        </article>
+      </aside>
+    </div>
+
+    <h2 class="section-title lib-title">Passage library</h2>
+    <p class="muted lib-sub">Based on the headings of your essay. Choose any passage to practise it directly.</p>
+    <div class="library" id="library"></div>
+  </section>
+
+  <!-- ================= TEST ================= -->
+  <section id="view-test" class="view" hidden aria-label="Typing test">
+    <div class="test-head">
+      <div class="test-title">
+        <p class="eyebrow" id="testMode">Passage</p>
+        <h2 id="testLabel">—</h2>
+        <p class="muted small" id="testSub"></p>
+      </div>
+      <div class="timer-box" aria-live="off">
+        <span class="timer-label" id="timerLabel">Time</span>
+        <span class="timer" id="timerBig">0:00</span>
+      </div>
+    </div>
+
+    <div class="progress-line thin" aria-hidden="true"><div class="bar"><i id="testBar"></i></div></div>
+
+    <div class="live-stats" id="liveStats">
+      <div class="stat hero-stat"><span class="k" title="Net WPM = correct characters ÷ 5 ÷ minutes">Net WPM</span><span class="v" id="sNet">0</span></div>
+      <div class="stat hero-stat"><span class="k" title="Gross WPM = all keystrokes ÷ 5 ÷ minutes">Gross WPM</span><span class="v" id="sGross">0</span></div>
+      <div class="stat hero-stat"><span class="k" title="Correct keystrokes ÷ total keystrokes">Accuracy</span><span class="v" id="sAcc">—</span></div>
+      <div class="stat"><span class="k">Correct chars</span><span class="v" id="sCor">0</span></div>
+      <div class="stat"><span class="k">Incorrect chars</span><span class="v" id="sInc">0</span></div>
+      <div class="stat"><span class="k">Keystrokes</span><span class="v" id="sKeys">0</span></div>
+      <div class="stat"><span class="k">Errors</span><span class="v" id="sErr">0</span></div>
+      <div class="stat"><span class="k">Remaining</span><span class="v" id="sRem">0</span></div>
+      <div class="stat"><span class="k">Elapsed</span><span class="v" id="sElapsed">0:00</span></div>
+      <div class="stat"><span class="k" id="sLeftLabel">Time left</span><span class="v" id="sLeft">—</span></div>
+      <div class="stat"><span class="k">Progress</span><span class="v" id="sProg">0%</span></div>
+    </div>
+
+    <div class="typing-wrap">
+      <div class="typing" id="typing" role="application" aria-label="Typing area. Start typing the passage shown.">
+        <div class="viewport" id="viewport"><div class="text" id="text" aria-hidden="true"></div></div>
+        <div class="start-hint" id="startHint">Start typing to begin — <kbd>Space</kbd> also starts the clock</div>
+        <div class="pause-overlay" id="pauseOverlay" hidden><strong>Paused</strong><span>Click here or press any key to resume</span></div>
+        <textarea id="capture" class="capture" aria-label="Typing input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" rows="1"></textarea>
+      </div>
+      <p class="sr-only" id="srLive" aria-live="polite"></p>
+    </div>
+
+    <div class="test-actions">
+      <button type="button" class="btn" id="btnRestart" title="Restart (Ctrl+Enter)">Restart</button>
+      <button type="button" class="btn" id="btnTestNext" title="Skip to the next passage">Next passage</button>
+      <button type="button" class="btn ghost" id="btnStrictQuick" aria-pressed="false" title="Toggle strict mode">Strict: off</button>
+      <button type="button" class="btn ghost" id="btnKbQuick" aria-pressed="false" title="Show / hide on-screen keyboard">Keyboard</button>
+      <button type="button" class="btn ghost" id="btnFocus" aria-pressed="false" title="Focus mode">Focus mode</button>
+      <button type="button" class="btn ghost" id="btnExit" title="Exit (Esc)">Exit</button>
+    </div>
+
+    <div class="kb-wrap" id="kbWrap" hidden>
+      <div class="kb" id="kb" aria-hidden="true"></div>
+    </div>
+    <p class="shortcut-line muted small"><kbd>Tab</kbd> restart · <kbd>Ctrl</kbd>+<kbd>Enter</kbd> restart passage · <kbd>Esc</kbd> exit</p>
+  </section>
+
+  <!-- ================= RESULTS ================= -->
+  <section id="view-results" class="view" hidden aria-labelledby="resTitle">
+    <div class="res-head">
+      <div>
+        <p class="eyebrow" id="resMode">Result</p>
+        <h2 id="resTitle">Results</h2>
+        <p class="muted" id="resSub"></p>
+      </div>
+      <div class="badges" id="resBadges"></div>
+    </div>
+
+    <div class="res-top">
+      <article class="card res-main">
+        <div class="big-wpm"><span class="k">Net WPM</span><span class="v" id="rNet">0</span><span class="muted small" id="rNetNote"></span></div>
+        <div class="acc-ring" role="img" aria-label="Accuracy" id="rAccRing">
+          <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-bg" cx="60" cy="60" r="52"/><circle class="ring-fg" id="rAccArc" cx="60" cy="60" r="52"/></svg>
+          <div class="ring-text"><strong id="rAcc">0%</strong><span>accuracy</span></div>
+        </div>
+      </article>
+      <div class="res-grid" id="resGrid"></div>
+    </div>
+
+    <div class="res-charts">
+      <article class="card">
+        <h3>Speed over time</h3>
+        <canvas id="chWpm" class="chart" height="220" role="img" aria-label="Net WPM per second"></canvas>
+        <p class="muted small" id="chWpmNote"></p>
+      </article>
+      <article class="card">
+        <h3>Correct vs incorrect</h3>
+        <div class="split-bar" id="splitBar" role="img" aria-label="Correct and incorrect proportion"></div>
+        <p class="muted small" id="splitNote"></p>
+        <h3 class="mt">Compared with earlier attempts</h3>
+        <canvas id="chCmp" class="chart" height="150" role="img" aria-label="WPM of recent attempts"></canvas>
+        <p class="muted small" id="cmpNote"></p>
+      </article>
+    </div>
+
+    <div class="res-errors">
+      <article class="card">
+        <h3>Mistyped characters</h3>
+        <div id="errChars"></div>
+      </article>
+      <article class="card">
+        <h3>Words with mistakes</h3>
+        <div id="errWords"></div>
+      </article>
+    </div>
+
+    <div class="res-actions">
+      <button type="button" class="btn primary" id="rTry">Try again</button>
+      <button type="button" class="btn" id="rNext">Next passage</button>
+      <button type="button" class="btn" id="rMistakes">Practise mistakes</button>
+      <button type="button" class="btn ghost" id="rHome">Return to dashboard</button>
+    </div>
+  </section>
+
+  <!-- ================= PROGRESS ================= -->
+  <section id="view-progress" class="view" hidden aria-labelledby="progTitle">
+    <div class="res-head">
+      <div>
+        <p class="eyebrow">Your history</p>
+        <h2 id="progTitle">Progress</h2>
+        <p class="muted" id="progSub">Everything is stored privately in this browser.</p>
+      </div>
+      <div class="badges">
+        <button type="button" class="btn" id="btnExport">Export data</button>
+        <button type="button" class="btn" id="btnImport">Import data</button>
+        <button type="button" class="btn danger" id="btnReset">Reset progress</button>
+        <input type="file" id="importFile" accept="application/json,.json" hidden>
+      </div>
+    </div>
+
+    <div class="prog-cards" id="progCards"></div>
+
+    <div class="res-charts">
+      <article class="card">
+        <h3>Net WPM per test</h3>
+        <canvas id="chHistWpm" class="chart" height="220" role="img" aria-label="Net WPM history"></canvas>
+        <p class="muted small" id="histWpmNote"></p>
+      </article>
+      <article class="card">
+        <h3>Accuracy per test</h3>
+        <canvas id="chHistAcc" class="chart" height="220" role="img" aria-label="Accuracy history"></canvas>
+        <p class="muted small" id="histAccNote"></p>
+      </article>
+    </div>
+
+    <div class="res-charts">
+      <article class="card">
+        <h3>Practice minutes — last 14 days</h3>
+        <canvas id="chDaily" class="chart" height="180" role="img" aria-label="Practice minutes per day"></canvas>
+        <p class="muted small" id="dailyNote"></p>
+      </article>
+      <article class="card">
+        <h3>Improvement</h3>
+        <div id="improveBox"></div>
+        <h3 class="mt">Document completion</h3>
+        <div class="progress-line big"><div class="bar"><i id="docBar3"></i></div><span id="docPct3">0%</span></div>
+        <div id="sectionsLeft" class="muted small"></div>
+      </article>
+    </div>
+
+    <article class="card">
+      <h3>Test history</h3>
+      <div class="table-wrap"><table class="table" id="histTable">
+        <thead><tr><th>Date</th><th>Mode</th><th>Text</th><th class="num">Net WPM</th><th class="num">Gross</th><th class="num">Accuracy</th><th class="num">Time</th><th class="num">Done</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+      <p class="muted small" id="histEmpty" hidden>No tests yet. Finish a test and it will appear here.</p>
+    </article>
+  </section>
+</main>
+
+<!-- ================= MODALS ================= -->
+<div class="modal" id="modalSettings" hidden role="dialog" aria-modal="true" aria-labelledby="setTitle">
+  <div class="modal-card">
+    <div class="modal-head"><h2 id="setTitle">Settings</h2><button type="button" class="icon-btn" data-close aria-label="Close settings">✕</button></div>
+    <div class="modal-body settings">
+      <fieldset>
+        <legend>Appearance</legend>
+        <label class="set-row">Theme
+          <select id="setTheme"><option value="dark">Dark</option><option value="light">Light</option><option value="system">Match system</option></select>
+        </label>
+        <label class="set-row">Font family
+          <select id="setFont"><option value="mono">Monospace</option><option value="serif">Serif</option><option value="sans">Sans-serif</option></select>
+        </label>
+        <label class="set-row">Font size <output id="setFontSizeOut"></output>
+          <input type="range" id="setFontSize" min="16" max="34" step="1">
+        </label>
+        <label class="set-row">Caret style
+          <select id="setCaret"><option value="line">Line</option><option value="block">Block</option><option value="underline">Underline</option><option value="box">Outline box</option></select>
+        </label>
+        <label class="set-row check"><input type="checkbox" id="setSmooth"> Smooth scrolling</label>
+        <label class="set-row check"><input type="checkbox" id="setKb"> Show on-screen keyboard</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Typing</legend>
+        <label class="set-row">Typing mode
+          <select id="setStrict"><option value="relaxed">Relaxed — mistakes are recorded, you keep moving</option><option value="strict">Strict — fix a mistake before moving on</option></select>
+        </label>
+        <label class="set-row">Default test duration
+          <select id="setDuration"></select>
+        </label>
+        <label class="set-row">Daily practice goal
+          <select id="setGoal"></select>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Sound</legend>
+        <label class="set-row check"><input type="checkbox" id="setSound"> Sound effects on</label>
+        <label class="set-row">Sound profile
+          <span class="inline"><select id="setProfile"></select><button type="button" class="btn small" id="btnPreview">Preview</button></span>
+        </label>
+        <label class="set-row">Typing volume <output id="setTypeVolOut"></output>
+          <input type="range" id="setTypeVol" min="0" max="100" step="1">
+        </label>
+        <label class="set-row">Error volume <output id="setErrVolOut"></output>
+          <input type="range" id="setErrVol" min="0" max="100" step="1">
+        </label>
+        <label class="set-row">Alert volume (finish &amp; countdown) <output id="setAlertVolOut"></output>
+          <input type="range" id="setAlertVol" min="0" max="100" step="1">
+        </label>
+        <label class="set-row check"><input type="checkbox" id="setCountdown"> Countdown ticks in the last 5 seconds of timed tests</label>
+      </fieldset>
+    </div>
+    <div class="modal-foot"><button type="button" class="btn" id="btnDefaults">Restore defaults</button><button type="button" class="btn primary" data-close>Done</button></div>
+  </div>
+</div>
+
+<div class="modal" id="modalHelp" hidden role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+  <div class="modal-card narrow">
+    <div class="modal-head"><h2 id="helpTitle">Shortcuts &amp; help</h2><button type="button" class="icon-btn" data-close aria-label="Close help">✕</button></div>
+    <div class="modal-body">
+      <table class="table keys">
+        <tbody>
+          <tr><td><kbd>Space</kbd></td><td>Start the clock before the first character (when the test has not started)</td></tr>
+          <tr><td><kbd>Tab</kbd></td><td>Restart the test (press twice if a test is under way)</td></tr>
+          <tr><td><kbd>Ctrl</kbd> + <kbd>Enter</kbd></td><td>Restart the current passage</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Exit the test and return to the dashboard</td></tr>
+          <tr><td><kbd>Backspace</kbd></td><td>Delete the previous character (<kbd>Ctrl</kbd> + <kbd>Backspace</kbd> deletes a word)</td></tr>
+          <tr><td><kbd>Enter</kbd></td><td>Types a line break where the text has one (shown as ↵)</td></tr>
+        </tbody>
+      </table>
+      <h3>Good to know</h3>
+      <ul class="help-list">
+        <li><strong>Net WPM</strong> counts only correct characters on screen: correct characters ÷ 5 ÷ minutes. <strong>Gross WPM</strong> counts every keystroke: keystrokes ÷ 5 ÷ minutes.</li>
+        <li><strong>Accuracy</strong> = correct keystrokes ÷ total keystrokes. Mistakes you later fix still count against it.</li>
+        <li>Accented letters (é, è, ç) can be typed as plain <code>e</code>, <code>e</code>, <code>c</code>. The bullet <code>•</code> accepts <code>*</code> or <code>-</code>, and a tab accepts <kbd>Tab</kbd> or <kbd>Space</kbd>.</li>
+        <li>The test pauses if you switch tabs or windows. Unfinished tests are not saved.</li>
+      </ul>
+    </div>
+    <div class="modal-foot"><button type="button" class="btn primary" data-close>Got it</button></div>
+  </div>
+</div>
+
+<div class="modal" id="modalConfirm" hidden role="alertdialog" aria-modal="true" aria-labelledby="confTitle" aria-describedby="confMsg">
+  <div class="modal-card narrow">
+    <div class="modal-head"><h2 id="confTitle">Are you sure?</h2></div>
+    <div class="modal-body"><p id="confMsg"></p></div>
+    <div class="modal-foot"><button type="button" class="btn" id="confCancel">Cancel</button><button type="button" class="btn primary" id="confOk">OK</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<noscript><p style="padding:2rem">Auteur Type needs JavaScript to run.</p></noscript>
+<script type="text/x-study-script">
+// Generated from the uploaded essay. Text is verbatim (only trailing spaces at line ends and the final newline were removed).
+window.SOURCE_TITLE = "Auteur Theory — essay";
+window.PASSAGES = [
+ {
+  "chapter": "1. Introduction",
+  "title": "1. Introduction",
+  "text": "1. Introduction\nFilm is the most collaborative of the arts. A single film brings together writers, cinematographers, actors, editors, designers, composers, producers and studios. Yet in everyday speech we say \"a Hitchcock film\" or \"a Wes Anderson film\", as if one person wrote it. Auteur theory is the critical position that justifies this habit. Sarris (1962) contends that the director is the central creative force of a film and therefore its true author, much as a novelist is the author of a novel.\nAt its core, auteur theory is an act of acknowledging the filmmaker: recognising the director's signature style across a body of work. The auteur is the primary agent who brings the various departments of production together into one cinematic work. Astruc (1948) captured this idea with his image of the caméra-stylo (\"camera-pen\"): just as a writer writes with a pen, the director writes the film with the camera, combining its visual, sound, textual and editing elements.",
+  "id": "p01",
+  "sep": "\n"
+ },
+ {
+  "chapter": "1. Introduction",
+  "title": "1. Introduction (part 2)",
+  "text": "This essay traces auteur theory from its French origins in Cahiers du Cinéma, through François Truffaut and André Bazin, to Andrew Sarris's American version and its three premises. It then outlines the semantic, formalist and structural schools of auteur criticism. Finally, it weighs the major criticisms from Bazin, Pauline Kael and Roland Barthes. I will argue that auteur theory remains valuable as a method of reading films, but fails as a rule for judging their worth, because it overstates both individual authorship and the author's control over meaning.",
+  "id": "p02",
+  "sep": "\n"
+ },
+ {
+  "chapter": "2. Origins: Cahiers du Cinéma and la politique des auteurs",
+  "title": "2. Origins: Cahiers du Cinéma and la politique des auteurs",
+  "text": "2. Origins: Cahiers du Cinéma and la politique des auteurs\nAuteur theory was born in post-war France, in the film journal Cahiers du Cinéma, which André Bazin co-founded in 1951. Sarris (1962) himself acknowledges that the critical writing in Cahiers laid the foundations for auteur theory. The ground had already been prepared by Astruc (1948), who claimed that cinema was becoming a language in which a filmmaker could express ideas as freely as a writer.",
+  "id": "p03",
+  "sep": "\n"
+ },
+ {
+  "chapter": "2. Origins: Cahiers du Cinéma and la politique des auteurs",
+  "title": "2. Origins: Cahiers du Cinéma and la politique des auteurs (part 2)",
+  "text": "The theory is usually said to have been pioneered by François Truffaut, a young critic mentored by Bazin. In his essay \"A Certain Tendency of the French Cinema\", Truffaut (1954) attacked the prestigious French \"Tradition of Quality\": polished films that faithfully adapted literary classics. He dismissed their directors as mere metteurs en scène, technicians who simply staged a screenwriter's script without adding any personal vision. In contrast, he praised true auteurs, such as Jean Renoir and Robert Bresson, whose films carried their own personal stamp. For Truffaut (1954), cinema should be treated as a medium of expression in its own right, not as filmed theatre or illustrated literature (see also StudioBinder, n.d.).",
+  "id": "p04",
+  "sep": "\n"
+ },
+ {
+  "chapter": "2. Origins: Cahiers du Cinéma and la politique des auteurs",
+  "title": "2. Origins: Cahiers du Cinéma and la politique des auteurs (part 3)",
+  "text": "The Cahiers critics called their stance la politique des auteurs, the \"auteur policy\". It was less a theory than a critical commitment to read a director's whole body of work as the expression of one personality. Their boldest move was to find auteurs inside the Hollywood studio system, treating Alfred Hitchcock, Howard Hawks and Nicholas Ray as artists rather than hired hands. The politique soon became practice: Truffaut, Jean-Luc Godard and their colleagues moved from writing criticism to making films and created the French New Wave, breaking classical conventions in films such as The 400 Blows (1959) and Breathless (1960).",
+  "id": "p05",
+  "sep": "\n"
+ },
+ {
+  "chapter": "2. Origins: Cahiers du Cinéma and la politique des auteurs",
+  "title": "2. Origins: Cahiers du Cinéma and la politique des auteurs (part 4)",
+  "text": "Bazin's position is crucial and ambivalent. He was the movement's intellectual father and accepted that directors could be genuine artists. Yet Bazin (1957) warned his younger colleagues that their policy could turn into an \"aesthetic cult of personality\", in which weak films by favourite directors were praised while good films by others were ignored. He maintained that the achievement of classical Hollywood owed as much to the strength of the studio system itself (its genres, studios and traditions) as to any individual talent. In other words, auteur theory carried its first major criticism from the very beginning, voiced by its own founder.",
+  "id": "p06",
+  "sep": "\n"
+ },
+ {
+  "chapter": "3. Andrew Sarris and the American \"auteur theory\"",
+  "title": "3. Andrew Sarris and the American \"auteur theory\"",
+  "text": "3. Andrew Sarris and the American \"auteur theory\"\nThe American critic Andrew Sarris carried the politique into English. In \"Notes on the Auteur Theory in 1962\", Sarris (1962) coined the term \"auteur theory\" for the view that the director is the main creative force of a film. He later put the theory into practice in The American Cinema, where Sarris (1968) ranked Hollywood directors and placed fourteen of them in a top tier he called the \"Pantheon\".\nSarris (1962) was careful to qualify his claims. He insists that auteur theory does not treat directors as superhumans or all-knowing geniuses; they are simply filmmakers. He also accepts that an auteur need not make every film look and feel the same, and may experiment, fail or change style without losing that status. Finally, Sarris (1962) argues that a weak director does not automatically produce a bad film, and that a film can be highly entertaining without depending only on its director's intellect.",
+  "id": "p07",
+  "sep": "\n"
+ },
+ {
+  "chapter": "3. Andrew Sarris and the American \"auteur theory\"",
+  "title": "The three premises and the concentric circles",
+  "text": "The three premises and the concentric circles\nAccording to Sarris (1962), a director should be judged on three premises, or criteria of value, which he pictured as three concentric circles:\n1.\tTechnical competence (outer circle). Can they make a movie? Sarris (1962) holds that a director who lacks basic technical skill and a feel for cinema is automatically excluded from the pantheon. This covers mastery of camera, lighting, editing and directing. At this level the director is only a technician.\n2.\tSignature style, or distinguishable personality (middle circle). Do their films look and feel uniquely theirs? Here Sarris (1962) requires recurring stylistic features, a visual and formal \"fingerprint\" that runs through the director's films in mise-en-scène, rhythm and themes. At this level the director is a stylist.",
+  "id": "p08",
+  "sep": "\n"
+ },
+ {
+  "chapter": "3. Andrew Sarris and the American \"auteur theory\"",
+  "title": "The three premises and the concentric circles (part 2)",
+  "text": "3.\tInterior meaning, the \"auteurist soul\" (inner circle). Is there a deeper vision in the work? For Sarris (1962), interior meaning comes from the tension between the director's personality and the material they are given. It is the deeper emotional, philosophical or psychological tone that comes through on screen. Only at this level is the director a true auteur.\nThe StudioBinder video illustrates these premises clearly (StudioBinder, n.d.). For the first premise, it contrasts Ron Howard, a reliable director who completed Solo: A Star Wars Story (2018), with Phil Lord and Christopher Miller, who were removed because their personal comedic style was too distinctive for Disney: Howard appears as a technician rather than an auteur. For the second, it points to Wes Anderson's symmetrical compositions and vivid colours, Martin Scorsese's gangster and religious stories, and Akira Kurosawa's repeated casting of Toshiro Mifune in sixteen films. For the third, it cites the distinctive sensibilities of Yorgos Lanthimos, Sofia Coppola and Terry Gilliam.",
+  "id": "p09",
+  "sep": "\n"
+ },
+ {
+  "chapter": "3. Andrew Sarris and the American \"auteur theory\"",
+  "title": "Theoretical formations: three schools of auteur criticism",
+  "text": "Theoretical formations: three schools of auteur criticism\nAs auteur criticism matured, it developed in three main directions:\n•\tThe semantic school explores the recurring meanings and motifs in a director's films: the themes and preoccupations that unite a body of work (for example, guilt and voyeurism in Hitchcock).\n•\tThe formalist school explores the signature stylistic features of auteur cinema, revealed primarily through mise-en-scène: framing, composition, camera movement, colour and performance (for example, Anderson's symmetry).\n•\tThe structural approach (auteur-structuralism) distinguishes two levels of structure: the external, apparent characteristics and the hidden, internal ones. The defining features of an author's work are not necessarily the most readily apparent.",
+  "id": "p10",
+  "sep": "\n"
+ },
+ {
+  "chapter": "3. Andrew Sarris and the American \"auteur theory\"",
+  "title": "Theoretical formations: three schools of auteur criticism (part 2)",
+  "text": "Nowell-Smith (1967) and Wollen (1969) developed the structural approach, treating the \"author\" as a pattern of oppositions found in the films rather than as a biographical person. Wollen (1969), for example, traces a recurring opposition between wilderness and civilisation (the \"garden\") through John Ford's westerns. This approach already moves away from the romantic idea of the director as a self-expressing genius, and so prepares the ground for the critiques below.",
+  "id": "p11",
+  "sep": "\n"
+ },
+ {
+  "chapter": "3. Andrew Sarris and the American \"auteur theory\"",
+  "title": "Examples of auteurs",
+  "text": "Examples of auteurs\nCommonly cited auteurs include Alfred Hitchcock, John Ford, Howard Hawks, Orson Welles, Jean Renoir, Ingmar Bergman, Federico Fellini, Akira Kurosawa, Satyajit Ray, Jean-Luc Godard, François Truffaut, Stanley Kubrick, Martin Scorsese, Wong Kar-wai, Hayao Miyazaki, Wes Anderson and Christopher Nolan. (Add any auteurs your instructor discussed in class, especially from your national cinema.)",
+  "id": "p12",
+  "sep": "\n"
+ },
+ {
+  "chapter": "4. Criticisms of auteur theory",
+  "title": "4.1 Bazin: the \"cult of personality\" and the \"genius of the system\"",
+  "text": "4. Criticisms of auteur theory\n4.1 Bazin: the \"cult of personality\" and the \"genius of the system\"\nThe first critique came from inside Cahiers itself. Bazin (1957) feared that the politique would harden into hero-worship, so that a favourite director's weakest film would be praised above a strong film by an unfashionable one. He argued instead that films are shaped by historical and industrial conditions. In his view, classical Hollywood was great not only because of individual talent but because of the strength of the whole system: the studios, genres, stars and craft traditions that allowed even ordinary directors to produce excellent work. Schatz (1988) later developed this argument in his history of the studio era, The Genius of the System.",
+  "id": "p13",
+  "sep": "\n"
+ },
+ {
+  "chapter": "4. Criticisms of auteur theory",
+  "title": "4.2 Pauline Kael: \"Circles and Squares\"",
+  "text": "4.2 Pauline Kael: \"Circles and Squares\"\nThe fiercest attack on Sarris came from Pauline Kael. In \"Circles and Squares\", Kael (1963) ridicules his concentric circles and challenges each premise in turn.\n•\tAgainst technical competence: Kael (1963) contends that competence is a weak and circular test of value. The StudioBinder video adds that competence cannot really be proved and that it ignores deliberate rule-breaking, as in Godard's Breathless or movements such as Surrealism and Dogme 95 (StudioBinder, n.d.). Ironically, the premise seems to work against the auteur idea, because it rewards skill rather than personal expression.",
+  "id": "p14",
+  "sep": "\n"
+ },
+ {
+  "chapter": "4. Criticisms of auteur theory",
+  "title": "4.2 Pauline Kael: \"Circles and Squares\" (part 2)",
+  "text": "•\tAgainst distinguishable personality: Kael (1963) points out that being recognisable is not the same as being good; something can be easy to identify and still be unpleasant. She also notes that artists in every field borrow from themselves, so repetition alone proves nothing. Great directors in fact often break their own patterns, as with Scorsese's The Age of Innocence (1993) and Kurosawa's Ikiru (1952), made without Mifune. The video adds that Michael Haneke remade his own Funny Games shot for shot (1997, 2007) yet rejected the label of \"dark auteur\", which suggests that the auteur identity is often imposed by critics rather than claimed by artists (StudioBinder, n.d.).\n•\tAgainst interior meaning: Kael (1963) questions whether \"interior meaning\" is really different from ordinary meaning, and accuses auteurists of reading hidden depths into trivial genre films.",
+  "id": "p15",
+  "sep": "\n"
+ },
+ {
+  "chapter": "4. Criticisms of auteur theory",
+  "title": "4.2 Pauline Kael: \"Circles and Squares\" (part 3)",
+  "text": "•\tAgainst the neglect of collaboration: Kael (1963) criticises auteurism for giving all the credit and blame to the director, when a film is the work of many people. In a later essay, Kael (1971) argues that the screenwriter Herman J. Mankiewicz deserved much of the credit for Citizen Kane, often seen as the ultimate auteur film.\n•\tOn criticism itself: for Kael (1963), \"criticism is an art, not a science\": a critic who follows fixed rules will miss what is original and important in new films.",
+  "id": "p16",
+  "sep": "\n"
+ },
+ {
+  "chapter": "4. Criticisms of auteur theory",
+  "title": "4.3 Barthes and the \"death of the author\"",
+  "text": "4.3 Barthes and the \"death of the author\"\nA more radical challenge came from structuralist and post-structuralist theory. In \"The Death of the Author\", Barthes (1967) argues that the meaning of a text is not fixed by its writer's intentions. He claims that writing is woven from existing cultural codes, so that in the act of writing the Author disappears and becomes a mere scriptor, someone who produces the text without owning its meaning. For Barthes (1967), meaning is created by the reader, so the rise of the reader requires the \"death\" of the Author. Foucault (1969) adds that the \"author\" is not a natural fact but a function: a label society uses to classify and control texts.",
+  "id": "p17",
+  "sep": "\n"
+ },
+ {
+  "chapter": "4. Criticisms of auteur theory",
+  "title": "4.3 Barthes and the \"death of the author\" (part 2)",
+  "text": "Applied to film, this undermines Sarris's third and \"ultimate\" premise. If meaning escapes its creator, then a director's interior meaning cannot decide what a film means. The StudioBinder video gives the example of audiences reading King Kong as a metaphor for the slave trade, whether or not its makers intended this, and shows filmmakers alarmed when their work is read against their intentions (StudioBinder, n.d.). The video concludes that auteur theory itself has drifted far from Truffaut's original version, which ironically supports Barthes's (1967) point that meaning escapes its author.",
+  "id": "p18",
+  "sep": "\n"
+ },
+ {
+  "chapter": "4. Criticisms of auteur theory",
+  "title": "4.4 Further critiques",
+  "text": "4.4 Further critiques\n•\tIndustrial critiques: modern films are shaped by producers, studios, franchises and marketing. The Solo case shows a studio removing its directors because their personal style threatened the brand (StudioBinder, n.d.).\n•\tOther \"authors\": the video notes that the auteur label has been extended to screenwriters such as Charlie Kaufman, musicians such as Brian Wilson and game designers such as Sam Barlow, showing that authorship is not tied to directing alone (StudioBinder, n.d.).\n•\tCanon and exclusion: auteurism built a canon dominated by white, male, Western directors, a bias later challenged by feminist and postcolonial criticism.",
+  "id": "p19",
+  "sep": "\n"
+ },
+ {
+  "chapter": "5. Evaluation",
+  "title": "5. Evaluation",
+  "text": "5. Evaluation\nDespite these criticisms, auteur theory has had a lasting and largely positive influence. First, it legitimised cinema as an art form and film criticism as a serious discipline: by treating directors as artists, it gave film the cultural status of literature and painting. Second, it rescued popular cinema. Hitchcock and Hawks, once seen as mere entertainers, are now studied as major artists largely because of the Cahiers critics and Sarris (1962, 1968). Third, it offers a practical method of analysis. Reading a film alongside a director's other work reveals patterns of theme (the semantic school), style (the formalist school) and deep structure (the structural approach) that a single viewing might miss.",
+  "id": "p20",
+  "sep": "\n"
+ },
+ {
+  "chapter": "5. Evaluation",
+  "title": "5. Evaluation (part 2)",
+  "text": "Its weaknesses lie in its claims about value and about control over meaning. As Bazin (1957) and Kael (1963) both show, turning a director's signature into a measure of quality invites hero-worship and circular reasoning, and it neglects collaboration and industry. As Barthes (1967) demonstrates, no author, in literature or in film, fully controls how a work will be read. The most convincing position today is therefore a moderate auteurism. It treats the director as one important creative force among many, uses authorship as a critical lens rather than a ranking system, and accepts that meaning is produced jointly by filmmakers, institutions and audiences. Interestingly, Sarris (1962) himself points in this direction when he admits that auteurs are not all-knowing geniuses and may experiment and fail.",
+  "id": "p21",
+  "sep": "\n"
+ },
+ {
+  "chapter": "6. Conclusion",
+  "title": "6. Conclusion",
+  "text": "6. Conclusion\nAuteur theory began with Truffaut's (1954) attack on an impersonal \"Tradition of Quality\" and with the Cahiers critics' politique des auteurs. Sarris (1962) then turned it into an American theory of value built on technical competence, signature style and interior meaning. It changed how the world sees cinema, establishing the director as an artist who, in Astruc's (1948) image, writes with a camera-pen. Yet critics from Bazin (1957), with his warning against an aesthetic cult of personality, through Kael (1963), with her attack on Sarris's circles, to Barthes (1967), with the death of the author, have shown that authorship in film is always shared and that meaning always goes beyond intention. Auteur theory is best understood not as the truth about who makes films, but as one powerful way of reading them. As the StudioBinder video concludes, there may be no single right way to criticise film, and the value of film theory lies in widening our understanding of stories and of the medium (StudioBinder, n.d.).",
+  "id": "p22",
+  "sep": ""
+ }
+];
+
+</script>
+<script type="text/x-study-script">
+/* ==========================================================
+   Auteur Type — application logic (vanilla JS, no dependencies)
+   Sections: helpers · storage · sound · typing engine · results
+             · home · progress · charts · modals · settings · wiring
+   ========================================================== */
+(function () {
+  'use strict';
+
+  /* ---------- helpers ---------- */
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
+  const r1 = (x) => Math.round(x * 10) / 10;
+  const pad2 = (n) => String(n).padStart(2, '0');
+  const PASSAGES = Array.isArray(window.PASSAGES) ? window.PASSAGES : [];
+  const N = PASSAGES.length;
+  const TOTAL_CHARS = PASSAGES.reduce((a, p) => a + p.text.length, 0);
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  function fmtClock(sec) {
+    sec = Math.max(0, Math.round(sec));
+    return Math.floor(sec / 60) + ':' + pad2(sec % 60);
+  }
+  function fmtDuration(sec) {
+    sec = Math.round(sec);
+    if (sec < 60) return sec + 's';
+    const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+    if (h) return h + 'h ' + pad2(m) + 'm';
+    return m + 'm ' + pad2(s) + 's';
+  }
+  function localDay(ts) {
+    const d = new Date(ts === undefined ? Date.now() : ts);
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+  }
+  function fmtDate(ts) {
+    const d = new Date(ts);
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+  }
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+  function glyph(ch) {
+    if (ch === ' ') return '␣';
+    if (ch === '\n') return '↵';
+    if (ch === '\t') return '⇥';
+    return ch;
+  }
+
+  /* ---------- storage ---------- */
+  const KEY_SETTINGS = 'auteurtype:settings:v1';
+  const KEY_DATA = 'auteurtype:data:v1';
+  let storageWarned = false;
+
+  const DEFAULT_SETTINGS = {
+    theme: 'dark', font: 'mono', fontSize: 22, caret: 'line', smooth: true, keyboard: false,
+    strict: false, duration: 60, goal: 15,
+    sound: true, profile: 'mechanical', typeVol: 50, errVol: 40, alertVol: 50, countdown: true
+  };
+  function defaultData() {
+    return { v: 1, tests: [], passages: {}, charErrors: {}, wordErrors: {}, totalChars: 0, totalSeconds: 0, daily: {} };
+  }
+  function readJSON(key) {
+    try {
+      const raw = window.localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+  }
+  function writeJSON(key, val) {
+    try {
+      window.localStorage.setItem(key, JSON.stringify(val));
+      return true;
+    } catch (e) {
+      if (!storageWarned) { storageWarned = true; toast('Could not save — browser storage is blocked or full.'); }
+      return false;
+    }
+  }
+  function sanitizeSettings(raw) {
+    const s = Object.assign({}, DEFAULT_SETTINGS);
+    if (!raw || typeof raw !== 'object') return s;
+    for (const k of Object.keys(DEFAULT_SETTINGS)) {
+      if (typeof raw[k] === typeof DEFAULT_SETTINGS[k]) s[k] = raw[k];
+    }
+    s.theme = ['dark', 'light', 'system'].includes(s.theme) ? s.theme : 'dark';
+    s.font = ['mono', 'serif', 'sans'].includes(s.font) ? s.font : 'mono';
+    s.caret = ['line', 'block', 'underline', 'box'].includes(s.caret) ? s.caret : 'line';
+    s.fontSize = clamp(Math.round(s.fontSize), 16, 34);
+    s.typeVol = clamp(s.typeVol, 0, 100); s.errVol = clamp(s.errVol, 0, 100); s.alertVol = clamp(s.alertVol, 0, 100);
+    if (![15, 30, 60, 120, 300, 600].includes(s.duration)) s.duration = 60;
+    if (!(s.goal >= 1 && s.goal <= 600)) s.goal = 15;
+    if (!['mechanical', 'thock', 'typewriter', 'soft'].includes(s.profile)) s.profile = 'mechanical';
+    return s;
+  }
+  function sanitizeData(raw) {
+    const d = defaultData();
+    if (!raw || typeof raw !== 'object') return d;
+    if (Array.isArray(raw.tests)) d.tests = raw.tests.filter((t) => t && typeof t === 'object' && typeof t.net === 'number').slice(-300);
+    for (const k of ['passages', 'charErrors', 'wordErrors', 'daily']) {
+      if (raw[k] && typeof raw[k] === 'object' && !Array.isArray(raw[k])) d[k] = raw[k];
+    }
+    d.totalChars = Number(raw.totalChars) || 0;
+    d.totalSeconds = Number(raw.totalSeconds) || 0;
+    return d;
+  }
+  let settings = sanitizeSettings(readJSON(KEY_SETTINGS));
+  let data = sanitizeData(readJSON(KEY_DATA));
+  const saveSettings = () => writeJSON(KEY_SETTINGS, settings);
+  const saveData = () => writeJSON(KEY_DATA, data);
+
+  /* ---------- sound (Web Audio, generated — no audio files) ---------- */
+  const Sound = (function () {
+    let ctx = null, out = null, noise = null, lastKey = 0, lastErr = 0, voices = 0;
+    const MAX_VOICES = 10;
+    const vol = (v) => Math.pow(clamp(v, 0, 100) / 100, 1.7);
+
+    function init() {
+      if (ctx) {
+        if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+        return true;
+      }
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return false;
+      try { ctx = new AC(); } catch (e) { ctx = null; return false; }
+      const comp = ctx.createDynamicsCompressor();
+      comp.threshold.value = -20; comp.ratio.value = 6;
+      out = ctx.createGain(); out.gain.value = 0.9;
+      out.connect(comp); comp.connect(ctx.destination);
+      const len = Math.floor(ctx.sampleRate * 0.12);
+      noise = ctx.createBuffer(1, len, ctx.sampleRate);
+      const d = noise.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      return true;
+    }
+    function ready() { return settings.sound && init() && ctx && ctx.state !== 'closed'; }
+
+    function burst(o) {
+      const src = ctx.createBufferSource();
+      src.buffer = noise; src.playbackRate.value = o.rate || 1;
+      const f = ctx.createBiquadFilter();
+      f.type = o.filter || 'bandpass'; f.frequency.value = o.freq || 2000; f.Q.value = o.q || 1;
+      const g = ctx.createGain();
+      const t = ctx.currentTime + (o.when || 0), dur = o.dur || 0.03;
+      g.gain.setValueAtTime(o.gain || 0.3, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      src.connect(f); f.connect(g); g.connect(out);
+      voices++;
+      src.onended = () => { voices--; try { g.disconnect(); f.disconnect(); } catch (e) { /* ignore */ } };
+      src.start(t); src.stop(t + dur + 0.02);
+    }
+    function tone(o) {
+      const osc = ctx.createOscillator(), g = ctx.createGain();
+      const t = ctx.currentTime + (o.when || 0), dur = o.dur || 0.08;
+      osc.type = o.type || 'sine';
+      osc.frequency.setValueAtTime(o.f0 || 440, t);
+      if (o.f1) osc.frequency.exponentialRampToValueAtTime(o.f1, t + dur);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(o.gain || 0.3, t + 0.004);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      osc.connect(g); g.connect(out);
+      voices++;
+      osc.onended = () => { voices--; try { g.disconnect(); } catch (e) { /* ignore */ } };
+      osc.start(t); osc.stop(t + dur + 0.02);
+    }
+
+    function key() {
+      const v = vol(settings.typeVol);
+      if (v < 0.003 || !ready()) return;
+      const now = performance.now();
+      if (now - lastKey < 22 || voices >= MAX_VOICES) return;   // avoid overlapping clutter
+      lastKey = now;
+      const j = 0.92 + Math.random() * 0.16;                    // tiny pitch variation keeps long sessions pleasant
+      switch (settings.profile) {
+        case 'thock':
+          tone({ type: 'sine', f0: 200 * j, f1: 100 * j, dur: 0.07, gain: 0.6 * v });
+          burst({ filter: 'lowpass', freq: 650, dur: 0.03, gain: 0.22 * v, rate: j });
+          break;
+        case 'typewriter':
+          burst({ filter: 'bandpass', freq: 4200 * j, q: 2, dur: 0.02, gain: 0.5 * v });
+          tone({ type: 'triangle', f0: 1300 * j, f1: 900, dur: 0.035, gain: 0.12 * v });
+          burst({ filter: 'lowpass', freq: 500, dur: 0.045, gain: 0.3 * v, rate: j });
+          break;
+        case 'soft':
+          tone({ type: 'sine', f0: 540 * j, f1: 330, dur: 0.04, gain: 0.3 * v });
+          break;
+        default: // mechanical
+          burst({ filter: 'bandpass', freq: 3200 * j, q: 0.8, dur: 0.024, gain: 0.5 * v, rate: j });
+          burst({ filter: 'lowpass', freq: 900, dur: 0.05, gain: 0.26 * v, rate: j });
+      }
+    }
+    function error() {
+      const v = vol(settings.errVol);
+      if (v < 0.003 || !ready()) return;
+      const now = performance.now();
+      if (now - lastErr < 90 || voices >= MAX_VOICES) return;
+      lastErr = now;
+      tone({ type: 'triangle', f0: 210, f1: 140, dur: 0.12, gain: 0.5 * v });
+      burst({ filter: 'lowpass', freq: 420, dur: 0.05, gain: 0.18 * v });
+    }
+    function complete() {
+      const v = vol(settings.alertVol);
+      if (v < 0.003 || !ready()) return;
+      [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone({ type: 'sine', f0: f, dur: i === 3 ? 0.5 : 0.28, gain: 0.32 * v, when: i * 0.1 }));
+    }
+    function tick() {
+      const v = vol(settings.alertVol);
+      if (v < 0.003 || !ready()) return;
+      tone({ type: 'sine', f0: 880, dur: 0.07, gain: 0.3 * v });
+    }
+    function preview() {
+      if (!ready()) return;
+      [0, 110, 220].forEach((ms) => setTimeout(key, ms));
+      setTimeout(error, 420);
+    }
+    return { init, key, error, complete, tick, preview };
+  })();
+
+  /* ---------- character matching ---------- */
+  function foldChar(ch) {
+    if (ch === '’' || ch === '‘') return "'";
+    if (ch === '“' || ch === '”') return '"';
+    if (ch === '–' || ch === '—') return '-';
+    if (ch === ' ') return ' ';
+    return ch.normalize('NFD').replace(/[̀-ͯ]/g, '');
+  }
+  // `expected` is the original character from the essay; `typed` is what the user entered.
+  function matches(expected, typed) {
+    if (expected === typed) return true;
+    if (expected === '\n') return false;
+    if (expected === '•') return typed === '*' || typed === '-';
+    if (expected === '\t') return typed === ' ';
+    const fe = foldChar(expected);
+    if (fe !== expected && fe === typed) return true;            // é / è / ç typed as e / e / c
+    const ft = foldChar(typed);
+    return ft !== typed && ft === expected && /['"-]/.test(expected);   // curly quotes / dashes typed for straight ones
+  }
+
+  /* ---------- on-screen keyboard ---------- */
+  const KB_ROWS = [
+    ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', ['backspace', 'Backspace', 'w2']],
+    [['tab', 'Tab', 'w15'], 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', ['\\', '\\', 'w15']],
+    [['caps', 'Caps', 'w175'], 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'", ['enter', 'Enter', 'w225']],
+    [['shift', 'Shift', 'w225'], 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', ['shift', 'Shift', 'w275']],
+    [['space', 'Space', 'w6']]
+  ];
+  const SHIFT_MAP = { '~': '`', '!': '1', '@': '2', '#': '3', '$': '4', '%': '5', '^': '6', '&': '7', '*': '8', '(': '9', ')': '0', '_': '-', '+': '=', '{': '[', '}': ']', '|': '\\', ':': ';', '"': "'", '<': ',', '>': '.', '?': '/' };
+  const kbKeys = {};   // id -> [elements]
+  function buildKeyboard() {
+    const kb = $('#kb');
+    kb.innerHTML = '';
+    KB_ROWS.forEach((row) => {
+      const rowEl = document.createElement('div');
+      rowEl.className = 'kb-row';
+      row.forEach((k) => {
+        const id = Array.isArray(k) ? k[0] : k;
+        const label = Array.isArray(k) ? k[1] : k;
+        const cls = Array.isArray(k) ? k[2] : '';
+        const el = document.createElement('div');
+        el.className = 'kb-key ' + (cls || '');
+        el.textContent = label.length === 1 ? label.toUpperCase() : label;
+        (kbKeys[id] = kbKeys[id] || []).push(el);
+        rowEl.appendChild(el);
+      });
+      kb.appendChild(rowEl);
+    });
+  }
+  function keyIdFor(ch) {
+    if (ch === ' ') return 'space';
+    if (ch === '\n') return 'enter';
+    if (ch === '\t') return 'tab';
+    if (ch === '•') return '8';
+    const f = foldChar(ch);
+    if (SHIFT_MAP[f]) return SHIFT_MAP[f];
+    return f.toLowerCase();
+  }
+  function needsShift(ch) {
+    const f = foldChar(ch);
+    return !!SHIFT_MAP[f] || (f.length === 1 && f !== f.toLowerCase());
+  }
+  const flashTimers = new Map();
+  function flashKey(id, cls) {
+    (kbKeys[id] || []).forEach((el) => {
+      el.classList.remove('ok', 'bad', 'press');
+      el.classList.add(cls);
+      clearTimeout(flashTimers.get(el));
+      flashTimers.set(el, setTimeout(() => el.classList.remove(cls), 150));
+    });
+  }
+  let nextKeyEls = [];
+  function markNextKey(ch) {
+    nextKeyEls.forEach((el) => el.classList.remove('next'));
+    nextKeyEls = [];
+    if (!ch || !settings.keyboard) return;
+    nextKeyEls = (kbKeys[keyIdFor(ch)] || []).slice();
+    if (needsShift(ch)) nextKeyEls = nextKeyEls.concat(kbKeys.shift || []);
+    nextKeyEls.forEach((el) => el.classList.add('next'));
+  }
+
+  /* ---------- element cache ---------- */
+  const E = {};
+  [
+    'topbar', 'viewport', 'text', 'typing', 'capture', 'startHint', 'pauseOverlay', 'timerBig', 'timerLabel', 'testBar',
+    'testMode', 'testLabel', 'testSub', 'sNet', 'sGross', 'sAcc', 'sCor', 'sInc', 'sKeys', 'sErr', 'sRem', 'sElapsed',
+    'sLeft', 'sLeftLabel', 'sProg', 'kbWrap', 'btnTestNext', 'btnStrictQuick', 'btnKbQuick', 'btnFocus', 'btnFullscreen', 'srLive'
+  ].forEach((id) => { E[id] = document.getElementById(id); });
+
+  /* ---------- toast ---------- */
+  let toastTimer = null;
+  function toast(msg, ms) {
+    const t = $('#toast');
+    t.textContent = msg; t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.hidden = true; }, ms || 2400);
+  }
+
+  /* ==========================================================
+     TYPING ENGINE
+     ========================================================== */
+  let view = 'home';
+  let T = null;            // current test
+  let lastCfg = null;      // config of the most recent test (for "try again")
+  let lastRec = null;      // most recent saved result
+  let lastTabAt = 0;
+
+  /* ----- building test text ----- */
+  function textForRange(from, to) {
+    let text = '';
+    const segs = [];
+    for (let i = from; i <= to; i++) {
+      const start = text.length;
+      text += PASSAGES[i].text;
+      segs.push({ idx: i, start, end: text.length });
+      if (i < to) text += PASSAGES[i].sep;
+    }
+    return { text, segs };
+  }
+  function timedText(startIdx, duration) {
+    const target = clamp(Math.round(duration / 60 * 900), 1500, 9000);
+    let text = '', i = startIdx, guard = 0;
+    const segs = [];
+    while (text.length < target && guard++ < N * 4) {
+      const idx = i % N;
+      const start = text.length;
+      text += PASSAGES[idx].text;
+      segs.push({ idx, start, end: text.length });
+      if (text.length < target) text += idx < N - 1 ? PASSAGES[idx].sep : '\n';
+      i++;
+    }
+    return { text, segs };
+  }
+  function isDone(p) { const r = data.passages[p.id]; return !!(r && r.done); }
+  function firstIncomplete() {
+    for (let i = 0; i < N; i++) if (!isDone(PASSAGES[i])) return i;
+    return -1;
+  }
+  function passageCfg(idx, mode) {
+    const p = PASSAGES[idx];
+    const r = textForRange(idx, idx);
+    return {
+      mode, key: 'p:' + idx, from: idx, to: idx, text: r.text, segs: r.segs, label: p.title,
+      sub: 'Passage ' + (idx + 1) + ' of ' + N + ' · ' + r.text.length + ' characters'
+    };
+  }
+  function timedCfg(duration, startIdx) {
+    const r = timedText(startIdx, duration);
+    return {
+      mode: 'timed', key: 'timed:' + duration, duration, startIdx, text: r.text, segs: r.segs,
+      label: (duration >= 60 ? duration / 60 + ' minute' + (duration > 60 ? 's' : '') : duration + ' seconds') + ' test',
+      sub: 'Starting at: ' + PASSAGES[startIdx].title
+    };
+  }
+  function customCfg(from, to) {
+    const r = textForRange(from, to);
+    return {
+      mode: 'custom', key: 'c:' + from + '-' + to, from, to, text: r.text, segs: r.segs,
+      label: 'Custom range · passages ' + (from + 1) + (to > from ? '–' + (to + 1) : ''),
+      sub: r.text.length + ' characters · starts at “' + PASSAGES[from].title + '”'
+    };
+  }
+
+  /* ----- word / mistake helpers ----- */
+  const WORD_EDGE = /^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu;
+  function stripEdges(w) { return w.replace(WORD_EDGE, ''); }
+  function wordAt(text, i) {
+    if (/\s/.test(text[i])) return '';
+    let s = i, e = i;
+    while (s > 0 && !/\s/.test(text[s - 1])) s--;
+    while (e < text.length - 1 && !/\s/.test(text[e + 1])) e++;
+    return { w: stripEdges(text.slice(s, e + 1)), s };
+  }
+  function wordErrorsFor(text, errPos) {
+    const seen = new Set(), counts = {};
+    errPos.forEach((i) => {
+      const r = wordAt(text, i);
+      if (!r || !r.w || r.w.length < 2 || seen.has(r.s)) return;
+      seen.add(r.s);
+      counts[r.w] = (counts[r.w] || 0) + 1;
+    });
+    return counts;
+  }
+  let vocabCache = null;
+  function vocabulary() {
+    if (vocabCache) return vocabCache;
+    const set = new Set();
+    PASSAGES.forEach((p) => p.text.split(/\s+/).forEach((w) => {
+      const s = stripEdges(w);
+      if (s.length >= 4 && s.length <= 12 && /^[\p{L}'-]+$/u.test(s)) set.add(s);
+    }));
+    vocabCache = Array.from(set);
+    return vocabCache;
+  }
+  // Build a mistake-practice drill from this test's mistakes first, then long-term weak words and characters.
+  function mistakeWordList(extra) {
+    const list = [];
+    const push = (w) => { if (w && !list.includes(w)) list.push(w); };
+    if (extra) Object.entries(extra).sort((a, b) => b[1] - a[1]).forEach(([w]) => push(w));
+    Object.entries(data.wordErrors).sort((a, b) => b[1] - a[1]).forEach(([w]) => push(w));
+    const words = list.slice(0, 10);
+    const topChars = Object.entries(data.charErrors)
+      .filter(([c]) => c.length === 1 && !/\s/.test(c))
+      .sort((a, b) => b[1] - a[1]).slice(0, 3).map(([c]) => c);
+    const vocab = vocabulary();
+    topChars.forEach((c) => {
+      const lc = c.toLowerCase();
+      if (words.some((w) => foldChar(w).toLowerCase().includes(lc))) return;
+      shuffle(vocab.filter((w) => foldChar(w).toLowerCase().includes(lc))).slice(0, 2).forEach((w) => { if (!words.includes(w)) words.push(w); });
+    });
+    return words;
+  }
+  function mistakeCfg(extra) {
+    const words = mistakeWordList(extra);
+    if (!words.length) return null;
+    const rounds = clamp(Math.ceil(36 / words.length), 3, 6);
+    const parts = [];
+    for (let r = 0; r < rounds; r++) parts.push(...shuffle(words));
+    const text = parts.join(' ');
+    return {
+      mode: 'mistakes', key: 'mistakes', text, segs: [], words, label: 'Mistake practice',
+      sub: words.length + ' words from your mistakes × ' + rounds
+    };
+  }
+
+  /* ----- creating / rendering a test ----- */
+  let spans = [];
+  let curWordEl = null;
+  function makeTest(cfg) {
+    return {
+      cfg, text: cfg.text, len: cfg.text.length, states: new Uint8Array(cfg.text.length), pos: 0,
+      cor: 0, inc: 0, total: 0, errKeys: 0, errPos: new Set(), charErr: {},
+      started: false, finished: false, paused: false, startTs: 0, pausedAt: 0, pausedTotal: 0, endTs: 0,
+      iv: null, series: [], lastTickSec: -1, statN: 0, lastLineTop: -1
+    };
+  }
+  function renderText() {
+    const box = E.text;
+    box.innerHTML = '';
+    spans = new Array(T.len);
+    const frag = document.createDocumentFragment();
+    let word = null;
+    for (let i = 0; i < T.len; i++) {
+      const ch = T.text[i];
+      const sp = document.createElement('span');
+      sp.className = 'ch';
+      if (ch === '\n') {
+        sp.className += ' nl'; sp.textContent = '↵';
+        frag.appendChild(sp);
+        frag.appendChild(document.createElement('br'));
+        word = null;
+      } else if (ch === ' ') {
+        sp.textContent = ' ';
+        frag.appendChild(sp);
+        word = null;
+      } else if (ch === '\t') {
+        sp.className += ' tab'; sp.textContent = '⇥';
+        frag.appendChild(sp);
+        word = null;
+      } else {
+        sp.textContent = ch;
+        if (!word) { word = document.createElement('span'); word.className = 'w'; frag.appendChild(word); }
+        word.appendChild(sp);
+      }
+      spans[i] = sp;
+    }
+    box.appendChild(frag);
+    curWordEl = null;
+    E.viewport.scrollTop = 0;
+    placeCaret(-1, 0, true);
+  }
+  function placeCaret(oldPos, newPos, force) {
+    if (oldPos >= 0 && spans[oldPos]) spans[oldPos].classList.remove('cur');
+    const sp = spans[newPos];
+    if (sp) sp.classList.add('cur');
+    // current-word highlight
+    const wEl = sp && sp.parentElement && sp.parentElement.classList.contains('w') ? sp.parentElement : null;
+    if (wEl !== curWordEl) {
+      if (curWordEl) curWordEl.classList.remove('curw');
+      if (wEl) wEl.classList.add('curw');
+      curWordEl = wEl;
+    }
+    markNextKey(T && newPos < T.len ? T.text[newPos] : null);
+    scrollToCaret(force);
+  }
+  function scrollToCaret(force) {
+    const sp = spans[Math.min(T.pos, T.len - 1)];
+    if (!sp) return;
+    const vp = E.viewport;
+    const lh = parseFloat(getComputedStyle(E.text).lineHeight) || 40;
+    const top = sp.offsetTop;
+    if (!force && top === T.lastLineTop) return;
+    T.lastLineTop = top;
+    const target = Math.max(0, top - lh);
+    const offscreen = top - vp.scrollTop > vp.clientHeight - lh * 0.5 || top < vp.scrollTop;   // never let the caret fall out of view
+    vp.scrollTo({ top: target, behavior: settings.smooth && !force && !offscreen ? 'smooth' : 'auto' });
+  }
+
+  function startTest(cfg) {
+    discardTest();
+    lastCfg = cfg;
+    T = makeTest(cfg);
+    // header
+    const modeNames = { timed: 'Timed test', passage: 'Passage', full: 'Full document', custom: 'Custom range', mistakes: 'Mistake practice' };
+    E.testMode.textContent = modeNames[cfg.mode];
+    E.testLabel.textContent = cfg.label;
+    E.testSub.textContent = cfg.sub || '';
+    E.sLeftLabel.textContent = cfg.mode === 'timed' ? 'Time left' : 'Est. time left';
+    E.timerLabel.textContent = cfg.mode === 'timed' ? 'Time left' : 'Elapsed';
+    E.btnTestNext.hidden = !(cfg.mode === 'passage' || cfg.mode === 'full');
+    E.startHint.classList.remove('gone');
+    E.pauseOverlay.hidden = true;
+    show('test');
+    renderText();
+    refreshStats();
+    focusTyping();
+  }
+  function restartTest() {
+    if (!lastCfg) { show('home'); return; }
+    let cfg = lastCfg;
+    if (cfg.mode === 'timed') cfg = timedCfg(cfg.duration, cfg.startIdx);   // same start, fresh text
+    startTest(cfg);
+  }
+  function discardTest() {
+    if (T && T.iv) clearInterval(T.iv);
+    T = null;
+  }
+  function focusTyping() {
+    try { E.capture.focus({ preventScroll: true }); } catch (e) { E.capture.focus(); }
+  }
+
+  /* ----- timing ----- */
+  function elapsedMs() {
+    if (!T || !T.started) return 0;
+    const end = T.finished ? T.endTs : (T.paused ? T.pausedAt : performance.now());
+    return Math.max(0, end - T.startTs - T.pausedTotal);
+  }
+  function startClock() {
+    if (T.started) return;
+    T.started = true;
+    T.startTs = performance.now();
+    E.startHint.classList.add('gone');
+    T.iv = setInterval(tick, 100);
+    Sound.init();
+  }
+  function pauseTest() {
+    if (!T || !T.started || T.finished || T.paused) return;
+    T.paused = true; T.pausedAt = performance.now();
+    E.pauseOverlay.hidden = false;
+  }
+  function resumeTest() {
+    if (!T || !T.paused) return;
+    T.pausedTotal += performance.now() - T.pausedAt;
+    T.paused = false;
+    E.pauseOverlay.hidden = true;
+    focusTyping();
+  }
+  function calc(ms) {
+    const minutes = Math.max(ms, 1000) / 60000;
+    return {
+      net: T.cor / 5 / minutes,
+      gross: T.total / 5 / minutes,
+      acc: T.total ? (T.total - T.errKeys) / T.total * 100 : null
+    };
+  }
+  function tick() {
+    if (!T || !T.started || T.finished || T.paused) return;
+    const ms = elapsedMs();
+    const sec = Math.floor(ms / 1000);
+    while (T.series.length < sec) {
+      const t = T.series.length + 1;
+      const c = calc(t * 1000);
+      T.series.push({ t, net: c.net, gross: c.gross });
+    }
+    if (T.cfg.mode === 'timed') {
+      const left = T.cfg.duration * 1000 - ms;
+      const ls = Math.ceil(left / 1000);
+      if (settings.countdown && ls >= 1 && ls <= 5 && ls !== T.lastTickSec) { T.lastTickSec = ls; Sound.tick(); }
+      if (left <= 0) { finishTest('time'); return; }
+    }
+    paintTimer(ms);
+    if ((T.statN++ & 1) === 0) refreshStats();
+  }
+  function paintTimer(ms) {
+    if (!T) return;
+    if (T.cfg.mode === 'timed') {
+      const left = Math.max(0, T.cfg.duration - ms / 1000);
+      E.timerBig.textContent = fmtClock(Math.ceil(left));
+      E.timerBig.classList.toggle('low', T.started && left <= 5);
+    } else {
+      E.timerBig.textContent = fmtClock(Math.floor(ms / 1000));
+      E.timerBig.classList.remove('low');
+    }
+  }
+  const cache = new WeakMap();
+  function setText(el, v) {
+    if (cache.get(el) !== v) { cache.set(el, v); el.textContent = v; }
+  }
+  function refreshStats() {
+    if (!T) return;
+    const ms = elapsedMs();
+    const c = T.started ? calc(ms) : { net: 0, gross: 0, acc: null };
+    setText(E.sNet, String(Math.round(c.net)));
+    setText(E.sGross, String(Math.round(c.gross)));
+    setText(E.sAcc, c.acc === null ? '—' : Math.round(c.acc) + '%');
+    setText(E.sCor, String(T.cor));
+    setText(E.sInc, String(T.inc));
+    setText(E.sKeys, String(T.total));
+    setText(E.sErr, String(T.errKeys));
+    setText(E.sRem, String(T.len - T.pos));
+    setText(E.sElapsed, fmtClock(Math.floor(ms / 1000)));
+    const isTimed = T.cfg.mode === 'timed';
+    if (isTimed) {
+      setText(E.sLeft, fmtClock(Math.ceil(Math.max(0, T.cfg.duration - ms / 1000))));
+    } else if (T.started && ms >= 3000 && T.cor > 0) {
+      setText(E.sLeft, fmtClock((T.len - T.pos) / (T.cor / (ms / 1000))));
+    } else {
+      setText(E.sLeft, '—');
+    }
+    const prog = isTimed ? clamp(ms / (T.cfg.duration * 1000) * 100, 0, 100) : T.pos / T.len * 100;
+    setText(E.sProg, Math.floor(prog) + '%');
+    E.testBar.style.width = prog + '%';
+    paintTimer(ms);
+  }
+
+  /* ----- input handling ----- */
+  function setState(i, s) {
+    const old = T.states[i];
+    if (old === s) return;
+    if (old === 1) T.cor--; else if (old === 2) T.inc--;
+    if (s === 1) T.cor++; else if (s === 2) T.inc++;
+    T.states[i] = s;
+    const sp = spans[i];
+    sp.classList.toggle('ok', s === 1);
+    sp.classList.toggle('bad', s === 2);
+  }
+  function processChar(typed) {
+    if (!T || T.finished || view !== 'test') return;
+    if (T.paused) { resumeTest(); return; }
+    if (T.pos >= T.len) return;
+    if (!T.started) startClock();
+    const exp = T.text[T.pos];
+    T.total++;
+    if (matches(exp, typed)) {
+      setState(T.pos, 1);
+      const old = T.pos;
+      T.pos++;
+      Sound.key();
+      flashKey(keyIdFor(typed), 'ok');
+      placeCaret(old, T.pos);
+    } else {
+      T.errKeys++;
+      T.errPos.add(T.pos);
+      const k = foldChar(exp);
+      const ce = T.charErr[k] || (T.charErr[k] = { n: 0, typed: {} });
+      ce.n++;
+      ce.typed[typed] = (ce.typed[typed] || 0) + 1;
+      Sound.error();
+      flashKey(keyIdFor(typed), 'bad');
+      if (!settings.strict) {
+        setState(T.pos, 2);
+        const old = T.pos;
+        T.pos++;
+        placeCaret(old, T.pos);
+      } else {
+        const sp = spans[T.pos];
+        sp.classList.remove('shake'); void sp.offsetWidth; sp.classList.add('shake');
+      }
+    }
+    if (T.pos >= T.len) { finishTest('complete'); return; }
+    scheduleStats();
+  }
+  function backspace() {
+    if (!T || T.finished || T.paused || T.pos === 0) return;
+    const old = T.pos;
+    T.pos--;
+    setState(T.pos, 0);
+    placeCaret(old, T.pos);
+    flashKey('backspace', 'press');
+    scheduleStats();
+  }
+  function deleteWord() {
+    if (!T || T.finished || T.paused || T.pos === 0) return;
+    const old = T.pos;
+    while (T.pos > 0 && /\s/.test(T.text[T.pos - 1])) { T.pos--; setState(T.pos, 0); }
+    while (T.pos > 0 && !/\s/.test(T.text[T.pos - 1])) { T.pos--; setState(T.pos, 0); }
+    placeCaret(old, T.pos);
+    flashKey('backspace', 'press');
+    scheduleStats();
+  }
+  let statsQueued = false;
+  function scheduleStats() {
+    if (statsQueued) return;
+    statsQueued = true;
+    requestAnimationFrame(() => { statsQueued = false; refreshStats(); });
+  }
+
+  /* ----- finishing a test ----- */
+  function downsample(series, max) {
+    if (series.length <= max) return series;
+    const step = Math.ceil(series.length / max);
+    const out = series.filter((_, i) => i % step === step - 1);
+    if (out[out.length - 1] !== series[series.length - 1]) out.push(series[series.length - 1]);
+    return out;
+  }
+  function addActivity(seconds, chars) {
+    if (!(seconds > 0)) return;
+    data.totalSeconds += seconds;
+    data.totalChars += Math.max(0, chars | 0);
+    const d = localDay();
+    data.daily[d] = (data.daily[d] || 0) + seconds;
+    // keep the daily log from growing forever (keep ~400 days)
+    const keys = Object.keys(data.daily).sort();
+    while (keys.length > 400) delete data.daily[keys.shift()];
+  }
+  function finishTest(reason) {
+    if (!T || T.finished) return;
+    const cfg = T.cfg;
+    let ms = elapsedMs();
+    if (cfg.mode === 'timed' && reason === 'time') ms = cfg.duration * 1000;
+    T.finished = true;
+    clearInterval(T.iv);
+    T.endTs = T.startTs + T.pausedTotal + ms;
+    if (T.total === 0) {
+      toast('No typing was recorded — try again.');
+      const c = lastCfg; discardTest(); startTest(c);
+      return;
+    }
+    const fin = calc(ms);
+    const lastT = T.series.length ? T.series[T.series.length - 1].t : 0;
+    const secNow = Math.max(1, Math.round(ms / 1000));
+    if (secNow > lastT) T.series.push({ t: secNow, net: fin.net, gross: fin.gross });
+    paintTimer(ms);
+    refreshStats();
+
+    // error analysis
+    const words = wordErrorsFor(T.text, T.errPos);
+    const chars = Object.entries(T.charErr).sort((a, b) => b[1].n - a[1].n).slice(0, 10)
+      .map(([c, v]) => [c, v.n, Object.entries(v.typed).sort((a, b) => b[1] - a[1]).slice(0, 3).map((x) => x[0])]);
+    const wordsTop = Object.entries(words).sort((a, b) => b[1] - a[1]).slice(0, 30);
+    const completion = cfg.mode === 'timed' && reason === 'time' ? 100 : T.pos / T.len * 100;
+
+    const rec = {
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), ts: Date.now(),
+      mode: cfg.mode, key: cfg.key, label: cfg.label, strict: settings.strict,
+      duration: r1(ms / 1000), net: r1(fin.net), gross: r1(fin.gross), acc: r1(fin.acc === null ? 100 : fin.acc),
+      cor: T.cor, inc: T.inc, keys: T.total, errors: T.errKeys, pos: T.pos, len: T.len,
+      completion: r1(completion), series: downsample(T.series, 60).map((s) => [s.t, r1(s.net), r1(s.gross)]),
+      chars, words: wordsTop
+    };
+    const prev = data.tests.filter((t) => t.key === rec.key).slice(-6);
+
+    // persist
+    data.tests.push(rec);
+    if (data.tests.length > 300) data.tests = data.tests.slice(-300);
+    addActivity(ms / 1000, T.pos);
+    Object.entries(T.charErr).forEach(([c, v]) => { data.charErrors[c] = (data.charErrors[c] || 0) + v.n; });
+    Object.entries(words).forEach(([w, n]) => { data.wordErrors[w] = (data.wordErrors[w] || 0) + n; });
+    if (cfg.mode === 'mistakes' && cfg.words) {
+      cfg.words.forEach((w) => {
+        if (!words[w] && data.wordErrors[w]) {            // typed cleanly -> progress on that weak word
+          data.wordErrors[w] -= 1;
+          if (data.wordErrors[w] <= 0) delete data.wordErrors[w];
+        }
+      });
+    }
+    // keep the error maps bounded
+    ['charErrors', 'wordErrors'].forEach((k) => {
+      const entries = Object.entries(data[k]);
+      if (entries.length > 120) data[k] = Object.fromEntries(entries.sort((a, b) => b[1] - a[1]).slice(0, 120));
+    });
+    const justDone = [];
+    if (cfg.mode !== 'mistakes') {
+      const now = rec.ts;
+      cfg.segs.forEach((sg) => {
+        const covered = (cfg.mode === 'timed' || reason === 'complete') && sg.end <= T.pos;
+        if (!covered) return;
+        const id = PASSAGES[sg.idx].id;
+        const pr = data.passages[id] || { done: false, attempts: 0, best: 0, bestAcc: 0 };
+        if (!pr.done) justDone.push(sg.idx);
+        pr.done = true; pr.attempts += 1; pr.last = now;
+        if (cfg.mode !== 'timed' && cfg.segs.length === 1) {
+          pr.best = Math.max(pr.best || 0, rec.net);
+          pr.bestAcc = Math.max(pr.bestAcc || 0, rec.acc);
+        }
+        data.passages[id] = pr;
+      });
+    }
+    saveData();
+    lastRec = rec;
+
+    Sound.complete();
+    E.srLive.textContent = 'Test complete. ' + Math.round(rec.net) + ' words per minute, ' + Math.round(rec.acc) + ' percent accuracy.';
+    discardTestKeepCfg();
+    showResults(rec, prev, justDone, reason);
+  }
+  function discardTestKeepCfg() { if (T && T.iv) clearInterval(T.iv); T = null; }
+
+  /* ----- leaving a test ----- */
+  function testInProgress() { return !!(T && T.started && !T.finished && T.total >= 10); }
+  function abandonTest() {
+    if (T && T.started && !T.finished && T.total > 0) {
+      addActivity(elapsedMs() / 1000, T.cor);
+      saveData();
+    }
+    discardTest();
+  }
+  async function leaveTest(thenFn) {
+    if (view === 'test' && testInProgress()) {
+      const ok = await confirmDialog({
+        title: 'Leave this test?', message: 'Your progress in this unfinished test will not be saved.', ok: 'Leave test'
+      });
+      if (!ok) { focusTyping(); return false; }
+    }
+    if (view === 'test') abandonTest();
+    thenFn();
+    return true;
+  }
+  function nextCfg(cfg) {
+    let idx;
+    if (cfg.mode === 'timed') idx = (cfg.startIdx + 1) % N;
+    else if (cfg.mode === 'mistakes') idx = Math.max(0, firstIncomplete());
+    else idx = cfg.to + 1;
+    if (idx >= N) { idx = 0; toast('End of the essay reached — starting again from the beginning.'); }
+    if (cfg.mode === 'timed') return timedCfg(cfg.duration, idx);
+    return passageCfg(idx, cfg.mode === 'full' ? 'full' : 'passage');
+  }
+
+  /* ==========================================================
+     RESULTS VIEW
+     ========================================================== */
+  const MODE_NAMES = { timed: 'Timed test', passage: 'Passage', full: 'Full document', custom: 'Custom range', mistakes: 'Mistake practice' };
+  function statTile(k, v, extra) {
+    return '<div class="stat"><span class="k">' + k + '</span><span class="v">' + v + '</span>' + (extra ? '<span class="small muted">' + extra + '</span>' : '') + '</div>';
+  }
+  let resultsRedraw = null;
+  function showResults(rec, prev, justDone, reason) {
+    show('results');
+    $('#resMode').textContent = MODE_NAMES[rec.mode] + (rec.strict ? ' · strict' : ' · relaxed');
+    $('#resTitle').textContent = rec.label;
+    const finishedText = rec.mode === 'timed'
+      ? (reason === 'time' ? 'Time’s up' : 'You finished the whole text')
+      : (rec.pos >= rec.len ? 'Passage complete' : 'Stopped early');
+    $('#resSub').textContent = finishedText + ' · ' + fmtDuration(rec.duration) + ' · ' + rec.pos + ' of ' + rec.len + ' characters typed';
+
+    const badges = [];
+    const best = prev.length ? Math.max(...prev.map((t) => t.net)) : 0;
+    if (!prev.length) badges.push('First attempt here');
+    else if (rec.net > best) badges.push('★ New personal best');
+    if (rec.acc === 100) badges.push('Perfect accuracy');
+    justDone.forEach((i) => badges.push('Passage ' + (i + 1) + ' complete'));
+    if (rec.mode === 'full' && rec.pos >= rec.len && lastCfg && lastCfg.to === N - 1) badges.push('Essay finished');
+    $('#resBadges').innerHTML = badges.map((b) => '<span class="badge">' + esc(b) + '</span>').join('');
+
+    $('#rNet').textContent = String(Math.round(rec.net));
+    $('#rNetNote').textContent = 'Gross ' + rec.gross.toFixed(1) + ' · net ' + rec.net.toFixed(1) + ' WPM';
+    $('#rAcc').textContent = Math.round(rec.acc) + '%';
+    $('#rAccArc').style.strokeDashoffset = String(326.7 * (1 - rec.acc / 100));
+
+    $('#resGrid').innerHTML = [
+      statTile('Net WPM', rec.net.toFixed(1), 'correct chars ÷ 5 ÷ min'),
+      statTile('Gross WPM', rec.gross.toFixed(1), 'all keystrokes ÷ 5 ÷ min'),
+      statTile('Accuracy', rec.acc.toFixed(1) + '%', 'correct ÷ total keystrokes'),
+      statTile('Total mistakes', rec.errors, 'wrong keystrokes'),
+      statTile('Correct chars', rec.cor),
+      statTile('Incorrect chars', rec.inc, 'left uncorrected'),
+      statTile('Duration', fmtDuration(rec.duration)),
+      statTile('Completion', Math.round(rec.completion) + '%'),
+      statTile('Keystrokes', rec.keys)
+    ].join('');
+
+    // correct vs incorrect keystrokes
+    const okKeys = rec.keys - rec.errors;
+    const okPct = rec.keys ? okKeys / rec.keys * 100 : 0;
+    $('#splitBar').innerHTML = '<i class="c" style="width:' + okPct + '%"></i><i class="w" style="width:' + (100 - okPct) + '%"></i>';
+    $('#splitNote').textContent = okKeys + ' correct and ' + rec.errors + ' incorrect keystrokes' + (rec.inc ? ' · ' + rec.inc + ' characters still wrong at the end' : '');
+
+    // comparison note
+    const cmpNote = $('#cmpNote'), cmpCanvas = $('#chCmp');
+    if (prev.length) {
+      const last = prev[prev.length - 1];
+      const d = r1(rec.net - last.net);
+      const avg = prev.reduce((a, t) => a + t.net, 0) / prev.length;
+      cmpNote.textContent = (d >= 0 ? '+' : '') + d.toFixed(1) + ' WPM vs your previous attempt · best before: ' + best.toFixed(1) + ' · average of last ' + prev.length + ': ' + avg.toFixed(1);
+      cmpCanvas.hidden = false;
+    } else {
+      cmpNote.textContent = 'This is your first attempt at this text/mode — nothing to compare yet.';
+      cmpCanvas.hidden = true;
+    }
+
+    // error analysis
+    const ec = $('#errChars');
+    if (rec.chars.length) {
+      const max = rec.chars[0][1];
+      ec.innerHTML = '<div class="err-list">' + rec.chars.map((c) =>
+        '<div class="err-row"><span class="glyph">' + esc(glyph(c[0])) + '</span><span class="meter"><i style="width:' + (c[1] / max * 100) + '%"></i></span><span class="cnt">' + c[1] + '×</span>' +
+        (c[2].length ? '<span class="sub">typed instead: ' + c[2].map((x) => esc(glyph(x))).join(' · ') + '</span>' : '') + '</div>').join('') + '</div>';
+    } else {
+      ec.innerHTML = '<p class="empty-note">No mistyped characters — flawless.</p>';
+    }
+    const ew = $('#errWords');
+    if (rec.words.length) {
+      ew.innerHTML = '<div class="word-cloud">' + rec.words.map((w) =>
+        '<span class="w-chip">' + esc(w[0]) + (w[1] > 1 ? '<em>×' + w[1] + '</em>' : '') + '</span>').join('') + '</div>' +
+        '<p class="muted small" style="margin-top:.7rem">' + rec.words.length + ' word' + (rec.words.length === 1 ? '' : 's') + ' with at least one mistake. Use “Practise mistakes” to drill them.</p>';
+    } else {
+      ew.innerHTML = '<p class="empty-note">No words with mistakes in this test.</p>';
+    }
+
+    const wordsObj = {};
+    rec.words.forEach((w) => { wordsObj[w[0]] = w[1]; });
+    const canPractise = mistakeWordList(wordsObj).length > 0;
+    $('#rMistakes').disabled = !canPractise;
+    $('#rMistakes').title = canPractise ? '' : 'Nothing to practise yet — no mistakes recorded.';
+    $('#rNext').textContent = rec.mode === 'timed' ? 'Next passage (timed)' : 'Next passage';
+
+    // charts (canvas must be visible, so draw after show())
+    resultsRedraw = () => {
+      const wc = $('#chWpm');
+      if (rec.series.length >= 3) {
+        wc.hidden = false;
+        $('#chWpmNote').textContent = 'Running average of net and gross WPM, sampled each second.';
+        drawLine(wc, [
+          { name: 'Net', color: cssVar('--accent'), pts: rec.series.map((s) => ({ x: s[0], y: s[1] })), area: true },
+          { name: 'Gross', color: cssVar('--muted'), pts: rec.series.map((s) => ({ x: s[0], y: s[2] })), dashed: true }
+        ], { xFmt: (v) => fmtClock(v), yMin: 0 });
+      } else {
+        wc.hidden = true;
+        $('#chWpmNote').textContent = 'Not enough timed data yet — a chart appears for tests longer than a few seconds.';
+      }
+      if (prev.length) {
+        const list = prev.concat([rec]);
+        drawBars(cmpCanvas, list.map((t) => t.net), list.map((t, i) => (i === list.length - 1 ? 'Now' : '#' + (i + 1))), { highlight: list.length - 1, fmt: (v) => v.toFixed(0) });
+      }
+    };
+    resultsRedraw();
+  }
+
+  /* ==========================================================
+     HOME VIEW
+     ========================================================== */
+  function streakDays() {
+    let n = 0;
+    const d = new Date();
+    const has = (dt) => (data.daily[localDay(dt.getTime())] || 0) >= 60;
+    if (!has(d)) d.setDate(d.getDate() - 1);   // today may not be practised yet
+    while (has(d)) { n++; d.setDate(d.getDate() - 1); }
+    return n;
+  }
+  function docCompletion() {
+    let done = 0, chars = 0;
+    PASSAGES.forEach((p) => {
+      if (isDone(p)) { done++; chars += p.text.length; }
+    });
+    return { done, chars, pct: TOTAL_CHARS ? chars / TOTAL_CHARS * 100 : 0 };
+  }
+  function optionList(withAuto) {
+    let h = '';
+    if (withAuto) h += '<option value="auto">Next unfinished passage</option><option value="random">A random passage</option>';
+    PASSAGES.forEach((p, i) => { h += '<option value="' + i + '">' + '#' + (i + 1) + ' · ' + esc(p.title) + '</option>'; });
+    return h;
+  }
+  let homeBuilt = false;
+  function buildHomeControls() {
+    if (homeBuilt) return;
+    homeBuilt = true;
+    $('#timedStart').innerHTML = optionList(true);
+    $('#passageSelect').innerHTML = optionList(false);
+    $('#customFrom').innerHTML = optionList(false);
+    $('#customTo').innerHTML = optionList(false);
+    $('#customTo').value = String(Math.min(N - 1, 2));
+    const chips = $('#durChips');
+    [[15, '15 s'], [30, '30 s'], [60, '60 s'], [120, '2 min'], [300, '5 min'], [600, '10 min']].forEach(([v, label]) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip'; b.setAttribute('role', 'radio'); b.dataset.v = v; b.textContent = label;
+      b.addEventListener('click', () => { settings.duration = v; saveSettings(); syncDurationChips(); syncSettingsForm(); });
+      chips.appendChild(b);
+    });
+    const goals = $('#goalSelect');
+    goals.innerHTML = [5, 10, 15, 20, 30, 45, 60, 90].map((m) => '<option value="' + m + '">' + m + ' min</option>').join('');
+    goals.addEventListener('change', () => { settings.goal = Number(goals.value); saveSettings(); renderHome(); syncSettingsForm(); });
+  }
+  function syncDurationChips() {
+    $$('#durChips .chip').forEach((c) => c.setAttribute('aria-checked', String(Number(c.dataset.v) === settings.duration)));
+  }
+  function renderHome() {
+    buildHomeControls();
+    syncDurationChips();
+    // hero
+    const tests = data.tests;
+    const best = tests.length ? Math.max(...tests.map((t) => t.net)) : 0;
+    const avgAcc = tests.length ? tests.reduce((a, t) => a + t.acc, 0) / tests.length : 0;
+    $('#heroStats').innerHTML =
+      '<div class="hs"><b>' + tests.length + '</b><span>Tests</span></div>' +
+      '<div class="hs"><b>' + (tests.length ? Math.round(best) : '—') + '</b><span>Best WPM</span></div>' +
+      '<div class="hs"><b>' + (tests.length ? Math.round(avgAcc) + '%' : '—') + '</b><span>Avg accuracy</span></div>';
+
+    // completion
+    const dc = docCompletion();
+    const pct = Math.round(dc.pct);
+    ['docBar', 'docBar2'].forEach((id) => { document.getElementById(id).style.width = dc.pct + '%'; });
+    ['docPct', 'docPct2'].forEach((id) => { document.getElementById(id).textContent = pct + '%'; });
+    $('#docCount').textContent = dc.done + ' of ' + N + ' passages completed · ' + dc.chars.toLocaleString() + ' of ' + TOTAL_CHARS.toLocaleString() + ' characters';
+    const left = PASSAGES.map((p, i) => ({ p, i })).filter((x) => !isDone(x.p));
+    $('#docRemaining').textContent = left.length ? (left.length + ' remaining — next: ' + '#' + (left[0].i + 1) + ' · ' + left[0].p.title) : 'Every passage is complete. Brilliant!';
+
+    // full-document card
+    const fi = firstIncomplete();
+    const startedAny = dc.done > 0;
+    $('#startFullContinue').textContent = fi === -1 ? 'Start again' : (startedAny ? 'Continue at passage ' + (fi + 1) : 'Start the essay');
+    $('#fullDesc').textContent = fi === -1 ? 'You have completed every passage. Run through it again whenever you like.' : 'Work through the essay in order, one passage at a time. Your place is remembered.';
+    $('#startFullBegin').hidden = !startedAny && fi !== -1;
+
+    // timed-start & passage default suggestions
+    if (!$('#passageSelect').dataset.touched) $('#passageSelect').value = String(Math.max(0, fi));
+
+    // mistake card
+    const wl = Object.entries(data.wordErrors).sort((a, b) => b[1] - a[1]);
+    const hasM = mistakeWordList().length > 0;
+    $('#mistakeCloud').innerHTML = wl.slice(0, 14).map(([w, n]) => '<span class="w-chip">' + esc(w) + '<em>×' + n + '</em></span>').join('');
+    $('#mistakeDesc').textContent = hasM ? 'Drills built from the words and characters you mistype most. Clean runs gradually clear a word from the list.' : 'Nothing to practise yet. Mistakes from your tests will collect here automatically.';
+    $('#startMistakes').disabled = !hasM;
+
+    // goal
+    const secToday = data.daily[localDay()] || 0;
+    const goalSec = settings.goal * 60;
+    const gp = clamp(secToday / goalSec, 0, 1);
+    $('#goalArc').style.strokeDashoffset = String(326.7 * (1 - gp));
+    const mins = secToday / 60;
+    $('#goalNow').textContent = mins < 10 ? mins.toFixed(1) : String(Math.round(mins));
+    $('#goalOf').textContent = 'of ' + settings.goal + ' min';
+    $('#goalRing').setAttribute('aria-label', 'Daily goal: ' + mins.toFixed(1) + ' of ' + settings.goal + ' minutes');
+    $('#goalSelect').value = String(settings.goal);
+    $('#goalMsg').textContent = gp >= 1 ? 'Daily goal reached — nicely done.' : (secToday > 0 ? Math.max(1, Math.ceil((goalSec - secToday) / 60)) + ' min to go today.' : 'No practice yet today.');
+    const st = streakDays();
+    $('#streakLine').textContent = st ? '🔥 ' + st + '-day streak (1+ minute per day)' : 'Practise 1+ minute a day to build a streak.';
+
+    // library
+    const lib = $('#library');
+    let html = '', lastChap = null;
+    PASSAGES.forEach((p, i) => {
+      if (p.chapter !== lastChap) {
+        lastChap = p.chapter;
+        const inChap = PASSAGES.filter((q) => q.chapter === p.chapter);
+        const dn = inChap.filter((q) => data.passages[q.id] && data.passages[q.id].done).length;
+        html += '<div class="lib-chapter"><span>' + esc(p.chapter || 'Essay') + '</span><small>' + dn + '/' + inChap.length + ' done</small></div>';
+      }
+      const pr = data.passages[p.id];
+      const words = Math.round(p.text.length / 5);
+      const status = pr && pr.done ? '✓ ' + (pr.best ? Math.round(pr.best) + ' WPM best' : 'Completed') : (pr && pr.attempts ? 'In progress' : 'Not started');
+      html += '<div class="lib-item' + (pr && pr.done ? ' done' : '') + '"><span class="n">' + (i + 1) + '</span>' +
+        '<div class="t"><b title="' + esc(p.title) + '">' + esc(p.title) + '</b><span>' + p.text.length + ' characters · ~' + words + ' words</span></div>' +
+        '<span class="st">' + status + '</span>' +
+        '<button type="button" class="btn small" data-practice="' + i + '">Practise</button></div>';
+    });
+    lib.innerHTML = html;
+  }
+
+  /* ==========================================================
+     PROGRESS VIEW
+     ========================================================== */
+  let progressRedraw = null;
+  function renderProgress() {
+    const tests = data.tests;
+    const n = tests.length;
+    const best = n ? Math.max(...tests.map((t) => t.net)) : 0;
+    const avg = n ? tests.reduce((a, t) => a + t.net, 0) / n : 0;
+    const avgAcc = n ? tests.reduce((a, t) => a + t.acc, 0) / n : 0;
+    const dc = docCompletion();
+    const st = streakDays();
+    $('#progCards').innerHTML = [
+      statTile('Tests completed', n),
+      statTile('Best WPM', n ? best.toFixed(1) : '—'),
+      statTile('Average WPM', n ? avg.toFixed(1) : '—'),
+      statTile('Average accuracy', n ? avgAcc.toFixed(1) + '%' : '—'),
+      statTile('Practice time', fmtDuration(data.totalSeconds)),
+      statTile('Characters typed', data.totalChars.toLocaleString()),
+      statTile('Passages done', dc.done + ' / ' + N),
+      statTile('Day streak', st)
+    ].join('');
+    ['docBar3'].forEach((id) => { document.getElementById(id).style.width = dc.pct + '%'; });
+    $('#docPct3').textContent = Math.round(dc.pct) + '%';
+    const left = PASSAGES.map((p, i) => ({ p, i })).filter((x) => !isDone(x.p));
+    $('#sectionsLeft').innerHTML = left.length
+      ? '<strong>Still to do (' + left.length + '):</strong> ' + left.slice(0, 8).map((x) => esc('#' + (x.i + 1) + ' · ' + x.p.title)).join(' · ') + (left.length > 8 ? ' · +' + (left.length - 8) + ' more' : '')
+      : 'All passages completed.';
+
+    // improvement box
+    const box = $('#improveBox');
+    if (n >= 2) {
+      const k = Math.min(5, Math.floor(n / 2));
+      const first = tests.slice(0, k), lastK = tests.slice(-k);
+      const mean = (arr, f) => arr.reduce((a, t) => a + f(t), 0) / arr.length;
+      const dW = mean(lastK, (t) => t.net) - mean(first, (t) => t.net);
+      const dA = mean(lastK, (t) => t.acc) - mean(first, (t) => t.acc);
+      const row = (label, a, b, d, unit) => '<div class="line"><span>' + label + '</span><span>' + a.toFixed(1) + ' → ' + b.toFixed(1) + unit + ' <span class="' + (d >= 0 ? 'up' : 'down') + '">(' + (d >= 0 ? '+' : '') + d.toFixed(1) + ')</span></span></div>';
+      box.innerHTML = '<div class="improve"><p class="muted small">Average of your first ' + k + ' tests compared with your latest ' + k + '.</p>' +
+        row('Net WPM', mean(first, (t) => t.net), mean(lastK, (t) => t.net), dW, '') +
+        row('Accuracy', mean(first, (t) => t.acc), mean(lastK, (t) => t.acc), dA, '%') + '</div>';
+    } else {
+      box.innerHTML = '<p class="muted">Complete at least two tests to see how you are improving.</p>';
+    }
+    const topChars = Object.entries(data.charErrors).sort((a, b) => b[1] - a[1]).slice(0, 6);
+    const topWords = Object.entries(data.wordErrors).sort((a, b) => b[1] - a[1]).slice(0, 6);
+    if (topChars.length || topWords.length) {
+      box.innerHTML += '<div class="improve" style="margin-top:.8rem"><div class="line"><span>Most mistyped characters</span><span>' + (topChars.map(([c, v]) => '<code>' + esc(glyph(c)) + '</code>×' + v).join('  ') || '—') + '</span></div>' +
+        '<div class="line"><span>Weak words</span><span>' + (topWords.map(([w, v]) => esc(w) + ' ×' + v).join(', ') || '—') + '</span></div></div>';
+    }
+
+    // history table
+    const body = $('#histTable tbody');
+    body.innerHTML = tests.slice(-50).reverse().map((t) => {
+      const modeLabel = t.mode === 'timed' ? 'Timed' : (MODE_NAMES[t.mode] || t.mode);
+      return '<tr><td>' + esc(fmtDate(t.ts)) + '</td><td>' + esc(modeLabel) + (t.strict ? ' · strict' : '') + '</td><td class="ellip" title="' + esc(t.label) + '">' + esc(t.label) + '</td>' +
+        '<td class="num"><strong>' + t.net.toFixed(1) + '</strong></td><td class="num">' + t.gross.toFixed(1) + '</td><td class="num">' + t.acc.toFixed(1) + '%</td>' +
+        '<td class="num">' + esc(fmtDuration(t.duration)) + '</td><td class="num">' + Math.round(t.completion) + '%</td></tr>';
+    }).join('');
+    $('#histEmpty').hidden = n > 0;
+    $('#histTable').hidden = n === 0;
+
+    progressRedraw = () => {
+      const recent = tests.slice(-40);
+      const c1 = $('#chHistWpm'), c2 = $('#chHistAcc'), c3 = $('#chDaily');
+      if (recent.length >= 2) {
+        c1.hidden = false; c2.hidden = false;
+        drawLine(c1, [{ name: 'Net WPM', color: cssVar('--accent'), pts: recent.map((t, i) => ({ x: i + 1, y: t.net })), area: true, dots: true }], { yMin: 0, xFmt: (v) => '#' + v });
+        const minAcc = Math.min(...recent.map((t) => t.acc));
+        drawLine(c2, [{ name: 'Accuracy', color: cssVar('--ok'), pts: recent.map((t, i) => ({ x: i + 1, y: t.acc })), area: true, dots: true }], { yMin: Math.max(0, Math.floor((minAcc - 5) / 5) * 5), yMax: 100, xFmt: (v) => '#' + v });
+        $('#histWpmNote').textContent = 'Latest ' + recent.length + ' tests, oldest to newest.';
+        $('#histAccNote').textContent = 'Accuracy = correct ÷ total keystrokes.';
+      } else {
+        c1.hidden = true; c2.hidden = true;
+        $('#histWpmNote').textContent = 'Charts appear after your second test.';
+        $('#histAccNote').textContent = 'Charts appear after your second test.';
+      }
+      // last 14 days
+      const days = [];
+      for (let i = 13; i >= 0; i--) {
+        const d = new Date(); d.setDate(d.getDate() - i);
+        days.push({ k: localDay(d.getTime()), label: String(d.getDate()) });
+      }
+      const mins = days.map((d) => (data.daily[d.k] || 0) / 60);
+      drawBars(c3, mins, days.map((d) => d.label), { highlight: 13, fmt: (v) => (v >= 10 ? v.toFixed(0) : v.toFixed(1)), hline: settings.goal });
+      $('#dailyNote').textContent = 'Dashed line = your ' + settings.goal + '-minute daily goal. Today is highlighted.';
+    };
+    progressRedraw();
+  }
+
+  /* ==========================================================
+     CHARTS (small hand-rolled canvas renderer)
+     ========================================================== */
+  function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || '#888'; }
+  function prepCanvas(c) {
+    const dpr = window.devicePixelRatio || 1;
+    const w = c.clientWidth || 320, h = c.clientHeight || 200;
+    c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
+    const g = c.getContext('2d');
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, w, h);
+    g.font = '12px ' + getComputedStyle(document.body).fontFamily;
+    return { g, w, h };
+  }
+  function niceScale(min, max, ticks) {
+    if (max <= min) max = min + 1;
+    const step0 = (max - min) / ticks;
+    const mag = Math.pow(10, Math.floor(Math.log10(step0)));
+    const norm = step0 / mag;
+    const step = (norm < 1.5 ? 1 : norm < 3 ? 2 : norm < 7 ? 5 : 10) * mag;
+    return { min: Math.floor(min / step + 1e-9) * step, max: Math.ceil(max / step - 1e-9) * step, step };
+  }
+  function drawLine(canvas, series, opt) {
+    opt = opt || {};
+    const { g, w, h } = prepCanvas(canvas);
+    const L = 40, R = 14, Tp = 12, B = 26;
+    const pw = w - L - R, ph = h - Tp - B;
+    const all = series.flatMap((s) => s.pts);
+    if (!all.length) return;
+    let xMin = Math.min(...all.map((p) => p.x)), xMax = Math.max(...all.map((p) => p.x));
+    if (xMax === xMin) xMax = xMin + 1;
+    let yMinD = opt.yMin !== undefined ? opt.yMin : Math.min(...all.map((p) => p.y));
+    let yMaxD = opt.yMax !== undefined ? opt.yMax : Math.max(...all.map((p) => p.y));
+    const sc = niceScale(yMinD, yMaxD, 4);
+    const yMin = opt.yMin !== undefined ? Math.min(opt.yMin, sc.min) : sc.min;
+    const yMax = opt.yMax !== undefined ? opt.yMax : sc.max;
+    const X = (v) => L + (v - xMin) / (xMax - xMin) * pw;
+    const Y = (v) => Tp + ph - (v - yMin) / (yMax - yMin) * ph;
+    const grid = cssVar('--border'), muted = cssVar('--muted');
+    g.lineWidth = 1; g.strokeStyle = grid; g.fillStyle = muted; g.textAlign = 'right'; g.textBaseline = 'middle';
+    for (let v = yMin; v <= yMax + 1e-9; v += sc.step) {
+      const y = Math.round(Y(v)) + .5;
+      g.beginPath(); g.moveTo(L, y); g.lineTo(w - R, y); g.stroke();
+      g.fillText(String(Math.round(v * 10) / 10), L - 6, y);
+    }
+    g.textAlign = 'center'; g.textBaseline = 'top';
+    const xt = Math.min(6, Math.max(2, Math.floor(pw / 70)));
+    for (let i = 0; i <= xt; i++) {
+      const v = xMin + (xMax - xMin) * i / xt;
+      g.fillText(opt.xFmt ? opt.xFmt(Math.round(v)) : String(Math.round(v)), X(v), h - B + 7);
+    }
+    series.forEach((s) => {
+      if (!s.pts.length) return;
+      g.beginPath();
+      s.pts.forEach((p, i) => { if (i) g.lineTo(X(p.x), Y(p.y)); else g.moveTo(X(p.x), Y(p.y)); });
+      if (s.area) {
+        g.save();
+        g.lineTo(X(s.pts[s.pts.length - 1].x), Y(yMin)); g.lineTo(X(s.pts[0].x), Y(yMin)); g.closePath();
+        g.globalAlpha = 0.14; g.fillStyle = s.color; g.fill(); g.restore();
+        g.beginPath();
+        s.pts.forEach((p, i) => { if (i) g.lineTo(X(p.x), Y(p.y)); else g.moveTo(X(p.x), Y(p.y)); });
+      }
+      g.lineWidth = 2.2; g.strokeStyle = s.color; g.lineJoin = 'round'; g.lineCap = 'round';
+      g.setLineDash(s.dashed ? [5, 4] : []);
+      g.stroke(); g.setLineDash([]);
+      if (s.dots || s.pts.length <= 30) {
+        g.fillStyle = s.color;
+        s.pts.forEach((p) => { g.beginPath(); g.arc(X(p.x), Y(p.y), 3, 0, Math.PI * 2); g.fill(); });
+      }
+    });
+    // legend
+    if (series.length > 1) {
+      g.textAlign = 'left'; g.textBaseline = 'middle';
+      let lx = L + 6;
+      series.forEach((s) => {
+        g.fillStyle = s.color; g.fillRect(lx, Tp + 6, 12, 3);
+        g.fillStyle = muted; g.fillText(s.name, lx + 17, Tp + 7);
+        lx += 24 + g.measureText(s.name).width + 10;
+      });
+    }
+  }
+  function drawBars(canvas, values, labels, opt) {
+    opt = opt || {};
+    const { g, w, h } = prepCanvas(canvas);
+    const L = 34, R = 10, Tp = 18, B = 24;
+    const pw = w - L - R, ph = h - Tp - B;
+    const maxV = Math.max(...values, opt.hline || 0, 1);
+    const sc = niceScale(0, maxV, 3);
+    const Y = (v) => Tp + ph - v / sc.max * ph;
+    const grid = cssVar('--border'), muted = cssVar('--muted'), accent = cssVar('--accent'), text = cssVar('--text');
+    g.lineWidth = 1; g.strokeStyle = grid; g.fillStyle = muted; g.textAlign = 'right'; g.textBaseline = 'middle';
+    for (let v = 0; v <= sc.max + 1e-9; v += sc.step) {
+      const y = Math.round(Y(v)) + .5;
+      g.beginPath(); g.moveTo(L, y); g.lineTo(w - R, y); g.stroke();
+      g.fillText(String(Math.round(v * 10) / 10), L - 6, y);
+    }
+    const slot = pw / values.length, bw = Math.min(36, slot * 0.64);
+    g.textAlign = 'center';
+    values.forEach((v, i) => {
+      const x = L + slot * i + (slot - bw) / 2, y = Y(v);
+      const hi = i === opt.highlight;
+      g.fillStyle = hi ? accent : cssVar('--surface-2');
+      g.strokeStyle = hi ? accent : grid;
+      const bh = Math.max(v > 0 ? 2 : 0, Tp + ph - y);
+      g.beginPath();
+      if (g.roundRect) g.roundRect(x, Tp + ph - bh, bw, bh, 4); else g.rect(x, Tp + ph - bh, bw, bh);
+      g.fill(); if (!hi) g.stroke();
+      g.fillStyle = muted; g.textBaseline = 'top';
+      if (slot >= 22 || i % 2 === 0) g.fillText(labels[i], x + bw / 2, h - B + 7);
+      if (v > 0 && slot >= 30) { g.fillStyle = hi ? text : muted; g.textBaseline = 'bottom'; g.fillText(opt.fmt ? opt.fmt(v) : String(v), x + bw / 2, Tp + ph - bh - 3); }
+    });
+    if (opt.hline) {
+      g.strokeStyle = cssVar('--ok'); g.setLineDash([6, 4]); g.lineWidth = 1.5;
+      const y = Math.round(Y(opt.hline)) + .5;
+      g.beginPath(); g.moveTo(L, y); g.lineTo(w - R, y); g.stroke(); g.setLineDash([]);
+    }
+  }
+  let resizeT = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeT);
+    resizeT = setTimeout(() => {
+      if (view === 'results' && resultsRedraw) resultsRedraw();
+      if (view === 'progress' && progressRedraw) progressRedraw();
+      if (view === 'test' && T) { T.lastLineTop = -1; scrollToCaret(true); }
+    }, 120);
+  });
+
+  /* ==========================================================
+     MODALS
+     ========================================================== */
+  const modalStack = [];
+  let confirmResolve = null;
+  function openModal(id) {
+    const m = document.getElementById(id);
+    if (!m || !m.hidden) return;
+    m._returnFocus = document.activeElement;
+    m.hidden = false;
+    modalStack.push(id);
+    const f = $('button, select, input', m.querySelector('.modal-body')) || $('button', m);
+    if (id === 'modalConfirm') $('#confCancel').focus(); else if (f) f.focus();
+  }
+  function closeModal(id) {
+    const m = document.getElementById(id);
+    if (!m || m.hidden) return;
+    m.hidden = true;
+    const i = modalStack.lastIndexOf(id);
+    if (i >= 0) modalStack.splice(i, 1);
+    if (id === 'modalConfirm' && confirmResolve) { const r = confirmResolve; confirmResolve = null; r(false); }
+    if (view === 'test' && !modalStack.length) focusTyping();
+    else if (m._returnFocus && document.body.contains(m._returnFocus)) m._returnFocus.focus();
+  }
+  function confirmDialog(o) {
+    return new Promise((resolve) => {
+      if (confirmResolve) { confirmResolve(false); confirmResolve = null; }
+      $('#confTitle').textContent = o.title || 'Are you sure?';
+      $('#confMsg').textContent = o.message || '';
+      $('#confOk').textContent = o.ok || 'OK';
+      confirmResolve = resolve;
+      const m = $('#modalConfirm');
+      if (m.hidden) openModal('modalConfirm');
+    });
+  }
+  $('#confOk').addEventListener('click', () => {
+    const r = confirmResolve; confirmResolve = null;
+    closeModal('modalConfirm');
+    if (r) r(true);
+  });
+  $('#confCancel').addEventListener('click', () => closeModal('modalConfirm'));
+  $$('.modal').forEach((m) => {
+    m.addEventListener('mousedown', (e) => { if (e.target === m && m.id !== 'modalConfirm') closeModal(m.id); });
+    $$('[data-close]', m).forEach((b) => b.addEventListener('click', () => closeModal(m.id)));
+  });
+
+  /* ==========================================================
+     SETTINGS
+     ========================================================== */
+  const FONTS = {
+    mono: 'ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Menlo, Consolas, "Liberation Mono", monospace',
+    serif: '"Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif',
+    sans: 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+  };
+  const systemDark = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  function resolvedTheme() {
+    if (settings.theme === 'system') return systemDark && systemDark.matches ? 'dark' : 'light';
+    return settings.theme;
+  }
+  function applySettings() {
+    const root = document.documentElement;
+    root.dataset.theme = resolvedTheme();
+    root.style.setProperty('--fs', settings.fontSize + 'px');
+    root.style.setProperty('--font-type', FONTS[settings.font]);
+    E.text.className = 'text caret-' + settings.caret;
+    E.btnStrictQuick.textContent = 'Strict: ' + (settings.strict ? 'on' : 'off');
+    E.btnStrictQuick.setAttribute('aria-pressed', String(settings.strict));
+    E.btnKbQuick.setAttribute('aria-pressed', String(settings.keyboard));
+    E.kbWrap.hidden = !(settings.keyboard && view === 'test');
+    syncDurationChips();
+    if (T && view === 'test') { T.lastLineTop = -1; markNextKey(T.pos < T.len ? T.text[T.pos] : null); scrollToCaret(true); }
+    else markNextKey(null);
+  }
+  function redrawCharts() {
+    if (view === 'results' && resultsRedraw) resultsRedraw();
+    if (view === 'progress' && progressRedraw) progressRedraw();
+  }
+  function syncSettingsForm() {
+    $('#setTheme').value = settings.theme;
+    $('#setFont').value = settings.font;
+    $('#setFontSize').value = settings.fontSize; $('#setFontSizeOut').textContent = settings.fontSize + ' px';
+    $('#setCaret').value = settings.caret;
+    $('#setSmooth').checked = settings.smooth;
+    $('#setKb').checked = settings.keyboard;
+    $('#setStrict').value = settings.strict ? 'strict' : 'relaxed';
+    $('#setDuration').value = String(settings.duration);
+    $('#setGoal').value = String(settings.goal);
+    $('#setSound').checked = settings.sound;
+    $('#setProfile').value = settings.profile;
+    $('#setTypeVol').value = settings.typeVol; $('#setTypeVolOut').textContent = settings.typeVol + '%';
+    $('#setErrVol').value = settings.errVol; $('#setErrVolOut').textContent = settings.errVol + '%';
+    $('#setAlertVol').value = settings.alertVol; $('#setAlertVolOut').textContent = settings.alertVol + '%';
+    $('#setCountdown').checked = settings.countdown;
+  }
+  function bindSettings() {
+    $('#setDuration').innerHTML = [[15, '15 seconds'], [30, '30 seconds'], [60, '60 seconds'], [120, '2 minutes'], [300, '5 minutes'], [600, '10 minutes']]
+      .map(([v, l]) => '<option value="' + v + '">' + l + '</option>').join('');
+    $('#setGoal').innerHTML = [5, 10, 15, 20, 30, 45, 60, 90].map((m) => '<option value="' + m + '">' + m + ' minutes</option>').join('');
+    $('#setProfile').innerHTML = '<option value="mechanical">Mechanical</option><option value="thock">Thock (deep)</option><option value="typewriter">Typewriter</option><option value="soft">Soft pop</option>';
+    const bind = (id, key, conv, after) => {
+      const el = document.getElementById(id);
+      const ev = el.type === 'range' || el.type === 'checkbox' ? 'input' : 'change';
+      el.addEventListener(ev, () => {
+        settings[key] = conv(el);
+        saveSettings(); applySettings(); syncSettingsForm();
+        if (after) after();
+      });
+    };
+    bind('setTheme', 'theme', (e) => e.value, redrawCharts);
+    bind('setFont', 'font', (e) => e.value);
+    bind('setFontSize', 'fontSize', (e) => Number(e.value));
+    bind('setCaret', 'caret', (e) => e.value);
+    bind('setSmooth', 'smooth', (e) => e.checked);
+    bind('setKb', 'keyboard', (e) => e.checked);
+    bind('setStrict', 'strict', (e) => e.value === 'strict');
+    bind('setDuration', 'duration', (e) => Number(e.value), renderHomeIfVisible);
+    bind('setGoal', 'goal', (e) => Number(e.value), renderHomeIfVisible);
+    bind('setSound', 'sound', (e) => e.checked, () => { if (settings.sound) Sound.init(); });
+    bind('setProfile', 'profile', (e) => e.value, () => Sound.preview());
+    bind('setTypeVol', 'typeVol', (e) => Number(e.value));
+    bind('setErrVol', 'errVol', (e) => Number(e.value));
+    bind('setAlertVol', 'alertVol', (e) => Number(e.value));
+    bind('setCountdown', 'countdown', (e) => e.checked);
+    // preview on slider release so dragging is not noisy
+    ['setTypeVol', 'setErrVol'].forEach((id) => document.getElementById(id).addEventListener('change', () => Sound.preview()));
+    $('#setAlertVol').addEventListener('change', () => { Sound.complete(); });
+    $('#btnPreview').addEventListener('click', () => { Sound.init(); Sound.preview(); });
+    $('#btnDefaults').addEventListener('click', () => {
+      settings = Object.assign({}, DEFAULT_SETTINGS);
+      saveSettings(); applySettings(); syncSettingsForm(); renderHomeIfVisible(); redrawCharts();
+      toast('Settings restored to defaults.');
+    });
+  }
+  function renderHomeIfVisible() { if (view === 'home') renderHome(); }
+  if (systemDark && systemDark.addEventListener) {
+    systemDark.addEventListener('change', () => { if (settings.theme === 'system') { applySettings(); redrawCharts(); } });
+  }
+
+  /* ==========================================================
+     VIEWS & NAVIGATION
+     ========================================================== */
+  function show(v) {
+    view = v;
+    $$('.view').forEach((s) => { s.hidden = s.id !== 'view-' + v; });
+    document.body.dataset.view = v;
+    $$('.nav-btn').forEach((b) => {
+      const on = (b.dataset.nav === 'home' && (v === 'home' || v === 'test' || v === 'results')) || b.dataset.nav === v;
+      b.classList.toggle('active', on);
+      if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    if (v !== 'test') {
+      E.capture.blur();
+      document.body.classList.remove('focus-mode');
+      E.btnFocus.setAttribute('aria-pressed', 'false');
+      E.btnFocus.textContent = 'Focus mode';
+    }
+    E.kbWrap.hidden = !(settings.keyboard && v === 'test');
+    if (v === 'home') renderHome();
+    if (v === 'progress') renderProgress();
+    window.scrollTo(0, 0);
+  }
+  function goHome() { leaveTest(() => show('home')); }
+
+  /* ==========================================================
+     EVENT WIRING
+     ========================================================== */
+  function isInteractive(t) { return !!(t && t.closest && t.closest('button, select, input, a, textarea, label')); }
+
+  // typing input — a single source of truth (beforeinput) so one key press can never fire twice
+  E.capture.addEventListener('beforeinput', (e) => {
+    if (view !== 'test') return;
+    const it = e.inputType;
+    if (it === 'insertCompositionText') return;      // handled on compositionend
+    e.preventDefault();
+    if (it === 'insertText' && e.data) {
+      if (T && !T.started && e.data === ' ' && T.text[0] !== ' ') { startClock(); scheduleStats(); return; }  // Space starts the clock
+      for (const ch of e.data) processChar(ch);
+    } else if (it === 'insertLineBreak' || it === 'insertParagraph') {
+      processChar('\n');
+    } else if (it === 'deleteContentBackward') {
+      backspace();
+    } else if (it === 'deleteWordBackward') {
+      deleteWord();
+    }
+  });
+  E.capture.addEventListener('compositionend', (e) => {
+    if (view === 'test' && e.data) for (const ch of e.data) processChar(ch);
+    E.capture.value = '';
+  });
+  E.capture.addEventListener('focus', () => E.typing.classList.add('focused'));
+  E.capture.addEventListener('blur', () => E.typing.classList.remove('focused'));
+  E.typing.addEventListener('mousedown', (e) => { e.preventDefault(); if (T && T.paused) resumeTest(); focusTyping(); });
+  E.typing.addEventListener('dragstart', (e) => e.preventDefault());
+  E.pauseOverlay.addEventListener('click', resumeTest);
+
+  document.addEventListener('keydown', (e) => {
+    // modals first
+    if (modalStack.length) {
+      const top = modalStack[modalStack.length - 1];
+      if (e.key === 'Escape') { e.preventDefault(); closeModal(top); return; }
+      if (e.key === 'Tab') {                         // keep focus inside the dialog
+        const m = document.getElementById(top);
+        const f = $$('button:not([disabled]), select, input, [href]', m).filter((x) => x.offsetParent !== null);
+        if (!f.length) return;
+        const first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+      return;
+    }
+    if (e.key === 'Escape' && (view === 'results' || view === 'progress')) { e.preventDefault(); show('home'); return; }
+    if (view !== 'test' || !T || e.isComposing) return;
+
+    if (T.paused) { e.preventDefault(); resumeTest(); return; }   // any key resumes
+    if (e.key === 'Escape') { e.preventDefault(); goHome(); return; }
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); restartTest(); return; }
+    if (e.key === 'Tab' && !e.ctrlKey && !e.altKey && !e.metaKey && document.activeElement === E.capture) {
+      e.preventDefault();
+      if (!T.finished && T.text[T.pos] === '\t') { processChar('\t'); return; }     // the essay contains literal tabs
+      if (testInProgress()) {
+        const now = Date.now();
+        if (now - lastTabAt < 2000) { lastTabAt = 0; restartTest(); }
+        else { lastTabAt = now; toast('Press Tab again to restart'); }
+      } else restartTest();
+      return;
+    }
+    if (document.activeElement !== E.capture && !isInteractive(e.target) && !e.ctrlKey && !e.metaKey && !e.altKey) focusTyping();
+    if (e.key === 'Shift') flashKey('shift', 'press');
+  });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) pauseTest(); });
+  window.addEventListener('blur', () => { if (view === 'test') pauseTest(); });
+  window.addEventListener('beforeunload', (e) => {
+    if (testInProgress()) { e.preventDefault(); e.returnValue = ''; }
+  });
+  ['pointerdown', 'keydown', 'touchstart'].forEach((ev) => document.addEventListener(ev, () => { if (settings.sound) Sound.init(); }, { passive: true }));
+
+  // top bar
+  $('#brandBtn').addEventListener('click', goHome);
+  $$('.nav-btn').forEach((b) => b.addEventListener('click', () => {
+    const target = b.dataset.nav;
+    leaveTest(() => show(target));
+  }));
+  $('#btnTheme').addEventListener('click', () => {
+    settings.theme = resolvedTheme() === 'dark' ? 'light' : 'dark';
+    saveSettings(); applySettings(); syncSettingsForm(); redrawCharts();
+    if (view === 'test') focusTyping();
+  });
+  $('#btnSettings').addEventListener('click', () => { syncSettingsForm(); openModal('modalSettings'); });
+  $('#btnHelp').addEventListener('click', () => openModal('modalHelp'));
+  function fsSupported() { return !!(document.fullscreenEnabled && document.documentElement.requestFullscreen); }
+  function toggleFullscreen() {
+    if (!fsSupported()) { toast('Full-screen is not available in this browser.'); return; }
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    else document.documentElement.requestFullscreen().catch(() => toast('Full-screen was blocked by the browser.'));
+  }
+  $('#btnFullscreen').addEventListener('click', () => { toggleFullscreen(); if (view === 'test') focusTyping(); });
+  document.addEventListener('fullscreenchange', () => {
+    $('#btnFullscreen').setAttribute('aria-pressed', String(!!document.fullscreenElement));
+    if (view === 'test' && T) { T.lastLineTop = -1; setTimeout(() => scrollToCaret(true), 60); }
+  });
+  if (!fsSupported()) $('#btnFullscreen').hidden = true;
+
+  // home actions
+  $('#startTimed').addEventListener('click', () => {
+    const v = $('#timedStart').value;
+    const fi = firstIncomplete();
+    const idx = v === 'auto' ? Math.max(0, fi) : v === 'random' ? Math.floor(Math.random() * N) : Number(v);
+    startTest(timedCfg(settings.duration, idx));
+  });
+  $('#passageSelect').addEventListener('change', (e) => { e.target.dataset.touched = '1'; });
+  $('#startPassage').addEventListener('click', () => startTest(passageCfg(Number($('#passageSelect').value), 'passage')));
+  $('#startFullContinue').addEventListener('click', () => { const fi = firstIncomplete(); startTest(passageCfg(fi === -1 ? 0 : fi, 'full')); });
+  $('#startFullBegin').addEventListener('click', () => startTest(passageCfg(0, 'full')));
+  $('#startCustom').addEventListener('click', () => {
+    let a = Number($('#customFrom').value), b = Number($('#customTo').value);
+    if (b < a) { [a, b] = [b, a]; toast('Range reordered so it starts at the earlier passage.'); }
+    startTest(customCfg(a, b));
+  });
+  $('#startMistakes').addEventListener('click', () => {
+    const cfg = mistakeCfg();
+    if (cfg) startTest(cfg); else toast('No mistakes recorded yet.');
+  });
+  $('#library').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-practice]');
+    if (b) startTest(passageCfg(Number(b.dataset.practice), 'passage'));
+  });
+
+  // test actions
+  const afterClick = (fn) => () => { fn(); if (view === 'test') focusTyping(); };
+  $('#btnRestart').addEventListener('click', afterClick(restartTest));
+  $('#btnExit').addEventListener('click', goHome);
+  E.btnTestNext.addEventListener('click', () => {
+    const cfg = lastCfg;
+    leaveTest(() => startTest(nextCfg(cfg)));
+  });
+  E.btnStrictQuick.addEventListener('click', afterClick(() => { settings.strict = !settings.strict; saveSettings(); applySettings(); syncSettingsForm(); }));
+  E.btnKbQuick.addEventListener('click', afterClick(() => { settings.keyboard = !settings.keyboard; saveSettings(); applySettings(); syncSettingsForm(); }));
+  E.btnFocus.addEventListener('click', afterClick(() => {
+    const on = document.body.classList.toggle('focus-mode');
+    E.btnFocus.setAttribute('aria-pressed', String(on));
+    E.btnFocus.textContent = on ? 'Exit focus' : 'Focus mode';
+    if (T) { T.lastLineTop = -1; scrollToCaret(true); }
+  }));
+
+  // results actions
+  $('#rTry').addEventListener('click', restartTest);
+  $('#rNext').addEventListener('click', () => { if (lastCfg) startTest(nextCfg(lastCfg)); });
+  $('#rMistakes').addEventListener('click', () => {
+    const extra = {};
+    if (lastRec) lastRec.words.forEach((w) => { extra[w[0]] = w[1]; });
+    const cfg = mistakeCfg(extra);
+    if (cfg) startTest(cfg); else toast('No mistakes to practise yet.');
+  });
+  $('#rHome').addEventListener('click', () => show('home'));
+
+  // progress actions
+  $('#btnReset').addEventListener('click', async () => {
+    const ok = await confirmDialog({ title: 'Reset all progress?', message: 'This permanently deletes your test history, statistics, passage completion and mistake records from this browser. Your settings are kept. This cannot be undone.', ok: 'Reset progress' });
+    if (!ok) return;
+    data = defaultData();
+    saveData();
+    renderProgress();
+    toast('Progress reset.');
+  });
+  $('#btnExport').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify({ app: 'auteur-type', version: 1, exportedAt: new Date().toISOString(), settings, data }, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'auteur-type-progress-' + localDay() + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+  $('#btnImport').addEventListener('click', () => $('#importFile').click());
+  $('#importFile').addEventListener('change', async (e) => {
+    const f = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!f) return;
+    try {
+      const obj = JSON.parse(await f.text());
+      if (!obj || obj.app !== 'auteur-type' || !obj.data || !Array.isArray(obj.data.tests)) throw new Error('bad file');
+      const ok = await confirmDialog({ title: 'Import progress?', message: 'This replaces your current progress with the contents of "' + f.name + '" (' + obj.data.tests.length + ' tests).', ok: 'Import' });
+      if (!ok) return;
+      data = sanitizeData(obj.data);
+      if (obj.settings) settings = sanitizeSettings(obj.settings);
+      saveData(); saveSettings(); applySettings(); syncSettingsForm(); renderProgress();
+      toast('Progress imported.');
+    } catch (err) {
+      toast('That file is not a valid Auteur Type export.');
+    }
+  });
+
+  /* ---------- init ---------- */
+  buildKeyboard();
+  bindSettings();
+  syncSettingsForm();
+  applySettings();
+  show('home');
+  if (!N) toast('No passages found — check that passages.js is loaded.');
+
+  // tiny hook for automated testing (read-only snapshot; harmless in production)
+  window.__auteur = { get test() { return T; }, get data() { return data; }, get settings() { return settings; } };
+})();
+
+</script>
+</body>
+</html>
