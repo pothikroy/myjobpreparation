@@ -707,6 +707,23 @@ window.STUDY_CATALOG = [
     }
   },
   {
+    "id": "tfp502-study-guide",
+    "bn": "বাংলা স্টাডি গাইড — ইন্টারঅ্যাকটিভ",
+    "en": "Bangla Study Guide (Interactive)",
+    "path": "tfp/tfp-502/New_Media_Bangla_Study_Guide.html",
+    "category": "tfp",
+    "categoryName": "TFP Study Materials",
+    "categoryBn": "টিএফপি স্টাডি ম্যাটেরিয়ালস",
+    "accent": "#5a3e85",
+    "section": "tfp-502",
+    "sectionName": "TFP 502 (New Media and Society)",
+    "subject": "TFP 502 (New Media and Society)",
+    "storage": {
+      "type": "prefix",
+      "prefix": "tfp502."
+    }
+  },
+  {
     "id": "tfp503-exam-prep-alt",
     "bn": "এক্সাম প্রেপ (বিকল্প)",
     "en": "Exam Prep (Alt)",

@@ -13,7 +13,7 @@ function summary(id,data,now=Date.now()) {
   return summarize(mod,{[key]:JSON.stringify(data)},now);
 }
 test('all catalogued modules have unique IDs, existing paths and safe empty summaries',() => {
-  assert.equal(catalog.length,41); assert.equal(new Set(catalog.map(m=>m.id)).size,catalog.length);
+  assert.equal(catalog.length,42); assert.equal(new Set(catalog.map(m=>m.id)).size,catalog.length);
   for (const mod of catalog) {
     assert.ok(fs.existsSync(path.join(root,mod.path)),mod.path);
     const empty = summarize(mod,{}); assert.equal(empty.hasData,false,mod.id); assert.equal(empty.attempted,0);
@@ -77,4 +77,9 @@ test('Senior Officer study counts combined answers, mastery, due reviews, bookma
 test('Petrobangla AM study counts answers, mastery, due questions and cards, bookmarks, notes and read chapters',() => {
   const s=summary('petrobangla-am-study',{questions:{'pb24-q16':{attempts:3,correctCount:2,wrongCount:1,box:4,status:'mastered',nextReview:'2020-01-01',bookmarked:true},'m1-q01':{attempts:1,correctCount:0,wrongCount:1,box:1,status:'learning',nextReview:'2999-01-01',note:'x'}},readChapters:{c01:true,c02:true,c03:false},cards:{'bn-idiom-1':{box:1,due:'2020-01-01',seen:1},'en-core-2':{box:3,due:'2999-01-01',seen:2}},tests:[{correct:5,wrong:2,total:10}]});
   assert.equal(s.attempted,4); assert.equal(s.correct,2); assert.equal(s.mastered,1); assert.equal(s.due,2); assert.equal(s.bookmarks,1); assert.equal(s.notes,1); assert.equal(s.studied,4); assert.equal(s.hasData,true);
+});
+test('TFP 502 Bangla study guide counts readings marked as read',() => {
+  const mod=catalog.find(m=>m.id==='tfp502-study-guide');
+  const s=summarize(mod,{'tfp502.done':JSON.stringify(['bygstad','helmond','zuboff'])});
+  assert.equal(s.studied,3); assert.equal(s.attempted,0); assert.equal(s.hasData,true);
 });

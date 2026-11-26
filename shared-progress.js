@@ -41,6 +41,7 @@
     'prelim-master-tracker': { rows:'questions', statuses:'topics' },
     'written-syllabus-intelligence': { statuses:'topics', practice:true },
     'tfp502-exam-tutor': { read:'mastered' },
+    'tfp502-study-guide': { key:'tfp502.done', statuses:'' },
     'tfp503-exam-prep-alt': { key:'tvx_progress', statuses:'' },
     'mod-ad-study': { rows:'questions', read:'readChapters' },
     'senior-officer-study': { rows:'questions', read:'read' },

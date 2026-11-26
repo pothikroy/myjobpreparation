@@ -14,8 +14,8 @@ owner approval flow and account-specific progress storage.
   hiding is remembered on this device using study_sidebar_collapsed. Mobile
   navigation also closes on backdrop click or Escape. Account/sign out remains
   available in the top bar, alongside an owner-only Approvals shortcut.
-- study-catalog.js is the shared inventory of all 41 study tools: 32 BCS, 4 bank,
-  3 TFP, 2 Other Job Exams. Preserve stable IDs and paths when adding or moving content.
+- study-catalog.js is the shared inventory of all 42 study tools: 32 BCS, 4 bank,
+  4 TFP, 2 Other Job Exams. Preserve stable IDs and paths when adding or moving content.
 - shared-progress.js contains read-only adapters for the different progress
   schemas. Original module data remains the source of truth.
 - progress-store.js handles account-specific browser storage, cloud hydration,
